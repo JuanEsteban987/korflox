@@ -2,1250 +2,184 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlockWorld - Juego estilo Roblox</title>
+    <title>Mini Roblox P2P</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            background: #1a1a2e;
-        }
-
-        #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        #canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            background: #87CEEB;
-        }
-
-        /* Menú principal */
-        #main-menu {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .menu-content {
-            background: #16213e;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            color: white;
-            width: 400px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .menu-content h1 {
-            font-size: 48px;
-            margin-bottom: 30px;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-        }
-
-        .menu-button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: #00ff88;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #16213e;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .menu-button:hover {
-            transform: scale(1.05);
-            background: #00cc6a;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
-        }
-
-        .menu-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .menu-input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #00ff88;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 16px;
-        }
-
-        .menu-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* Chat */
-        #chat-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 300px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
-            color: white;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-        }
-
-        #chat-messages {
-            height: 200px;
-            overflow-y: auto;
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        .chat-message {
-            margin: 5px 0;
-            padding: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            word-wrap: break-word;
-        }
-
-        .chat-message .sender {
-            color: #00ff88;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        .chat-message.system {
-            color: #ffaa00;
-            font-style: italic;
-        }
-
-        #chat-input-container {
-            display: flex;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 0 0 10px 10px;
-        }
-
-        #chat-input {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        #chat-input:focus {
-            outline: 2px solid #00ff88;
-        }
-
-        #send-chat {
-            margin-left: 5px;
-            padding: 8px 15px;
-            background: #00ff88;
-            border: none;
-            border-radius: 5px;
-            color: #16213e;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* Panel de skins y nametags */
-        #customization-panel {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            z-index: 200;
-            width: 250px;
-            backdrop-filter: blur(5px);
-        }
-
-        .color-picker {
-            margin: 10px 0;
-        }
-
-        .color-picker label {
-            display: block;
-            margin-bottom: 5px;
-            color: #00ff88;
-        }
-
-        .color-picker input {
-            width: 100%;
-            height: 40px;
-            border: 2px solid #00ff88;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* Panel de edición de mapas */
-        #map-editor-panel {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            padding: 30px;
-            border-radius: 20px;
-            color: white;
-            z-index: 300;
-            width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            display: none;
-            backdrop-filter: blur(10px);
-        }
-
-        .editor-section {
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .editor-section h3 {
-            color: #00ff88;
-            margin-bottom: 10px;
-        }
-
-        .block-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        .block-option {
-            padding: 15px;
-            background: #333;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .block-option:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px #00ff88;
-        }
-
-        .block-option.selected {
-            border: 3px solid #00ff88;
-            background: #444;
-        }
-
-        /* Panel de P2P */
-        #p2p-panel {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            z-index: 150;
-            width: 300px;
-            backdrop-filter: blur(5px);
-        }
-
-        #peer-id {
-            background: #333;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            margin: 10px 0;
-            word-break: break-all;
-        }
-
-        #connected-peers {
-            margin-top: 10px;
-            max-height: 100px;
-            overflow-y: auto;
-        }
-
-        .peer-item {
-            padding: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 5px 0;
-            border-radius: 3px;
-        }
-
-        /* Botón de menú */
-        #menu-toggle {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            background: #00ff88;
-            border: none;
-            border-radius: 5px;
-            color: #16213e;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 400;
-            transition: all 0.3s;
-        }
-
-        #menu-toggle:hover {
-            transform: translateX(-50%) scale(1.05);
-        }
-
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        /* Indicadores */
-        .indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            z-index: 100;
-        }
-
-        /* Host indicator */
-        #host-indicator {
-            position: fixed;
-            top: 80px;
-            left: 20px;
-            background: #00ff88;
-            color: #16213e;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            display: none;
-            z-index: 150;
-        }
-
-        .status-online {
-            color: #00ff88;
-        }
-
-        .status-offline {
-            color: #ff4444;
-        }
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        #menu, #chat-box, #editor-ui { pointer-events: auto; background: rgba(0,0,0,0.7); color: white; padding: 15px; position: absolute; }
+        
+        #menu { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        #chat-box { bottom: 20px; left: 20px; width: 300px; }
+        #chat-messages { height: 100px; overflow-y: auto; font-size: 14px; }
+        #editor-ui { top: 20px; right: 20px; }
+        
+        button { cursor: pointer; padding: 8px; margin: 5px; }
+        input { padding: 5px; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="canvas"></canvas>
 
-        <!-- Menú principal -->
-        <div id="main-menu">
-            <div class="menu-content">
-                <h1>BLOCKWORLD</h1>
-                <input type="text" id="player-name" class="menu-input" placeholder="Tu nombre" maxlength="20" value="Jugador">
-                <button class="menu-button" onclick="startGame()">JUGAR</button>
-                <button class="menu-button" onclick="openMapEditor()">EDITOR DE MAPAS</button>
-                <button class="menu-button" onclick="openCustomization()">PERSONALIZAR</button>
-                <button class="menu-button" onclick="showP2P()">CONECTAR P2P</button>
-                <button class="menu-button" onclick="howToPlay()">CÓMO JUGAR</button>
-            </div>
+    <div id="ui-layer">
+        <div id="menu">
+            <h1>MINI ROBLOX</h1>
+            <input type="text" id="username" placeholder="Tu nombre...">
+            <input type="color" id="skinColor" value="#ff0000"><br>
+            <button onclick="startGame()">Jugar / Unirse</button>
         </div>
 
-        <!-- Chat -->
-        <div id="chat-container" style="display: none;">
+        <div id="chat-box" style="display:none;">
             <div id="chat-messages"></div>
-            <div id="chat-input-container">
-                <input type="text" id="chat-input" placeholder="Escribe un mensaje..." onkeypress="handleChatKeyPress(event)">
-                <button id="send-chat" onclick="sendChatMessage()">Enviar</button>
-            </div>
+            <input type="text" id="chat-input" placeholder="Presiona Enter para hablar...">
         </div>
 
-        <!-- Personalización -->
-        <div id="customization-panel" style="display: none;">
-            <h3>Personalización</h3>
-            <div class="color-picker">
-                <label>Color de piel:</label>
-                <input type="color" id="skin-color" value="#ff9966" onchange="updateSkin()">
-            </div>
-            <div class="color-picker">
-                <label>Color de ropa:</label>
-                <input type="color" id="clothes-color" value="#00ff88" onchange="updateSkin()">
-            </div>
-            <div class="color-picker">
-                <label>Color de nametag:</label>
-                <input type="color" id="nametag-color" value="#ffffff" onchange="updateNametag()">
-            </div>
-            <input type="text" id="nametag-text" class="menu-input" placeholder="Texto del nametag" maxlength="15" value="Jugador" onchange="updateNametag()">
+        <div id="editor-ui" style="display:none;">
+            <h3>Editor</h3>
+            <button onclick="addBlock()">Añadir Bloque</button>
+            <button onclick="exportMap()">Exportar Mapa (JSON)</button>
+            <button onclick="importMap()">Importar Mapa</button>
         </div>
-
-        <!-- Editor de mapas -->
-        <div id="map-editor-panel">
-            <button class="close-button" onclick="closeMapEditor()">✕</button>
-            <h2>Editor de Mapas</h2>
-            
-            <div class="editor-section">
-                <h3>Herramientas</h3>
-                <div class="block-selector">
-                    <div class="block-option selected" onclick="selectBlock('grass')">🌱 Pasto</div>
-                    <div class="block-option" onclick="selectBlock('dirt')">🟫 Tierra</div>
-                    <div class="block-option" onclick="selectBlock('stone')">🪨 Piedra</div>
-                    <div class="block-option" onclick="selectBlock('wood')">🪵 Madera</div>
-                </div>
-                <button class="menu-button" onclick="saveMap()">Guardar Mapa</button>
-                <button class="menu-button" onclick="loadMap()">Cargar Mapa</button>
-                <button class="menu-button" onclick="exportMap()">Exportar Mapa</button>
-                <input type="file" id="map-file" style="display: none;" onchange="importMap(event)">
-                <button class="menu-button" onclick="document.getElementById('map-file').click()">Importar Mapa</button>
-            </div>
-
-            <div class="editor-section">
-                <h3>Opciones de Host</h3>
-                <button class="menu-button" onclick="becomeHost()" id="become-host-btn">👑 SER HOST</button>
-                <button class="menu-button" onclick="hostLoadMap()" id="host-load-map" style="display: none;">📦 Cargar Mapa como Host</button>
-                <p id="host-status" style="margin-top: 10px; color: #ffaa00;"></p>
-            </div>
-
-            <div class="editor-section">
-                <h3>Instrucciones</h3>
-                <p>Click izquierdo: Colocar bloque</p>
-                <p>Click derecho: Eliminar bloque</p>
-                <p>WASD: Moverse</p>
-                <p>Espacio: Saltar</p>
-                <p>El host puede cargar mapas para todos</p>
-            </div>
-        </div>
-
-        <!-- Panel P2P -->
-        <div id="p2p-panel" style="display: none;">
-            <h3>Conexión P2P</h3>
-            <p>Tu ID: <span id="peer-id">Conectando...</span></p>
-            <p>Estado: <span id="peer-status" class="status-offline">Desconectado</span></p>
-            <input type="text" id="peer-connect" class="menu-input" placeholder="ID del otro jugador">
-            <button class="menu-button" onclick="connectToPeer()" id="connect-btn">Conectar</button>
-            <button class="menu-button" onclick="copyPeerId()">Copiar mi ID</button>
-            
-            <div id="connected-peers">
-                <h4>Jugadores conectados:</h4>
-                <div id="peers-list"></div>
-            </div>
-        </div>
-
-        <!-- Botón de menú -->
-        <button id="menu-toggle" style="display: none;" onclick="toggleMenu()">MENÚ</button>
-
-        <!-- Indicadores -->
-        <div class="indicator" id="position-indicator">X: 0 Y: 0 Z: 0</div>
-        <div id="host-indicator">👑 HOST</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.3.2/peerjs.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+
     <script>
-        // Variables globales
         let scene, camera, renderer, player;
         let blocks = [];
-        let remotePlayers = {};
-        let isMapEditorOpen = false;
-        let selectedBlock = 'grass';
-        let peer;
-        let connections = [];
-        let playerName = 'Jugador';
-        let playerId = Math.random().toString(36).substr(2, 9);
-        let isHost = false;
-        let playerSkin = {
-            skin: '#ff9966',
-            clothes: '#00ff88'
-        };
-        let playerNametag = {
-            text: 'Jugador',
-            color: '#ffffff'
-        };
-        let mapData = [];
+        let peer, conn;
 
-        // Inicialización del juego
-        function init() {
+        // --- INICIALIZACIÓN 3D ---
+        function init3D() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87CEEB);
+            scene.background = new THREE.Color(0x87ceeb); // Cielo azul
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(10, 5, 10);
-            camera.lookAt(0, 0, 0);
-
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-            // Luces
-            const ambientLight = new THREE.AmbientLight(0x404060);
-            scene.add(ambientLight);
+            // Luz
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(5, 10, 7.5).normalize();
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-            directionalLight.position.set(10, 20, 10);
-            scene.add(directionalLight);
+            // Suelo
+            const grid = new THREE.GridHelper(100, 100);
+            scene.add(grid);
 
-            // Suelo básico
-            createGround();
-
-            // Jugador
-            createPlayer();
-
-            animate();
-
-            // Event listeners
-            window.addEventListener('resize', onWindowResize, false);
-            document.addEventListener('keydown', handleKeyDown);
-            document.addEventListener('mousedown', handleMouseDown);
-            document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-            // Inicializar PeerJS
-            initPeer();
-
-            // Actualizar posición
-            setInterval(updatePosition, 100);
+            camera.position.z = 5;
+            camera.position.y = 2;
             
-            addChatMessage('Sistema', '¡Bienvenido a BlockWorld! Usa WASD para moverte.');
+            animate();
         }
 
-        function createGround() {
-            const groundGeometry = new THREE.PlaneGeometry(50, 50);
-            const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x00aa00 });
-            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.y = -0.5;
-            scene.add(ground);
-
-            // Agregar cuadrícula
-            const gridHelper = new THREE.GridHelper(50, 20, 0x00ff88, 0x444444);
-            gridHelper.position.y = -0.49;
-            scene.add(gridHelper);
-        }
-
-        function createPlayer() {
+        // --- LÓGICA DEL JUGADOR ---
+        function createPlayer(name, color) {
             const group = new THREE.Group();
-
-            // Cuerpo
-            const bodyGeometry = new THREE.BoxGeometry(1, 2, 1);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ color: playerSkin.clothes });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 1;
+            
+            // Cuerpo (Skin)
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(1, 1, 1),
+                new THREE.MeshStandardMaterial({ color: color })
+            );
             group.add(body);
 
-            // Cabeza
-            const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-            const headMaterial = new THREE.MeshStandardMaterial({ color: playerSkin.skin });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 2.4;
-            group.add(head);
-
-            // Nametag
-            createNametag(group);
-
+            // Nametag (Simplificado con un canvas o texto)
+            console.log("Jugador creado:", name);
+            
             player = group;
-            player.position.set(0, 1, 0);
             scene.add(player);
         }
 
-        function createNametag(group) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256;
-            canvas.height = 64;
-            const context = canvas.getContext('2d');
-            context.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            context.font = 'Bold 32px Arial';
-            context.fillStyle = playerNametag.color;
-            context.textAlign = 'center';
-            context.fillText(playerNametag.text, canvas.width / 2, canvas.height / 2 + 10);
-
-            const texture = new THREE.CanvasTexture(canvas);
-            const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
-            const sprite = new THREE.Sprite(material);
-            sprite.scale.set(2, 0.5, 1);
-            sprite.position.y = 3.2;
-            group.add(sprite);
+        // --- SISTEMA DE MAPAS ---
+        function addBlock() {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshStandardMaterial({ color: 0x808080 });
+            const block = new THREE.Mesh(geometry, material);
+            block.position.set(Math.round(Math.random()*10 - 5), 0.5, Math.round(Math.random()*10 - 5));
+            scene.add(block);
+            blocks.push({ pos: block.position, color: 0x808080 });
         }
 
-        function createRemotePlayer(id, name, skin, nametag) {
-            const group = new THREE.Group();
+        function exportMap() {
+            const data = JSON.stringify(blocks);
+            const blob = new Blob([data], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "mi_mapa_roblox.json";
+            a.click();
+        }
 
-            // Cuerpo
-            const bodyGeometry = new THREE.BoxGeometry(1, 2, 1);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ color: skin ? skin.clothes : '#00ff88' });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 1;
-            group.add(body);
+        function importMap() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = readerEvent => {
+                    const content = JSON.parse(readerEvent.target.result);
+                    content.forEach(b => {
+                        const mesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshStandardMaterial({color: b.color}));
+                        mesh.position.set(b.pos.x, b.pos.y, b.pos.z);
+                        scene.add(mesh);
+                    });
+                }
+                reader.readAsText(file);
+            }
+            input.click();
+        }
 
-            // Cabeza
-            const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-            const headMaterial = new THREE.MeshStandardMaterial({ color: skin ? skin.skin : '#ff9966' });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 2.4;
-            group.add(head);
+        // --- NETWORKING P2P (PeerJS) ---
+        function initP2P() {
+            peer = new Peer(); // Crea un ID aleatorio
+            peer.on('open', (id) => {
+                console.log('Mi ID de conexión es: ' + id);
+                // Aquí podrías copiar el ID para pasárselo a un amigo
+            });
 
-            // Nametag
-            const canvas = document.createElement('canvas');
-            canvas.width = 256;
-            canvas.height = 64;
-            const context = canvas.getContext('2d');
-            context.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            context.font = 'Bold 32px Arial';
-            context.fillStyle = nametag ? nametag.color : '#ffffff';
-            context.textAlign = 'center';
-            context.fillText(name || 'Jugador', canvas.width / 2, canvas.height / 2 + 10);
+            peer.on('connection', (c) => {
+                conn = c;
+                setupChat();
+            });
+        }
 
-            const texture = new THREE.CanvasTexture(canvas);
-            const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
-            const sprite = new THREE.Sprite(material);
-            sprite.scale.set(2, 0.5, 1);
-            sprite.position.y = 3.2;
-            group.add(sprite);
-
-            group.position.set(0, 1, 0);
-            scene.add(group);
+        // --- UI Y CONTROL ---
+        function startGame() {
+            const name = document.getElementById('username').value || "Invitado";
+            const color = document.getElementById('skinColor').value;
             
-            return group;
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('chat-box').style.display = 'block';
+            document.getElementById('editor-ui').style.display = 'block';
+
+            init3D();
+            createPlayer(name, color);
+            initP2P();
         }
 
         function animate() {
             requestAnimationFrame(animate);
+            if(player) {
+                // Movimiento básico con flechas (demo)
+                // player.position.x += 0.01; 
+            }
             renderer.render(scene, camera);
         }
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // Controles
-        function handleKeyDown(e) {
-            if (!player) return;
-
-            const speed = 0.5;
-            const prevPos = { x: player.position.x, y: player.position.y, z: player.position.z };
-            
-            switch(e.key) {
-                case 'w': case 'W':
-                    player.position.z -= speed; 
-                    break;
-                case 's': case 'S':
-                    player.position.z += speed; 
-                    break;
-                case 'a': case 'A':
-                    player.position.x -= speed; 
-                    break;
-                case 'd': case 'D':
-                    player.position.x += speed; 
-                    break;
-                case ' ': 
-                    if (player.position.y < 1.1) {
-                        player.position.y += 2;
-                        setTimeout(() => player.position.y = 1, 300);
-                    }
-                    break;
+        // Manejo de Chat
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                const msg = e.target.value;
+                const msgDiv = document.createElement('div');
+                msgDiv.innerText = "Yo: " + msg;
+                document.getElementById('chat-messages').appendChild(msgDiv);
+                e.target.value = "";
             }
+        });
 
-            // Actualizar cámara para seguir al jugador
-            camera.position.x = player.position.x;
-            camera.position.z = player.position.z + 15;
-            camera.position.y = player.position.y + 8;
-            camera.lookAt(player.position);
-
-            document.getElementById('position-indicator').textContent = 
-                `X: ${Math.round(player.position.x)} Y: ${Math.round(player.position.y)} Z: ${Math.round(player.position.z)}`;
-        }
-
-        function handleMouseDown(e) {
-            if (!isMapEditorOpen) return;
-
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2();
-            
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-
-            if (e.button === 0) { // Click izquierdo - colocar
-                const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-                const target = new THREE.Vector3();
-                raycaster.ray.intersectPlane(plane, target);
-                
-                const blockPos = {
-                    x: Math.floor(target.x) + 0.5,
-                    y: Math.floor(target.y) + 0.5,
-                    z: Math.floor(target.z) + 0.5
-                };
-                
-                addBlock(blockPos.x, blockPos.y, blockPos.z, selectedBlock);
-                
-                // Sincronizar con otros jugadores si soy host
-                if (isHost) {
-                    broadcastToPeers({
-                        type: 'block_add',
-                        block: {
-                            x: blockPos.x,
-                            y: blockPos.y,
-                            z: blockPos.z,
-                            type: selectedBlock
-                        }
-                    });
-                }
-            } else if (e.button === 2) { // Click derecho - eliminar
-                // Implementar eliminación de bloques
-            }
-        }
-
-        // Funciones de bloques
-        function addBlock(x, y, z, type) {
-            const colors = {
-                grass: 0x00ff00,
-                dirt: 0x8B4513,
-                stone: 0x808080,
-                wood: 0x8B5A2B
-            };
-
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshStandardMaterial({ color: colors[type] });
-            const block = new THREE.Mesh(geometry, material);
-            block.position.set(x, y, z);
-            block.userData = { type, x, y, z };
-            
-            scene.add(block);
-            blocks.push(block);
-        }
-
-        function clearBlocks() {
-            blocks.forEach(block => scene.remove(block));
-            blocks = [];
-        }
-
-        // Funciones de menú
-        function startGame() {
-            playerName = document.getElementById('player-name').value || 'Jugador';
-            playerNametag.text = playerName;
-            
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
-            document.getElementById('customization-panel').style.display = 'block';
-            document.getElementById('p2p-panel').style.display = 'block';
-            document.getElementById('menu-toggle').style.display = 'block';
-            
-            init();
-        }
-
-        function toggleMenu() {
-            const menu = document.getElementById('main-menu');
-            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        function openMapEditor() {
-            isMapEditorOpen = true;
-            document.getElementById('map-editor-panel').style.display = 'block';
-            document.getElementById('main-menu').style.display = 'none';
-            updateHostButton();
-        }
-
-        function closeMapEditor() {
-            isMapEditorOpen = false;
-            document.getElementById('map-editor-panel').style.display = 'none';
-            document.getElementById('main-menu').style.display = 'flex';
-        }
-
-        function selectBlock(type) {
-            selectedBlock = type;
-            document.querySelectorAll('.block-option').forEach(el => {
-                el.classList.remove('selected');
-            });
-            event.target.classList.add('selected');
-        }
-
-        // Personalización
-        function updateSkin() {
-            playerSkin.skin = document.getElementById('skin-color').value;
-            playerSkin.clothes = document.getElementById('clothes-color').value;
-            
-            if (player) {
-                player.children[0].material.color.set(playerSkin.clothes);
-                player.children[1].material.color.set(playerSkin.skin);
-                
-                // Enviar actualización a otros jugadores
-                broadcastToPeers({
-                    type: 'player_update',
-                    skin: playerSkin,
-                    nametag: playerNametag
-                });
-            }
-        }
-
-        function updateNametag() {
-            playerNametag.text = document.getElementById('nametag-text').value || 'Jugador';
-            playerNametag.color = document.getElementById('nametag-color').value;
-            
-            if (player) {
-                // Remover nametag anterior
-                const oldSprite = player.children.find(child => child.isSprite);
-                if (oldSprite) player.remove(oldSprite);
-                
-                createNametag(player);
-                
-                // Enviar actualización a otros jugadores
-                broadcastToPeers({
-                    type: 'player_update',
-                    skin: playerSkin,
-                    nametag: playerNametag
-                });
-            }
-        }
-
-        // Chat
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (message) {
-                addChatMessage(playerName, message);
-                input.value = '';
-                
-                // Enviar por P2P
-                broadcastToPeers({
-                    type: 'chat',
-                    sender: playerName,
-                    message: message
-                });
-            }
-        }
-
-        function handleChatKeyPress(e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        }
-
-        function addChatMessage(sender, message) {
-            const container = document.getElementById('chat-messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-message';
-            if (sender === 'Sistema') {
-                msgDiv.classList.add('system');
-            }
-            msgDiv.innerHTML = `<span class="sender">${sender}:</span> ${message}`;
-            container.appendChild(msgDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // Funciones de mapa
-        function saveMap() {
-            const mapData = blocks.map(b => ({
-                type: b.userData.type,
-                x: b.position.x,
-                y: b.position.y,
-                z: b.position.z
-            }));
-            
-            localStorage.setItem('savedMap', JSON.stringify(mapData));
-            addChatMessage('Sistema', 'Mapa guardado localmente');
-        }
-
-        function loadMap() {
-            const savedMap = localStorage.getItem('savedMap');
-            if (savedMap) {
-                try {
-                    const mapData = JSON.parse(savedMap);
-                    clearBlocks();
-                    mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
-                    addChatMessage('Sistema', 'Mapa cargado localmente');
-                } catch (e) {
-                    addChatMessage('Sistema', 'Error al cargar el mapa');
-                }
-            }
-        }
-
-        function exportMap() {
-            const mapData = blocks.map(b => ({
-                type: b.userData.type,
-                x: b.position.x,
-                y: b.position.y,
-                z: b.position.z
-            }));
-            
-            const dataStr = JSON.stringify(mapData);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = 'mapa.json';
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            addChatMessage('Sistema', 'Mapa exportado');
-        }
-
-        function importMap(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const mapData = JSON.parse(e.target.result);
-                    clearBlocks();
-                    mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
-                    addChatMessage('Sistema', 'Mapa importado');
-                } catch (error) {
-                    addChatMessage('Sistema', 'Error al importar el mapa');
-                }
-            };
-            
-            reader.readAsText(file);
-        }
-
-        // Funciones de Host
-        function becomeHost() {
-            isHost = true;
-            document.getElementById('host-indicator').style.display = 'block';
-            document.getElementById('become-host-btn').style.display = 'none';
-            document.getElementById('host-load-map').style.display = 'block';
-            document.getElementById('host-status').innerHTML = 'Eres el host. Puedes cargar mapas para todos.';
-            
-            addChatMessage('Sistema', 'Ahora eres el HOST');
-            
-            // Notificar a todos que soy el host
-            broadcastToPeers({
-                type: 'host_change',
-                hostId: playerId
-            });
-        }
-
-        function hostLoadMap() {
-            if (!isHost) {
-                addChatMessage('Sistema', 'Solo el host puede cargar mapas');
-                return;
-            }
-            
-            // Cargar mapa desde archivo
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        const mapData = JSON.parse(e.target.result);
-                        
-                        // Limpiar y cargar mapa localmente
-                        clearBlocks();
-                        mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
-                        
-                        // Enviar mapa a todos los jugadores conectados
-                        broadcastToPeers({
-                            type: 'host_map',
-                            mapData: mapData
-                        });
-                        
-                        addChatMessage('Sistema', 'Mapa cargado y compartido con todos los jugadores');
-                    } catch (error) {
-                        addChatMessage('Sistema', 'Error al cargar el mapa');
-                    }
-                };
-                
-                reader.readAsText(file);
-            };
-            
-            input.click();
-        }
-
-        function updateHostButton() {
-            const btn = document.getElementById('become-host-btn');
-            const loadBtn = document.getElementById('host-load-map');
-            if (isHost) {
-                btn.style.display = 'none';
-                loadBtn.style.display = 'block';
-            }
-        }
-
-        // Funciones P2P mejoradas
-        function initPeer() {
-            try {
-                peer = new Peer(playerId, {
-                    host: '0.peerjs.com',
-                    port: 443,
-                    path: '/',
-                    secure: true,
-                    config: {
-                        iceServers: [
-                            { urls: 'stun:stun.l.google.com:19302' },
-                            { urls: 'stun:stun1.l.google.com:19302' }
-                        ]
-                    }
-                });
-                
-                peer.on('open', (id) => {
-                    document.getElementById('peer-id').textContent = id;
-                    document.getElementById('peer-status').className = 'status-online';
-                    document.getElementById('peer-status').textContent = 'Conectado al servidor P2P';
-                    addChatMessage('Sistema', 'P2P conectado. Tu ID: ' + id);
-                });
-                
-                peer.on('connection', (conn) => {
-                    setupConnection(conn);
-                });
-                
-                peer.on('error', (err) => {
-                    console.error('Peer error:', err);
-                    document.getElementById('peer-status').className = 'status-offline';
-                    document.getElementById('peer-status').textContent = 'Error: ' + err.type;
-                });
-                
-                peer.on('disconnected', () => {
-                    document.getElementById('peer-status').className = 'status-offline';
-                    document.getElementById('peer-status').textContent = 'Desconectado';
-                });
-                
-            } catch (error) {
-                console.error('Error initializing peer:', error);
-                addChatMessage('Sistema', 'Error al conectar P2P');
-            }
-        }
-
-        function setupConnection(conn) {
-            connections.push(conn);
-            
-            conn.on('open', () => {
-                addChatMessage('Sistema', `¡Conectado a ${conn.peer}!`);
-                
-                // Enviar información del jugador
-                conn.send({
-                    type: 'player_info',
-                    id: playerId,
-                    name: playerName,
-                    skin: playerSkin,
-                    nametag: playerNametag,
-                    isHost: isHost
-                });
-                
-                // Enviar mapa actual si soy host
-                if (isHost && blocks.length > 0) {
-                    const mapData = blocks.map(b => ({
-                        type: b.userData.type,
-                        x: b.position.x,
-                        y: b.position.y,
-                        z: b.position.z
-                    }));
-                    
-                    conn.send({
-                        type: 'host_map',
-                        mapData: mapData
-                    });
-                }
-                
-                updatePeersList();
-                
-                conn.on('data', (data) => {
-                    handlePeerData(data, conn.peer);
-                });
-                
-                conn.on('close', () => {
-                    connections = connections.filter(c => c !== conn);
-                    if (remotePlayers[conn.peer]) {
-                        scene.remove(remotePlayers[conn.peer]);
-                        delete remotePlayers[conn.peer];
-                    }
-                    updatePeersList();
-                    addChatMessage('Sistema', `Jugador ${conn.peer} desconectado`);
-                });
-            });
-        }
-
-        function connectToPeer() {
-            const peerId = document.getElementById('peer-connect').value.trim();
-            if (!peerId) {
-                addChatMessage('Sistema', 'Por favor ingresa un ID');
-                return;
-            }
-            
-            document.getElementById('connect-btn').disabled = true;
-            
-            const conn = peer.connect(peerId, {
-                reliable: true,
-                serialization: 'json'
-            });
-            
-            conn.on('open', () => {
-                setupConnection(conn);
-                document.getElementById('connect-btn').disabled = false;
-            });
-            
-            conn.on('error', (err) => {
-                addChatMessage('Sistema', `Error al conectar: ${err}`);
-                document.getElementById('connect-btn').disabled = false;
-            });
-        }
-
-        function copyPeerId() {
-            const peerId = document.getElementById('peer-id').textContent;
-            navigator.clipboard.writeText(peerId).then(() => {
-                addChatMessage('Sistema', 'ID copiado al portapapeles');
-            });
-        }
-
-        function handlePeerData(data, peerId) {
-            switch(data.type) {
-                case 'chat':
-                    addChatMessage(data.sender, data.message);
-                    break;
-                    
-                case 'position':
-                    updateRemotePlayerPosition(peerId, data.position);
-                    break;
-                    
-                case 'player_info':
-                    if (!remotePlayers[peerId]) {
-                        remotePlayers[peerId] = createRemotePlayer(
-                            peerId, 
-                            data.name, 
-                            data.skin, 
-                            data.nametag
-                        );
-                    }
-                    break;
-                    
-                case 'player_update':
-                    if (remotePlayers[peerId]) {
-                        scene.remove(remotePlayers[peerId]);
-                        remotePlayers[peerId] = createRemotePlayer(
-                            peerId,
-                            'Jugador',
-                            data.skin,
-                            data.nametag
-                        );
-                    }
-                    break;
-                    
-                case 'host_change':
-                    if (data.hostId === playerId) {
-                        isHost = true;
-                        document.getElementById('host-indicator').style.display = 'block';
-                    }
-                    break;
-                    
-                case 'host_map':
-                    // Cargar mapa enviado por el host
-                    clearBlocks();
-                    data.mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
-                    addChatMessage('Sistema', 'Mapa actualizado por el HOST');
-                    break;
-                    
-                case 'block_add':
-                    addBlock(data.block.x, data.block.y, data.block.z, data.block.type);
-                    break;
-            }
-        }
-
-        function broadcastToPeers(data) {
-            connections.forEach(conn => {
-                if (conn.open) {
-                    conn.send(data);
-                }
-            });
-        }
-
-        function updatePosition() {
-            if (player && peer && peer.open && connections.length > 0) {
-                broadcastToPeers({
-                    type: 'position',
-                    position: {
-                        x: player.position.x,
-                        y: player.position.y,
-                        z: player.position.z
-                    }
-                });
-            }
-        }
-
-        function updateRemotePlayerPosition(peerId, position) {
-            if (remotePlayers[peerId]) {
-                remotePlayers[peerId].position.set(position.x, position.y, position.z);
-            }
-        }
-
-        function updatePeersList() {
-            const listDiv = document.getElementById('peers-list');
-            listDiv.innerHTML = '';
-            
-            connections.forEach(conn => {
-                const peerDiv = document.createElement('div');
-                peerDiv.className = 'peer-item';
-                peerDiv.textContent = `📱 ${conn.peer}`;
-                listDiv.appendChild(peerDiv);
-            });
-            
-            if (connections.length === 0) {
-                listDiv.innerHTML = '<div class="peer-item">No hay jugadores conectados</div>';
-            }
-        }
-
-        // Utilidades
-        function openCustomization() {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('customization-panel').style.display = 'block';
-        }
-
-        function showP2P() {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('p2p-panel').style.display = 'block';
-        }
-
-        function howToPlay() {
-            alert(
-                '🎮 CÓMO JUGAR BLOCKWORLD 🎮\n\n' +
-                'MOVIMIENTO:\n' +
-                '- WASD: Moverte\n' +
-                '- Espacio: Saltar\n\n' +
-                'EDITOR DE MAPAS:\n' +
-                '- Click izquierdo: Colocar bloque\n' +
-                '- Click derecho: Eliminar bloque\n' +
-                '- Guardar/Cargar mapas\n\n' +
-                'MULTIJUGADOR:\n' +
-                '- Comparte tu ID para conectar\n' +
-                '- El HOST puede cargar mapas para todos\n' +
-                '- Chat integrado\n\n' +
-                'PERSONALIZACIÓN:\n' +
-                '- Cambia colores de piel y ropa\n' +
-                '- Personaliza tu nametag'
-            );
-        }
     </script>
 </body>
 </html>
