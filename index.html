@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox 2008 - P2P & Fixed Physics</title>
+    <title>Roblox 2008 - Avatar & Nametags</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: "Arial Black", sans-serif; background: #000; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
@@ -17,7 +17,7 @@
         #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 220px; }
         #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; }
         #room-info { position: absolute; top: 50px; left: 10px; font-size: 12px; background: white; padding: 5px; border: 2px solid black; pointer-events: auto; }
-        input { pointer-events: auto; padding: 5px; margin: 5px; border: 2px inset #eee; }
+        input { pointer-events: auto; padding: 8px; margin: 5px; border: 2px inset #eee; width: 80%; }
     </style>
 </head>
 <body>
@@ -33,14 +33,16 @@
 
         <div id="main-menu" class="panel">
             <h1>ROBLOX</h1>
+            <input type="text" id="username-input" placeholder="Tu nombre aquí..." maxlength="15">
+            <br>
             <button class="btn-editor" onclick="startEditor()">BUILD MODE</button>
             <button onclick="document.getElementById('file-input').click()">LOAD MAP (.JSON)</button>
             <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
             
             <div style="margin: 10px; padding: 10px; border: 1px solid #999;">
-                <p style="font-size: 12px; margin: 0;">JOIN A SERVER:</p>
-                <input type="text" id="peer-input" placeholder="Paste ID here...">
-                <button style="width: auto;" onclick="connectToPeer()">JOIN GAME</button>
+                <p style="font-size: 11px; margin: 0;">JOIN SERVER:</p>
+                <input type="text" id="peer-input" placeholder="Paste ID...">
+                <button style="width: auto;" onclick="connectToPeer()">JOIN</button>
             </div>
 
             <button id="play-btn" class="btn-play" disabled onclick="startPlay()">PLAY SOLO</button>
@@ -48,7 +50,7 @@
 
         <div id="editor-ui" class="panel">
             <h2 style="margin:0">EDITOR</h2>
-            <p style="font-size: 11px;"><b>Click Izquierdo:</b> Poner<br><b>Click Derecho:</b> Quitar</p>
+            <p style="font-size: 11px;"><b>LMB:</b> Place | <b>RMB:</b> Delete</p>
             <button class="btn-play" onclick="exportMap()">SAVE MAP</button>
             <button onclick="location.reload()">EXIT</button>
         </div>
@@ -58,15 +60,14 @@
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
     <script>
-        let scene, camera, renderer, player, raycaster, mouse;
+        let scene, camera, renderer, player, raycaster, mouse, nametagSprite;
         let blocks = []; 
         let mapData = []; 
         let peer, conn;
         let keys = {};
         let isEditor = false, isPlaying = false;
         let yaw = 0, pitch = 0;
-        let vy = 0; 
-        let onGround = false;
+        let vy = 0, onGround = false;
 
         function init() {
             scene = new THREE.Scene();
@@ -95,11 +96,65 @@
             if(!peer) {
                 peer = new Peer();
                 peer.on('open', id => document.getElementById('my-id').innerText = id);
-                peer.on('connection', c => {
-                    conn = c;
-                    alert("Un jugador se ha unido a tu servidor.");
-                });
             }
+        }
+
+        // --- CREACIÓN DEL AVATAR ESTILO ROBLOX ---
+        function createRobloxCharacter(name) {
+            const group = new THREE.Group();
+
+            // Materiales
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffff00 }); // Amarillo
+            const torsoMat = new THREE.MeshStandardMaterial({ color: 0x0055ff }); // Azul
+            const limbMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 }); // Verde (pantalones/brazos)
+
+            // Cabeza (1x1x1)
+            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skinMat);
+            head.position.y = 4.1;
+            group.add(head);
+
+            // Torso (2x2x1)
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 1), torsoMat);
+            torso.position.y = 2.5;
+            group.add(torso);
+
+            // Brazos (1x2x1)
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skinMat);
+            armL.position.set(-1.5, 2.5, 0);
+            group.add(armL);
+
+            const armR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skinMat);
+            armR.position.set(1.5, 2.5, 0);
+            group.add(armR);
+
+            // Piernas (1x2x1)
+            const legL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), limbMat);
+            legL.position.set(-0.5, 0.5, 0);
+            group.add(legL);
+
+            const legR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), limbMat);
+            legR.position.set(0.5, 0.5, 0);
+            group.add(legR);
+
+            // NAMETAG (Canvas Texture)
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256; canvas.height = 64;
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(0, 0, 256, 64);
+            ctx.font = 'bold 40px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(name || "Player", 128, 45);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMat = new THREE.SpriteMaterial({ map: texture });
+            nametagSprite = new THREE.Sprite(spriteMat);
+            nametagSprite.position.y = 5.5;
+            nametagSprite.scale.set(4, 1, 1);
+            group.add(nametagSprite);
+
+            return group;
         }
 
         // --- MODO EDITOR ---
@@ -120,7 +175,6 @@
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
-            
             const hits = raycaster.intersectObjects(scene.children);
             if(hits.length > 0) {
                 const target = hits[0].object;
@@ -141,20 +195,9 @@
             }
         }
 
-        // --- P2P CONNECTION ---
-        function connectToPeer() {
-            const remoteId = document.getElementById('peer-input').value;
-            if(!remoteId) return alert("Introduce un ID válido.");
-            conn = peer.connect(remoteId);
-            conn.on('open', () => {
-                alert("Conectado al servidor: " + remoteId);
-                startPlay();
-            });
-        }
-
-        // --- MODO JUEGO ---
         function startPlay() {
             isPlaying = true; isEditor = false;
+            const name = document.getElementById('username-input').value;
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('crosshair').style.display = 'block';
             init();
@@ -167,17 +210,12 @@
                 blocks.push(box);
             });
 
-            player = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.BoxGeometry(2,2,1), new THREE.MeshStandardMaterial({color: 0x0055ff}));
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2), new THREE.MeshStandardMaterial({color: 0xffff00}));
-            head.position.y = 1.6;
-            player.add(body, head);
+            player = createRobloxCharacter(name);
             player.position.set(0, 10, 20);
             scene.add(player);
 
             document.addEventListener('keydown', e => keys[e.code] = true);
             document.addEventListener('keyup', e => keys[e.code] = false);
-            
             document.body.onclick = () => { if(isPlaying) document.body.requestPointerLock(); };
             document.addEventListener('mousemove', e => {
                 if(document.pointerLockElement === document.body) {
@@ -193,14 +231,13 @@
             requestAnimationFrame(animate);
             if(isPlaying && player) {
                 let oldPos = player.position.clone();
-                const speed = 0.25;
+                const speed = 0.3;
 
                 vy -= 0.02; 
                 player.position.y += vy;
 
-                // Suelo baseplate
-                if(player.position.y < 1.5) {
-                    player.position.y = 1.5;
+                if(player.position.y < 0) {
+                    player.position.y = 0;
                     vy = 0;
                     onGround = true;
                 } else {
@@ -217,30 +254,30 @@
                 if(keys['KeyA']) player.position.x -= Math.cos(yaw) * speed, player.position.z += Math.sin(yaw) * speed;
                 if(keys['KeyD']) player.position.x += Math.cos(yaw) * speed, player.position.z -= Math.sin(yaw) * speed;
 
-                // COLISIONES MEJORADAS
-                let pBox = new THREE.Box3().setFromCenterAndSize(player.position, new THREE.Vector3(1.8, 3.8, 1.8));
-                
+                // Colisiones
+                let pBox = new THREE.Box3().setFromCenterAndSize(player.position.clone().add(new THREE.Vector3(0,2,0)), new THREE.Vector3(1.8, 4, 1.8));
                 for(let b of blocks) {
                     let bBox = new THREE.Box3().setFromObject(b);
                     if(pBox.intersectsBox(bBox)) {
-                        // Colisión Vertical (Encima del bloque)
-                        if(oldPos.y >= b.position.y + 3.8) { 
+                        if(oldPos.y >= b.position.y + 3.5) { 
                             player.position.y = b.position.y + 4;
                             vy = 0;
                             onGround = true;
                         } else {
-                            // Colisión Lateral
                             player.position.x = oldPos.x;
                             player.position.z = oldPos.z;
                         }
                     }
                 }
 
+                // Rotación suave del cuerpo hacia donde camina
+                player.rotation.y = yaw;
+
                 const camDist = 20;
                 camera.position.x = player.position.x + Math.sin(yaw) * Math.cos(pitch) * camDist;
                 camera.position.z = player.position.z + Math.cos(yaw) * Math.cos(pitch) * camDist;
-                camera.position.y = player.position.y + 6 + Math.sin(pitch) * camDist;
-                camera.lookAt(player.position.x, player.position.y + 2, player.position.z);
+                camera.position.y = player.position.y + 8 + Math.sin(pitch) * camDist;
+                camera.lookAt(player.position.x, player.position.y + 3, player.position.z);
             }
             renderer.render(scene, camera);
         }
@@ -249,7 +286,7 @@
             const data = blocks.map(b => ({x: b.position.x, y: b.position.y, z: b.position.z}));
             const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob); a.download = 'place_2008.json'; a.click();
+            a.href = URL.createObjectURL(blob); a.download = 'classic_place.json'; a.click();
             location.reload();
         }
 
@@ -261,6 +298,13 @@
                 document.getElementById('play-btn').innerText = "ENTER GAME";
             };
             reader.readAsText(e.target.files[0]);
+        }
+        
+        function connectToPeer() {
+            const remoteId = document.getElementById('peer-input').value;
+            if(!remoteId) return alert("ID necesario");
+            conn = peer.connect(remoteId);
+            conn.on('open', () => { alert("Connected!"); startPlay(); });
         }
     </script>
 </body>
