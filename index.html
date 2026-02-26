@@ -3,805 +3,866 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FORNITE STYLE P2P - Multiplayer Shooter</title>
+    <title>|Korblox|</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Arial', sans-serif;
-            background: #000;
+            overflow: hidden;
+            background: #1a1a2e;
         }
-        #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #87CEEB;
+        }
+
+        /* Menú principal */
+        #main-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .menu-content {
+            background: #16213e;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
             color: white;
-            background: rgba(0,0,0,0.8);
-            padding: 10px 20px;
-            border-radius: 5px;
-            border-left: 4px solid #00ffff;
-            z-index: 100;
-            font-weight: bold;
-            backdrop-filter: blur(5px);
+            width: 400px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
         }
-        #connection-panel {
-            position: absolute;
+
+        .menu-content h1 {
+            font-size: 48px;
+            margin-bottom: 30px;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .menu-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #00ff88;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #16213e;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-button:hover {
+            transform: scale(1.05);
+            background: #00cc6a;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .menu-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+        }
+
+        .menu-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Chat */
+        #chat-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            color: white;
+            z-index: 100;
+        }
+
+        #chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .chat-message {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .chat-message .sender {
+            color: #00ff88;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        #chat-input-container {
+            display: flex;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 0 0 10px 10px;
+        }
+
+        #chat-input {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        #chat-input:focus {
+            outline: 2px solid #00ff88;
+        }
+
+        #send-chat {
+            margin-left: 5px;
+            padding: 8px 15px;
+            background: #00ff88;
+            border: none;
+            border-radius: 5px;
+            color: #16213e;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Panel de skins y nametags */
+        #customization-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            z-index: 200;
+            width: 250px;
+        }
+
+        .color-picker {
+            margin: 10px 0;
+        }
+
+        .color-picker label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00ff88;
+        }
+
+        .color-picker input {
+            width: 100%;
+            height: 40px;
+            border: 2px solid #00ff88;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Panel de edición de mapas */
+        #map-editor-panel {
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border-radius: 20px;
             color: white;
-            padding: 40px;
+            z-index: 300;
+            width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .editor-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            border: 2px solid #00ffff;
-            z-index: 1000;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(0,255,255,0.3);
-            backdrop-filter: blur(10px);
         }
-        #connection-panel h1 {
-            margin-top: 0;
-            color: #00ffff;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            font-size: 36px;
-            text-shadow: 0 0 10px #00ffff;
+
+        .editor-section h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
         }
-        #connection-panel input, #connection-panel button {
-            margin: 10px;
-            padding: 12px 24px;
-            font-size: 16px;
+
+        .block-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .block-option {
+            padding: 15px;
+            background: #333;
             border-radius: 5px;
-            font-family: 'Arial', sans-serif;
-        }
-        #connection-panel input {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 2px solid #00ffff;
-            width: 250px;
-        }
-        #connection-panel button {
-            background: #00ffff;
-            color: black;
-            border: none;
+            text-align: center;
             cursor: pointer;
-            font-weight: bold;
             transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
-        #connection-panel button:hover {
-            background: #ffffff;
+
+        .block-option:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px #00ffff;
+            box-shadow: 0 0 10px #00ff88;
         }
-        #connection-status {
+
+        .block-option.selected {
+            border: 3px solid #00ff88;
+            background: #444;
+        }
+
+        /* Panel de P2P */
+        #p2p-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            z-index: 150;
+        }
+
+        #peer-id {
+            background: #333;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 5px 0;
+        }
+
+        /* Botón de menú */
+        #menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: #00ff88;
+            border: none;
+            border-radius: 5px;
+            color: #16213e;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 400;
+            transition: all 0.3s;
+        }
+
+        #menu-toggle:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .close-button {
             position: absolute;
             top: 10px;
             right: 10px;
+            background: none;
+            border: none;
             color: white;
-            background: rgba(0,0,0,0.8);
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: 2px solid #00ffff;
-            z-index: 100;
-            font-size: 14px;
-            font-weight: bold;
-            backdrop-filter: blur(5px);
+            font-size: 20px;
+            cursor: pointer;
         }
-        #hud {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: white;
-            background: rgba(0,0,0,0.7);
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #00ffff;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-            min-width: 250px;
-        }
-        .health-bar {
-            width: 200px;
-            height: 20px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-            border: 1px solid #00ffff;
-        }
-        .health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ffff, #0066ff);
-            width: 100%;
-            transition: width 0.2s;
-            border-radius: 10px;
-        }
-        .ammo-count {
-            font-size: 28px;
-            font-weight: bold;
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
-        }
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #00ffff;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 0 0 15px #00ffff;
-            pointer-events: none;
-            z-index: 50;
-            filter: drop-shadow(0 0 5px #00ffff);
-        }
-        #minimap {
-            position: absolute;
+
+        /* Indicadores */
+        .indicator {
+            position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 200px;
-            height: 200px;
-            background: rgba(0,0,0,0.7);
-            border: 3px solid #00ffff;
-            border-radius: 10px;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-        }
-        #weapon-icon {
-            position: absolute;
-            bottom: 120px;
-            right: 240px;
-            color: #00ffff;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 0 0 10px #00ffff;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #00ffff;
+            font-size: 14px;
+            z-index: 100;
         }
     </style>
 </head>
 <body>
-    <div id="connection-panel">
-        <h1>🎮 FORNITE P2P</h1>
-        <input type="text" id="peer-id" placeholder="Tu ID" readonly>
-        <br>
-        <input type="text" id="connect-peer" placeholder="ID del oponente">
-        <br>
-        <button onclick="createGame()">CREAR PARTIDA</button>
-        <button onclick="connectToPeer()">CONECTAR</button>
-        <p style="margin-top: 20px; color: #00ffff;">🔫 Comparte tu ID para jugar 🔫</p>
-    </div>
+    <div id="game-container">
+        <canvas id="canvas"></canvas>
 
-    <div id="connection-status">⚡ DESCONECTADO</div>
-    <div id="info">FPS: <span id="fps">0</span> | KILLS: <span id="kills">0</span> | JUGADORES: <span id="player-count">1</span></div>
-    <div id="hud">
-        <div style="font-size: 18px; margin-bottom: 5px;">❤️ SALUD</div>
-        <div class="health-bar">
-            <div class="health-fill" id="health-fill" style="width: 100%"></div>
+        <!-- Menú principal -->
+        <div id="main-menu">
+            <div class="menu-content">
+                <h1>BLOCKWORLD</h1>
+                <input type="text" id="player-name" class="menu-input" placeholder="Tu nombre" maxlength="20">
+                <button class="menu-button" onclick="startGame()">JUGAR</button>
+                <button class="menu-button" onclick="openMapEditor()">EDITOR DE MAPAS</button>
+                <button class="menu-button" onclick="openCustomization()">PERSONALIZAR</button>
+                <button class="menu-button" onclick="showP2P()">CONECTAR P2P</button>
+            </div>
         </div>
-        <div style="margin-top: 15px; font-size: 18px;">🔫 MUNICIÓN</div>
-        <div><span class="ammo-count" id="ammo">30</span> / 30</div>
-        <div style="margin-top: 15px; font-size: 18px;">🎯 PUNTOS: <span id="score">0</span></div>
+
+        <!-- Chat -->
+        <div id="chat-container" style="display: none;">
+            <div id="chat-messages"></div>
+            <div id="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Escribe un mensaje..." onkeypress="handleChatKeyPress(event)">
+                <button id="send-chat" onclick="sendChatMessage()">Enviar</button>
+            </div>
+        </div>
+
+        <!-- Personalización -->
+        <div id="customization-panel" style="display: none;">
+            <h3>Personalización</h3>
+            <div class="color-picker">
+                <label>Color de piel:</label>
+                <input type="color" id="skin-color" value="#ff9966" onchange="updateSkin()">
+            </div>
+            <div class="color-picker">
+                <label>Color de ropa:</label>
+                <input type="color" id="clothes-color" value="#00ff88" onchange="updateSkin()">
+            </div>
+            <div class="color-picker">
+                <label>Color de nametag:</label>
+                <input type="color" id="nametag-color" value="#ffffff" onchange="updateNametag()">
+            </div>
+            <input type="text" id="nametag-text" class="menu-input" placeholder="Texto del nametag" maxlength="15" onchange="updateNametag()">
+        </div>
+
+        <!-- Editor de mapas -->
+        <div id="map-editor-panel">
+            <button class="close-button" onclick="closeMapEditor()">✕</button>
+            <h2>Editor de Mapas</h2>
+            
+            <div class="editor-section">
+                <h3>Herramientas</h3>
+                <div class="block-selector">
+                    <div class="block-option selected" onclick="selectBlock('grass')">🌱 Pasto</div>
+                    <div class="block-option" onclick="selectBlock('dirt')">🟫 Tierra</div>
+                    <div class="block-option" onclick="selectBlock('stone')">🪨 Piedra</div>
+                    <div class="block-option" onclick="selectBlock('wood')">🪵 Madera</div>
+                </div>
+                <button class="menu-button" onclick="saveMap()">Guardar Mapa</button>
+                <button class="menu-button" onclick="loadMap()">Cargar Mapa</button>
+                <button class="menu-button" onclick="exportMap()">Exportar Mapa</button>
+                <input type="file" id="map-file" style="display: none;" onchange="importMap(event)">
+                <button class="menu-button" onclick="document.getElementById('map-file').click()">Importar Mapa</button>
+            </div>
+
+            <div class="editor-section">
+                <h3>Instrucciones</h3>
+                <p>Click izquierdo: Colocar bloque</p>
+                <p>Click derecho: Eliminar bloque</p>
+                <p>WASD: Moverse</p>
+                <p>Espacio: Saltar</p>
+            </div>
+        </div>
+
+        <!-- Panel P2P -->
+        <div id="p2p-panel" style="display: none;">
+            <h3>Conexión P2P</h3>
+            <p>Tu ID: <span id="peer-id">Conectando...</span></p>
+            <input type="text" id="peer-connect" class="menu-input" placeholder="ID del otro jugador">
+            <button class="menu-button" onclick="connectToPeer()">Conectar</button>
+            <div id="connected-peers"></div>
+        </div>
+
+        <!-- Botón de menú -->
+        <button id="menu-toggle" style="display: none;" onclick="toggleMenu()">MENÚ</button>
+
+        <!-- Indicadores -->
+        <div class="indicator" id="position-indicator">X: 0 Y: 0 Z: 0</div>
     </div>
-    <div id="weapon-icon">🔫 ESCOPETA</div>
-    <div id="crosshair">+</div>
-    <canvas id="minimap" width="200" height="200"></canvas>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.2/dist/peerjs.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.3.2/peerjs.min.js"></script>
     <script>
-        // Configuración del juego
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB); // Cielo azul claro
-        
-        // Niebla para dar profundidad
-        scene.fog = new THREE.Fog(0x87CEEB, 30, 60);
-        
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.body.appendChild(renderer.domElement);
-
-        // Iluminación
-        const ambientLight = new THREE.AmbientLight(0x404060);
-        scene.add(ambientLight);
-        
-        const directionalLight = new THREE.DirectionalLight(0xfff5d1, 1.2);
-        directionalLight.position.set(10, 20, 5);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 1024;
-        directionalLight.shadow.mapSize.height = 1024;
-        const d = 30;
-        directionalLight.shadow.camera.left = -d;
-        directionalLight.shadow.camera.right = d;
-        directionalLight.shadow.camera.top = d;
-        directionalLight.shadow.camera.bottom = -d;
-        directionalLight.shadow.camera.near = 1;
-        directionalLight.shadow.camera.far = 50;
-        scene.add(directionalLight);
-
-        // Suelo con textura de césped
-        const groundGeometry = new THREE.CircleGeometry(40, 32);
-        const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x3a7734, roughness: 0.8 });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = 0;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // Elementos decorativos
-        function createTree(x, z) {
-            const group = new THREE.Group();
-            
-            // Tronco
-            const trunkGeo = new THREE.CylinderGeometry(0.5, 0.7, 3);
-            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
-            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-            trunk.position.y = 1.5;
-            trunk.castShadow = true;
-            trunk.receiveShadow = true;
-            group.add(trunk);
-            
-            // Hojas
-            const leafGeo = new THREE.ConeGeometry(1.5, 2, 8);
-            const leafMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
-            const leaf1 = new THREE.Mesh(leafGeo, leafMat);
-            leaf1.position.y = 3;
-            leaf1.castShadow = true;
-            leaf1.receiveShadow = true;
-            group.add(leaf1);
-            
-            const leaf2 = new THREE.ConeGeometry(1.2, 1.5, 8);
-            const leaf2Mat = new THREE.MeshStandardMaterial({ color: 0x3cb371 });
-            const leaf2Mesh = new THREE.Mesh(leaf2, leaf2Mat);
-            leaf2Mesh.position.y = 4.2;
-            leaf2Mesh.castShadow = true;
-            leaf2Mesh.receiveShadow = true;
-            group.add(leaf2Mesh);
-            
-            group.position.set(x, 0, z);
-            scene.add(group);
-        }
-
-        // Crear árboles
-        const treePositions = [
-            [-15, -15], [15, -15], [-15, 15], [15, 15],
-            [-10, -10], [10, -10], [-10, 10], [10, 10],
-            [0, -18], [0, 18], [-18, 0], [18, 0]
-        ];
-        
-        treePositions.forEach(pos => createTree(pos[0], pos[1]));
-
-        // Crear algunas rocas
-        function createRock(x, z) {
-            const rockGeo = new THREE.DodecahedronGeometry(0.8);
-            const rockMat = new THREE.MeshStandardMaterial({ color: 0x808080 });
-            const rock = new THREE.Mesh(rockGeo, rockMat);
-            rock.position.set(x, 0.4, z);
-            rock.scale.set(1, 0.5, 1);
-            rock.castShadow = true;
-            rock.receiveShadow = true;
-            scene.add(rock);
-        }
-
-        for (let i = 0; i < 20; i++) {
-            const angle = (i / 20) * Math.PI * 2;
-            const radius = 12 + Math.random() * 5;
-            createRock(Math.cos(angle) * radius, Math.sin(angle) * radius);
-        }
-
-        // Jugador local
-        const player = {
-            mesh: null,
-            id: 'local',
-            health: 100,
-            ammo: 30,
-            score: 0,
-            kills: 0,
-            position: new THREE.Vector3(0, 0, 0),
-            rotation: 0
+        // Variables globales
+        let scene, camera, renderer, player;
+        let blocks = [];
+        let players = {};
+        let isMapEditorOpen = false;
+        let selectedBlock = 'grass';
+        let peer;
+        let playerName = 'Jugador';
+        let playerId = Math.random().toString(36).substr(2, 9);
+        let playerSkin = {
+            skin: '#ff9966',
+            clothes: '#00ff88'
+        };
+        let playerNametag = {
+            text: 'Jugador',
+            color: '#ffffff'
         };
 
-        // Enemigos
-        const enemies = new Map();
+        // Inicialización del juego
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
 
-        // Crear jugador 3D estilo Fortnite
-        function createPlayerMesh(isLocal = false) {
-            const group = new THREE.Group();
-            
-            // Cuerpo principal
-            const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.8, 8);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: isLocal ? 0x4CAF50 : 0xf44336 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 0.9;
-            body.castShadow = true;
-            body.receiveShadow = true;
-            group.add(body);
-            
-            // Cabeza
-            const headGeo = new THREE.SphereGeometry(0.4);
-            const headMat = new THREE.MeshStandardMaterial({ color: 0xffccaa });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 1.9;
-            head.castShadow = true;
-            head.receiveShadow = true;
-            group.add(head);
-            
-            // Brazos
-            const armGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.8);
-            const armMat = new THREE.MeshStandardMaterial({ color: 0x4CAF50 });
-            
-            const leftArm = new THREE.Mesh(armGeo, armMat);
-            leftArm.position.set(-0.6, 1.2, 0);
-            leftArm.rotation.z = 0.2;
-            leftArm.castShadow = true;
-            leftArm.receiveShadow = true;
-            group.add(leftArm);
-            
-            const rightArm = new THREE.Mesh(armGeo, armMat);
-            rightArm.position.set(0.6, 1.2, 0);
-            rightArm.rotation.z = -0.2;
-            rightArm.castShadow = true;
-            rightArm.receiveShadow = true;
-            group.add(rightArm);
-            
-            // Piernas
-            const legGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.8);
-            const legMat = new THREE.MeshStandardMaterial({ color: 0x2196F3 });
-            
-            const leftLeg = new THREE.Mesh(legGeo, legMat);
-            leftLeg.position.set(-0.25, 0.4, 0);
-            leftLeg.castShadow = true;
-            leftLeg.receiveShadow = true;
-            group.add(leftLeg);
-            
-            const rightLeg = new THREE.Mesh(legGeo, legMat);
-            rightLeg.position.set(0.25, 0.4, 0);
-            rightLeg.castShadow = true;
-            rightLeg.receiveShadow = true;
-            group.add(rightLeg);
-            
-            // Arma
-            const weaponGroup = new THREE.Group();
-            
-            const weaponBodyGeo = new THREE.BoxGeometry(0.3, 0.2, 0.8);
-            const weaponBodyMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-            const weaponBody = new THREE.Mesh(weaponBodyGeo, weaponBodyMat);
-            weaponBody.position.set(0.8, 1.3, 0.4);
-            weaponBody.castShadow = true;
-            weaponBody.receiveShadow = true;
-            weaponGroup.add(weaponBody);
-            
-            const weaponBarrelGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.6);
-            const weaponBarrelMat = new THREE.MeshStandardMaterial({ color: 0x666666 });
-            const weaponBarrel = new THREE.Mesh(weaponBarrelGeo, weaponBarrelMat);
-            weaponBarrel.position.set(1.2, 1.3, 0.4);
-            weaponBarrel.rotation.z = Math.PI / 2;
-            weaponBarrel.castShadow = true;
-            weaponBarrel.receiveShadow = true;
-            weaponGroup.add(weaponBarrel);
-            
-            group.add(weaponGroup);
-            
-            return group;
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(10, 5, 10);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Luces
+            const ambientLight = new THREE.AmbientLight(0x404060);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 20, 10);
+            scene.add(directionalLight);
+
+            // Suelo básico
+            createGround();
+
+            // Jugador
+            createPlayer();
+
+            animate();
+
+            // Event listeners
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            // Inicializar PeerJS
+            initPeer();
+
+            // Actualizar posición
+            setInterval(updatePosition, 100);
         }
 
-        player.mesh = createPlayerMesh(true);
-        player.mesh.position.copy(player.position);
-        scene.add(player.mesh);
+        function createGround() {
+            const groundGeometry = new THREE.PlaneGeometry(50, 50);
+            const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x00aa00 });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -0.5;
+            scene.add(ground);
+        }
+
+        function createPlayer() {
+            const group = new THREE.Group();
+
+            // Cuerpo
+            const bodyGeometry = new THREE.BoxGeometry(1, 2, 1);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ color: playerSkin.clothes });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 1;
+            group.add(body);
+
+            // Cabeza
+            const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const headMaterial = new THREE.MeshStandardMaterial({ color: playerSkin.skin });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 2.4;
+            group.add(head);
+
+            // Nametag
+            createNametag(group);
+
+            player = group;
+            player.position.set(0, 0, 0);
+            scene.add(player);
+        }
+
+        function createNametag(group) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const context = canvas.getContext('2d');
+            context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.font = 'Bold 32px Arial';
+            context.fillStyle = playerNametag.color;
+            context.textAlign = 'center';
+            context.fillText(playerNametag.text, canvas.width / 2, canvas.height / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(2, 0.5, 1);
+            sprite.position.y = 3.2;
+            group.add(sprite);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
 
         // Controles
-        const keys = {};
-        const moveSpeed = 0.1;
+        function handleKeyDown(e) {
+            if (!player) return;
 
-        window.addEventListener('keydown', (e) => {
-            keys[e.code] = true;
-            if (e.code === 'Space') {
-                e.preventDefault();
-                shoot();
+            const speed = 0.5;
+            switch(e.key) {
+                case 'w': player.position.z -= speed; break;
+                case 's': player.position.z += speed; break;
+                case 'a': player.position.x -= speed; break;
+                case 'd': player.position.x += speed; break;
+                case ' ': 
+                    if (player.position.y < 1) {
+                        player.position.y += 2;
+                        setTimeout(() => player.position.y = 0, 500);
+                    }
+                    break;
             }
-        });
-        
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
 
-        // Apuntar con el ratón
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        const targetPoint = new THREE.Vector3();
+            // Actualizar cámara para seguir al jugador
+            camera.position.x = player.position.x;
+            camera.position.z = player.position.z + 10;
+            camera.position.y = player.position.y + 5;
+            camera.lookAt(player.position);
 
-        window.addEventListener('mousemove', (event) => {
-            // Calcular coordenadas del ratón en espacio 3D
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            document.getElementById('position-indicator').textContent = 
+                `X: ${Math.round(player.position.x)} Y: ${Math.round(player.position.y)} Z: ${Math.round(player.position.z)}`;
+        }
+
+        function handleMouseDown(e) {
+            if (!isMapEditorOpen) return;
+
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
             
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
             raycaster.setFromCamera(mouse, camera);
-            raycaster.ray.intersectPlane(plane, targetPoint);
-            
-            if (targetPoint) {
-                // Hacer que el jugador mire hacia el punto del ratón
-                const direction = new THREE.Vector3().subVectors(targetPoint, player.position);
-                player.rotation = Math.atan2(direction.x, direction.z);
-                player.mesh.rotation.y = player.rotation;
+
+            if (e.button === 0) { // Click izquierdo - colocar
+                const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+                const target = new THREE.Vector3();
+                raycaster.ray.intersectPlane(plane, target);
+                
+                const blockPos = {
+                    x: Math.round(target.x),
+                    y: Math.round(target.y),
+                    z: Math.round(target.z)
+                };
+                
+                addBlock(blockPos.x, blockPos.y, blockPos.z, selectedBlock);
             }
-        });
+        }
 
-        // Configuración PeerJS
-        let peer;
-        let conn;
-        const localId = Math.random().toString(36).substr(2, 8).toUpperCase();
-        
-        document.getElementById('peer-id').value = localId;
+        // Funciones de bloques
+        function addBlock(x, y, z, type) {
+            const colors = {
+                grass: 0x00ff00,
+                dirt: 0x8B4513,
+                stone: 0x808080,
+                wood: 0x8B5A2B
+            };
 
-        function createGame() {
-            document.getElementById('connection-panel').style.display = 'none';
-            peer = new Peer(localId);
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshStandardMaterial({ color: colors[type] });
+            const block = new THREE.Mesh(geometry, material);
+            block.position.set(x, y, z);
+            
+            scene.add(block);
+            blocks.push({ mesh: block, type, x, y, z });
+        }
+
+        // Funciones de menú
+        function startGame() {
+            playerName = document.getElementById('player-name').value || 'Jugador';
+            playerNametag.text = playerName;
+            
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'block';
+            document.getElementById('customization-panel').style.display = 'block';
+            document.getElementById('p2p-panel').style.display = 'block';
+            document.getElementById('menu-toggle').style.display = 'block';
+            
+            init();
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('main-menu');
+            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function openMapEditor() {
+            isMapEditorOpen = true;
+            document.getElementById('map-editor-panel').style.display = 'block';
+            document.getElementById('main-menu').style.display = 'none';
+        }
+
+        function closeMapEditor() {
+            isMapEditorOpen = false;
+            document.getElementById('map-editor-panel').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'flex';
+        }
+
+        function selectBlock(type) {
+            selectedBlock = type;
+            document.querySelectorAll('.block-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        // Personalización
+        function updateSkin() {
+            playerSkin.skin = document.getElementById('skin-color').value;
+            playerSkin.clothes = document.getElementById('clothes-color').value;
+            
+            if (player) {
+                player.children[0].material.color.set(playerSkin.clothes);
+                player.children[1].material.color.set(playerSkin.skin);
+            }
+        }
+
+        function updateNametag() {
+            playerNametag.text = document.getElementById('nametag-text').value || 'Jugador';
+            playerNametag.color = document.getElementById('nametag-color').value;
+            
+            if (player) {
+                player.remove(player.children[2]);
+                createNametag(player);
+            }
+        }
+
+        // Chat
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                addChatMessage(playerName, message);
+                input.value = '';
+                
+                // Enviar por P2P si hay conexión
+                if (peer && peer.open) {
+                    broadcastToPeers({
+                        type: 'chat',
+                        sender: playerName,
+                        message: message
+                    });
+                }
+            }
+        }
+
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function addChatMessage(sender, message) {
+            const container = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message';
+            msgDiv.innerHTML = `<span class="sender">${sender}:</span> ${message}`;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Funciones de mapa
+        function saveMap() {
+            const mapData = blocks.map(b => ({
+                type: b.type,
+                x: b.x,
+                y: b.y,
+                z: b.z
+            }));
+            
+            localStorage.setItem('savedMap', JSON.stringify(mapData));
+            alert('Mapa guardado!');
+        }
+
+        function loadMap() {
+            const savedMap = localStorage.getItem('savedMap');
+            if (savedMap) {
+                // Limpiar bloques existentes
+                blocks.forEach(b => scene.remove(b.mesh));
+                blocks = [];
+                
+                const mapData = JSON.parse(savedMap);
+                mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
+                alert('Mapa cargado!');
+            }
+        }
+
+        function exportMap() {
+            const mapData = blocks.map(b => ({
+                type: b.type,
+                x: b.x,
+                y: b.y,
+                z: b.z
+            }));
+            
+            const dataStr = JSON.stringify(mapData);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'mapa.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function importMap(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const mapData = JSON.parse(e.target.result);
+                    
+                    // Limpiar bloques existentes
+                    blocks.forEach(b => scene.remove(b.mesh));
+                    blocks = [];
+                    
+                    mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
+                    alert('Mapa importado!');
+                } catch (error) {
+                    alert('Error al importar el mapa');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Funciones P2P
+        function initPeer() {
+            peer = new Peer(playerId);
             
             peer.on('open', (id) => {
-                console.log('Mi ID:', id);
-                updateConnectionStatus('🟡 ESPERANDO...', '#ffaa00');
+                document.getElementById('peer-id').textContent = id;
             });
             
-            peer.on('connection', (connection) => {
-                conn = connection;
+            peer.on('connection', (conn) => {
                 setupConnection(conn);
             });
         }
 
         function connectToPeer() {
-            const remoteId = document.getElementById('connect-peer').value;
-            if (!remoteId) return;
-            
-            document.getElementById('connection-panel').style.display = 'none';
-            peer = new Peer();
-            
-            peer.on('open', () => {
-                conn = peer.connect(remoteId);
-                setupConnection(conn);
-            });
+            const peerId = document.getElementById('peer-connect').value;
+            const conn = peer.connect(peerId);
+            setupConnection(conn);
         }
 
-        function setupConnection(connection) {
-            conn = connection;
-            
+        function setupConnection(conn) {
             conn.on('open', () => {
-                console.log('Conectado a:', conn.peer);
-                updateConnectionStatus('🟢 CONECTADO', '#00ff00');
+                addChatMessage('Sistema', `Conectado a ${conn.peer}`);
                 
-                setInterval(sendPlayerData, 50);
-            });
-            
-            conn.on('data', (data) => {
-                handleEnemyData(data);
-            });
-            
-            conn.on('close', () => {
-                updateConnectionStatus('🔴 DESCONECTADO', '#ff0000');
-            });
-        }
-
-        function updateConnectionStatus(text, color) {
-            const status = document.getElementById('connection-status');
-            status.textContent = text;
-            status.style.borderColor = color;
-            status.style.color = color;
-        }
-
-        function sendPlayerData() {
-            if (conn && conn.open) {
-                conn.send({
-                    id: localId,
-                    x: player.position.x,
-                    z: player.position.z,
-                    rotation: player.rotation,
-                    health: player.health,
-                    ammo: player.ammo,
-                    kills: player.kills,
-                    score: player.score
+                conn.on('data', (data) => {
+                    handlePeerData(data, conn.peer);
                 });
-            }
-        }
-
-        function handleEnemyData(data) {
-            if (!enemies.has(data.id)) {
-                const enemyMesh = createPlayerMesh(false);
-                scene.add(enemyMesh);
-                enemies.set(data.id, {
-                    mesh: enemyMesh,
-                    health: data.health,
-                    lastUpdate: Date.now()
-                });
-            }
-            
-            const enemy = enemies.get(data.id);
-            if (enemy) {
-                enemy.mesh.position.set(data.x, 0, data.z);
-                enemy.mesh.rotation.y = data.rotation;
-                enemy.health = data.health;
-                enemy.lastUpdate = Date.now();
                 
-                document.getElementById('player-count').textContent = enemies.size + 1;
-            }
-        }
-
-        // Sistema de disparo mejorado
-        function shoot() {
-            if (player.ammo <= 0) return;
-            
-            player.ammo--;
-            document.getElementById('ammo').textContent = player.ammo;
-            
-            // Crear proyectil
-            const bulletGeo = new THREE.SphereGeometry(0.2, 8);
-            const bulletMat = new THREE.MeshStandardMaterial({ 
-                color: 0xffaa00,
-                emissive: 0xff5500
-            });
-            const bullet = new THREE.Mesh(bulletGeo, bulletMat);
-            
-            // Posición inicial (desde el arma)
-            bullet.position.copy(player.position);
-            bullet.position.y = 1.3;
-            bullet.position.x += Math.sin(player.rotation) * 0.8;
-            bullet.position.z += Math.cos(player.rotation) * 0.8;
-            
-            scene.add(bullet);
-            
-            // Dirección hacia el punto del ratón
-            const direction = new THREE.Vector3().subVectors(targetPoint, bullet.position).normalize();
-            
-            // Animar proyectil
-            let distance = 0;
-            const maxDistance = 30;
-            const bulletSpeed = 0.5;
-            
-            function animateBullet() {
-                if (distance < maxDistance) {
-                    bullet.position.addScaledVector(direction, bulletSpeed);
-                    distance += bulletSpeed;
-                    
-                    // Verificar colisiones
-                    enemies.forEach((enemy, id) => {
-                        if (bullet.position.distanceTo(enemy.mesh.position) < 1.2) {
-                            scene.remove(bullet);
-                            
-                            // Efecto de impacto
-                            createImpactEffect(bullet.position);
-                            
-                            // Daño al enemigo
-                            if (conn && conn.open) {
-                                conn.send({
-                                    type: 'damage',
-                                    target: id,
-                                    damage: 25
-                                });
-                            }
-                            
-                            // Si mata al enemigo
-                            if (enemy.health <= 25) {
-                                player.kills++;
-                                player.score += 100;
-                                document.getElementById('kills').textContent = player.kills;
-                                document.getElementById('score').textContent = player.score;
-                            }
-                            
-                            return;
-                        }
-                    });
-                    
-                    requestAnimationFrame(animateBullet);
-                } else {
-                    scene.remove(bullet);
+                // Guardar conexión
+                if (!players[conn.peer]) {
+                    players[conn.peer] = { conn, position: { x: 0, y: 0, z: 0 } };
                 }
-            }
-            
-            animateBullet();
-            
-            // Efecto de retroceso visual
-            player.mesh.position.y -= 0.05;
-            setTimeout(() => {
-                player.mesh.position.y += 0.05;
-            }, 50);
+            });
         }
 
-        function createImpactEffect(position) {
-            const particles = [];
-            for (let i = 0; i < 10; i++) {
-                const particleGeo = new THREE.SphereGeometry(0.1);
-                const particleMat = new THREE.MeshStandardMaterial({ color: 0xff6600, emissive: 0xff3300 });
-                const particle = new THREE.Mesh(particleGeo, particleMat);
-                particle.position.copy(position);
-                scene.add(particle);
-                particles.push({
-                    mesh: particle,
-                    velocity: new THREE.Vector3(
-                        (Math.random() - 0.5) * 0.2,
-                        Math.random() * 0.2,
-                        (Math.random() - 0.5) * 0.2
-                    ),
-                    life: 1.0
-                });
+        function handlePeerData(data, peerId) {
+            switch(data.type) {
+                case 'chat':
+                    addChatMessage(data.sender, data.message);
+                    break;
+                case 'position':
+                    updatePeerPosition(peerId, data.position);
+                    break;
             }
-            
-            function animateParticles() {
-                let active = false;
-                particles.forEach(p => {
-                    p.life -= 0.02;
-                    if (p.life > 0) {
-                        active = true;
-                        p.mesh.position.add(p.velocity);
-                        p.mesh.material.opacity = p.life;
-                        p.mesh.material.transparent = true;
-                        p.mesh.scale.set(p.life, p.life, p.life);
-                    } else {
-                        scene.remove(p.mesh);
+        }
+
+        function broadcastToPeers(data) {
+            Object.values(players).forEach(p => {
+                if (p.conn && p.conn.open) {
+                    p.conn.send(data);
+                }
+            });
+        }
+
+        function updatePosition() {
+            if (player && peer && peer.open) {
+                broadcastToPeers({
+                    type: 'position',
+                    position: {
+                        x: player.position.x,
+                        y: player.position.y,
+                        z: player.position.z
                     }
                 });
+            }
+        }
+
+        function updatePeerPosition(peerId, position) {
+            if (!players[peerId]) {
+                // Crear jugador remoto
+                const group = new THREE.Group();
                 
-                if (active) {
-                    requestAnimationFrame(animateParticles);
-                }
+                const bodyGeometry = new THREE.BoxGeometry(1, 2, 1);
+                const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff88 });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.position.y = 1;
+                group.add(body);
+
+                const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+                const headMaterial = new THREE.MeshStandardMaterial({ color: 0xff9966 });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.y = 2.4;
+                group.add(head);
+                
+                group.position.set(position.x, position.y, position.z);
+                scene.add(group);
+                
+                players[peerId] = { mesh: group, position };
+            } else {
+                players[peerId].mesh.position.set(position.x, position.y, position.z);
+                players[peerId].position = position;
             }
-            
-            animateParticles();
         }
 
-        // Recargar
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'KeyR') {
-                player.ammo = 30;
-                document.getElementById('ammo').textContent = player.ammo;
-            }
-        });
-
-        // Animación
-        let lastTime = performance.now();
-        let frameCount = 0;
-        let fps = 0;
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Calcular FPS
-            frameCount++;
-            const now = performance.now();
-            const delta = now - lastTime;
-            
-            if (delta >= 1000) {
-                fps = frameCount;
-                document.getElementById('fps').textContent = fps;
-                frameCount = 0;
-                lastTime = now;
-            }
-
-            // Movimiento WASD normal (relativo a la rotación del jugador)
-            if (keys['KeyW'] || keys['ArrowUp']) {
-                player.position.x += Math.sin(player.rotation) * moveSpeed;
-                player.position.z += Math.cos(player.rotation) * moveSpeed;
-            }
-            if (keys['KeyS'] || keys['ArrowDown']) {
-                player.position.x -= Math.sin(player.rotation) * moveSpeed;
-                player.position.z -= Math.cos(player.rotation) * moveSpeed;
-            }
-            if (keys['KeyA'] || keys['ArrowLeft']) {
-                player.position.x += Math.sin(player.rotation - Math.PI/2) * moveSpeed;
-                player.position.z += Math.cos(player.rotation - Math.PI/2) * moveSpeed;
-            }
-            if (keys['KeyD'] || keys['ArrowRight']) {
-                player.position.x += Math.sin(player.rotation + Math.PI/2) * moveSpeed;
-                player.position.z += Math.cos(player.rotation + Math.PI/2) * moveSpeed;
-            }
-            
-            // Limitar movimiento
-            player.position.x = Math.max(-18, Math.min(18, player.position.x));
-            player.position.z = Math.max(-18, Math.min(18, player.position.z));
-            
-            // Actualizar posición del jugador
-            player.mesh.position.copy(player.position);
-            
-            // Cámara en tercera persona estilo Fortnite (sobre el hombro)
-            const camDistance = 8;
-            const camHeight = 3;
-            const camOffset = new THREE.Vector3(
-                Math.sin(player.rotation) * camDistance,
-                camHeight,
-                Math.cos(player.rotation) * camDistance
-            );
-            
-            camera.position.copy(player.position.clone().add(camOffset));
-            camera.lookAt(player.position.clone().add(new THREE.Vector3(0, 1.5, 0)));
-
-            // Actualizar HUD
-            document.getElementById('health-fill').style.width = player.health + '%';
-            document.getElementById('score').textContent = player.score;
-
-            // Dibujar minimapa
-            drawMinimap();
-
-            // Limpiar enemigos desconectados
-            const now_time = Date.now();
-            enemies.forEach((enemy, id) => {
-                if (now_time - enemy.lastUpdate > 2000) {
-                    scene.remove(enemy.mesh);
-                    enemies.delete(id);
-                }
-            });
-
-            renderer.render(scene, camera);
+        // Utilidades
+        function openCustomization() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('customization-panel').style.display = 'block';
         }
 
-        // Minimapa
-        function drawMinimap() {
-            const canvas = document.getElementById('minimap');
-            const ctx = canvas.getContext('2d');
-            
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.fillRect(0, 0, 200, 200);
-            
-            // Dibujar bordes
-            ctx.strokeStyle = '#00ffff';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(2, 2, 196, 196);
-            
-            // Dibujar árboles
-            ctx.fillStyle = '#2e8b57';
-            treePositions.forEach(pos => {
-                ctx.beginPath();
-                ctx.arc(100 + pos[0] * 5, 100 + pos[1] * 5, 3, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            
-            // Dibujar jugador local
-            ctx.fillStyle = '#00ff00';
-            ctx.beginPath();
-            ctx.arc(100 + player.position.x * 5, 100 + player.position.z * 5, 5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Dirección del jugador
-            ctx.strokeStyle = '#00ff00';
-            ctx.beginPath();
-            ctx.moveTo(100 + player.position.x * 5, 100 + player.position.z * 5);
-            ctx.lineTo(
-                100 + (player.position.x + Math.sin(player.rotation) * 3) * 5,
-                100 + (player.position.z + Math.cos(player.rotation) * 3) * 5
-            );
-            ctx.stroke();
-            
-            // Dibujar enemigos
-            ctx.fillStyle = '#ff0000';
-            enemies.forEach((enemy) => {
-                ctx.beginPath();
-                ctx.arc(100 + enemy.mesh.position.x * 5, 100 + enemy.mesh.position.z * 5, 4, 0, Math.PI * 2);
-                ctx.fill();
-            });
+        function showP2P() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('p2p-panel').style.display = 'block';
         }
-
-        animate();
-
-        // Ajustar tamaño
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Sistema de daño
-        setInterval(() => {
-            enemies.forEach((enemy) => {
-                if (player.position.distanceTo(enemy.mesh.position) < 2) {
-                    player.health = Math.max(0, player.health - 1);
-                }
-            });
-        }, 100);
     </script>
 </body>
 </html>
