@@ -2,252 +2,802 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Korblox - Raycast Engine 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korblox Ultimate - Professional Engine v3.0</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: "Arial", sans-serif; background-color: #000; user-select: none; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-        #top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 40px; background: #222; border-bottom: 3px solid #444; display: flex; align-items: center; padding: 0 10px; pointer-events: auto; }
-        .panel { pointer-events: auto; background: #eeeeee; border: 4px outset #ffffff; padding: 15px; color: #333; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); }
-        #main-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; text-align: center; display: block; }
-        h1 { color: #0055ff; -webkit-text-stroke: 1.5px black; font-size: 64px; margin: 10px 0; font-family: "Arial Black", sans-serif; letter-spacing: -2px; }
-        button { cursor: pointer; padding: 10px; margin: 5px; font-weight: bold; background: #d4d0c8; border: 3px outset #ffffff; width: 90%; text-transform: uppercase; }
-        button:active { border: 3px inset #ffffff; }
-        .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 18px; }
-        #hud { position: absolute; top: 50px; right: 20px; width: 220px; display: none; pointer-events: auto; }
-        .health-bg { width: 100%; height: 24px; background: #555; border: 2px solid #000; }
-        #health-bar { width: 100%; height: 100%; background: #00ff00; transition: width 0.2s; }
-        #username-display { color: white; font-weight: bold; text-shadow: 2px 2px black; margin-bottom: 5px; text-align: right; font-size: 14px; }
-        #inventory { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: none; pointer-events: auto; gap: 8px; }
-        .slot { width: 70px; height: 70px; background: rgba(0,0,0,0.7); border: 3px outset #ffffff; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-size: 11px; }
-        .slot.active { border-color: #ffff00; background: rgba(255,255,255,0.2); }
-        #room-info { position: absolute; top: 55px; left: 10px; font-size: 12px; background: white; padding: 8px; border: 2px solid black; pointer-events: auto; }
-        #my-id { color: blue; font-family: monospace; font-weight: bold; cursor: pointer; text-decoration: underline; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; z-index: 5; }
-        input { pointer-events: auto; padding: 10px; margin: 8px; border: 2px inset #eee; width: 85%; }
-        #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 240px; }
-        #copy-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #00ff00; color: #000; padding: 10px 20px; border: 2px solid #000; display: none; z-index: 1000; font-weight: bold; }
+        :root {
+            --rbx-red: #cc0000;
+            --rbx-blue: #0055ff;
+            --rbx-panel: #eeeeee;
+            --rbx-border: #ffffff;
+            --rbx-shadow: rgba(0,0,0,0.5);
+        }
+
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: "Segoe UI", Arial, sans-serif; 
+            background-color: #000; 
+            user-select: none;
+            color: #333;
+        }
+
+        /* --- UI LAYER --- */
+        #ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .interactable { pointer-events: auto; }
+
+        /* TOP BAR */
+        #top-bar {
+            width: 100%;
+            height: 45px;
+            background: #111;
+            border-bottom: 2px solid #333;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+            justify-content: space-between;
+        }
+
+        #game-logo {
+            color: white;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* CHAT SYSTEM */
+        #chat-area {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            width: 300px;
+            height: 200px;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+        }
+
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            color: white;
+            font-size: 13px;
+            text-shadow: 1px 1px 1px black;
+        }
+
+        #chat-input {
+            background: rgba(0,0,0,0.5);
+            border: none;
+            color: white;
+            padding: 8px;
+            outline: none;
+        }
+
+        /* PANELS */
+        .rbx-panel {
+            background: var(--rbx-panel);
+            border: 4px outset var(--rbx-border);
+            box-shadow: 4px 4px 0px var(--rbx-shadow);
+            padding: 20px;
+        }
+
+        #main-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: "Arial Black", sans-serif;
+            font-size: 70px;
+            color: var(--rbx-blue);
+            margin: 0;
+            line-height: 1;
+            -webkit-text-stroke: 2px black;
+        }
+
+        .menu-input {
+            width: 80%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 3px inset #fff;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .rbx-button {
+            width: 90%;
+            padding: 12px;
+            margin: 5px 0;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            background: #d4d0c8;
+            border: 3px outset #fff;
+            text-transform: uppercase;
+        }
+
+        .rbx-button:active { border-style: inset; }
+        .btn-green { background: #00cc00; color: white; border-color: #00ff00; }
+
+        /* HUD & STATS */
+        #stats-panel {
+            position: absolute;
+            top: 55px;
+            right: 15px;
+            width: 200px;
+        }
+
+        .stat-label { color: white; font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+        .bar-bg { width: 100%; height: 20px; background: #333; border: 2px solid #000; }
+        .bar-fill { width: 100%; height: 100%; background: #00ff00; transition: width 0.3s; }
+
+        #server-id-display {
+            background: white;
+            padding: 5px;
+            font-size: 11px;
+            border: 2px solid black;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #server-id-display:hover { background: #ffffcc; }
+
+        /* INVENTORY */
+        #inventory-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .inv-slot {
+            width: 65px;
+            height: 65px;
+            background: rgba(40,40,40,0.8);
+            border: 3px outset #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .inv-slot.active { border-color: #ffff00; background: rgba(100,100,0,0.4); }
+
+        /* CROSSHAIR */
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        /* EDITOR UI */
+        #editor-tools {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            display: none;
+        }
+
+        .color-picker {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .color-btn {
+            width: 100%;
+            padding-top: 100%;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        /* TOAST */
+        #toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 20px;
+            display: none;
+            border: 2px solid var(--rbx-blue);
+        }
     </style>
 </head>
 <body>
 
-    <div id="copy-toast">ID COPIADA AL PORTAPAPELES</div>
-    <div id="crosshair"></div>
+    <div id="toast">MENSAJE</div>
 
-    <div id="ui-layer">
-        <div id="top-bar"><span style="color: white; font-weight: bold;">KORBLOX ENGINE v2.0 (RAYCAST PHYSICS)</span></div>
-        <div id="hud">
-            <div id="username-display">Guest</div>
-            <div class="health-bg"><div id="health-bar"></div></div>
+    <div id="ui-container">
+        <div id="top-bar" class="interactable">
+            <div id="game-logo">KORBLOX ULTIMATE</div>
+            <div style="color: #aaa; font-size: 12px;">Build 2026.02.26</div>
         </div>
-        <div id="room-info" class="panel"><b>Server ID:</b><br><span id="my-id">Conectando...</span></div>
-        
-        <div id="main-menu" class="panel">
+
+        <div id="main-menu" class="rbx-panel interactable">
             <h1>KORBLOX</h1>
-            <input type="text" id="username-input" placeholder="Nombre de usuario..." maxlength="12">
-            <button class="btn-play" onclick="startPlay()">JUGAR</button>
-            <div style="margin: 10px; padding: 10px; background: #ddd; border: 1px solid #999;">
-                <input type="text" id="peer-input" placeholder="ID del amigo...">
-                <button onclick="connectToPeer()" style="width: auto;">UNIRSE</button>
+            <p style="margin: 5px 0; color: #666; font-weight: bold;">Plataforma de Creación Multijugador</p>
+            <input type="text" id="username-input" class="menu-input" placeholder="Nombre de Avatar" maxlength="15">
+            
+            <button class="rbx-button btn-green" onclick="App.startGame()">Entrar al Mundo</button>
+            
+            <div style="margin: 15px 0; padding: 15px; background: #ddd; border: 2px inset #fff;">
+                <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px;">CONECTAR A SERVIDOR PRIVADO:</label>
+                <input type="text" id="join-id" class="menu-input" style="width: 70%; margin: 0; font-size: 14px;" placeholder="Pegar ID del Servidor...">
+                <button class="rbx-button" style="width: 25%;" onclick="App.joinServer()">JOIN</button>
             </div>
-            <button onclick="startEditor()">CONSTRUIR</button>
+
+            <button class="rbx-button" onclick="App.startEditor()">Modo Constructor (Estudio)</button>
         </div>
 
-        <div id="inventory">
-            <div class="slot active"><span>1</span><br><b>SWORD</b></div>
+        <div id="stats-panel" class="interactable">
+            <div class="stat-label" id="hud-username">Guest</div>
+            <div class="bar-bg"><div id="health-bar" class="bar-fill"></div></div>
+            
+            <div id="server-id-display" onclick="App.copyID()">
+                <b>SERVER ID:</b> <span id="id-text">Generando...</span>
+            </div>
         </div>
 
-        <div id="editor-ui" class="panel">
-            <h3>EDITOR</h3>
-            <button onclick="exportMap()">EXPORTAR</button>
-            <button onclick="location.reload()">SALIR</button>
+        <div id="chat-area" class="interactable">
+            <div id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Presiona '/' para chatear..." maxlength="100">
         </div>
+
+        <div id="inventory-bar" class="interactable" style="display:none;">
+            <div class="inv-slot active" data-slot="1"><span>1</span><br><b>ESPADA</b></div>
+            <div class="inv-slot" data-slot="2"><span>2</span><br><b>BLOQUE</b></div>
+            <div class="inv-slot" data-slot="3"><span>3</span><br><b>BORRAR</b></div>
+            <div class="inv-slot" data-slot="4"><span>4</span><br><b>VACÍO</b></div>
+        </div>
+
+        <div id="editor-tools" class="rbx-panel interactable">
+            <h4 style="margin:0">MATERIALES</h4>
+            <div class="color-picker" id="editor-colors"></div>
+            <button class="rbx-button" onclick="World.saveMap()">Exportar Mapa</button>
+            <button class="rbx-button" onclick="location.reload()">Menu Principal</button>
+        </div>
+
+        <div id="crosshair" style="display: none;"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
     <script>
-        let scene, camera, renderer, player, otherPlayers = {}, conn;
-        let blocks = [], mapData = [], keys = {};
-        let isPlaying = false, isEditor = false;
-        let yaw = 0, pitch = 0, vy = 0, onGround = false;
-        let peer, myID, rightClickDown = false;
-        
-        // Raycasters para colisiones
-        const downRay = new THREE.Raycaster();
-        const upRay = new THREE.Raycaster();
+        /**
+         * KORBLOX ENGINE - NÚCLEO PROFESIONAL
+         * Desarrollado para estabilidad de físicas y red.
+         */
 
-        document.getElementById('my-id').onclick = function() {
-            navigator.clipboard.writeText(this.innerText).then(() => {
-                const t = document.getElementById('copy-toast');
-                t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000);
-            });
+        const App = {
+            state: 'MENU', // MENU, PLAYING, EDITOR
+            username: 'Guest',
+            myPeer: null,
+            conn: null,
+            isHost: true,
+
+            init() {
+                console.log("Korblox Engine Inicializando...");
+                this.setupColors();
+                Network.init();
+                
+                // Eventos de teclado globales
+                window.addEventListener('keydown', (e) => Input.onKeyDown(e));
+                window.addEventListener('keyup', (e) => Input.onKeyUp(e));
+                
+                // Chat Focus
+                window.addEventListener('keydown', (e) => {
+                    if(e.key === '/' && this.state !== 'MENU') {
+                        e.preventDefault();
+                        document.getElementById('chat-input').focus();
+                    }
+                });
+            },
+
+            setupColors() {
+                const colors = [0x888888, 0xcc0000, 0x00cc00, 0x0000cc, 0xffff00, 0xff00ff, 0x00ffff, 0xffffff, 0x333333, 0x663300];
+                const container = document.getElementById('editor-colors');
+                colors.forEach(c => {
+                    const btn = document.createElement('div');
+                    btn.className = 'color-btn';
+                    btn.style.backgroundColor = '#' + c.toString(16).padStart(6, '0');
+                    btn.onclick = () => World.selectedColor = c;
+                    container.appendChild(btn);
+                });
+            },
+
+            startGame() {
+                this.username = document.getElementById('username-input').value || "Guest_" + Math.floor(Math.random()*999);
+                this.state = 'PLAYING';
+                document.getElementById('main-menu').style.display = 'none';
+                document.getElementById('inventory-bar').style.display = 'flex';
+                document.getElementById('crosshair').style.display = 'block';
+                document.getElementById('hud-username').innerText = this.username;
+                
+                Engine.init();
+                Player.spawn();
+            },
+
+            startEditor() {
+                this.state = 'EDITOR';
+                document.getElementById('main-menu').style.display = 'none';
+                document.getElementById('editor-tools').style.display = 'block';
+                Engine.init();
+                Editor.init();
+            },
+
+            joinServer() {
+                const targetID = document.getElementById('join-id').value;
+                if(!targetID) return this.showToast("Introduce un ID válido");
+                this.isHost = false;
+                Network.connect(targetID);
+                this.startGame();
+            },
+
+            copyID() {
+                const text = document.getElementById('id-text').innerText;
+                navigator.clipboard.writeText(text);
+                this.showToast("ID Copiada!");
+            },
+
+            showToast(msg) {
+                const t = document.getElementById('toast');
+                t.innerText = msg;
+                t.style.display = 'block';
+                setTimeout(() => t.style.display = 'none', 3000);
+            }
         };
 
-        function initNetwork() {
-            peer = new Peer();
-            peer.on('open', id => { myID = id; document.getElementById('my-id').innerText = id; });
-            peer.on('connection', c => { conn = c; conn.on('open', () => conn.send({type:'map', data:mapData})); setupNet(); });
-        }
-
-        function setupNet() {
-            conn.on('data', d => {
-                if(d.type==='map') { mapData=d.data; syncBlocks(); }
-                if(d.type==='move') updateRemote(d);
-            });
-        }
-
-        function connectToPeer() {
-            const tid = document.getElementById('peer-input').value;
-            if(!tid) return; conn = peer.connect(tid); setupNet(); startPlay();
-        }
-
-        function initEngine() {
-            if(renderer) return;
-            scene = new THREE.Scene(); scene.background = new THREE.Color(0x87ceeb);
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({antialias:true}); renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true; document.body.appendChild(renderer.domElement);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(50, 100, 50); scene.add(sun);
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshStandardMaterial({color:0x248232}));
-            floor.rotation.x = -Math.PI/2; floor.name = "floor"; scene.add(floor);
-        }
-
-        function createChar() {
-            const g = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.BoxGeometry(2, 4, 1), new THREE.MeshStandardMaterial({color:0x0055ff}));
-            body.position.y = 2.5;
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshStandardMaterial({color:0xffff00}));
-            head.position.y = 4.5;
-            g.add(body, head); return g;
-        }
-
-        /**
-         * SISTEMA DE FÍSICAS POR RAYCASTING (SOLUCIÓN DEFINITIVA)
-         */
-        function updatePhysics() {
-            const rayOrigin = player.position.clone().add(new THREE.Vector3(0, 1, 0)); // Origen en los pies
-            const rayDirDown = new THREE.Vector3(0, -1, 0);
-            const rayDirUp = new THREE.Vector3(0, 1, 0);
-
-            // Gravedad constante
-            vy -= 0.02;
-            player.position.y += vy;
-
-            // 1. COLISIÓN ABAJO (Y+)
-            downRay.set(rayOrigin, rayDirDown);
-            const downHits = downRay.intersectObjects(blocks.concat(scene.getObjectByName("floor")));
-
-            if (downHits.length > 0) {
-                const hit = downHits[0];
-                const dist = hit.distance;
-
-                // Si estamos muy cerca o dentro del bloque
-                if (dist < 1.1) {
-                    player.position.y += (1.0 - dist); // Reposicionar en la superficie
-                    vy = 0;
-                    onGround = true;
-                } else {
-                    onGround = false;
-                }
-            }
-
-            // 2. COLISIÓN ARRIBA (Y-)
-            upRay.set(player.position.clone().add(new THREE.Vector3(0, 4, 0)), rayDirUp);
-            const upHits = upRay.intersectObjects(blocks);
-            if (upHits.length > 0) {
-                const hit = upHits[0];
-                if (hit.distance < 0.5) {
-                    vy = -0.05; // Rebote hacia abajo
-                    player.position.y -= 0.2;
-                }
-            }
-        }
-
-        function checkWalls(oldX, oldZ) {
-            // Colisión simple por distancia a bloques
-            for(let b of blocks) {
-                let dx = player.position.x - b.position.x;
-                let dz = player.position.z - b.position.z;
-                let dy = player.position.y - b.position.y;
-                
-                if (Math.abs(dx) < 3 && Math.abs(dz) < 3 && Math.abs(dy) < 4) {
-                    player.position.x = oldX;
-                    player.position.z = oldZ;
-                }
-            }
-        }
-
-        function startPlay() {
-            isPlaying = true; document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('hud').style.display = 'block';
-            document.getElementById('inventory').style.display = 'flex';
-            document.getElementById('crosshair').style.display = 'block';
-            initEngine(); syncBlocks();
-            player = createChar(); player.position.set(0, 10, 0); scene.add(player);
+        const Network = {
+            peer: null,
+            connections: [],
             
-            window.addEventListener('keydown', e => keys[e.code] = true);
-            window.addEventListener('keyup', e => keys[e.code] = false);
-            window.addEventListener('mousedown', e => { if(e.button===2) { rightClickDown=true; document.body.requestPointerLock(); } });
-            window.addEventListener('mouseup', e => { if(e.button===2) { rightClickDown=false; document.exitPointerLock(); } });
-            document.addEventListener('mousemove', e => { if(rightClickDown) { yaw -= e.movementX*0.003; pitch = Math.max(-1.4, Math.min(1.4, pitch + e.movementY*0.003)); } });
-            loop();
-        }
+            init() {
+                this.peer = new Peer();
+                this.peer.on('open', (id) => {
+                    document.getElementById('id-text').innerText = id;
+                });
 
-        function loop() {
-            requestAnimationFrame(loop);
-            if(isPlaying && player) {
-                const oldX = player.position.x;
-                const oldZ = player.position.z;
+                this.peer.on('connection', (conn) => {
+                    this.setupConn(conn);
+                    // Si soy host, le mando el mapa actual
+                    if(App.isHost) {
+                        setTimeout(() => {
+                            conn.send({ type: 'sync_world', map: World.mapData });
+                        }, 1000);
+                    }
+                });
+            },
 
-                updatePhysics();
+            connect(id) {
+                const conn = this.peer.connect(id);
+                this.setupConn(conn);
+            },
 
-                let speed = 0.4;
-                if(keys['KeyW']) { player.position.x -= Math.sin(yaw)*speed; player.position.z -= Math.cos(yaw)*speed; }
-                if(keys['KeyS']) { player.position.x += Math.sin(yaw)*speed; player.position.z += Math.cos(yaw)*speed; }
-                if(keys['KeyA']) { player.position.x -= Math.cos(yaw)*speed; player.position.z += Math.sin(yaw)*speed; }
-                if(keys['KeyD']) { player.position.x += Math.cos(yaw)*speed; player.position.z -= Math.sin(yaw)*speed; }
-                if(keys['Space'] && onGround) { vy = 0.5; onGround = false; }
+            setupConn(conn) {
+                conn.on('open', () => {
+                    App.conn = conn;
+                    this.connections.push(conn);
+                    App.showToast("Conexión establecida");
+                });
 
-                checkWalls(oldX, oldZ);
-                player.rotation.y = yaw;
+                conn.on('data', (data) => {
+                    if(data.type === 'sync_world') {
+                        World.mapData = data.map;
+                        World.rebuild();
+                    }
+                    if(data.type === 'player_move') {
+                        Multiplayer.updateRemotePlayer(data);
+                    }
+                    if(data.type === 'chat') {
+                        Chat.addMessage(data.user, data.msg);
+                    }
+                });
+            },
 
-                if(conn && conn.open) conn.send({type:'move', id:myID, x:player.position.x, y:player.position.y, z:player.position.z, ry:yaw});
-
-                camera.position.set(player.position.x + Math.sin(yaw)*25, player.position.y + 15, player.position.z + Math.cos(yaw)*25);
-                camera.lookAt(player.position.x, player.position.y+2, player.position.z);
+            broadcast(data) {
+                this.connections.forEach(c => {
+                    if(c.open) c.send(data);
+                });
             }
-            if(renderer) renderer.render(scene, camera);
-        }
+        };
 
-        function spawnBlock(pos) {
-            const b = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshStandardMaterial({color:0x888888}));
-            b.position.set(pos.x, pos.y, pos.z); b.castShadow = true; b.receiveShadow = true;
-            scene.add(b); blocks.push(b);
-        }
+        const Engine = {
+            scene: null,
+            camera: null,
+            renderer: null,
+            clock: new THREE.Clock(),
+            
+            init() {
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x87ceeb); // Cielo azul Roblox
+                
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+                
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.body.appendChild(this.renderer.domElement);
 
-        function syncBlocks() { blocks.forEach(b=>scene.remove(b)); blocks=[]; mapData.forEach(p=>spawnBlock(p)); }
+                // Luces
+                const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+                this.scene.add(ambient);
 
-        function startEditor() {
-            isEditor = true; document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('editor-ui').style.display = 'block';
-            initEngine();
-            window.onclick = (e) => {
-                if(!isEditor) return;
-                mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1;
-                raycaster.setFromCamera(mouse, camera);
-                const hits = raycaster.intersectObjects(scene.children);
-                if(hits.length>0) {
-                    const hit = hits[0];
-                    let p = hit.object.name==="floor" ? new THREE.Vector3(Math.round(hit.point.x/4)*4, 2, Math.round(hit.point.z/4)*4) : hit.object.position.clone().add(hit.face.normal.multiplyScalar(4));
-                    spawnBlock(p); mapData.push({x:p.x, y:p.y, z:p.z});
+                const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+                sun.position.set(100, 200, 100);
+                sun.castShadow = true;
+                sun.shadow.camera.left = -200;
+                sun.shadow.camera.right = 200;
+                sun.shadow.camera.top = 200;
+                sun.shadow.camera.bottom = -200;
+                this.scene.add(sun);
+
+                // Suelo base
+                const floorGeo = new THREE.PlaneGeometry(1000, 1000);
+                const floorMat = new THREE.MeshStandardMaterial({ color: 0x248232 });
+                const floor = new THREE.Mesh(floorGeo, floorMat);
+                floor.rotation.x = -Math.PI / 2;
+                floor.receiveShadow = true;
+                floor.name = "BASEPLATE";
+                this.scene.add(floor);
+
+                window.addEventListener('resize', () => this.onResize());
+                this.animate();
+            },
+
+            onResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            },
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                const delta = this.clock.getDelta();
+
+                if(App.state === 'PLAYING') {
+                    Player.update(delta);
+                } else if(App.state === 'EDITOR') {
+                    Editor.update(delta);
                 }
-            };
-            camera.position.set(50,50,50); camera.lookAt(0,0,0); loop();
+
+                this.renderer.render(this.scene, this.camera);
+            }
+        };
+
+        const World = {
+            blocks: [],
+            mapData: [], // {x, y, z, color}
+            selectedColor: 0x888888,
+
+            addBlock(pos, color) {
+                const geo = new THREE.BoxGeometry(4, 4, 4);
+                const mat = new THREE.MeshStandardMaterial({ color: color || this.selectedColor });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(pos.x, pos.y, pos.z);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                mesh.isBlock = true;
+                
+                Engine.scene.add(mesh);
+                this.blocks.push(mesh);
+                
+                if(App.state === 'EDITOR' || App.isHost) {
+                    this.mapData.push({x: pos.x, y: pos.y, z: pos.z, c: color || this.selectedColor});
+                }
+            },
+
+            removeBlock(obj) {
+                Engine.scene.remove(obj);
+                this.blocks = this.blocks.filter(b => b !== obj);
+                this.mapData = this.mapData.filter(d => !(d.x === obj.position.x && d.y === obj.position.y && d.z === obj.position.z));
+            },
+
+            rebuild() {
+                // Limpiar bloques actuales
+                this.blocks.forEach(b => Engine.scene.remove(b));
+                this.blocks = [];
+                // Construir desde data
+                this.mapData.forEach(d => {
+                    this.addBlock({x: d.x, y: d.y, z: d.z}, d.c);
+                });
+            },
+
+            saveMap() {
+                const data = JSON.stringify(this.mapData);
+                const blob = new Blob([data], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'korblox_world.json';
+                a.click();
+            }
+        };
+
+        const Player = {
+            mesh: null,
+            velocity: new THREE.Vector3(),
+            onGround: false,
+            yaw: 0,
+            pitch: 0,
+            speed: 40,
+            jumpForce: 15,
+            height: 5,
+
+            spawn() {
+                this.mesh = new THREE.Group();
+                
+                // Torso (Humanoid)
+                const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 1), new THREE.MeshStandardMaterial({color: 0x0055ff}));
+                torso.position.y = 2.5;
+                
+                const head = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), new THREE.MeshStandardMaterial({color: 0xffff00}));
+                head.position.y = 4.8;
+
+                this.mesh.add(torso, head);
+                this.mesh.position.set(0, 10, 0);
+                Engine.scene.add(this.mesh);
+
+                // Bloquear ratón
+                document.addEventListener('mousedown', (e) => {
+                    if(App.state === 'PLAYING' && e.button === 2) {
+                        document.body.requestPointerLock();
+                    }
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if(document.pointerLockElement === document.body) {
+                        this.yaw -= e.movementX * 0.003;
+                        this.pitch -= e.movementY * 0.003;
+                        this.pitch = Math.max(-Math.PI/2.1, Math.min(Math.PI/2.1, this.pitch));
+                    }
+                });
+            },
+
+            update(delta) {
+                if(!this.mesh) return;
+
+                // 1. GRAVEDAD PROGRESIVA
+                this.velocity.y -= 35 * delta;
+                
+                // 2. MOVIMIENTO
+                let moveX = 0;
+                let moveZ = 0;
+
+                if(Input.keys['KeyW']) moveZ -= 1;
+                if(Input.keys['KeyS']) moveZ += 1;
+                if(Input.keys['KeyA']) moveX -= 1;
+                if(Input.keys['KeyD']) moveX += 1;
+
+                const direction = new THREE.Vector3(moveX, 0, moveZ).normalize();
+                direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw);
+                
+                this.mesh.position.x += direction.x * this.speed * delta;
+                this.mesh.position.z += direction.z * this.speed * delta;
+                this.mesh.position.y += this.velocity.y * delta;
+
+                // 3. FÍSICAS DE RAYCASTING (SUSTENTACIÓN)
+                this.checkCollisions();
+
+                // 4. CÁMARA (Tercera Persona Estilo Roblox)
+                const camDist = 25;
+                const camX = this.mesh.position.x + Math.sin(this.yaw) * Math.cos(this.pitch) * camDist;
+                const camY = this.mesh.position.y + 8 + Math.sin(this.pitch) * camDist;
+                const camZ = this.mesh.position.z + Math.cos(this.yaw) * Math.cos(this.pitch) * camDist;
+                
+                Engine.camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.2);
+                Engine.camera.lookAt(this.mesh.position.x, this.mesh.position.y + 3, this.mesh.position.z);
+                
+                this.mesh.rotation.y = this.yaw;
+
+                // 5. RED
+                if(Network.connections.length > 0) {
+                    Network.broadcast({
+                        type: 'player_move',
+                        id: App.myPeer ? App.myPeer.id : 'me',
+                        x: this.mesh.position.x,
+                        y: this.mesh.position.y,
+                        z: this.mesh.position.z,
+                        ry: this.yaw,
+                        name: App.username
+                    });
+                }
+            },
+
+            checkCollisions() {
+                const raycaster = new THREE.Raycaster(
+                    new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 1, this.mesh.position.z),
+                    new THREE.Vector3(0, -1, 0),
+                    0, 2
+                );
+
+                const groundObjects = World.blocks.concat(Engine.scene.getObjectByName("BASEPLATE"));
+                const intersects = raycaster.intersectObjects(groundObjects);
+
+                if(intersects.length > 0) {
+                    const hit = intersects[0];
+                    if(hit.distance < 1.1) {
+                        this.mesh.position.y = hit.point.y;
+                        this.velocity.y = 0;
+                        this.onGround = true;
+                        
+                        if(Input.keys['Space']) {
+                            this.velocity.y = this.jumpForce;
+                            this.onGround = false;
+                        }
+                    }
+                } else {
+                    this.onGround = false;
+                }
+
+                // Caída al vacío
+                if(this.mesh.position.y < -50) {
+                    this.mesh.position.set(0, 20, 0);
+                    this.velocity.set(0,0,0);
+                }
+            }
+        };
+
+        const Editor = {
+            raycaster: new THREE.Raycaster(),
+            mouse: new THREE.Vector2(),
+            camPos: new THREE.Vector3(50, 50, 50),
+            
+            init() {
+                Engine.camera.position.set(50, 50, 50);
+                Engine.camera.lookAt(0, 0, 0);
+
+                window.addEventListener('mousedown', (e) => {
+                    if(App.state !== 'EDITOR') return;
+                    if(e.button === 0) this.placeOrDelete(e);
+                });
+            },
+
+            update(delta) {
+                // Cámara de vuelo
+                const s = 50 * delta;
+                if(Input.keys['KeyW']) Engine.camera.translateZ(-s);
+                if(Input.keys['KeyS']) Engine.camera.translateZ(s);
+                if(Input.keys['KeyA']) Engine.camera.translateX(-s);
+                if(Input.keys['KeyD']) Engine.camera.translateX(s);
+                if(Input.keys['KeyE']) Engine.camera.position.y += s;
+                if(Input.keys['KeyQ']) Engine.camera.position.y -= s;
+
+                if(Input.keys['ArrowRight']) Engine.camera.rotation.y -= 0.02;
+                if(Input.keys['ArrowLeft']) Engine.camera.rotation.y += 0.02;
+            },
+
+            placeOrDelete(e) {
+                this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                this.raycaster.setFromCamera(this.mouse, Engine.camera);
+
+                const objects = World.blocks.concat(Engine.scene.getObjectByName("BASEPLATE"));
+                const intersects = this.raycaster.intersectObjects(objects);
+
+                if(intersects.length > 0) {
+                    const hit = intersects[0];
+                    if(e.shiftKey) {
+                        if(hit.object.isBlock) World.removeBlock(hit.object);
+                    } else {
+                        const normal = hit.face.normal;
+                        const newPos = hit.object.position.clone();
+                        
+                        if(hit.object.name === "BASEPLATE") {
+                            newPos.set(
+                                Math.round(hit.point.x / 4) * 4,
+                                2,
+                                Math.round(hit.point.z / 4) * 4
+                            );
+                        } else {
+                            newPos.add(normal.multiplyScalar(4));
+                        }
+                        World.addBlock(newPos);
+                    }
+                }
+            }
+        };
+
+        const Multiplayer = {
+            remotes: {},
+
+            updateRemotePlayer(data) {
+                if(!this.remotes[data.id]) {
+                    this.remotes[data.id] = createRemoteMesh(data.name);
+                    Engine.scene.add(this.remotes[data.id]);
+                }
+                const r = this.remotes[data.id];
+                r.position.lerp(new THREE.Vector3(data.x, data.y, data.z), 0.3);
+                r.rotation.y = data.ry;
+            }
+        };
+
+        function createRemoteMesh(name) {
+            const g = new THREE.Group();
+            const b = new THREE.Mesh(new THREE.BoxGeometry(2, 4.5, 1), new THREE.MeshStandardMaterial({color: 0xff0000}));
+            b.position.y = 2.25;
+            g.add(b);
+            
+            // Label de nombre
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256; canvas.height = 64;
+            ctx.fillStyle = 'white'; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center';
+            ctx.fillText(name, 128, 48);
+            const tex = new THREE.CanvasTexture(canvas);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: tex}));
+            sprite.position.y = 6; sprite.scale.set(5, 1.2, 1);
+            g.add(sprite);
+            
+            return g;
         }
 
-        initNetwork();
+        const Chat = {
+            messages: document.getElementById('chat-messages'),
+            input: document.getElementById('chat-input'),
+
+            init() {
+                this.input.addEventListener('keydown', (e) => {
+                    if(e.key === 'Enter' && this.input.value.trim() !== '') {
+                        const msg = this.input.value;
+                        this.addMessage(App.username, msg);
+                        Network.broadcast({ type: 'chat', user: App.username, msg: msg });
+                        this.input.value = '';
+                        this.input.blur();
+                    }
+                });
+            },
+
+            addMessage(user, msg) {
+                const div = document.createElement('div');
+                div.innerHTML = `<b>${user}:</b> ${msg}`;
+                this.messages.appendChild(div);
+                this.messages.scrollTop = this.messages.scrollHeight;
+            }
+        };
+
+        const Input = {
+            keys: {},
+            onKeyDown(e) { this.keys[e.code] = true; },
+            onKeyUp(e) { this.keys[e.code] = false; }
+        };
+
+        // Iniciar todo
+        App.init();
+        Chat.init();
+
     </script>
 </body>
 </html>
