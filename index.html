@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox 2008 - Avatar & Nametags</title>
+    <title>Roblox 2008 - P2P Fixed Connection</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: "Arial Black", sans-serif; background: #000; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
@@ -60,7 +60,7 @@
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
     <script>
-        let scene, camera, renderer, player, raycaster, mouse, nametagSprite;
+        let scene, camera, renderer, player, raycaster, mouse;
         let blocks = []; 
         let mapData = []; 
         let peer, conn;
@@ -70,6 +70,7 @@
         let vy = 0, onGround = false;
 
         function init() {
+            if (renderer) return; // Evitar duplicados
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87ceeb);
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -92,72 +93,79 @@
 
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
-            
-            if(!peer) {
-                peer = new Peer();
-                peer.on('open', id => document.getElementById('my-id').innerText = id);
-            }
         }
 
-        // --- CREACIÓN DEL AVATAR ESTILO ROBLOX ---
+        // --- LÓGICA P2P CORREGIDA ---
+        peer = new Peer();
+        peer.on('open', id => {
+            document.getElementById('my-id').innerText = id;
+        });
+
+        // Escuchar conexiones entrantes (Host)
+        peer.on('connection', c => {
+            conn = c;
+            conn.on('open', () => {
+                // Cuando alguien se une, le enviamos el mapa actual
+                conn.send({ type: 'MAP_DATA', data: mapData });
+                alert("Un jugador se ha conectado. Enviando mapa...");
+            });
+        });
+
+        function connectToPeer() {
+            const remoteId = document.getElementById('peer-input').value;
+            if(!remoteId) return alert("Introduce un ID.");
+            
+            conn = peer.connect(remoteId);
+            conn.on('open', () => {
+                console.log("Conexión establecida con el Host");
+            });
+
+            // Recibir datos del Host
+            conn.on('data', (payload) => {
+                if(payload.type === 'MAP_DATA') {
+                    mapData = payload.data;
+                    document.getElementById('play-btn').disabled = false;
+                    alert("Mapa recibido del Host. ¡Presiona PLAY!");
+                }
+            });
+        }
+
         function createRobloxCharacter(name) {
             const group = new THREE.Group();
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+            const torsoMat = new THREE.MeshStandardMaterial({ color: 0x0055ff });
+            const limbMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 });
 
-            // Materiales
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffff00 }); // Amarillo
-            const torsoMat = new THREE.MeshStandardMaterial({ color: 0x0055ff }); // Azul
-            const limbMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 }); // Verde (pantalones/brazos)
-
-            // Cabeza (1x1x1)
             const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skinMat);
             head.position.y = 4.1;
-            group.add(head);
-
-            // Torso (2x2x1)
             const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 1), torsoMat);
             torso.position.y = 2.5;
-            group.add(torso);
-
-            // Brazos (1x2x1)
             const armL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skinMat);
             armL.position.set(-1.5, 2.5, 0);
-            group.add(armL);
-
             const armR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skinMat);
             armR.position.set(1.5, 2.5, 0);
-            group.add(armR);
-
-            // Piernas (1x2x1)
             const legL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), limbMat);
             legL.position.set(-0.5, 0.5, 0);
-            group.add(legL);
-
             const legR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), limbMat);
             legR.position.set(0.5, 0.5, 0);
-            group.add(legR);
 
-            // NAMETAG (Canvas Texture)
+            group.add(head, torso, armL, armR, legL, legR);
+
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 256; canvas.height = 64;
-            ctx.fillStyle = 'rgba(0,0,0,0.4)';
-            ctx.fillRect(0, 0, 256, 64);
-            ctx.font = 'bold 40px Arial';
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(0, 0, 256, 64);
+            ctx.font = 'bold 40px Arial'; ctx.fillStyle = 'white'; ctx.textAlign = 'center';
             ctx.fillText(name || "Player", 128, 45);
 
             const texture = new THREE.CanvasTexture(canvas);
-            const spriteMat = new THREE.SpriteMaterial({ map: texture });
-            nametagSprite = new THREE.Sprite(spriteMat);
-            nametagSprite.position.y = 5.5;
-            nametagSprite.scale.set(4, 1, 1);
-            group.add(nametagSprite);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+            sprite.position.y = 5.5; sprite.scale.set(4, 1, 1);
+            group.add(sprite);
 
             return group;
         }
 
-        // --- MODO EDITOR ---
         function startEditor() {
             isEditor = true;
             document.getElementById('main-menu').style.display = 'none';
@@ -202,6 +210,9 @@
             document.getElementById('crosshair').style.display = 'block';
             init();
             
+            blocks.forEach(b => scene.remove(b));
+            blocks = [];
+
             mapData.forEach(pos => {
                 const box = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0x8d8d8d}));
                 box.position.set(pos.x, pos.y, pos.z);
@@ -254,7 +265,6 @@
                 if(keys['KeyA']) player.position.x -= Math.cos(yaw) * speed, player.position.z += Math.sin(yaw) * speed;
                 if(keys['KeyD']) player.position.x += Math.cos(yaw) * speed, player.position.z -= Math.sin(yaw) * speed;
 
-                // Colisiones
                 let pBox = new THREE.Box3().setFromCenterAndSize(player.position.clone().add(new THREE.Vector3(0,2,0)), new THREE.Vector3(1.8, 4, 1.8));
                 for(let b of blocks) {
                     let bBox = new THREE.Box3().setFromObject(b);
@@ -270,9 +280,7 @@
                     }
                 }
 
-                // Rotación suave del cuerpo hacia donde camina
                 player.rotation.y = yaw;
-
                 const camDist = 20;
                 camera.position.x = player.position.x + Math.sin(yaw) * Math.cos(pitch) * camDist;
                 camera.position.z = player.position.z + Math.cos(yaw) * Math.cos(pitch) * camDist;
@@ -298,13 +306,6 @@
                 document.getElementById('play-btn').innerText = "ENTER GAME";
             };
             reader.readAsText(e.target.files[0]);
-        }
-        
-        function connectToPeer() {
-            const remoteId = document.getElementById('peer-input').value;
-            if(!remoteId) return alert("ID necesario");
-            conn = peer.connect(remoteId);
-            conn.on('open', () => { alert("Connected!"); startPlay(); });
         }
     </script>
 </body>
