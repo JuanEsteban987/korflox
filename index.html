@@ -2,21 +2,54 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox 2008 - P2P Fixed Connection</title>
+    <title>ROBLOX 2008 - ULTIMATE MULTIPLAYER</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: "Arial Black", sans-serif; background: #000; }
+        /* ESTÉTICA RETRO ROBLOX */
+        body { margin: 0; overflow: hidden; font-family: "Arial", sans-serif; background: #000; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-        #top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 40px; background: #cc0000; border-bottom: 3px solid #880000; display: flex; align-items: center; padding: 0 10px; pointer-events: auto; }
-        .panel { pointer-events: auto; background: #eeeeee; border: 4px outset #ffffff; padding: 15px; color: #333; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); }
-        #main-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; text-align: center; }
-        h1 { color: #cc0000; -webkit-text-stroke: 1px black; font-size: 40px; margin: 10px 0; }
-        button { cursor: pointer; padding: 10px; margin: 5px; font-weight: bold; background: #d4d0c8; border: 3px outset #ffffff; width: 90%; }
+        
+        /* Barra superior roja icónica */
+        #top-bar { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 40px; 
+            background: #cc0000; border-bottom: 3px solid #880000; 
+            display: flex; align-items: center; padding: 0 10px; pointer-events: auto; 
+        }
+
+        .panel { 
+            pointer-events: auto; background: #eeeeee; border: 4px outset #ffffff; 
+            padding: 15px; color: #333; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); 
+        }
+
+        #main-menu { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 420px; text-align: center; display: block;
+        }
+
+        h1 { color: #cc0000; -webkit-text-stroke: 1px black; font-size: 45px; margin: 10px 0; font-family: "Arial Black"; }
+
+        button { 
+            cursor: pointer; padding: 10px; margin: 5px; font-weight: bold; 
+            background: #d4d0c8; border: 3px outset #ffffff; width: 90%; 
+        }
         button:active { border: 3px inset #ffffff; }
-        .btn-play { background: #00bb00; color: white; border-color: #00ff00; }
+        .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 18px; }
         .btn-editor { background: #0055ff; color: white; border-color: #55aaff; }
+
+        /* Inventario */
+        #inventory { 
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            display: none; pointer-events: auto; gap: 5px; 
+        }
+        .slot { 
+            width: 65px; height: 65px; background: rgba(0,0,0,0.6); 
+            border: 3px outset #ffffff; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: white; font-size: 10px; 
+        }
+        .slot.active { border-color: #ffff00; background: rgba(255,255,255,0.2); }
+
         #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 220px; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; }
         #room-info { position: absolute; top: 50px; left: 10px; font-size: 12px; background: white; padding: 5px; border: 2px solid black; pointer-events: auto; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; }
         input { pointer-events: auto; padding: 8px; margin: 5px; border: 2px inset #eee; width: 80%; }
     </style>
 </head>
@@ -25,32 +58,38 @@
     <div id="crosshair"></div>
 
     <div id="ui-layer">
-        <div id="top-bar"><span style="color: white;">ROBLOX - [BETA 2008]</span></div>
+        <div id="top-bar"><span style="color: white; font-weight: bold; font-family: sans-serif;">ROBLOX</span></div>
         
         <div id="room-info" class="panel">
-            Server ID: <span id="my-id" style="color:blue">Cargando...</span>
+            <b>Your ID:</b> <span id="my-id" style="color:blue">Connecting...</span>
         </div>
 
         <div id="main-menu" class="panel">
             <h1>ROBLOX</h1>
-            <input type="text" id="username-input" placeholder="Tu nombre aquí..." maxlength="15">
-            <br>
+            <input type="text" id="username-input" placeholder="Enter Username..." maxlength="12">
+            
             <button class="btn-editor" onclick="startEditor()">BUILD MODE</button>
             <button onclick="document.getElementById('file-input').click()">LOAD MAP (.JSON)</button>
             <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
             
-            <div style="margin: 10px; padding: 10px; border: 1px solid #999;">
-                <p style="font-size: 11px; margin: 0;">JOIN SERVER:</p>
-                <input type="text" id="peer-input" placeholder="Paste ID...">
-                <button style="width: auto;" onclick="connectToPeer()">JOIN</button>
+            <div style="margin: 15px; padding: 10px; border: 1px solid #999; background: #ddd;">
+                <p style="font-size: 11px; margin: 0 0 5px 0;">JOIN A FRIEND:</p>
+                <input type="text" id="peer-input" placeholder="Paste ID here...">
+                <button style="width: auto;" onclick="connectToPeer()">JOIN SERVER</button>
             </div>
 
-            <button id="play-btn" class="btn-play" disabled onclick="startPlay()">PLAY SOLO</button>
+            <button id="play-btn" class="btn-play" onclick="startPlay(true)">PLAY SOLO / HOST</button>
+        </div>
+
+        <div id="inventory">
+            <div class="slot active" id="slot-1"><span>1</span><br>SWORD</div>
+            <div class="slot" id="slot-2"><span>2</span><br>EMPTY</div>
+            <div class="slot" id="slot-3"><span>3</span><br>EMPTY</div>
         </div>
 
         <div id="editor-ui" class="panel">
-            <h2 style="margin:0">EDITOR</h2>
-            <p style="font-size: 11px;"><b>LMB:</b> Place | <b>RMB:</b> Delete</p>
+            <h2 style="margin:0">STAMPER</h2>
+            <p style="font-size: 11px;"><b>LMB:</b> Place Block<br><b>RMB:</b> Delete Block</p>
             <button class="btn-play" onclick="exportMap()">SAVE MAP</button>
             <button onclick="location.reload()">EXIT</button>
         </div>
@@ -60,17 +99,47 @@
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
     <script>
-        let scene, camera, renderer, player, raycaster, mouse;
-        let blocks = []; 
-        let mapData = []; 
-        let peer, conn;
-        let keys = {};
-        let isEditor = false, isPlaying = false;
-        let yaw = 0, pitch = 0;
-        let vy = 0, onGround = false;
+        // Variables Globales
+        let scene, camera, renderer, player, otherPlayers = {}, conn;
+        let blocks = [], mapData = [], keys = {};
+        let isPlaying = false, isEditor = false, swordEquipped = true;
+        let yaw = 0, pitch = 0, vy = 0, onGround = false;
+        let peer, myID;
 
-        function init() {
-            if (renderer) return; // Evitar duplicados
+        // --- INICIALIZACIÓN DE RED ---
+        peer = new Peer();
+        peer.on('open', id => { myID = id; document.getElementById('my-id').innerText = id; });
+        
+        peer.on('connection', c => {
+            conn = c;
+            setupNetworkEvents();
+            // Si soy host, enviar mapa al que entra
+            conn.on('open', () => conn.send({ type: 'map', data: mapData }));
+        });
+
+        function connectToPeer() {
+            const targetID = document.getElementById('peer-input').value;
+            if(!targetID) return alert("Please enter an ID");
+            conn = peer.connect(targetID);
+            setupNetworkEvents();
+            startPlay(false);
+        }
+
+        function setupNetworkEvents() {
+            conn.on('data', data => {
+                if(data.type === 'map') {
+                    mapData = data.data;
+                    syncBlocks();
+                }
+                if(data.type === 'move') {
+                    updateRemotePlayer(data);
+                }
+            });
+        }
+
+        // --- MOTOR 3D ---
+        function initEngine() {
+            if(renderer) return;
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87ceeb);
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -78,201 +147,193 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            const light = new THREE.DirectionalLight(0xffffff, 1.2);
-            light.position.set(50, 100, 50);
-            scene.add(light);
-            scene.add(new THREE.AmbientLight(0x666666));
+            scene.add(new THREE.AmbientLight(0x777777));
+            let sun = new THREE.DirectionalLight(0xffffff, 1);
+            sun.position.set(50, 100, 50);
+            scene.add(sun);
 
-            const baseplate = new THREE.Mesh(
-                new THREE.PlaneGeometry(500, 500),
-                new THREE.MeshStandardMaterial({ color: 0x248232 })
-            );
-            baseplate.rotation.x = -Math.PI / 2;
-            baseplate.name = "ground";
-            scene.add(baseplate);
-
-            raycaster = new THREE.Raycaster();
-            mouse = new THREE.Vector2();
+            // Baseplate Clásica
+            const base = new THREE.Mesh(new THREE.PlaneGeometry(500,500), new THREE.MeshStandardMaterial({color: 0x248232}));
+            base.rotation.x = -Math.PI/2;
+            scene.add(base);
         }
 
-        // --- LÓGICA P2P CORREGIDA ---
-        peer = new Peer();
-        peer.on('open', id => {
-            document.getElementById('my-id').innerText = id;
-        });
-
-        // Escuchar conexiones entrantes (Host)
-        peer.on('connection', c => {
-            conn = c;
-            conn.on('open', () => {
-                // Cuando alguien se une, le enviamos el mapa actual
-                conn.send({ type: 'MAP_DATA', data: mapData });
-                alert("Un jugador se ha conectado. Enviando mapa...");
-            });
-        });
-
-        function connectToPeer() {
-            const remoteId = document.getElementById('peer-input').value;
-            if(!remoteId) return alert("Introduce un ID.");
-            
-            conn = peer.connect(remoteId);
-            conn.on('open', () => {
-                console.log("Conexión establecida con el Host");
-            });
-
-            // Recibir datos del Host
-            conn.on('data', (payload) => {
-                if(payload.type === 'MAP_DATA') {
-                    mapData = payload.data;
-                    document.getElementById('play-btn').disabled = false;
-                    alert("Mapa recibido del Host. ¡Presiona PLAY!");
-                }
-            });
-        }
-
-        function createRobloxCharacter(name) {
+        function createCharacter(name) {
             const group = new THREE.Group();
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
-            const torsoMat = new THREE.MeshStandardMaterial({ color: 0x0055ff });
-            const limbMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 });
+            const skin = new THREE.MeshStandardMaterial({color: 0xffff00});
+            const torsoMat = new THREE.MeshStandardMaterial({color: 0x0055ff});
+            const legMat = new THREE.MeshStandardMaterial({color: 0x27ae60});
 
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skinMat);
-            head.position.y = 4.1;
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 1), torsoMat);
-            torso.position.y = 2.5;
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skinMat);
-            armL.position.set(-1.5, 2.5, 0);
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skinMat);
-            armR.position.set(1.5, 2.5, 0);
-            const legL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), limbMat);
-            legL.position.set(-0.5, 0.5, 0);
-            const legR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), limbMat);
-            legR.position.set(0.5, 0.5, 0);
+            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2), skin); head.position.y = 4.2;
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(2,2,1), torsoMat); torso.position.y = 2.6;
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), skin); armL.position.set(-1.5, 2.6, 0);
+            const armR = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), skin); armR.position.set(1.5, 2.6, 0);
+            const legL = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), legMat); legL.position.set(-0.5, 0.6, 0);
+            const legR = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), legMat); legR.position.set(0.5, 0.6, 0);
 
-            group.add(head, torso, armL, armR, legL, legR);
+            // Espada
+            const swordG = new THREE.Group();
+            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2.5, 0.1), new THREE.MeshStandardMaterial({color: 0xcccccc}));
+            blade.position.y = 1.5;
+            const guard = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 0.4), new THREE.MeshStandardMaterial({color: 0xaa8800}));
+            guard.position.y = 0.5;
+            swordG.add(blade, guard);
+            swordG.position.set(1.5, 2.5, -1);
+            swordG.rotation.x = -Math.PI/2;
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 256; canvas.height = 64;
-            ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(0, 0, 256, 64);
-            ctx.font = 'bold 40px Arial'; ctx.fillStyle = 'white'; ctx.textAlign = 'center';
-            ctx.fillText(name || "Player", 128, 45);
+            group.add(head, torso, armL, armR, legL, legR, swordG);
+            group.userData = { armL, armR, legL, legR, sword: swordG, name };
 
-            const texture = new THREE.CanvasTexture(canvas);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
-            sprite.position.y = 5.5; sprite.scale.set(4, 1, 1);
+            // Nametag
+            const canv = document.createElement('canvas');
+            const ctx = canv.getContext('2d');
+            canv.width = 256; canv.height = 64;
+            ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,256,64);
+            ctx.font = 'bold 30px Arial'; ctx.fillStyle = 'white'; ctx.textAlign = 'center';
+            ctx.fillText(name || "Player", 128, 42);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: new THREE.CanvasTexture(canv)}));
+            sprite.position.y = 6; sprite.scale.set(4, 1, 1);
             group.add(sprite);
 
             return group;
         }
 
+        // --- ANIMACIONES ---
+        function animateAvatar(char, walking) {
+            const t = Date.now() * 0.008;
+            const ud = char.userData;
+            if(walking) {
+                ud.legL.rotation.x = Math.sin(t) * 0.7;
+                ud.legR.rotation.x = -Math.sin(t) * 0.7;
+                ud.armL.rotation.x = -Math.sin(t) * 0.7;
+                ud.armR.rotation.x = Math.sin(t) * 0.7;
+            } else {
+                ud.legL.rotation.x = ud.legR.rotation.x = ud.armL.rotation.x = ud.armR.rotation.x = 0;
+            }
+        }
+
+        // --- MODOS ---
         function startEditor() {
             isEditor = true;
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('editor-ui').style.display = 'block';
-            init();
-            camera.position.set(0, 60, 60);
-            camera.lookAt(0,0,0);
-            window.addEventListener('mousedown', onEditorMouseClick);
+            initEngine();
+            camera.position.set(50, 50, 50); camera.lookAt(0,0,0);
+            window.addEventListener('mousedown', onEditorClick);
             window.addEventListener('contextmenu', e => e.preventDefault());
-            animate();
+            mainLoop();
         }
 
-        function onEditorMouseClick(e) {
+        function onEditorClick(e) {
             if(!isEditor) return;
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-            const hits = raycaster.intersectObjects(scene.children);
+            const mouse = new THREE.Vector2((e.clientX/window.innerWidth)*2-1, -(e.clientY/window.innerHeight)*2+1);
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(mouse, camera);
+            const hits = ray.intersectObjects(scene.children);
             if(hits.length > 0) {
-                const target = hits[0].object;
-                if(e.button === 0) {
+                if(e.button === 0) { // Colocar
                     const p = hits[0].point;
                     const pos = { x: Math.round(p.x/4)*4, y: 2, z: Math.round(p.z/4)*4 };
-                    const mesh = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0xcccccc}));
-                    mesh.position.set(pos.x, pos.y, pos.z);
-                    mesh.isBlock = true;
-                    scene.add(mesh);
-                    blocks.push(mesh);
-                } else if(e.button === 2) {
-                    if(target.isBlock) {
-                        scene.remove(target);
-                        blocks = blocks.filter(b => b !== target);
+                    addBlock(pos);
+                    mapData.push(pos);
+                } else if(e.button === 2) { // Borrar
+                    if(hits[0].object.isBlock) {
+                        scene.remove(hits[0].object);
+                        blocks = blocks.filter(b => b !== hits[0].object);
+                        mapData = mapData.filter(m => m.x !== hits[0].object.position.x || m.z !== hits[0].object.position.z);
                     }
                 }
             }
         }
 
-        function startPlay() {
+        function addBlock(pos) {
+            const b = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0xa1a1a1}));
+            b.position.set(pos.x, pos.y, pos.z);
+            b.isBlock = true;
+            scene.add(b);
+            blocks.push(b);
+        }
+
+        function startPlay(host) {
             isPlaying = true; isEditor = false;
-            const name = document.getElementById('username-input').value;
             document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('inventory').style.display = 'flex';
             document.getElementById('crosshair').style.display = 'block';
-            init();
-            
-            blocks.forEach(b => scene.remove(b));
-            blocks = [];
+            initEngine();
+            syncBlocks();
 
-            mapData.forEach(pos => {
-                const box = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0x8d8d8d}));
-                box.position.set(pos.x, pos.y, pos.z);
-                box.isBlock = true;
-                scene.add(box);
-                blocks.push(box);
-            });
-
-            player = createRobloxCharacter(name);
-            player.position.set(0, 10, 20);
+            player = createCharacter(document.getElementById('username-input').value);
+            player.position.set(0, 5, 20);
             scene.add(player);
 
-            document.addEventListener('keydown', e => keys[e.code] = true);
+            document.addEventListener('keydown', e => {
+                keys[e.code] = true;
+                if(e.code === 'Digit1') { swordEquipped = true; player.userData.sword.visible = true; }
+                if(e.code === 'Digit2') { swordEquipped = false; player.userData.sword.visible = false; }
+            });
             document.addEventListener('keyup', e => keys[e.code] = false);
-            document.body.onclick = () => { if(isPlaying) document.body.requestPointerLock(); };
+            document.body.onclick = () => document.body.requestPointerLock();
             document.addEventListener('mousemove', e => {
                 if(document.pointerLockElement === document.body) {
                     yaw -= e.movementX * 0.003;
-                    pitch += e.movementY * 0.003; 
-                    pitch = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, pitch));
+                    pitch += e.movementY * 0.003;
+                    pitch = Math.max(-1, Math.min(1, pitch));
                 }
             });
-            animate();
+            mainLoop();
         }
 
-        function animate() {
-            requestAnimationFrame(animate);
+        function syncBlocks() {
+            blocks.forEach(b => scene.remove(b));
+            blocks = [];
+            mapData.forEach(pos => addBlock(pos));
+        }
+
+        function updateRemotePlayer(data) {
+            if(!otherPlayers[data.id]) {
+                otherPlayers[data.id] = createCharacter(data.name);
+                scene.add(otherPlayers[data.id]);
+            }
+            let op = otherPlayers[data.id];
+            op.position.set(data.x, data.y, data.z);
+            op.rotation.y = data.ry;
+            animateAvatar(op, data.walking);
+        }
+
+        function mainLoop() {
+            requestAnimationFrame(mainLoop);
             if(isPlaying && player) {
                 let oldPos = player.position.clone();
                 const speed = 0.3;
+                let isWalking = false;
 
-                vy -= 0.02; 
-                player.position.y += vy;
+                // Físicas
+                vy -= 0.02; player.position.y += vy;
+                if(player.position.y < 0) { player.position.y = 0; vy = 0; onGround = true; }
 
-                if(player.position.y < 0) {
-                    player.position.y = 0;
-                    vy = 0;
-                    onGround = true;
-                } else {
-                    onGround = false;
-                }
-
-                if(keys['Space'] && onGround) {
-                    vy = 0.5;
-                    onGround = false;
-                }
+                if(keys['Space'] && onGround) { vy = 0.5; onGround = false; }
                 
-                if(keys['KeyW']) player.position.x -= Math.sin(yaw) * speed, player.position.z -= Math.cos(yaw) * speed;
-                if(keys['KeyS']) player.position.x += Math.sin(yaw) * speed, player.position.z += Math.cos(yaw) * speed;
-                if(keys['KeyA']) player.position.x -= Math.cos(yaw) * speed, player.position.z += Math.sin(yaw) * speed;
-                if(keys['KeyD']) player.position.x += Math.cos(yaw) * speed, player.position.z -= Math.sin(yaw) * speed;
+                let dirX = 0, dirZ = 0;
+                if(keys['KeyW']) { dirX -= Math.sin(yaw); dirZ -= Math.cos(yaw); isWalking = true; }
+                if(keys['KeyS']) { dirX += Math.sin(yaw); dirZ += Math.cos(yaw); isWalking = true; }
+                if(keys['KeyA']) { dirX -= Math.cos(yaw); dirZ += Math.sin(yaw); isWalking = true; }
+                if(keys['KeyD']) { dirX += Math.cos(yaw); dirZ -= Math.sin(yaw); isWalking = true; }
 
-                let pBox = new THREE.Box3().setFromCenterAndSize(player.position.clone().add(new THREE.Vector3(0,2,0)), new THREE.Vector3(1.8, 4, 1.8));
+                player.position.x += dirX * speed;
+                player.position.z += dirZ * speed;
+
+                // COLISIONES SÓLIDAS
+                let pBox = new THREE.Box3().setFromCenterAndSize(
+                    new THREE.Vector3(player.position.x, player.position.y + 2, player.position.z), 
+                    new THREE.Vector3(1.6, 3.8, 1.6)
+                );
+
                 for(let b of blocks) {
                     let bBox = new THREE.Box3().setFromObject(b);
                     if(pBox.intersectsBox(bBox)) {
-                        if(oldPos.y >= b.position.y + 3.5) { 
+                        if(oldPos.y >= b.position.y + 3.8) {
                             player.position.y = b.position.y + 4;
-                            vy = 0;
-                            onGround = true;
+                            vy = 0; onGround = true;
                         } else {
                             player.position.x = oldPos.x;
                             player.position.z = oldPos.z;
@@ -281,29 +342,40 @@
                 }
 
                 player.rotation.y = yaw;
+                animateAvatar(player, isWalking);
+
+                // Networking
+                if(conn && conn.open) {
+                    conn.send({
+                        type: 'move', id: myID,
+                        x: player.position.x, y: player.position.y, z: player.position.z,
+                        ry: player.rotation.y, walking: isWalking,
+                        name: document.getElementById('username-input').value || "Guest"
+                    });
+                }
+
+                // Cámara
                 const camDist = 20;
                 camera.position.x = player.position.x + Math.sin(yaw) * Math.cos(pitch) * camDist;
                 camera.position.z = player.position.z + Math.cos(yaw) * Math.cos(pitch) * camDist;
-                camera.position.y = player.position.y + 8 + Math.sin(pitch) * camDist;
+                camera.position.y = player.position.y + 8 + (pitch * 12);
                 camera.lookAt(player.position.x, player.position.y + 3, player.position.z);
             }
             renderer.render(scene, camera);
         }
 
+        // Exportar/Importar
         function exportMap() {
-            const data = blocks.map(b => ({x: b.position.x, y: b.position.y, z: b.position.z}));
-            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob); a.download = 'classic_place.json'; a.click();
-            location.reload();
+            const blob = new Blob([JSON.stringify(mapData)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = 'roblox_place.json'; a.click();
         }
 
         function loadMap(e) {
             const reader = new FileReader();
             reader.onload = ev => {
                 mapData = JSON.parse(ev.target.result);
-                document.getElementById('play-btn').disabled = false;
-                document.getElementById('play-btn').innerText = "ENTER GAME";
+                alert("Map Loaded! Press Play.");
             };
             reader.readAsText(e.target.files[0]);
         }
