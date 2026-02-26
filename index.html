@@ -2,62 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox 2008 Retro - P2P</title>
+    <title>Roblox 2008 - Jump & Build</title>
     <style>
-        /* ESTILO RETRO ROBLOX */
-        body { margin: 0; overflow: hidden; font-family: "Arial Black", Gadget, sans-serif; background: #000; }
-        
+        body { margin: 0; overflow: hidden; font-family: "Arial Black", sans-serif; background: #000; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-
-        /* Barra superior roja clásica */
-        #top-bar {
-            position: absolute; top: 0; left: 0; width: 100%; height: 40px;
-            background: #cc0000; border-bottom: 3px solid #880000;
-            display: flex; align-items: center; padding: 0 10px; pointer-events: auto;
-        }
-
-        .panel { 
-            pointer-events: auto; background: #eeeeee; border: 4px outset #ffffff; 
-            padding: 15px; color: #333; box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
-        }
-
-        /* Menú de Inicio */
-        #main-menu { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 400px; text-align: center;
-        }
-
+        #top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 40px; background: #cc0000; border-bottom: 3px solid #880000; display: flex; align-items: center; padding: 0 10px; pointer-events: auto; }
+        .panel { pointer-events: auto; background: #eeeeee; border: 4px outset #ffffff; padding: 15px; color: #333; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); }
+        #main-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; text-align: center; }
         h1 { color: #cc0000; -webkit-text-stroke: 1px black; font-size: 40px; margin: 10px 0; }
-
-        /* Botones estilo 2008 */
-        button { 
-            cursor: pointer; padding: 10px; margin: 5px; 
-            font-family: "Arial", sans-serif; font-weight: bold; font-size: 14px;
-            background: #d4d0c8; border: 3px outset #ffffff; width: 90%;
-        }
+        button { cursor: pointer; padding: 10px; margin: 5px; font-weight: bold; background: #d4d0c8; border: 3px outset #ffffff; width: 90%; }
         button:active { border: 3px inset #ffffff; }
-        .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 20px; }
+        .btn-play { background: #00bb00; color: white; border-color: #00ff00; }
         .btn-editor { background: #0055ff; color: white; border-color: #55aaff; }
-
-        /* Esquina de ID */
+        #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 220px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; }
         #room-info { position: absolute; top: 50px; left: 10px; font-size: 12px; background: white; padding: 5px; border: 2px solid black; }
-
-        /* Editor e Interfaz de Juego */
-        #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 200px; }
-        #game-ui { position: absolute; bottom: 10px; left: 10px; display: none; }
-        
-        #chat-area { 
-            background: rgba(255,255,255,0.7); border: 2px solid #555; 
-            width: 300px; height: 120px; overflow-y: auto; margin-bottom: 5px; 
-        }
-
-        input { border: 2px inset #ffffff; padding: 5px; background: white; }
-
-        #crosshair { 
-            position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; 
-            border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); 
-            display: none; mix-blend-mode: difference;
-        }
     </style>
 </head>
 <body>
@@ -65,10 +24,7 @@
     <div id="crosshair"></div>
 
     <div id="ui-layer">
-        <div id="top-bar">
-            <span style="color: white; font-weight: bold;">ROBLOX - [BETA 2008]</span>
-        </div>
-
+        <div id="top-bar"><span style="color: white;">ROBLOX - [BETA 2008]</span></div>
         <div id="room-info" class="panel">Server ID: <span id="my-id" style="color:blue">...</span></div>
 
         <div id="main-menu" class="panel">
@@ -76,26 +32,14 @@
             <button class="btn-editor" onclick="startEditor()">BUILD MODE</button>
             <button onclick="document.getElementById('file-input').click()">LOAD MAP (.JSON)</button>
             <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
-            
-            <div style="margin: 15px 0; border: 1px solid #999; padding: 10px;">
-                <label style="font-size: 12px;">JOIN FRIEND:</label><br>
-                <input type="text" id="peer-input" placeholder="Enter ID...">
-                <button onclick="connectPeer()">CONNECT</button>
-            </div>
-
             <button id="play-btn" class="btn-play" disabled onclick="startPlay()">PLAY</button>
         </div>
 
         <div id="editor-ui" class="panel">
-            <h2 style="margin:0">STAMPER</h2>
-            <p style="font-size: 11px;">Click on baseplate to place blocks.</p>
+            <h2 style="margin:0">EDITOR</h2>
+            <p style="font-size: 11px;"><b>Click Izquierdo:</b> Poner<br><b>Click Derecho:</b> Quitar</p>
             <button class="btn-play" onclick="exportMap()">SAVE MAP</button>
             <button onclick="location.reload()">EXIT</button>
-        </div>
-
-        <div id="game-ui">
-            <div id="chat-area"></div>
-            <input type="text" id="chat-input" placeholder="Press / to chat" style="width: 290px;">
         </div>
     </div>
 
@@ -104,16 +48,17 @@
 
     <script>
         let scene, camera, renderer, player, raycaster, mouse;
-        let blocks = [];
-        let mapData = [];
-        let peer, conn;
-        let keys = {};
+        let blocks = []; // Objetos 3D de los bloques
+        let mapData = []; // Datos de posición
+        let peer, keys = {};
         let isEditor = false, isPlaying = false;
         let yaw = 0, pitch = 0;
+        let vy = 0; // Velocidad vertical para salto
+        let onGround = false;
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87ceeb); // Sky blue clásico
+            scene.background = new THREE.Color(0x87ceeb);
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -124,7 +69,6 @@
             scene.add(light);
             scene.add(new THREE.AmbientLight(0x666666));
 
-            // Baseplate clásica (verde oscuro con rejilla)
             const baseplate = new THREE.Mesh(
                 new THREE.PlaneGeometry(500, 500),
                 new THREE.MeshStandardMaterial({ color: 0x248232 })
@@ -133,11 +77,6 @@
             baseplate.name = "ground";
             scene.add(baseplate);
 
-            const grid = new THREE.GridHelper(500, 50, 0x000000, 0x000000);
-            grid.material.opacity = 0.2;
-            grid.material.transparent = true;
-            scene.add(grid);
-
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
             
@@ -145,61 +84,71 @@
             peer.on('open', id => document.getElementById('my-id').innerText = id);
         }
 
+        // --- MODO EDITOR ---
         function startEditor() {
             isEditor = true;
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('editor-ui').style.display = 'block';
-            document.getElementById('room-info').style.display = 'block';
             init();
             camera.position.set(0, 60, 60);
             camera.lookAt(0,0,0);
-            window.addEventListener('mousedown', placeBlock);
+            window.addEventListener('mousedown', onEditorMouseClick);
+            window.addEventListener('contextmenu', e => e.preventDefault()); // Desactivar menu derecho
             render();
         }
 
-        function placeBlock(e) {
+        function onEditorMouseClick(e) {
             if(!isEditor) return;
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
+            
             const hits = raycaster.intersectObjects(scene.children);
             if(hits.length > 0) {
-                const p = hits[0].point;
-                // Ajuste a la rejilla (Grid Snapping)
-                const pos = { x: Math.round(p.x/4)*4, y: 2, z: Math.round(p.z/4)*4 };
-                const mesh = new THREE.Mesh(
-                    new THREE.BoxGeometry(4,4,4), 
-                    new THREE.MeshStandardMaterial({color: 0xcccccc, roughness: 0.5})
-                );
-                mesh.position.set(pos.x, pos.y, pos.z);
-                scene.add(mesh);
-                mapData.push(pos);
+                const target = hits[0].object;
+
+                if(e.button === 0) { // Clic Izquierdo - Poner
+                    const p = hits[0].point;
+                    const pos = { x: Math.round(p.x/4)*4, y: 2, z: Math.round(p.z/4)*4 };
+                    const mesh = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0xcccccc}));
+                    mesh.position.set(pos.x, pos.y, pos.z);
+                    mesh.isBlock = true;
+                    scene.add(mesh);
+                    blocks.push(mesh);
+                } 
+                else if(e.button === 2) { // Clic Derecho - Quitar
+                    if(target.isBlock) {
+                        scene.remove(target);
+                        blocks = blocks.filter(b => b !== target);
+                    }
+                }
             }
         }
 
+        // --- MODO JUEGO ---
         function startPlay() {
             isPlaying = true; isEditor = false;
             document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'block';
-            document.getElementById('room-info').style.display = 'block';
+            document.getElementById('editor-ui').style.display = 'none';
             document.getElementById('crosshair').style.display = 'block';
             init();
             
-            // Reconstruir mapa y crear colisiones AABB
+            // Cargar bloques
             mapData.forEach(pos => {
                 const box = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0x8d8d8d}));
                 box.position.set(pos.x, pos.y, pos.z);
+                box.isBlock = true;
                 scene.add(box);
-                blocks.push(new THREE.Box3().setFromObject(box));
+                blocks.push(box);
             });
 
-            // Avatar estilo "Noob" (Cuerpo amarillo, piernas azules)
+            // Avatar Noob
             player = new THREE.Group();
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(2,2,1), new THREE.MeshStandardMaterial({color: 0x0055ff}));
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshStandardMaterial({color: 0xffff00}));
-            head.position.y = 1.5;
-            player.add(torso); player.add(head);
-            player.position.set(0, 1.5, 20);
+            const body = new THREE.Mesh(new THREE.BoxGeometry(2,2,1), new THREE.MeshStandardMaterial({color: 0x0055ff}));
+            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2), new THREE.MeshStandardMaterial({color: 0xffff00}));
+            head.position.y = 1.6;
+            player.add(body, head);
+            player.position.set(0, 5, 20);
             scene.add(player);
 
             document.addEventListener('keydown', e => keys[e.code] = true);
@@ -209,7 +158,7 @@
             document.addEventListener('mousemove', e => {
                 if(document.pointerLockElement === document.body) {
                     yaw -= e.movementX * 0.003;
-                    pitch -= e.movementY * 0.003;
+                    pitch += e.movementY * 0.003; // Corregido: + en lugar de -
                     pitch = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, pitch));
                 }
             });
@@ -220,33 +169,64 @@
             requestAnimationFrame(render);
             if(isPlaying && player) {
                 let oldPos = player.position.clone();
-                const speed = 0.2;
+                const speed = 0.25;
+
+                // Salto y Gravedad
+                vy -= 0.02; // Gravedad
+                player.position.y += vy;
+
+                if(player.position.y < 1.5) {
+                    player.position.y = 1.5;
+                    vy = 0;
+                    onGround = true;
+                }
+
+                if(keys['Space'] && onGround) {
+                    vy = 0.5;
+                    onGround = false;
+                }
                 
+                // Movimiento WASD
                 if(keys['KeyW']) player.position.x -= Math.sin(yaw) * speed, player.position.z -= Math.cos(yaw) * speed;
                 if(keys['KeyS']) player.position.x += Math.sin(yaw) * speed, player.position.z += Math.cos(yaw) * speed;
                 if(keys['KeyA']) player.position.x -= Math.cos(yaw) * speed, player.position.z += Math.sin(yaw) * speed;
                 if(keys['KeyD']) player.position.x += Math.cos(yaw) * speed, player.position.z -= Math.sin(yaw) * speed;
 
-                // Colisiones
-                let pBox = new THREE.Box3().setFromCenterAndSize(player.position, new THREE.Vector3(2,3,2));
-                for(let b of blocks) {
-                    if(pBox.intersectsBox(b)) player.position.copy(oldPos);
-                }
+                // Colisiones Básicas con Bloques
+                let pBox = new THREE.Box3().setFromCenterAndSize(player.position, new THREE.Vector3(2,4,2));
+                blocks.forEach(b => {
+                    let bBox = new THREE.Box3().setFromObject(b);
+                    if(pBox.intersectsBox(bBox)) {
+                        // Si choca por los lados, vuelve a la posición previa
+                        if (Math.abs(oldPos.y - player.position.y) < 0.1) {
+                            player.position.x = oldPos.x;
+                            player.position.z = oldPos.z;
+                        } else {
+                            // Si choca por arriba (suelo)
+                            if(vy < 0) {
+                                player.position.y = b.position.y + 3;
+                                vy = 0;
+                                onGround = true;
+                            }
+                        }
+                    }
+                });
 
-                // Cámara 3ra Persona Bloqueada
-                const camDist = 15;
-                camera.position.x = player.position.x + Math.sin(yaw) * camDist;
-                camera.position.z = player.position.z + Math.cos(yaw) * camDist;
+                // Cámara 3ra Persona No Invertida
+                const camDist = 18;
+                camera.position.x = player.position.x + Math.sin(yaw) * Math.cos(pitch) * camDist;
+                camera.position.z = player.position.z + Math.cos(yaw) * Math.cos(pitch) * camDist;
                 camera.position.y = player.position.y + 6 + Math.sin(pitch) * camDist;
-                camera.lookAt(player.position);
+                camera.lookAt(player.position.x, player.position.y + 2, player.position.z);
             }
             renderer.render(scene, camera);
         }
 
         function exportMap() {
-            const blob = new Blob([JSON.stringify(mapData)], {type: 'application/json'});
+            const data = blocks.map(b => ({x: b.position.x, y: b.position.y, z: b.position.z}));
+            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob); a.download = 'classic_place.json'; a.click();
+            a.href = URL.createObjectURL(blob); a.download = 'place_2008.json'; a.click();
             location.reload();
         }
 
