@@ -3,729 +3,562 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shooter 3D Multiplayer P2P - Sprites 2D</title>
+    <title>DOOM P2P - Multiplayer Shooter RPG 3ra Persona</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
         #info {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 10px;
+            left: 10px;
             color: white;
-            background: rgba(0,0,0,0.8);
-            padding: 15px 25px;
-            border-radius: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
             z-index: 100;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            pointer-events: none;
         }
         #connection-panel {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
             color: white;
-            background: rgba(0,0,0,0.8);
-            padding: 15px 25px;
-            border-radius: 8px;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            min-width: 250px;
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #ff0000;
+            z-index: 1000;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        }
+        #connection-panel h1 {
+            margin-top: 0;
+            color: #ff0000;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        #connection-panel input, #connection-panel button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        #connection-panel input {
+            background: #333;
+            color: white;
+            border: 1px solid #ff0000;
+            width: 250px;
+        }
+        #connection-panel button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        #connection-panel button:hover {
+            background: #cc0000;
+            transform: scale(1.05);
         }
         #connection-status {
-            margin-top: 10px;
-            padding: 8px;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-        }
-        .connected { 
-            background: rgba(0,255,0,0.2);
-            color: #00ff00;
-            border: 1px solid #00ff00;
-        }
-        .disconnected { 
-            background: rgba(255,0,0,0.2);
-            color: #ff0000;
-            border: 1px solid #ff0000;
-        }
-        #controls {
             position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 10px;
+            right: 10px;
             color: white;
-            background: rgba(0,0,0,0.6);
-            padding: 12px 25px;
-            border-radius: 30px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
             z-index: 100;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
             font-size: 14px;
-            letter-spacing: 1px;
+        }
+        #hud {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ff0000;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .health-bar {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ff6600);
+            width: 100%;
+            transition: width 0.3s;
+        }
+        .ammo-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffaa00;
         }
         #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            border: 2px solid rgba(255,255,255,0.8);
+            color: red;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5);
             pointer-events: none;
-            z-index: 1000;
-        }
-        #crosshair::before, #crosshair::after {
-            content: '';
-            position: absolute;
-            background: white;
-        }
-        #crosshair::before {
-            width: 2px;
-            height: 10px;
-            top: 5px;
-            left: 9px;
-        }
-        #crosshair::after {
-            width: 10px;
-            height: 2px;
-            top: 9px;
-            left: 5px;
-        }
-        #health {
-            position: absolute;
-            bottom: 100px;
-            left: 50px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        #ammo {
-            position: absolute;
-            bottom: 100px;
-            right: 50px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        .peer-input {
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            width: 200px;
-            margin-right: 8px;
-            background: rgba(255,255,255,0.9);
-        }
-        .btn {
-            padding: 8px 15px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            background: #45a049;
-            transform: scale(1.05);
-        }
-        .btn:active {
-            transform: scale(0.95);
-        }
-        #peer-id {
-            font-weight: bold;
-            color: #4CAF50;
-            background: rgba(255,255,255,0.1);
-            padding: 3px 8px;
-            border-radius: 4px;
+            z-index: 50;
         }
     </style>
 </head>
 <body>
-    <div id="crosshair"></div>
-    
-    <div id="info">
-        <h2 style="margin:0 0 10px 0;">🔫 SHOOTER 3D P2P - SPRITES 2D</h2>
-        <p style="margin:5px 0;">Tu ID: <span id="peer-id">Generando...</span></p>
-    </div>
-    
     <div id="connection-panel">
-        <h3 style="margin:0 0 15px 0; text-align:center;">🔌 CONEXIÓN</h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="peer-input" class="peer-input" placeholder="ID del otro jugador">
-            <button onclick="connectToPeer()" class="btn">Conectar</button>
-        </div>
-        <div id="connection-status" class="disconnected">
-            Estado: Desconectado
-        </div>
-        <p style="font-size:12px; margin:10px 0 0 0; opacity:0.7; text-align:center;">
-            Click para bloquear cursor | ESC para liberar
-        </p>
-    </div>
-    
-    <div id="controls">
-        🎮 W: Adelante | S: Atrás | A/D: Laterales | 🖱️ Mouse: Mirar | 🔫 Click: Disparar | 🏃 Shift: Correr
-    </div>
-    
-    <div id="health">
-        ❤️ 100%
-    </div>
-    
-    <div id="ammo">
-        🔫 30/30
+        <h1>DOOM P2P MULTIPLAYER</h1>
+        <input type="text" id="peer-id" placeholder="Tu ID (opcional)" readonly>
+        <br>
+        <input type="text" id="connect-peer" placeholder="ID del oponente">
+        <br>
+        <button onclick="connectToPeer()">CONECTAR</button>
+        <button onclick="createGame()">CREAR PARTIDA</button>
+        <p style="margin-top: 20px; font-size: 12px; color: #999;">Comparte tu ID con un amigo para jugar</p>
     </div>
 
-    <!-- Librerías -->
+    <div id="connection-status">Desconectado</div>
+    <div id="info">FPS: <span id="fps">0</span> | Jugadores: <span id="player-count">1</span></div>
+    <div id="hud">
+        <div>Salud: <span id="health">100</span></div>
+        <div class="health-bar">
+            <div class="health-fill" id="health-fill" style="width: 100%"></div>
+        </div>
+        <div>Municiones: <span class="ammo-count" id="ammo">30</span></div>
+        <div>Puntuación: <span id="score">0</span></div>
+    </div>
+    <div id="crosshair">+</div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.2/dist/peerjs.min.js"></script>
-    
+
     <script>
-        // Configuración inicial
+        // Configuración del juego
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB); // Color cielo
+        scene.background = new THREE.Color(0x111122);
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.y = 1.8; // Altura de ojos
+        camera.position.set(0, 5, 10);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
-        
-        // Luz ambiental
+
+        // Luces
         const ambientLight = new THREE.AmbientLight(0x404060);
         scene.add(ambientLight);
         
-        // Luz direccional
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(10, 20, 0);
+        directionalLight.position.set(5, 10, 7);
         directionalLight.castShadow = true;
         scene.add(directionalLight);
-        
-        // Suelo
-        const groundGeometry = new THREE.PlaneGeometry(50, 50);
-        const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x3a7e3a });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = 0;
-        ground.receiveShadow = true;
-        scene.add(ground);
-        
-        // Grid decorativo
-        const gridHelper = new THREE.GridHelper(50, 20, 0x888888, 0x444444);
-        gridHelper.position.y = 0.01;
+
+        // Suelo con textura tipo DOOM
+        const gridHelper = new THREE.GridHelper(50, 20, 0xff0000, 0x440000);
         scene.add(gridHelper);
         
-        // Obstáculos 3D (mantenemos el entorno 3D, solo los personajes son 2D)
-        function createObstacle(x, z, color) {
-            const boxGeo = new THREE.BoxGeometry(2, 4, 2);
-            const boxMat = new THREE.MeshStandardMaterial({ color });
-            const box = new THREE.Mesh(boxGeo, boxMat);
-            box.position.set(x, 2, z);
-            box.castShadow = true;
-            box.receiveShadow = true;
-            scene.add(box);
+        const floorGeometry = new THREE.PlaneGeometry(50, 50);
+        const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.7, metalness: 0.1 });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.01;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // Elementos decorativos tipo DOOM
+        function createPillar(x, z) {
+            const geometry = new THREE.BoxGeometry(1, 5, 1);
+            const material = new THREE.MeshStandardMaterial({ color: 0x884444 });
+            const pillar = new THREE.Mesh(geometry, material);
+            pillar.position.set(x, 2.5, z);
+            pillar.castShadow = true;
+            pillar.receiveShadow = true;
+            scene.add(pillar);
+            
+            const topGeometry = new THREE.BoxGeometry(1.2, 0.5, 1.2);
+            const topMaterial = new THREE.MeshStandardMaterial({ color: 0xaa5555 });
+            const top = new THREE.Mesh(topGeometry, topMaterial);
+            top.position.set(x, 5.25, z);
+            top.castShadow = true;
+            top.receiveShadow = true;
+            scene.add(top);
         }
-        
-        createObstacle(-5, -5, 0x8B4513);
-        createObstacle(5, 5, 0x8B4513);
-        createObstacle(-5, 5, 0x8B4513);
-        createObstacle(5, -5, 0x8B4513);
-        
-        // Crear texturas para los sprites 2D usando canvas
-        function createSpriteTexture(color, isLocal = false) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 64;
-            canvas.height = 64;
-            const ctx = canvas.getContext('2d');
-            
-            // Dibujar personaje estilo retro
-            ctx.save();
-            
-            // Sombra
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.beginPath();
-            ctx.ellipse(32, 55, 15, 5, 0, 0, Math.PI * 2);
-            ctx.fill();
+
+        // Crear columnas al estilo DOOM
+        createPillar(-10, -10);
+        createPillar(10, -10);
+        createPillar(-10, 10);
+        createPillar(10, 10);
+        createPillar(0, -15);
+        createPillar(0, 15);
+
+        // Crear paredes
+        function createWall(x, z, width, height, depth, rotationY) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color: 0x663333 });
+            const wall = new THREE.Mesh(geometry, material);
+            wall.position.set(x, height/2, z);
+            wall.rotation.y = rotationY;
+            wall.castShadow = true;
+            wall.receiveShadow = true;
+            scene.add(wall);
+        }
+
+        createWall(-20, 0, 1, 4, 40, 0);
+        createWall(20, 0, 1, 4, 40, 0);
+        createWall(0, -20, 40, 4, 1, 0);
+        createWall(0, 20, 40, 4, 1, 0);
+
+        // Jugador local
+        const player = {
+            mesh: null,
+            id: 'local',
+            health: 100,
+            ammo: 30,
+            score: 0,
+            position: new THREE.Vector3(0, 1, 0),
+            rotation: 0,
+            velocity: new THREE.Vector3()
+        };
+
+        // Enemigos (otros jugadores)
+        const enemies = new Map();
+
+        // Crear jugador local
+        function createPlayerMesh(color = 0x00ff00, isLocal = true) {
+            const group = new THREE.Group();
             
             // Cuerpo
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.ellipse(32, 40, 12, 18, 0, 0, Math.PI * 2);
-            ctx.fill();
+            const bodyGeo = new THREE.BoxGeometry(1, 2, 1);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: color });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 1;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
             
             // Cabeza
-            ctx.fillStyle = '#FFDBAC';
-            ctx.beginPath();
-            ctx.arc(32, 20, 10, 0, Math.PI * 2);
-            ctx.fill();
+            const headGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 2.4;
+            head.castShadow = true;
+            head.receiveShadow = true;
+            group.add(head);
             
-            // Ojos
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(27, 17, 2, 0, Math.PI * 2);
-            ctx.arc(37, 17, 2, 0, Math.PI * 2);
-            ctx.fill();
+            // Arma (para tercera persona)
+            const weaponGeo = new THREE.BoxGeometry(0.3, 0.3, 1.5);
+            const weaponMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            const weapon = new THREE.Mesh(weaponGeo, weaponMat);
+            weapon.position.set(0.5, 1.2, 0.8);
+            weapon.rotation.x = Math.PI / 4;
+            weapon.castShadow = true;
+            group.add(weapon);
             
-            // Arma (si no es local)
             if (!isLocal) {
-                ctx.fillStyle = '#333';
-                ctx.fillRect(45, 30, 20, 5);
-                ctx.fillRect(60, 27, 8, 8);
+                // Indicador de enemigo
+                const markerGeo = new THREE.ConeGeometry(0.5, 0.5, 8);
+                const markerMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+                const marker = new THREE.Mesh(markerGeo, markerMat);
+                marker.position.y = 3;
+                group.add(marker);
             }
-            
-            // Contorno
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.ellipse(32, 40, 12, 18, 0, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(32, 20, 10, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            ctx.restore();
-            
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.minFilter = THREE.LinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-            return texture;
-        }
-        
-        // Variables del juego
-        const players = {}; // Jugadores remotos (sprites)
-        let localPlayer = null;
-        let localPlayerId = null;
-        let localPlayerHealth = 100;
-        let localPlayerAmmo = 30;
-        
-        // Controles
-        const keys = {};
-        const mouseSensitivity = 0.002;
-        const moveSpeed = 0.15;
-        const runSpeed = 0.25;
-        let pitch = 0;
-        let yaw = 0;
-        
-        // Arma en primera persona
-        let weaponGroup = null;
-        
-        // Configurar PeerJS
-        const peer = new Peer();
-        
-        peer.on('open', (id) => {
-            document.getElementById('peer-id').textContent = id;
-            localPlayerId = id;
-            
-            // Crear jugador local (invisible en primera persona)
-            localPlayer = {
-                position: new THREE.Vector3(0, 1.8, 0),
-                rotation: 0
-            };
-            
-            // Crear arma en primera persona
-            createFirstPersonWeapon();
-        });
-        
-        peer.on('connection', (conn) => {
-            setupConnection(conn);
-        });
-        
-        function connectToPeer() {
-            const peerId = document.getElementById('peer-input').value;
-            if (!peerId) return;
-            
-            const conn = peer.connect(peerId);
-            setupConnection(conn);
-        }
-        
-        function setupConnection(conn) {
-            const statusEl = document.getElementById('connection-status');
-            statusEl.textContent = 'Estado: Conectado';
-            statusEl.className = 'connected';
-            
-            conn.on('data', (data) => {
-                handleNetworkData(conn.peer, data);
-            });
-            
-            conn.on('close', () => {
-                statusEl.textContent = 'Estado: Desconectado';
-                statusEl.className = 'disconnected';
-                
-                if (players[conn.peer]) {
-                    scene.remove(players[conn.peer]);
-                    delete players[conn.peer];
-                }
-            });
-            
-            if (!window.connections) window.connections = [];
-            window.connections.push(conn);
-            
-            if (!players[conn.peer]) {
-                const remotePlayer = createSpritePlayer(conn.peer, 0, 0, 0, '#ff4444');
-                scene.add(remotePlayer);
-                players[conn.peer] = remotePlayer;
-            }
-        }
-        
-        function createFirstPersonWeapon() {
-            weaponGroup = new THREE.Group();
-            
-            // Cuerpo del arma
-            const bodyGeo = new THREE.BoxGeometry(0.3, 0.3, 1.2);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.set(0.3, -0.1, -0.6);
-            body.castShadow = true;
-            weaponGroup.add(body);
-            
-            // Cañón
-            const barrelGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.8);
-            const barrelMat = new THREE.MeshStandardMaterial({ color: 0x666666 });
-            const barrel = new THREE.Mesh(barrelGeo, barrelMat);
-            barrel.rotation.x = Math.PI / 2;
-            barrel.position.set(0.3, -0.1, -1.2);
-            barrel.castShadow = true;
-            weaponGroup.add(barrel);
-            
-            // Mira
-            const sightGeo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-            const sightMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-            const sight = new THREE.Mesh(sightGeo, sightMat);
-            sight.position.set(0.3, 0.1, -0.8);
-            weaponGroup.add(sight);
-            
-            weaponGroup.position.set(0.5, -0.3, -0.5);
-            camera.add(weaponGroup);
-        }
-        
-        function createSpritePlayer(id, x, y, z, color) {
-            const group = new THREE.Group();
-            group.position.set(x, y, z);
-            
-            // Crear dos sprites cruzados para efecto 2D desde cualquier ángulo
-            const texture = createSpriteTexture(color, false);
-            const material = new THREE.SpriteMaterial({ 
-                map: texture,
-                depthTest: true,
-                depthWrite: false,
-                transparent: true
-            });
-            
-            // Sprite principal (mirando al frente)
-            const sprite1 = new THREE.Sprite(material);
-            sprite1.scale.set(1.2, 1.2, 1);
-            sprite1.position.set(0, 1, 0);
-            group.add(sprite1);
-            
-            // Segundo sprite rotado 90 grados para efecto 2D desde todos los ángulos
-            const sprite2 = new THREE.Sprite(material.clone());
-            sprite2.scale.set(1.2, 1.2, 1);
-            sprite2.position.set(0, 1, 0);
-            sprite2.rotation.y = Math.PI / 2;
-            group.add(sprite2);
-            
-            // Barra de vida
-            const healthBarCanvas = document.createElement('canvas');
-            healthBarCanvas.width = 40;
-            healthBarCanvas.height = 6;
-            const healthCtx = healthBarCanvas.getContext('2d');
-            healthCtx.fillStyle = '#ff0000';
-            healthCtx.fillRect(0, 0, 40, 6);
-            healthCtx.fillStyle = '#00ff00';
-            healthCtx.fillRect(0, 0, 40, 6);
-            
-            const healthTexture = new THREE.CanvasTexture(healthBarCanvas);
-            const healthMaterial = new THREE.SpriteMaterial({ map: healthTexture });
-            const healthBar = new THREE.Sprite(healthMaterial);
-            healthBar.scale.set(0.8, 0.12, 1);
-            healthBar.position.set(0, 2, 0);
-            group.add(healthBar);
             
             return group;
         }
+
+        player.mesh = createPlayerMesh(0x00ff00, true);
+        player.mesh.position.copy(player.position);
+        scene.add(player.mesh);
+
+        // Controles
+        const keys = {};
+        const moveSpeed = 0.1;
+        const rotateSpeed = 0.03;
+
+        window.addEventListener('keydown', (e) => keys[e.code] = true);
+        window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+        // Configuración PeerJS
+        let peer;
+        let conn;
+        const localId = Math.random().toString(36).substr(2, 8);
         
-        function handleNetworkData(peerId, data) {
-            if (data.type === 'position') {
-                if (!players[peerId]) {
-                    const remotePlayer = createSpritePlayer(peerId, data.x, data.y, data.z, '#ff4444');
-                    scene.add(remotePlayer);
-                    players[peerId] = remotePlayer;
-                } else {
-                    players[peerId].position.set(data.x, data.y, data.z);
-                    
-                    // Hacer que los sprites siempre miren al jugador local
-                    if (localPlayer) {
-                        players[peerId].children.forEach(child => {
-                            if (child instanceof THREE.Sprite) {
-                                child.lookAt(camera.position);
-                            }
-                        });
-                    }
-                }
-            } else if (data.type === 'shoot') {
-                if (players[peerId]) {
-                    createMuzzleFlashRemote(players[peerId]);
-                    
-                    // Detectar si nos dieron
-                    const distance = localPlayer.position.distanceTo(new THREE.Vector3(data.x, data.y, data.z));
-                    
-                    if (distance < 15) {
-                        localPlayerHealth -= 20;
-                        document.getElementById('health').innerHTML = `❤️ ${localPlayerHealth}%`;
-                        
-                        if (localPlayerHealth <= 0) {
-                            respawnLocalPlayer();
-                        }
-                    }
-                }
-            }
+        document.getElementById('peer-id').value = localId;
+
+        function createGame() {
+            document.getElementById('connection-panel').style.display = 'none';
+            peer = new Peer(localId);
+            
+            peer.on('open', (id) => {
+                console.log('Mi ID:', id);
+                updateConnectionStatus('Esperando oponente...', '#ffaa00');
+            });
+            
+            peer.on('connection', (connection) => {
+                conn = connection;
+                setupConnection(conn);
+            });
         }
-        
-        function respawnLocalPlayer() {
-            localPlayerHealth = 100;
-            localPlayer.position.set(0, 1.8, 0);
-            document.getElementById('health').innerHTML = '❤️ 100%';
-            document.getElementById('ammo').innerHTML = '🔫 30/30';
-            localPlayerAmmo = 30;
+
+        function connectToPeer() {
+            const remoteId = document.getElementById('connect-peer').value;
+            if (!remoteId) return;
+            
+            document.getElementById('connection-panel').style.display = 'none';
+            peer = new Peer();
+            
+            peer.on('open', () => {
+                conn = peer.connect(remoteId);
+                setupConnection(conn);
+            });
         }
-        
-        function createMuzzleFlashRemote(player) {
-            const flashGeo = new THREE.SphereGeometry(0.2);
-            const flashMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
-            const flash = new THREE.Mesh(flashGeo, flashMat);
+
+        function setupConnection(connection) {
+            conn = connection;
             
-            flash.position.copy(player.position);
-            flash.position.y += 1.2;
-            
-            scene.add(flash);
-            setTimeout(() => scene.remove(flash), 50);
-        }
-        
-        function createMuzzleFlash() {
-            const flashGeo = new THREE.SphereGeometry(0.15);
-            const flashMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
-            const flash = new THREE.Mesh(flashGeo, flashMat);
-            
-            flash.position.set(0.5, -0.1, -1.5);
-            camera.add(flash);
-            
-            // Retroceso visual
-            if (weaponGroup) {
-                weaponGroup.position.set(0.5, -0.3, -0.3);
-                setTimeout(() => {
-                    if (weaponGroup) weaponGroup.position.set(0.5, -0.3, -0.5);
-                }, 100);
-            }
-            
-            setTimeout(() => camera.remove(flash), 50);
-        }
-        
-        // Eventos de teclado
-        window.addEventListener('keydown', (e) => {
-            keys[e.key.toLowerCase()] = true;
-            if (e.key === 'Shift') keys['shift'] = true;
-        });
-        
-        window.addEventListener('keyup', (e) => {
-            keys[e.key.toLowerCase()] = false;
-            if (e.key === 'Shift') keys['shift'] = false;
-        });
-        
-        // Eventos de mouse
-        document.addEventListener('mousemove', (e) => {
-            if (document.pointerLockElement === renderer.domElement) {
-                yaw -= e.movementX * mouseSensitivity;
-                pitch -= e.movementY * mouseSensitivity;
-                pitch = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, pitch));
+            conn.on('open', () => {
+                console.log('Conectado a:', conn.peer);
+                updateConnectionStatus('Conectado', '#00ff00');
                 
-                camera.rotation.order = 'YXZ';
-                camera.rotation.y = yaw;
-                camera.rotation.x = pitch;
-            }
-        });
-        
-        document.addEventListener('click', () => {
-            if (document.pointerLockElement !== renderer.domElement) {
-                renderer.domElement.requestPointerLock();
-            }
-        });
-        
-        document.addEventListener('mousedown', (e) => {
-            if (e.button === 0 && document.pointerLockElement === renderer.domElement) {
-                shoot();
-            }
-        });
-        
-        function shoot() {
-            if (!localPlayer || localPlayerAmmo <= 0) return;
+                // Enviar datos iniciales
+                sendPlayerData();
+                
+                // Enviar datos periódicamente
+                setInterval(sendPlayerData, 50);
+            });
             
-            localPlayerAmmo--;
-            document.getElementById('ammo').innerHTML = `🔫 ${localPlayerAmmo}/30`;
+            conn.on('data', (data) => {
+                handleEnemyData(data);
+            });
             
-            createMuzzleFlash();
-            
-            // Enviar disparo a todos los peers
-            if (window.connections) {
-                window.connections.forEach(conn => {
-                    conn.send({
-                        type: 'shoot',
-                        x: localPlayer.position.x,
-                        y: localPlayer.position.y,
-                        z: localPlayer.position.z
-                    });
+            conn.on('close', () => {
+                updateConnectionStatus('Desconectado', '#ff0000');
+            });
+        }
+
+        function updateConnectionStatus(text, color) {
+            const status = document.getElementById('connection-status');
+            status.textContent = text;
+            status.style.backgroundColor = color;
+        }
+
+        function sendPlayerData() {
+            if (conn && conn.open) {
+                conn.send({
+                    id: localId,
+                    position: player.position,
+                    rotation: player.rotation,
+                    health: player.health,
+                    ammo: player.ammo,
+                    score: player.score
+                });
+            }
+        }
+
+        function handleEnemyData(data) {
+            if (!enemies.has(data.id)) {
+                // Crear nuevo enemigo
+                const enemyMesh = createPlayerMesh(0xff0000, false);
+                scene.add(enemyMesh);
+                enemies.set(data.id, {
+                    mesh: enemyMesh,
+                    health: data.health,
+                    lastUpdate: Date.now()
                 });
             }
             
-            // Detectar colisiones locales con sprites
-            const rayDirection = camera.getWorldDirection(new THREE.Vector3());
-            const rayOrigin = localPlayer.position.clone();
-            
-            for (let id in players) {
-                const player = players[id];
-                const toEnemy = new THREE.Vector3().subVectors(player.position, rayOrigin);
-                const distance = toEnemy.length();
+            const enemy = enemies.get(data.id);
+            if (enemy) {
+                enemy.mesh.position.copy(data.position);
+                enemy.mesh.rotation.y = data.rotation;
+                enemy.health = data.health;
+                enemy.lastUpdate = Date.now();
                 
-                if (distance < 20) {
-                    toEnemy.normalize();
-                    const dot = rayDirection.dot(toEnemy);
-                    
-                    if (dot > 0.95) {
-                        // Impacto visual en el sprite
-                        player.children.forEach(child => {
-                            if (child.material && child.material.map) {
-                                const originalMap = child.material.map;
-                                child.material.color.setHex(0xffaa00);
-                                setTimeout(() => {
-                                    child.material.color.setHex(0xffffff);
-                                }, 100);
-                            }
-                        });
-                    }
-                }
-            }
-            
-            // Recargar automáticamente
-            if (localPlayerAmmo <= 0) {
-                setTimeout(() => {
-                    localPlayerAmmo = 30;
-                    document.getElementById('ammo').innerHTML = '🔫 30/30';
-                }, 500);
+                // Actualizar HUD con información del enemigo
+                document.getElementById('player-count').textContent = enemies.size + 1;
             }
         }
-        
-        // Bucle de actualización
-        function update() {
-            if (localPlayer) {
-                // Movimiento - W adelante, S atrás (CORREGIDO)
-                const currentSpeed = keys['shift'] ? runSpeed : moveSpeed;
-                let moveX = 0, moveZ = 0;
-                
-                // W = adelante (dirección de la cámara)
-                if (keys['w']) {
-                    moveZ += 1; // Adelante
-                }
-                // S = atrás (dirección opuesta a la cámara)
-                if (keys['s']) {
-                    moveZ -= 1; // Atrás
-                }
-                if (keys['a']) moveX -= 1;
-                if (keys['d']) moveX += 1;
-                
-                if (moveX !== 0 || moveZ !== 0) {
-                    const length = Math.sqrt(moveX*moveX + moveZ*moveZ);
-                    moveX /= length;
-                    moveZ /= length;
+
+        // Sistema de disparo
+        window.addEventListener('click', () => {
+            if (player.ammo <= 0) return;
+            
+            player.ammo--;
+            document.getElementById('ammo').textContent = player.ammo;
+            
+            // Crear proyectil
+            const bulletGeo = new THREE.SphereGeometry(0.2);
+            const bulletMat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
+            const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+            
+            // Posición inicial (desde el arma)
+            bullet.position.copy(player.position);
+            bullet.position.y += 1.5;
+            
+            // Dirección (hacia adelante del jugador)
+            const direction = new THREE.Vector3(
+                Math.sin(player.rotation),
+                0,
+                Math.cos(player.rotation)
+            );
+            
+            scene.add(bullet);
+            
+            // Animar proyectil
+            let distance = 0;
+            const maxDistance = 20;
+            const bulletSpeed = 0.5;
+            
+            function animateBullet() {
+                if (distance < maxDistance) {
+                    bullet.position.addScaledVector(direction, bulletSpeed);
+                    distance += bulletSpeed;
                     
-                    // Calcular dirección: W = hacia donde mira la cámara, S = opuesto
-                    const forward = new THREE.Vector3(
-                        Math.sin(yaw),
-                        0,
-                        Math.cos(yaw)
-                    );
-                    
-                    const right = new THREE.Vector3(
-                        Math.sin(yaw + Math.PI/2),
-                        0,
-                        Math.cos(yaw + Math.PI/2)
-                    );
-                    
-                    // Aplicar movimiento: W = forward, S = -forward
-                    localPlayer.position.x += (forward.x * moveZ + right.x * moveX) * currentSpeed;
-                    localPlayer.position.z += (forward.z * moveZ + right.z * moveX) * currentSpeed;
-                    
-                    // Limitar al mapa
-                    localPlayer.position.x = Math.max(-15, Math.min(15, localPlayer.position.x));
-                    localPlayer.position.z = Math.max(-15, Math.min(15, localPlayer.position.z));
-                }
-                
-                // Actualizar posición de la cámara
-                camera.position.copy(localPlayer.position);
-                
-                // Hacer que los sprites de otros jugadores miren a la cámara
-                for (let id in players) {
-                    const player = players[id];
-                    player.children.forEach(child => {
-                        if (child instanceof THREE.Sprite) {
-                            child.lookAt(camera.position);
+                    // Verificar colisiones con enemigos
+                    enemies.forEach((enemy, id) => {
+                        if (bullet.position.distanceTo(enemy.mesh.position) < 1.5) {
+                            scene.remove(bullet);
+                            // Daño al enemigo
+                            if (conn && conn.open) {
+                                conn.send({
+                                    type: 'damage',
+                                    target: id,
+                                    damage: 10
+                                });
+                            }
+                            return;
                         }
                     });
-                }
-                
-                // Movimiento del arma (bobbing)
-                if (weaponGroup && (keys['w'] || keys['s'] || keys['a'] || keys['d'])) {
-                    const time = Date.now() * 0.01;
-                    weaponGroup.position.y = -0.3 + Math.sin(time) * 0.02;
-                    weaponGroup.position.x = 0.5 + Math.cos(time * 2) * 0.01;
-                }
-                
-                // Enviar posición a peers
-                if (window.connections) {
-                    window.connections.forEach(conn => {
-                        conn.send({
-                            type: 'position',
-                            x: localPlayer.position.x,
-                            y: 0, // Los sprites se dibujan desde el suelo
-                            z: localPlayer.position.z,
-                            rotationY: yaw
-                        });
-                    });
+                    
+                    requestAnimationFrame(animateBullet);
+                } else {
+                    scene.remove(bullet);
                 }
             }
             
+            animateBullet();
+        });
+
+        // Recargar
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyR') {
+                player.ammo = 30;
+                document.getElementById('ammo').textContent = player.ammo;
+            }
+        });
+
+        // Animación y lógica del juego
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Calcular FPS
+            frameCount++;
+            const now = performance.now();
+            const delta = now - lastTime;
+            
+            if (delta >= 1000) {
+                fps = frameCount;
+                document.getElementById('fps').textContent = fps;
+                frameCount = 0;
+                lastTime = now;
+            }
+
+            // Movimiento del jugador (estilo DOOM)
+            if (keys['KeyW'] || keys['ArrowUp']) {
+                player.position.x += Math.sin(player.rotation) * moveSpeed;
+                player.position.z += Math.cos(player.rotation) * moveSpeed;
+            }
+            if (keys['KeyS'] || keys['ArrowDown']) {
+                player.position.x -= Math.sin(player.rotation) * moveSpeed;
+                player.position.z -= Math.cos(player.rotation) * moveSpeed;
+            }
+            if (keys['KeyA'] || keys['ArrowLeft']) {
+                player.rotation += rotateSpeed;
+            }
+            if (keys['KeyD'] || keys['ArrowRight']) {
+                player.rotation -= rotateSpeed;
+            }
+            
+            // Limitar movimiento dentro del mapa
+            player.position.x = Math.max(-18, Math.min(18, player.position.x));
+            player.position.z = Math.max(-18, Math.min(18, player.position.z));
+            
+            // Actualizar malla del jugador
+            player.mesh.position.copy(player.position);
+            player.mesh.rotation.y = player.rotation;
+            
+            // Cámara en tercera persona
+            const camOffset = new THREE.Vector3(
+                Math.sin(player.rotation) * 8,
+                5,
+                Math.cos(player.rotation) * 8
+            );
+            camera.position.copy(player.position.clone().add(camOffset));
+            camera.lookAt(player.position.clone().add(new THREE.Vector3(0, 2, 0)));
+
+            // Actualizar HUD
+            document.getElementById('health').textContent = player.health;
+            document.getElementById('health-fill').style.width = player.health + '%';
+            document.getElementById('score').textContent = player.score;
+
+            // Limpiar enemigos desconectados
+            const now_time = Date.now();
+            enemies.forEach((enemy, id) => {
+                if (now_time - enemy.lastUpdate > 1000) {
+                    scene.remove(enemy.mesh);
+                    enemies.delete(id);
+                }
+            });
+
             renderer.render(scene, camera);
-            requestAnimationFrame(update);
         }
-        
-        update();
-        
+
+        animate();
+
         // Ajustar tamaño de ventana
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-        
-        // Tecla ESC para liberar cursor
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.exitPointerLock();
+
+        // Sistema de daño simple
+        setInterval(() => {
+            // Detectar colisiones con enemigos
+            enemies.forEach((enemy) => {
+                if (player.position.distanceTo(enemy.mesh.position) < 2) {
+                    player.health = Math.max(0, player.health - 1);
+                }
+            });
+            
+            // Regeneración si está muy bajo
+            if (player.health < 20) {
+                player.health = Math.min(100, player.health + 0.1);
             }
-        });
+        }, 100);
     </script>
 </body>
 </html>
