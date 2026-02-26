@@ -2,15 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ROBLOX 2008 - PHYSICS MASTER FIX</title>
+    <title>Korblox - Raycast Engine 2026</title>
     <style>
-        /* INTERFAZ CLÁSICA ROBLOX 2008 */
         body { margin: 0; overflow: hidden; font-family: "Arial", sans-serif; background-color: #000; user-select: none; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-        #top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 40px; background: #cc0000; border-bottom: 3px solid #880000; display: flex; align-items: center; padding: 0 10px; pointer-events: auto; }
+        #top-bar { position: absolute; top: 0; left: 0; width: 100%; height: 40px; background: #222; border-bottom: 3px solid #444; display: flex; align-items: center; padding: 0 10px; pointer-events: auto; }
         .panel { pointer-events: auto; background: #eeeeee; border: 4px outset #ffffff; padding: 15px; color: #333; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); }
         #main-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; text-align: center; display: block; }
-        h1 { color: #cc0000; -webkit-text-stroke: 1.5px black; font-size: 52px; margin: 10px 0; font-family: "Arial Black", sans-serif; }
+        h1 { color: #0055ff; -webkit-text-stroke: 1.5px black; font-size: 64px; margin: 10px 0; font-family: "Arial Black", sans-serif; letter-spacing: -2px; }
         button { cursor: pointer; padding: 10px; margin: 5px; font-weight: bold; background: #d4d0c8; border: 3px outset #ffffff; width: 90%; text-transform: uppercase; }
         button:active { border: 3px inset #ffffff; }
         .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 18px; }
@@ -26,38 +25,41 @@
         #crosshair { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; z-index: 5; }
         input { pointer-events: auto; padding: 10px; margin: 8px; border: 2px inset #eee; width: 85%; }
         #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 240px; }
-        #copy-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,255,0,0.8); color: black; padding: 10px 20px; border-radius: 5px; display: none; z-index: 1000; }
+        #copy-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #00ff00; color: #000; padding: 10px 20px; border: 2px solid #000; display: none; z-index: 1000; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="copy-toast">ID Copiada!</div>
+    <div id="copy-toast">ID COPIADA AL PORTAPAPELES</div>
     <div id="crosshair"></div>
 
     <div id="ui-layer">
-        <div id="top-bar"><span style="color: white; font-weight: bold;">ROBLOX v2008.4 PHYSICS-FIX</span></div>
+        <div id="top-bar"><span style="color: white; font-weight: bold;">KORBLOX ENGINE v2.0 (RAYCAST PHYSICS)</span></div>
         <div id="hud">
-            <div id="username-display">Guest Player</div>
+            <div id="username-display">Guest</div>
             <div class="health-bg"><div id="health-bar"></div></div>
         </div>
         <div id="room-info" class="panel"><b>Server ID:</b><br><span id="my-id">Conectando...</span></div>
+        
         <div id="main-menu" class="panel">
-            <h1>ROBLOX</h1>
-            <input type="text" id="username-input" placeholder="Nombre..." maxlength="12">
-            <button class="btn-play" onclick="startPlay()">PLAY</button>
-            <div style="margin: 15px; padding: 10px; border: 1px solid #999; background: #ddd; border-radius: 5px;">
-                <input type="text" id="peer-input" placeholder="ID Amigo...">
-                <button style="width: auto;" onclick="connectToPeer()">JOIN</button>
+            <h1>KORBLOX</h1>
+            <input type="text" id="username-input" placeholder="Nombre de usuario..." maxlength="12">
+            <button class="btn-play" onclick="startPlay()">JUGAR</button>
+            <div style="margin: 10px; padding: 10px; background: #ddd; border: 1px solid #999;">
+                <input type="text" id="peer-input" placeholder="ID del amigo...">
+                <button onclick="connectToPeer()" style="width: auto;">UNIRSE</button>
             </div>
-            <button onclick="startEditor()">BUILDER</button>
-            <button onclick="document.getElementById('file-input').click()">LOAD MAP</button>
-            <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
+            <button onclick="startEditor()">CONSTRUIR</button>
         </div>
-        <div id="inventory"><div class="slot active"><span>1</span><br><b>SWORD</b></div></div>
+
+        <div id="inventory">
+            <div class="slot active"><span>1</span><br><b>SWORD</b></div>
+        </div>
+
         <div id="editor-ui" class="panel">
             <h3>EDITOR</h3>
-            <button class="btn-play" onclick="exportMap()">SAVE</button>
-            <button onclick="location.reload()">EXIT</button>
+            <button onclick="exportMap()">EXPORTAR</button>
+            <button onclick="location.reload()">SALIR</button>
         </div>
     </div>
 
@@ -67,201 +69,184 @@
     <script>
         let scene, camera, renderer, player, otherPlayers = {}, conn;
         let blocks = [], mapData = [], keys = {};
-        let isPlaying = false, isEditor = false, isAttacking = false;
-        let yaw = 0, pitch = 0, vy = 0, onGround = false, health = 100;
+        let isPlaying = false, isEditor = false;
+        let yaw = 0, pitch = 0, vy = 0, onGround = false;
         let peer, myID, rightClickDown = false;
-        let raycaster = new THREE.Raycaster();
-        let mouse = new THREE.Vector2();
+        
+        // Raycasters para colisiones
+        const downRay = new THREE.Raycaster();
+        const upRay = new THREE.Raycaster();
 
         document.getElementById('my-id').onclick = function() {
             navigator.clipboard.writeText(this.innerText).then(() => {
-                document.getElementById('copy-toast').style.display = 'block';
-                setTimeout(() => document.getElementById('copy-toast').style.display = 'none', 2000);
+                const t = document.getElementById('copy-toast');
+                t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000);
             });
         };
 
         function initNetwork() {
             peer = new Peer();
             peer.on('open', id => { myID = id; document.getElementById('my-id').innerText = id; });
-            peer.on('connection', c => { conn = c; conn.on('open', () => conn.send({ type: 'map', data: mapData })); setupNetworkEvents(); });
+            peer.on('connection', c => { conn = c; conn.on('open', () => conn.send({type:'map', data:mapData})); setupNet(); });
+        }
+
+        function setupNet() {
+            conn.on('data', d => {
+                if(d.type==='map') { mapData=d.data; syncBlocks(); }
+                if(d.type==='move') updateRemote(d);
+            });
         }
 
         function connectToPeer() {
             const tid = document.getElementById('peer-input').value;
-            if(!tid) return; conn = peer.connect(tid); setupNetworkEvents(); startPlay();
-        }
-
-        function setupNetworkEvents() {
-            conn.on('data', data => {
-                if(data.type === 'map') { mapData = data.data; syncBlocks(); }
-                if(data.type === 'move') handleRemoteMove(data);
-                if(data.type === 'damage' && data.target === myID) takeDamage(20);
-            });
+            if(!tid) return; conn = peer.connect(tid); setupNet(); startPlay();
         }
 
         function initEngine() {
             if(renderer) return;
             scene = new THREE.Scene(); scene.background = new THREE.Color(0x87ceeb);
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
-            renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({antialias:true}); renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true; document.body.appendChild(renderer.domElement);
             scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(100, 200, 100); sun.castShadow = true; scene.add(sun);
-            const baseplate = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshStandardMaterial({ color: 0x248232 }));
-            baseplate.rotation.x = -Math.PI / 2; baseplate.name = "ground"; baseplate.receiveShadow = true; scene.add(baseplate);
+            const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(50, 100, 50); scene.add(sun);
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshStandardMaterial({color:0x248232}));
+            floor.rotation.x = -Math.PI/2; floor.name = "floor"; scene.add(floor);
         }
 
-        function createChar(name) {
+        function createChar() {
             const g = new THREE.Group();
-            const skin = new THREE.MeshStandardMaterial({ color: 0xffff00 });
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skin); head.position.y = 4.2;
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 1), new THREE.MeshStandardMaterial({ color: 0x0055ff })); torso.position.y = 2.6;
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skin); armL.position.set(-1.5, 2.6, 0);
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skin); armR.position.set(1.5, 2.6, 0);
-            const legL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({ color: 0x27ae60 })); legL.position.set(-0.5, 0.6, 0);
-            const legR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({ color: 0x27ae60 })); legR.position.set(0.5, 0.6, 0);
-            const sword = new THREE.Group();
-            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.4, 3, 0.15), new THREE.MeshStandardMaterial({ color: 0xcccccc })); blade.position.y = 1.5;
-            sword.add(blade); sword.position.set(1.5, 2.5, -1); sword.rotation.x = -Math.PI / 2;
-            g.add(head, torso, armL, armR, legL, legR, sword);
-            g.userData = { armL, armR, legL, legR, sword, name };
-            return g;
+            const body = new THREE.Mesh(new THREE.BoxGeometry(2, 4, 1), new THREE.MeshStandardMaterial({color:0x0055ff}));
+            body.position.y = 2.5;
+            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshStandardMaterial({color:0xffff00}));
+            head.position.y = 4.5;
+            g.add(body, head); return g;
         }
 
         /**
-         * FÍSICAS REFORZADAS - ANTI-HUNDIMIENTO
+         * SISTEMA DE FÍSICAS POR RAYCASTING (SOLUCIÓN DEFINITIVA)
          */
-        function solvePhysics(oldPos) {
-            // 1. Detección de suelo y bloques (Y+)
-            let pBox = new THREE.Box3().setFromCenterAndSize(
-                player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
-                new THREE.Vector3(1.6, 5.0, 1.6)
-            );
+        function updatePhysics() {
+            const rayOrigin = player.position.clone().add(new THREE.Vector3(0, 1, 0)); // Origen en los pies
+            const rayDirDown = new THREE.Vector3(0, -1, 0);
+            const rayDirUp = new THREE.Vector3(0, 1, 0);
 
-            let standingOnSomething = false;
+            // Gravedad constante
+            vy -= 0.02;
+            player.position.y += vy;
 
-            // Suelo Baseplate
-            if (player.position.y <= 0.001) {
-                player.position.y = 0;
-                vy = 0;
-                standingOnSomething = true;
-            }
+            // 1. COLISIÓN ABAJO (Y+)
+            downRay.set(rayOrigin, rayDirDown);
+            const downHits = downRay.intersectObjects(blocks.concat(scene.getObjectByName("floor")));
 
-            for (let b of blocks) {
-                let bBox = new THREE.Box3().setFromObject(b);
-                if (pBox.intersectsBox(bBox)) {
-                    // Colisión superior (Pisar bloque) - Margen de seguridad aumentado
-                    if (oldPos.y >= b.position.y + 3.5) {
-                        player.position.y = b.position.y + 4;
-                        vy = 0;
-                        standingOnSomething = true;
-                    } 
-                    // Colisión inferior (Techo)
-                    else if (oldPos.y + 4.2 <= b.position.y) {
-                        player.position.y = b.position.y - 5.05;
-                        vy = -0.1;
-                    }
+            if (downHits.length > 0) {
+                const hit = downHits[0];
+                const dist = hit.distance;
+
+                // Si estamos muy cerca o dentro del bloque
+                if (dist < 1.1) {
+                    player.position.y += (1.0 - dist); // Reposicionar en la superficie
+                    vy = 0;
+                    onGround = true;
+                } else {
+                    onGround = false;
                 }
             }
-            onGround = standingOnSomething;
+
+            // 2. COLISIÓN ARRIBA (Y-)
+            upRay.set(player.position.clone().add(new THREE.Vector3(0, 4, 0)), rayDirUp);
+            const upHits = upRay.intersectObjects(blocks);
+            if (upHits.length > 0) {
+                const hit = upHits[0];
+                if (hit.distance < 0.5) {
+                    vy = -0.05; // Rebote hacia abajo
+                    player.position.y -= 0.2;
+                }
+            }
         }
 
-        function checkWalls() {
-            let pBox = new THREE.Box3().setFromCenterAndSize(player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), new THREE.Vector3(2.0, 4.0, 2.0));
-            return blocks.some(b => pBox.intersectsBox(new THREE.Box3().setFromObject(b)));
+        function checkWalls(oldX, oldZ) {
+            // Colisión simple por distancia a bloques
+            for(let b of blocks) {
+                let dx = player.position.x - b.position.x;
+                let dz = player.position.z - b.position.z;
+                let dy = player.position.y - b.position.y;
+                
+                if (Math.abs(dx) < 3 && Math.abs(dz) < 3 && Math.abs(dy) < 4) {
+                    player.position.x = oldX;
+                    player.position.z = oldZ;
+                }
+            }
         }
 
         function startPlay() {
-            isPlaying = true; isEditor = false;
-            document.getElementById('main-menu').style.display = 'none';
+            isPlaying = true; document.getElementById('main-menu').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
             document.getElementById('inventory').style.display = 'flex';
             document.getElementById('crosshair').style.display = 'block';
             initEngine(); syncBlocks();
-            player = createChar(document.getElementById('username-input').value || "Guest");
-            player.position.set(0, 20, 0); scene.add(player);
+            player = createChar(); player.position.set(0, 10, 0); scene.add(player);
+            
             window.addEventListener('keydown', e => keys[e.code] = true);
             window.addEventListener('keyup', e => keys[e.code] = false);
-            window.addEventListener('mousedown', e => {
-                if (e.button === 2) { rightClickDown = true; document.body.requestPointerLock(); }
-                if (e.button === 0 && isPlaying) attack();
-            });
-            window.addEventListener('mouseup', e => { if (e.button === 2) { rightClickDown = false; document.exitPointerLock(); } });
-            document.addEventListener('mousemove', e => { if (document.pointerLockElement === document.body && rightClickDown) { yaw -= e.movementX * 0.003; pitch = Math.max(-1.3, Math.min(1.3, pitch + e.movementY * 0.003)); } });
+            window.addEventListener('mousedown', e => { if(e.button===2) { rightClickDown=true; document.body.requestPointerLock(); } });
+            window.addEventListener('mouseup', e => { if(e.button===2) { rightClickDown=false; document.exitPointerLock(); } });
+            document.addEventListener('mousemove', e => { if(rightClickDown) { yaw -= e.movementX*0.003; pitch = Math.max(-1.4, Math.min(1.4, pitch + e.movementY*0.003)); } });
             loop();
         }
 
         function loop() {
             requestAnimationFrame(loop);
-            if (isPlaying && player) {
-                const oldPos = player.position.clone();
-                vy -= 0.025; player.position.y += vy;
-                solvePhysics(oldPos);
+            if(isPlaying && player) {
+                const oldX = player.position.x;
+                const oldZ = player.position.z;
 
-                let dx = 0, dz = 0;
-                if (keys['KeyW']) { dx -= Math.sin(yaw); dz -= Math.cos(yaw); }
-                if (keys['KeyS']) { dx += Math.sin(yaw); dz += Math.cos(yaw); }
-                if (keys['KeyA']) { dx -= Math.cos(yaw); dz += Math.sin(yaw); }
-                if (keys['KeyD']) { dx += Math.cos(yaw); dz -= Math.sin(yaw); }
-                if (keys['Space'] && onGround) { vy = 0.55; onGround = false; }
+                updatePhysics();
 
-                player.position.x += dx * 0.45; if (checkWalls()) player.position.x = oldPos.x;
-                player.position.z += dz * 0.45; if (checkWalls()) player.position.z = oldPos.z;
+                let speed = 0.4;
+                if(keys['KeyW']) { player.position.x -= Math.sin(yaw)*speed; player.position.z -= Math.cos(yaw)*speed; }
+                if(keys['KeyS']) { player.position.x += Math.sin(yaw)*speed; player.position.z += Math.cos(yaw)*speed; }
+                if(keys['KeyA']) { player.position.x -= Math.cos(yaw)*speed; player.position.z += Math.sin(yaw)*speed; }
+                if(keys['KeyD']) { player.position.x += Math.cos(yaw)*speed; player.position.z -= Math.sin(yaw)*speed; }
+                if(keys['Space'] && onGround) { vy = 0.5; onGround = false; }
+
+                checkWalls(oldX, oldZ);
                 player.rotation.y = yaw;
-                
-                if (conn && conn.open) conn.send({ type: 'move', id: myID, x: player.position.x, y: player.position.y, z: player.position.z, ry: player.rotation.y, walking: (dx!==0||dz!==0) });
 
-                const dist = 30;
-                camera.position.set(player.position.x + Math.sin(yaw)*Math.cos(pitch)*dist, player.position.y + 12 + (pitch*12), player.position.z + Math.cos(yaw)*Math.cos(pitch)*dist);
-                camera.lookAt(player.position.x, player.position.y + 4, player.position.z);
+                if(conn && conn.open) conn.send({type:'move', id:myID, x:player.position.x, y:player.position.y, z:player.position.z, ry:yaw});
+
+                camera.position.set(player.position.x + Math.sin(yaw)*25, player.position.y + 15, player.position.z + Math.cos(yaw)*25);
+                camera.lookAt(player.position.x, player.position.y+2, player.position.z);
             }
-            if (isEditor) handleEditorCam();
-            if (renderer) renderer.render(scene, camera);
+            if(renderer) renderer.render(scene, camera);
         }
 
         function spawnBlock(pos) {
-            const b = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshStandardMaterial({ color: 0x999999 }));
-            b.position.set(pos.x, pos.y, pos.z); b.castShadow = b.receiveShadow = b.isBlock = true;
+            const b = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshStandardMaterial({color:0x888888}));
+            b.position.set(pos.x, pos.y, pos.z); b.castShadow = true; b.receiveShadow = true;
             scene.add(b); blocks.push(b);
         }
 
-        function syncBlocks() { blocks.forEach(b => scene.remove(b)); blocks = []; mapData.forEach(p => spawnBlock(p)); }
+        function syncBlocks() { blocks.forEach(b=>scene.remove(b)); blocks=[]; mapData.forEach(p=>spawnBlock(p)); }
 
         function startEditor() {
-            isEditor = true; isPlaying = false; document.getElementById('main-menu').style.display = 'none'; document.getElementById('editor-ui').style.display = 'block';
-            initEngine(); syncBlocks(); camera.position.set(60, 60, 60); camera.lookAt(0,0,0);
-            window.onmousedown = (e) => {
+            isEditor = true; document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('editor-ui').style.display = 'block';
+            initEngine();
+            window.onclick = (e) => {
                 if(!isEditor) return;
-                if(e.button === 2) { rightClickDown = true; document.body.requestPointerLock(); }
-                if(e.button === 0) {
-                    mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1;
-                    raycaster.setFromCamera(mouse, camera);
-                    const hits = raycaster.intersectObjects(scene.children);
-                    if(hits.length > 0) {
-                        const hit = hits[0];
-                        if(e.shiftKey && hit.object.isBlock) {
-                            scene.remove(hit.object); blocks = blocks.filter(b => b !== hit.object);
-                            mapData = mapData.filter(p => !(p.x === hit.object.position.x && p.y === hit.object.position.y && p.z === hit.object.position.z));
-                        } else {
-                            let p = hit.object.name === "ground" ? new THREE.Vector3(Math.round(hit.point.x/4)*4, 2, Math.round(hit.point.z/4)*4) : hit.object.position.clone().add(hit.face.normal.clone().multiplyScalar(4));
-                            spawnBlock(p); mapData.push({x:p.x, y:p.y, z:p.z});
-                        }
-                    }
+                mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1;
+                raycaster.setFromCamera(mouse, camera);
+                const hits = raycaster.intersectObjects(scene.children);
+                if(hits.length>0) {
+                    const hit = hits[0];
+                    let p = hit.object.name==="floor" ? new THREE.Vector3(Math.round(hit.point.x/4)*4, 2, Math.round(hit.point.z/4)*4) : hit.object.position.clone().add(hit.face.normal.multiplyScalar(4));
+                    spawnBlock(p); mapData.push({x:p.x, y:p.y, z:p.z});
                 }
             };
-            loop();
+            camera.position.set(50,50,50); camera.lookAt(0,0,0); loop();
         }
 
-        function handleEditorCam() {
-            const s = 1.5;
-            if (keys['KeyW']) camera.translateZ(-s); if (keys['KeyS']) camera.translateZ(s);
-            if (keys['KeyA']) camera.translateX(-s); if (keys['KeyD']) camera.translateX(s);
-            if (keys['KeyE']) camera.position.y += s; if (keys['KeyQ']) camera.position.y -= s;
-        }
-
-        function exportMap() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(mapData)], {type:'application/json'})); a.download = "map.json"; a.click(); }
-        function loadMap(e) { const r = new FileReader(); r.onload = ev => { mapData = JSON.parse(ev.target.result); syncBlocks(); }; r.readAsText(e.target.files[0]); }
-        
         initNetwork();
     </script>
 </body>
