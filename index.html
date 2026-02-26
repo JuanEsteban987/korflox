@@ -2,92 +2,233 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ROBLOX 2008 - ADVANCED BUILD & COMBAT</title>
+    <title>ROBLOX 2008 - ULTIMATE ENGINE</title>
     <style>
-        /* ESTÉTICA RETRO ROBLOX 2008 */
-        body { margin: 0; overflow: hidden; font-family: "Arial", sans-serif; background: #000; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        /* INTERFAZ CLÁSICA ROBLOX 2008 */
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: "Arial", sans-serif; 
+            background-color: #000; 
+            user-select: none;
+        }
+
+        #ui-layer { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            z-index: 10; 
+        }
         
         #top-bar { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 40px; 
-            background: #cc0000; border-bottom: 3px solid #880000; 
-            display: flex; align-items: center; padding: 0 10px; pointer-events: auto; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 40px; 
+            background: #cc0000; 
+            border-bottom: 3px solid #880000; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 10px; 
+            pointer-events: auto; 
         }
 
         .panel { 
-            pointer-events: auto; background: #eeeeee; border: 4px outset #ffffff; 
-            padding: 15px; color: #333; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); 
+            pointer-events: auto; 
+            background: #eeeeee; 
+            border: 4px outset #ffffff; 
+            padding: 15px; 
+            color: #333; 
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.5); 
         }
 
         #main-menu { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 420px; text-align: center; display: block;
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 450px; 
+            text-align: center; 
+            display: block;
         }
 
-        h1 { color: #cc0000; -webkit-text-stroke: 1.5px black; font-size: 48px; margin: 10px 0; font-family: "Arial Black"; }
+        h1 { 
+            color: #cc0000; 
+            -webkit-text-stroke: 1.5px black; 
+            font-size: 52px; 
+            margin: 10px 0; 
+            font-family: "Arial Black", sans-serif; 
+        }
 
         button { 
-            cursor: pointer; padding: 10px; margin: 5px; font-weight: bold; 
-            background: #d4d0c8; border: 3px outset #ffffff; width: 90%; 
+            cursor: pointer; 
+            padding: 10px; 
+            margin: 5px; 
+            font-weight: bold; 
+            background: #d4d0c8; 
+            border: 3px outset #ffffff; 
+            width: 90%; 
+            text-transform: uppercase;
         }
+
         button:active { border: 3px inset #ffffff; }
         .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 18px; }
 
-        /* HUD de Vida */
-        #hud { position: absolute; top: 50px; right: 20px; width: 200px; display: none; pointer-events: auto; }
-        .health-bg { width: 100%; height: 20px; background: #555; border: 2px solid #000; }
-        #health-bar { width: 100%; height: 100%; background: #00ff00; transition: width 0.1s; }
-        #username-display { color: white; font-weight: bold; text-shadow: 2px 2px black; margin-bottom: 5px; text-align: right; }
+        /* HUD DE SALUD (HUMANOID) */
+        #hud { 
+            position: absolute; 
+            top: 50px; 
+            right: 20px; 
+            width: 220px; 
+            display: none; 
+            pointer-events: auto; 
+        }
 
+        .health-bg { 
+            width: 100%; 
+            height: 24px; 
+            background: #555; 
+            border: 2px solid #000; 
+        }
+
+        #health-bar { 
+            width: 100%; 
+            height: 100%; 
+            background: #00ff00; 
+            transition: width 0.2s; 
+        }
+
+        #username-display { 
+            color: white; 
+            font-weight: bold; 
+            text-shadow: 2px 2px black; 
+            margin-bottom: 5px; 
+            text-align: right; 
+            font-size: 14px;
+        }
+
+        /* INVENTARIO */
         #inventory { 
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
-            display: none; pointer-events: auto; gap: 5px; 
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: none; 
+            pointer-events: auto; 
+            gap: 8px; 
         }
-        .slot { 
-            width: 65px; height: 65px; background: rgba(0,0,0,0.6); 
-            border: 3px outset #ffffff; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: white; font-size: 10px; 
-        }
-        .slot.active { border-color: #ffff00; background: rgba(255,255,255,0.2); }
 
-        #room-info { position: absolute; top: 50px; left: 10px; font-size: 12px; background: white; padding: 5px; border: 2px solid black; pointer-events: auto; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; }
-        input { pointer-events: auto; padding: 8px; margin: 5px; border: 2px inset #eee; width: 85%; }
+        .slot { 
+            width: 70px; 
+            height: 70px; 
+            background: rgba(0,0,0,0.7); 
+            border: 3px outset #ffffff; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            color: white; 
+            font-size: 11px; 
+        }
+
+        .slot.active { 
+            border-color: #ffff00; 
+            background: rgba(255,255,255,0.2); 
+        }
+
+        #room-info { 
+            position: absolute; 
+            top: 55px; 
+            left: 10px; 
+            font-size: 12px; 
+            background: white; 
+            padding: 8px; 
+            border: 2px solid black; 
+            pointer-events: auto; 
+        }
+
+        #crosshair { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            width: 18px; 
+            height: 18px; 
+            border: 2px solid white; 
+            border-radius: 50%; 
+            transform: translate(-50%, -50%); 
+            display: none; 
+            mix-blend-mode: difference; 
+            z-index: 5;
+        }
+
+        input { 
+            pointer-events: auto; 
+            padding: 10px; 
+            margin: 8px; 
+            border: 2px inset #eee; 
+            width: 85%; 
+        }
         
-        #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 220px; }
-        #instructions { position: absolute; bottom: 100px; left: 20px; color: white; background: rgba(0,0,0,0.5); padding: 10px; display: none; }
+        #editor-ui { 
+            position: absolute; 
+            bottom: 20px; 
+            right: 20px; 
+            display: none; 
+            width: 240px; 
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
+    <div id="loading-screen">
+        <h2 style="color: #cc0000; font-family: 'Arial Black';">LOADING...</h2>
+    </div>
+
     <div id="crosshair"></div>
 
     <div id="ui-layer">
-        <div id="top-bar"><span style="color: white; font-weight: bold; letter-spacing: 1px;">ROBLOX - BUILDER MODE</span></div>
+        <div id="top-bar">
+            <span style="color: white; font-weight: bold; letter-spacing: 1px;">ROBLOX v2008.1</span>
+        </div>
         
         <div id="hud">
-            <div id="username-display">Guest</div>
+            <div id="username-display">Guest Player</div>
             <div class="health-bg"><div id="health-bar"></div></div>
         </div>
 
         <div id="room-info" class="panel">
-            <b>Server ID:</b> <br><span id="my-id" style="color:blue; font-family: monospace;">Connecting...</span>
+            <b>Your Server ID:</b> <br>
+            <span id="my-id" style="color:blue; font-family: monospace; font-weight: bold;">Connecting to Master Server...</span>
         </div>
 
         <div id="main-menu" class="panel">
             <h1>ROBLOX</h1>
             <input type="text" id="username-input" placeholder="Character Name..." maxlength="12">
             
-            <button class="btn-play" onclick="startPlay(true)">PLAY / HOST SERVER</button>
+            <button class="btn-play" onclick="startPlay()">ENTER WORLD / HOST</button>
             
-            <div style="margin: 15px; padding: 10px; border: 1px solid #999; background: #ddd;">
-                <p style="font-size: 11px; margin: 0 0 5px 0;">MULTIPLAYER JOIN:</p>
-                <input type="text" id="peer-input" placeholder="Paste ID here...">
-                <button style="width: auto;" onclick="connectToPeer()">JOIN</button>
+            <div style="margin: 15px; padding: 10px; border: 1px solid #999; background: #ddd; border-radius: 5px;">
+                <p style="font-size: 12px; margin: 0 0 5px 0; font-weight: bold;">CONNECT TO FRIEND:</p>
+                <input type="text" id="peer-input" placeholder="Paste Friend ID here...">
+                <button style="width: auto; padding: 10px 20px;" onclick="connectToPeer()">JOIN GAME</button>
             </div>
 
-            <button onclick="startEditor()">OPEN EDITOR (BUILD)</button>
-            <button onclick="document.getElementById('file-input').click()" style="background: #ffcc00;">LOAD MAP (.JSON)</button>
+            <button onclick="startEditor()">BUILD MODE (EDITOR)</button>
+            <button onclick="document.getElementById('file-input').click()" style="background: #ffcc00; border-color: #ccaa00;">LOAD PLACE (.JSON)</button>
             <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
         </div>
 
@@ -97,17 +238,17 @@
         </div>
 
         <div id="editor-ui" class="panel">
-            <h2 style="margin:0">EDITOR</h2>
-            <p style="font-size: 11px;"><b>LMB:</b> Colocar Bloque<br><b>RMB:</b> Borrar Bloque</p>
-            <button class="btn-play" onclick="exportMap()">EXPORT MAP</button>
-            <button onclick="location.reload()" style="background:#ff4444; color:white;">QUIT</button>
-        </div>
-
-        <div id="instructions">
-            <b>BUILDER CONTROLS:</b><br>
-            WASD: Mover Cámara<br>
-            Q / E: Subir / Bajar Cámara<br>
-            Hold Right Click: Rotar Cámara
+            <h3 style="margin:0">STAMPER TOOL</h3>
+            <hr>
+            <p style="font-size: 11px; text-align: left;">
+                • <b>LMB:</b> Place Block<br>
+                • <b>RMB:</b> Rotate Camera<br>
+                • <b>SHIFT + LMB:</b> Delete Block<br>
+                • <b>WASD:</b> Move Camera<br>
+                • <b>Q / E:</b> Down / Up
+            </p>
+            <button class="btn-play" onclick="exportMap()">SAVE PLACE</button>
+            <button onclick="location.reload()" style="background: #888; color: white;">QUIT</button>
         </div>
     </div>
 
@@ -115,388 +256,539 @@
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
     <script>
-        // --- VARIABLES DE NÚCLEO ---
+        /**
+         * GLOBAL VARIABLES
+         */
         let scene, camera, renderer, player, otherPlayers = {}, conn;
         let blocks = [], mapData = [], keys = {};
         let isPlaying = false, isEditor = false, isAttacking = false;
         let yaw = 0, pitch = 0, vy = 0, onGround = false, health = 100;
         let peer, myID, swordEquipped = true;
+        let rightClickDown = false;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
 
-        // --- SISTEMA DE RED P2P ---
-        peer = new Peer();
-        peer.on('open', id => { 
-            myID = id; 
-            document.getElementById('my-id').innerText = id; 
-        });
-        
-        peer.on('connection', c => {
-            conn = c;
-            conn.on('open', () => {
-                // Enviar el mapa actual al nuevo jugador
-                conn.send({ type: 'map', data: mapData });
+        /**
+         * NETWORKING SYSTEM (PEERJS)
+         */
+        function initNetwork() {
+            peer = new Peer();
+            peer.on('open', id => { 
+                myID = id; 
+                document.getElementById('my-id').innerText = id; 
             });
-            setupNetworkEvents();
-        });
+            
+            peer.on('connection', c => {
+                conn = c;
+                conn.on('open', () => {
+                    // Host sends current map to the newcomer
+                    conn.send({ type: 'map', data: mapData });
+                });
+                setupNetworkEvents();
+            });
+        }
 
         function connectToPeer() {
             const targetID = document.getElementById('peer-input').value;
-            if(!targetID) return alert("Ingresa un ID");
+            if(!targetID) return alert("Please enter a valid ID");
+            
             conn = peer.connect(targetID);
             setupNetworkEvents();
-            startPlay(false);
+            startPlay();
         }
 
         function setupNetworkEvents() {
             conn.on('data', data => {
                 if(data.type === 'map') { 
                     mapData = data.data; 
-                    syncBlocks(); 
+                    syncBlocksInScene(); 
                 }
-                if(data.type === 'move') updateRemotePlayer(data);
-                if(data.type === 'damage' && data.target === myID) takeDamage(20);
+                if(data.type === 'move') {
+                    handleRemotePlayerMove(data);
+                }
+                if(data.type === 'damage' && data.target === myID) {
+                    takeDamage(20);
+                }
             });
         }
 
-        // --- MOTOR GRÁFICO ---
+        /**
+         * 3D ENGINE CORE
+         */
         function initEngine() {
             if(renderer) return;
+
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87ceeb);
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            scene.background = new THREE.Color(0x87ceeb); // Sky blue
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
+            
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
             document.body.appendChild(renderer.domElement);
 
-            scene.add(new THREE.AmbientLight(0x999999));
-            let sun = new THREE.DirectionalLight(0xffffff, 1);
-            sun.position.set(50, 100, 50);
+            // Lighting
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambient);
+
+            const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+            sun.position.set(100, 200, 100);
+            sun.castShadow = true;
             scene.add(sun);
 
-            const baseplate = new THREE.Mesh(
-                new THREE.PlaneGeometry(500,500), 
-                new THREE.MeshStandardMaterial({color: 0x248232})
-            );
-            baseplate.rotation.x = -Math.PI/2;
+            // The Classic Baseplate
+            const baseGeo = new THREE.PlaneGeometry(1000, 1000);
+            const baseMat = new THREE.MeshStandardMaterial({ color: 0x248232 });
+            const baseplate = new THREE.Mesh(baseGeo, baseMat);
+            baseplate.rotation.x = -Math.PI / 2;
             baseplate.name = "ground";
+            baseplate.receiveShadow = true;
             scene.add(baseplate);
+
+            window.addEventListener('resize', onWindowResize);
         }
 
-        // --- CREACIÓN DE AVATAR ---
-        function createCharacter(name) {
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        /**
+         * CHARACTER & HUMANOID LOGIC
+         */
+        function createCharacter(name, isLocal = false) {
             const group = new THREE.Group();
-            const skin = new THREE.MeshStandardMaterial({color: 0xffff00});
-            const torsoMat = new THREE.MeshStandardMaterial({color: 0x0055ff});
-            const legMat = new THREE.MeshStandardMaterial({color: 0x27ae60});
+            
+            // Materials
+            const skin = new THREE.MeshStandardMaterial({ color: 0xffff00 }); // Yellow head/arms
+            const torsoMat = new THREE.MeshStandardMaterial({ color: 0x0055ff }); // Blue torso
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 }); // Green legs
 
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2), skin); head.position.y = 4.2;
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(2,2,1), torsoMat); torso.position.y = 2.6;
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), skin); armL.position.set(-1.5, 2.6, 0);
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), skin); armR.position.set(1.5, 2.6, 0);
-            const legL = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), legMat); legL.position.set(-0.5, 0.6, 0);
-            const legR = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), legMat); legR.position.set(0.5, 0.6, 0);
+            // Head
+            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skin);
+            head.position.y = 4.2;
+            
+            // Torso
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 1), torsoMat);
+            torso.position.y = 2.6;
+            
+            // Arms
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skin);
+            armL.position.set(-1.5, 2.6, 0);
+            const armR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skin);
+            armR.position.set(1.5, 2.6, 0);
+            
+            // Legs
+            const legL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), legMat);
+            legL.position.set(-0.5, 0.6, 0);
+            const legR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), legMat);
+            legR.position.set(0.5, 0.6, 0);
 
-            const swordG = new THREE.Group();
-            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2.5, 0.1), new THREE.MeshStandardMaterial({color: 0xcccccc}));
+            // Sword (Tool)
+            const swordGroup = new THREE.Group();
+            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.4, 3, 0.15), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
             blade.position.y = 1.5;
-            const hilt = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 0.4), new THREE.MeshStandardMaterial({color: 0xaa8800}));
-            hilt.position.y = 0.5;
-            swordG.add(blade, hilt);
-            swordG.position.set(1.5, 2.5, -1);
-            swordG.rotation.x = -Math.PI/2;
+            const hilt = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.2, 0.4), new THREE.MeshStandardMaterial({ color: 0x886600 }));
+            hilt.position.y = 0.4;
+            swordGroup.add(blade, hilt);
+            swordGroup.position.set(1.5, 2.5, -1);
+            swordGroup.rotation.x = -Math.PI / 2;
 
-            group.add(head, torso, armL, armR, legL, legR, swordG);
-            group.userData = { armL, armR, legL, legR, sword: swordG, name };
-
-            const canv = document.createElement('canvas');
-            const ctx = canv.getContext('2d');
-            canv.width = 256; canv.height = 64;
-            ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,256,64);
-            ctx.font = 'bold 30px Arial'; ctx.fillStyle = 'white'; ctx.textAlign = 'center';
-            ctx.fillText(name || "Player", 128, 42);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({map: new THREE.CanvasTexture(canv)}));
-            sprite.position.y = 6; sprite.scale.set(4, 1, 1);
+            group.add(head, torso, armL, armR, legL, legR, swordGroup);
+            
+            // Name Tag
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256; canvas.height = 64;
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(0, 0, 256, 64);
+            ctx.font = 'bold 32px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(name || "Guest", 128, 45);
+            
+            const txtMap = new THREE.CanvasTexture(canvas);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: txtMap }));
+            sprite.position.y = 6.5;
+            sprite.scale.set(4, 1, 1);
             group.add(sprite);
 
+            group.userData = { armL, armR, legL, legR, sword: swordGroup, name };
             return group;
         }
 
-        // --- SISTEMA DE COMBATE ---
-        function takeDamage(amt) {
-            health -= amt;
+        function takeDamage(amount) {
+            health -= amount;
+            if (health < 0) health = 0;
             document.getElementById('health-bar').style.width = health + "%";
-            if(health <= 0) {
-                alert("Has muerto!");
-                respawn();
+            
+            if (health <= 0) {
+                handleDeath();
             }
         }
 
-        function respawn() {
+        function handleDeath() {
+            alert("YOU DIED!");
             health = 100;
             document.getElementById('health-bar').style.width = "100%";
-            player.position.set(0, 20, 0);
+            player.position.set(0, 30, 0); // Respawn height
             vy = 0;
         }
 
-        function attack() {
-            if(!swordEquipped || isAttacking) return;
+        function performAttack() {
+            if (!swordEquipped || isAttacking) return;
             isAttacking = true;
-            player.userData.sword.rotation.x = 0; 
-
-            const ray = new THREE.Raycaster();
-            const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-            ray.set(player.position, dir);
+            
+            // Animation swing
+            player.userData.sword.rotation.x = 0.5;
+            
+            // Hit detection
+            const attackRay = new THREE.Raycaster();
+            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
+            attackRay.set(player.position, forward);
             
             Object.keys(otherPlayers).forEach(id => {
-                const hits = ray.intersectObject(otherPlayers[id], true);
-                if(hits.length > 0 && hits[0].distance < 8) {
-                    conn.send({ type: 'damage', target: id });
+                const intersect = attackRay.intersectObject(otherPlayers[id], true);
+                if (intersect.length > 0 && intersect[0].distance < 10) {
+                    if (conn && conn.open) {
+                        conn.send({ type: 'damage', target: id });
+                    }
                 }
             });
 
             setTimeout(() => {
-                player.userData.sword.rotation.x = -Math.PI/2;
+                player.userData.sword.rotation.x = -Math.PI / 2;
                 isAttacking = false;
-            }, 250);
+            }, 300);
         }
 
-        // --- BUCLE PRINCIPAL (PLAY MODE) ---
-        function startPlay(isHost) {
-            isPlaying = true; isEditor = false;
+        /**
+         * PHYSICS & COLLISION SYSTEM
+         */
+        function checkHorizontalCollisions() {
+            let pBox = new THREE.Box3().setFromCenterAndSize(
+                player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
+                new THREE.Vector3(2.2, 4.5, 2.2)
+            );
+            
+            for (let b of blocks) {
+                let bBox = new THREE.Box3().setFromObject(b);
+                if (pBox.intersectsBox(bBox)) return true;
+            }
+            return false;
+        }
+
+        function handleVerticalPhysics(oldPos) {
+            let pBox = new THREE.Box3().setFromCenterAndSize(
+                player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
+                new THREE.Vector3(1.8, 4.8, 1.8)
+            );
+
+            let hitSomething = false;
+            onGround = (player.position.y <= 0.01);
+
+            for (let b of blocks) {
+                let bBox = new THREE.Box3().setFromObject(b);
+                if (pBox.intersectsBox(bBox)) {
+                    // Collision from above (Floor)
+                    if (oldPos.y >= b.position.y + 3.8) {
+                        player.position.y = b.position.y + 4;
+                        vy = 0;
+                        onGround = true;
+                        hitSomething = true;
+                    } 
+                    // Collision from below (Ceiling)
+                    else if (oldPos.y + 4.8 <= b.position.y) {
+                        player.position.y = b.position.y - 5.1;
+                        vy = -0.1; 
+                        hitSomething = true;
+                    }
+                }
+            }
+            
+            if (player.position.y < 0) {
+                player.position.y = 0;
+                vy = 0;
+                onGround = true;
+            }
+        }
+
+        function animateWalking(char, isWalking) {
+            const time = Date.now() * 0.01;
+            const ud = char.userData;
+            if (isWalking) {
+                ud.legL.rotation.x = Math.sin(time) * 0.8;
+                ud.legR.rotation.x = -Math.sin(time) * 0.8;
+                ud.armL.rotation.x = -Math.sin(time) * 0.8;
+                ud.armR.rotation.x = Math.sin(time) * 0.8;
+            } else {
+                ud.legL.rotation.x = 0;
+                ud.legR.rotation.x = 0;
+                ud.armL.rotation.x = 0;
+                ud.armR.rotation.x = 0;
+            }
+        }
+
+        /**
+         * GAME MODES: PLAY & BUILD
+         */
+        function startPlay() {
+            isPlaying = true;
+            isEditor = false;
             const name = document.getElementById('username-input').value || "Guest";
-            document.getElementById('username-display').innerText = name;
+            
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
             document.getElementById('inventory').style.display = 'flex';
             document.getElementById('crosshair').style.display = 'block';
+            document.getElementById('username-display').innerText = name;
+            
             initEngine();
-            syncBlocks();
+            syncBlocksInScene();
 
-            player = createCharacter(name);
-            player.position.set(0, 10, 20);
+            player = createCharacter(name, true);
+            player.position.set(0, 10, 50);
             scene.add(player);
 
-            document.addEventListener('keydown', e => {
-                keys[e.code] = true;
-                if(e.code === 'Digit1') { swordEquipped = true; player.userData.sword.visible = true; document.getElementById('slot-1').classList.add('active'); }
-                if(e.code === 'Digit2') { swordEquipped = false; player.userData.sword.visible = false; document.getElementById('slot-1').classList.remove('active'); }
+            // Input Listeners
+            window.addEventListener('keydown', e => keys[e.code] = true);
+            window.addEventListener('keyup', e => keys[e.code] = false);
+            
+            window.addEventListener('mousedown', e => {
+                if (e.button === 2) { 
+                    rightClickDown = true; 
+                    document.body.requestPointerLock();
+                }
+                if (e.button === 0 && isPlaying) performAttack();
             });
-            document.addEventListener('keyup', e => keys[e.code] = false);
-            
-            document.body.onmousedown = (e) => {
-                if(isPlaying && e.button === 0) attack();
-                document.body.requestPointerLock();
-            };
-            
-            document.addEventListener('mousemove', e => {
-                if(document.pointerLockElement === document.body) {
-                    yaw -= e.movementX * 0.003;
-                    pitch += e.movementY * 0.003;
-                    pitch = Math.max(-1.4, Math.min(1.4, pitch));
+
+            window.addEventListener('mouseup', e => {
+                if (e.button === 2) { 
+                    rightClickDown = false; 
+                    document.exitPointerLock();
                 }
             });
-            
-            renderFrame();
+
+            window.addEventListener('contextmenu', e => e.preventDefault());
+
+            document.addEventListener('mousemove', e => {
+                if (document.pointerLockElement === document.body && rightClickDown) {
+                    yaw -= e.movementX * 0.003;
+                    pitch += e.movementY * 0.003;
+                    pitch = Math.max(-1.3, Math.min(1.3, pitch));
+                }
+            });
+
+            gameLoop();
         }
 
-        function renderFrame() {
-            requestAnimationFrame(renderFrame);
-            if(isPlaying && player) {
-                let oldPos = player.position.clone();
-                const speed = 0.4;
-                let isWalking = false;
+        function gameLoop() {
+            requestAnimationFrame(gameLoop);
+            
+            if (isPlaying && player) {
+                const oldPos = player.position.clone();
+                const moveSpeed = 0.45;
+                let walking = false;
 
-                vy -= 0.02; player.position.y += vy;
-                if(player.position.y < 0) { player.position.y = 0; vy = 0; onGround = true; }
+                // Gravity
+                vy -= 0.025; 
+                player.position.y += vy;
+                handleVerticalPhysics(oldPos);
 
-                if(keys['Space'] && onGround) { vy = 0.5; onGround = false; }
+                // Movement calculation
+                let dx = 0, dz = 0;
+                if (keys['KeyW']) { dx -= Math.sin(yaw); dz -= Math.cos(yaw); walking = true; }
+                if (keys['KeyS']) { dx += Math.sin(yaw); dz += Math.cos(yaw); walking = true; }
+                if (keys['KeyA']) { dx -= Math.cos(yaw); dz += Math.sin(yaw); walking = true; }
+                if (keys['KeyD']) { dx += Math.cos(yaw); dz -= Math.sin(yaw); walking = true; }
                 
-                let dirX = 0, dirZ = 0;
-                if(keys['KeyW']) { dirX -= Math.sin(yaw); dirZ -= Math.cos(yaw); isWalking = true; }
-                if(keys['KeyS']) { dirX += Math.sin(yaw); dirZ += Math.cos(yaw); isWalking = true; }
-                if(keys['KeyA']) { dirX -= Math.cos(yaw); dirZ += Math.sin(yaw); isWalking = true; }
-                if(keys['KeyD']) { dirX += Math.cos(yaw); dirZ -= Math.sin(yaw); isWalking = true; }
+                if (keys['Space'] && onGround) {
+                    vy = 0.6;
+                    onGround = false;
+                }
 
-                // Colisiones Deslizantes
-                player.position.x += dirX * speed;
-                if(detectCollision()) player.position.x = oldPos.x;
+                // Horizontal movement with collision
+                player.position.x += dx * moveSpeed;
+                if (checkHorizontalCollisions()) player.position.x = oldPos.x;
                 
-                player.position.z += dirZ * speed;
-                if(detectCollision()) player.position.z = oldPos.z;
-
-                // Pisado de bloques
-                checkBlockFloor(oldPos);
+                player.position.z += dz * moveSpeed;
+                if (checkHorizontalCollisions()) player.position.z = oldPos.z;
 
                 player.rotation.y = yaw;
-                animateLegs(player, isWalking);
+                animateWalking(player, walking);
 
-                if(conn && conn.open) {
+                // Broadcast movement
+                if (conn && conn.open) {
                     conn.send({
                         type: 'move', id: myID,
                         x: player.position.x, y: player.position.y, z: player.position.z,
-                        ry: player.rotation.y, walking: isWalking, name: player.userData.name
+                        ry: player.rotation.y, walking: walking, name: player.userData.name
                     });
                 }
 
-                const cD = 22;
-                camera.position.x = player.position.x + Math.sin(yaw) * Math.cos(pitch) * cD;
-                camera.position.z = player.position.z + Math.cos(yaw) * Math.cos(pitch) * cD;
-                camera.position.y = player.position.y + 8 + (pitch * 12);
-                camera.lookAt(player.position.x, player.position.y + 3, player.position.z);
+                // Camera following (Roblox style)
+                const dist = 30;
+                camera.position.set(
+                    player.position.x + Math.sin(yaw) * Math.cos(pitch) * dist,
+                    player.position.y + 12 + (pitch * 12),
+                    player.position.z + Math.cos(yaw) * Math.cos(pitch) * dist
+                );
+                camera.lookAt(player.position.x, player.position.y + 4, player.position.z);
             }
 
-            // Cámara Editor
-            if(isEditor) {
-                const edSpeed = 1;
-                if(keys['KeyW']) camera.translateZ(-edSpeed);
-                if(keys['KeyS']) camera.translateZ(edSpeed);
-                if(keys['KeyA']) camera.translateX(-edSpeed);
-                if(keys['KeyD']) camera.translateX(edSpeed);
-                if(keys['KeyE']) camera.position.y += edSpeed;
-                if(keys['KeyQ']) camera.position.y -= edSpeed;
+            if (isEditor) {
+                handleEditorCamera();
             }
 
-            if(renderer) renderer.render(scene, camera);
+            if (renderer) renderer.render(scene, camera);
         }
 
-        // --- FUNCIONES DE FÍSICA ---
-        function detectCollision() {
-            let pBox = new THREE.Box3().setFromCenterAndSize(
-                player.position.clone().add(new THREE.Vector3(0,2,0)), 
-                new THREE.Vector3(1.6, 3.2, 1.6)
-            );
-            return blocks.some(b => pBox.intersectsBox(new THREE.Box3().setFromObject(b)));
-        }
-
-        function checkBlockFloor(oldPos) {
-            let pBox = new THREE.Box3().setFromCenterAndSize(player.position.clone().add(new THREE.Vector3(0,2,0)), new THREE.Vector3(1.6, 4, 1.6));
-            blocks.forEach(b => {
-                let bBox = new THREE.Box3().setFromObject(b);
-                if(pBox.intersectsBox(bBox) && oldPos.y >= b.position.y + 3.5) {
-                    player.position.y = b.position.y + 4;
-                    vy = 0; onGround = true;
-                }
-            });
-        }
-
-        function animateLegs(char, walking) {
-            const t = Date.now() * 0.01;
-            const ud = char.userData;
-            if(walking) {
-                ud.legL.rotation.x = Math.sin(t) * 0.8; ud.legR.rotation.x = -Math.sin(t) * 0.8;
-                ud.armL.rotation.x = -Math.sin(t) * 0.8; ud.armR.rotation.x = Math.sin(t) * 0.8;
-            } else {
-                ud.legL.rotation.x = ud.legR.rotation.x = ud.armL.rotation.x = ud.armR.rotation.x = 0;
-            }
-        }
-
-        function updateRemotePlayer(data) {
-            if(!otherPlayers[data.id]) {
+        function handleRemotePlayerMove(data) {
+            if (!otherPlayers[data.id]) {
                 otherPlayers[data.id] = createCharacter(data.name);
                 scene.add(otherPlayers[data.id]);
             }
-            let op = otherPlayers[data.id];
+            const op = otherPlayers[data.id];
             op.position.set(data.x, data.y, data.z);
             op.rotation.y = data.ry;
-            animateLegs(op, data.walking);
+            animateWalking(op, data.walking);
         }
 
-        // --- SISTEMA DE EDITOR (BUILD) ---
+        /**
+         * EDITOR / BUILDER SYSTEM
+         */
         function startEditor() {
-            isEditor = true; isPlaying = false;
+            isEditor = true;
+            isPlaying = false;
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('editor-ui').style.display = 'block';
-            document.getElementById('instructions').style.display = 'block';
+            
             initEngine();
-            syncBlocks();
+            syncBlocksInScene();
             camera.position.set(60, 60, 60);
-            camera.lookAt(0,0,0);
+            camera.lookAt(0, 0, 0);
 
-            window.onmousedown = (e) => {
-                if(!isEditor) return;
-                // Click Derecho para rotar cámara
-                if(e.button === 2) {
+            window.addEventListener('keydown', e => keys[e.code] = true);
+            window.addEventListener('keyup', e => keys[e.code] = false);
+
+            renderer.domElement.onmousedown = (e) => {
+                if (!isEditor) return;
+                
+                if (e.button === 2) {
+                    rightClickDown = true;
                     document.body.requestPointerLock();
-                    document.onmousemove = (ev) => {
-                        camera.rotation.y -= ev.movementX * 0.003;
-                        camera.rotation.x -= ev.movementY * 0.003;
-                    };
                 }
-                // Click Izquierdo para colocar/borrar
-                if(e.button === 0) {
-                    const m = new THREE.Vector2((e.clientX/window.innerWidth)*2-1, -(e.clientY/window.innerHeight)*2+1);
-                    const r = new THREE.Raycaster(); r.setFromCamera(m, camera);
-                    const h = r.intersectObjects(scene.children);
-                    if(h.length > 0) {
-                        const target = h[0];
-                        if(e.ctrlKey || e.shiftKey) { // Borrar con Shift o Ctrl
-                            if(target.object.isBlock) {
-                                scene.remove(target.object);
-                                blocks = blocks.filter(b => b !== target.object);
-                                mapData = mapData.filter(pos => !(pos.x === target.object.position.x && pos.y === target.object.position.y && pos.z === target.object.position.z));
+
+                if (e.button === 0) {
+                    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                    raycaster.setFromCamera(mouse, camera);
+                    
+                    const intersects = raycaster.intersectObjects(scene.children);
+                    if (intersects.length > 0) {
+                        const hit = intersects[0];
+                        
+                        if (e.shiftKey) {
+                            // Delete
+                            if (hit.object.isBlock) {
+                                scene.remove(hit.object);
+                                blocks = blocks.filter(b => b !== hit.object);
+                                mapData = mapData.filter(p => !(p.x === hit.object.position.x && p.y === hit.object.position.y && p.z === hit.object.position.z));
                             }
                         } else {
-                            // COLOCAR BLOQUE ENCIMA O AL LADO (Detectando la normal)
-                            const normal = target.face.normal.clone();
-                            const pos = target.object.position ? target.object.position.clone() : new THREE.Vector3(0, -2, 0);
-                            
-                            // Si es el suelo, ajustar la base
-                            if(target.object.name === "ground") {
-                                const p = target.point;
-                                addBlock({ x: Math.round(p.x/4)*4, y: 2, z: Math.round(p.z/4)*4 });
+                            // Place logic
+                            let pos;
+                            if (hit.object.name === "ground") {
+                                pos = new THREE.Vector3(
+                                    Math.round(hit.point.x / 4) * 4,
+                                    2,
+                                    Math.round(hit.point.z / 4) * 4
+                                );
                             } else {
-                                // Poner encima de otro bloque usando la cara normal
-                                addBlock({ 
-                                    x: pos.x + (normal.x * 4), 
-                                    y: pos.y + (normal.y * 4), 
-                                    z: pos.z + (normal.z * 4) 
-                                });
+                                const normal = hit.face.normal.clone();
+                                normal.applyQuaternion(hit.object.quaternion);
+                                pos = hit.object.position.clone().add(normal.multiplyScalar(4));
                             }
-                            mapData.push({ x: blocks[blocks.length-1].position.x, y: blocks[blocks.length-1].position.y, z: blocks[blocks.length-1].position.z });
+                            spawnBlock(pos);
+                            mapData.push({ x: pos.x, y: pos.y, z: pos.z });
                         }
                     }
                 }
             };
 
-            window.onmouseup = () => { document.onmousemove = null; document.exitPointerLock(); };
-            window.addEventListener('keydown', e => keys[e.code] = true);
-            window.addEventListener('keyup', e => keys[e.code] = false);
-            
-            renderFrame();
+            renderer.domElement.onmouseup = (e) => {
+                if (e.button === 2) {
+                    rightClickDown = false;
+                    document.exitPointerLock();
+                }
+            };
+
+            document.addEventListener('mousemove', e => {
+                if (document.pointerLockElement === renderer.domElement && rightClickDown) {
+                    camera.rotation.y -= e.movementX * 0.003;
+                    camera.rotation.x -= e.movementY * 0.003;
+                }
+            });
+
+            gameLoop();
         }
 
-        function addBlock(pos) {
-            const geo = new THREE.BoxGeometry(4,4,4);
-            const mat = new THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.1, roughness: 0.8});
+        function handleEditorCamera() {
+            const es = 1.2;
+            if (keys['KeyW']) camera.translateZ(-es);
+            if (keys['KeyS']) camera.translateZ(es);
+            if (keys['KeyA']) camera.translateX(-es);
+            if (keys['KeyD']) camera.translateX(es);
+            if (keys['KeyE']) camera.position.y += es;
+            if (keys['KeyQ']) camera.position.y -= es;
+        }
+
+        function spawnBlock(pos) {
+            const geo = new THREE.BoxGeometry(4, 4, 4);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: 0x999999, 
+                metalness: 0.2, 
+                roughness: 0.7 
+            });
             const b = new THREE.Mesh(geo, mat);
             b.position.set(pos.x, pos.y, pos.z);
+            b.castShadow = true;
+            b.receiveShadow = true;
             b.isBlock = true;
             scene.add(b);
             blocks.push(b);
         }
 
-        function syncBlocks() {
+        function syncBlocksInScene() {
             blocks.forEach(b => scene.remove(b));
             blocks = [];
-            mapData.forEach(p => addBlock(p));
+            mapData.forEach(p => spawnBlock(p));
         }
 
         function exportMap() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mapData));
-            const dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", "roblox_map.json");
-            dl.click();
+            const str = JSON.stringify(mapData);
+            const blob = new Blob([str], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "roblox_place_2008.json";
+            a.click();
         }
 
         function loadMap(e) {
             const reader = new FileReader();
             reader.onload = ev => {
                 mapData = JSON.parse(ev.target.result);
-                alert("Mapa Cargado con éxito (" + mapData.length + " bloques).");
-                if(isPlaying || isEditor) syncBlocks();
+                alert("Place loaded! " + mapData.length + " bricks found.");
+                if (renderer) syncBlocksInScene();
             };
             reader.readAsText(e.target.files[0]);
         }
+
+        // Initialize networking on load
+        initNetwork();
     </script>
 </body>
 </html>
