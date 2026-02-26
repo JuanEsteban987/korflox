@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>|Korblox|</title>
+    <title>BlockWorld - Juego estilo Roblox</title>
     <style>
         * {
             margin: 0;
@@ -82,6 +82,11 @@
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
         }
 
+        .menu-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .menu-input {
             width: 100%;
             padding: 12px;
@@ -107,6 +112,7 @@
             border-radius: 10px;
             color: white;
             z-index: 100;
+            backdrop-filter: blur(5px);
         }
 
         #chat-messages {
@@ -121,12 +127,18 @@
             padding: 5px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 5px;
+            word-wrap: break-word;
         }
 
         .chat-message .sender {
             color: #00ff88;
             font-weight: bold;
             margin-right: 5px;
+        }
+
+        .chat-message.system {
+            color: #ffaa00;
+            font-style: italic;
         }
 
         #chat-input-container {
@@ -171,6 +183,7 @@
             color: white;
             z-index: 200;
             width: 250px;
+            backdrop-filter: blur(5px);
         }
 
         .color-picker {
@@ -206,6 +219,7 @@
             max-height: 80vh;
             overflow-y: auto;
             display: none;
+            backdrop-filter: blur(10px);
         }
 
         .editor-section {
@@ -256,14 +270,30 @@
             border-radius: 10px;
             color: white;
             z-index: 150;
+            width: 300px;
+            backdrop-filter: blur(5px);
         }
 
         #peer-id {
             background: #333;
-            padding: 5px 10px;
+            padding: 10px;
             border-radius: 5px;
             font-family: monospace;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        #connected-peers {
+            margin-top: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .peer-item {
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
             margin: 5px 0;
+            border-radius: 3px;
         }
 
         /* Botón de menú */
@@ -310,6 +340,28 @@
             font-size: 14px;
             z-index: 100;
         }
+
+        /* Host indicator */
+        #host-indicator {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: #00ff88;
+            color: #16213e;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none;
+            z-index: 150;
+        }
+
+        .status-online {
+            color: #00ff88;
+        }
+
+        .status-offline {
+            color: #ff4444;
+        }
     </style>
 </head>
 <body>
@@ -320,11 +372,12 @@
         <div id="main-menu">
             <div class="menu-content">
                 <h1>BLOCKWORLD</h1>
-                <input type="text" id="player-name" class="menu-input" placeholder="Tu nombre" maxlength="20">
+                <input type="text" id="player-name" class="menu-input" placeholder="Tu nombre" maxlength="20" value="Jugador">
                 <button class="menu-button" onclick="startGame()">JUGAR</button>
                 <button class="menu-button" onclick="openMapEditor()">EDITOR DE MAPAS</button>
                 <button class="menu-button" onclick="openCustomization()">PERSONALIZAR</button>
                 <button class="menu-button" onclick="showP2P()">CONECTAR P2P</button>
+                <button class="menu-button" onclick="howToPlay()">CÓMO JUGAR</button>
             </div>
         </div>
 
@@ -352,7 +405,7 @@
                 <label>Color de nametag:</label>
                 <input type="color" id="nametag-color" value="#ffffff" onchange="updateNametag()">
             </div>
-            <input type="text" id="nametag-text" class="menu-input" placeholder="Texto del nametag" maxlength="15" onchange="updateNametag()">
+            <input type="text" id="nametag-text" class="menu-input" placeholder="Texto del nametag" maxlength="15" value="Jugador" onchange="updateNametag()">
         </div>
 
         <!-- Editor de mapas -->
@@ -376,11 +429,19 @@
             </div>
 
             <div class="editor-section">
+                <h3>Opciones de Host</h3>
+                <button class="menu-button" onclick="becomeHost()" id="become-host-btn">👑 SER HOST</button>
+                <button class="menu-button" onclick="hostLoadMap()" id="host-load-map" style="display: none;">📦 Cargar Mapa como Host</button>
+                <p id="host-status" style="margin-top: 10px; color: #ffaa00;"></p>
+            </div>
+
+            <div class="editor-section">
                 <h3>Instrucciones</h3>
                 <p>Click izquierdo: Colocar bloque</p>
                 <p>Click derecho: Eliminar bloque</p>
                 <p>WASD: Moverse</p>
                 <p>Espacio: Saltar</p>
+                <p>El host puede cargar mapas para todos</p>
             </div>
         </div>
 
@@ -388,9 +449,15 @@
         <div id="p2p-panel" style="display: none;">
             <h3>Conexión P2P</h3>
             <p>Tu ID: <span id="peer-id">Conectando...</span></p>
+            <p>Estado: <span id="peer-status" class="status-offline">Desconectado</span></p>
             <input type="text" id="peer-connect" class="menu-input" placeholder="ID del otro jugador">
-            <button class="menu-button" onclick="connectToPeer()">Conectar</button>
-            <div id="connected-peers"></div>
+            <button class="menu-button" onclick="connectToPeer()" id="connect-btn">Conectar</button>
+            <button class="menu-button" onclick="copyPeerId()">Copiar mi ID</button>
+            
+            <div id="connected-peers">
+                <h4>Jugadores conectados:</h4>
+                <div id="peers-list"></div>
+            </div>
         </div>
 
         <!-- Botón de menú -->
@@ -398,6 +465,7 @@
 
         <!-- Indicadores -->
         <div class="indicator" id="position-indicator">X: 0 Y: 0 Z: 0</div>
+        <div id="host-indicator">👑 HOST</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -406,12 +474,14 @@
         // Variables globales
         let scene, camera, renderer, player;
         let blocks = [];
-        let players = {};
+        let remotePlayers = {};
         let isMapEditorOpen = false;
         let selectedBlock = 'grass';
         let peer;
+        let connections = [];
         let playerName = 'Jugador';
         let playerId = Math.random().toString(36).substr(2, 9);
+        let isHost = false;
         let playerSkin = {
             skin: '#ff9966',
             clothes: '#00ff88'
@@ -420,6 +490,7 @@
             text: 'Jugador',
             color: '#ffffff'
         };
+        let mapData = [];
 
         // Inicialización del juego
         function init() {
@@ -460,6 +531,8 @@
 
             // Actualizar posición
             setInterval(updatePosition, 100);
+            
+            addChatMessage('Sistema', '¡Bienvenido a BlockWorld! Usa WASD para moverte.');
         }
 
         function createGround() {
@@ -469,6 +542,11 @@
             ground.rotation.x = -Math.PI / 2;
             ground.position.y = -0.5;
             scene.add(ground);
+
+            // Agregar cuadrícula
+            const gridHelper = new THREE.GridHelper(50, 20, 0x00ff88, 0x444444);
+            gridHelper.position.y = -0.49;
+            scene.add(gridHelper);
         }
 
         function createPlayer() {
@@ -492,7 +570,7 @@
             createNametag(group);
 
             player = group;
-            player.position.set(0, 0, 0);
+            player.position.set(0, 1, 0);
             scene.add(player);
         }
 
@@ -501,19 +579,61 @@
             canvas.width = 256;
             canvas.height = 64;
             const context = canvas.getContext('2d');
-            context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            context.fillStyle = 'rgba(0, 0, 0, 0.7)';
             context.fillRect(0, 0, canvas.width, canvas.height);
             context.font = 'Bold 32px Arial';
             context.fillStyle = playerNametag.color;
             context.textAlign = 'center';
-            context.fillText(playerNametag.text, canvas.width / 2, canvas.height / 2);
+            context.fillText(playerNametag.text, canvas.width / 2, canvas.height / 2 + 10);
 
             const texture = new THREE.CanvasTexture(canvas);
-            const material = new THREE.SpriteMaterial({ map: texture });
+            const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
             const sprite = new THREE.Sprite(material);
             sprite.scale.set(2, 0.5, 1);
             sprite.position.y = 3.2;
             group.add(sprite);
+        }
+
+        function createRemotePlayer(id, name, skin, nametag) {
+            const group = new THREE.Group();
+
+            // Cuerpo
+            const bodyGeometry = new THREE.BoxGeometry(1, 2, 1);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ color: skin ? skin.clothes : '#00ff88' });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 1;
+            group.add(body);
+
+            // Cabeza
+            const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const headMaterial = new THREE.MeshStandardMaterial({ color: skin ? skin.skin : '#ff9966' });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 2.4;
+            group.add(head);
+
+            // Nametag
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const context = canvas.getContext('2d');
+            context.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.font = 'Bold 32px Arial';
+            context.fillStyle = nametag ? nametag.color : '#ffffff';
+            context.textAlign = 'center';
+            context.fillText(name || 'Jugador', canvas.width / 2, canvas.height / 2 + 10);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(2, 0.5, 1);
+            sprite.position.y = 3.2;
+            group.add(sprite);
+
+            group.position.set(0, 1, 0);
+            scene.add(group);
+            
+            return group;
         }
 
         function animate() {
@@ -532,23 +652,33 @@
             if (!player) return;
 
             const speed = 0.5;
+            const prevPos = { x: player.position.x, y: player.position.y, z: player.position.z };
+            
             switch(e.key) {
-                case 'w': player.position.z -= speed; break;
-                case 's': player.position.z += speed; break;
-                case 'a': player.position.x -= speed; break;
-                case 'd': player.position.x += speed; break;
+                case 'w': case 'W':
+                    player.position.z -= speed; 
+                    break;
+                case 's': case 'S':
+                    player.position.z += speed; 
+                    break;
+                case 'a': case 'A':
+                    player.position.x -= speed; 
+                    break;
+                case 'd': case 'D':
+                    player.position.x += speed; 
+                    break;
                 case ' ': 
-                    if (player.position.y < 1) {
+                    if (player.position.y < 1.1) {
                         player.position.y += 2;
-                        setTimeout(() => player.position.y = 0, 500);
+                        setTimeout(() => player.position.y = 1, 300);
                     }
                     break;
             }
 
             // Actualizar cámara para seguir al jugador
             camera.position.x = player.position.x;
-            camera.position.z = player.position.z + 10;
-            camera.position.y = player.position.y + 5;
+            camera.position.z = player.position.z + 15;
+            camera.position.y = player.position.y + 8;
             camera.lookAt(player.position);
 
             document.getElementById('position-indicator').textContent = 
@@ -572,12 +702,27 @@
                 raycaster.ray.intersectPlane(plane, target);
                 
                 const blockPos = {
-                    x: Math.round(target.x),
-                    y: Math.round(target.y),
-                    z: Math.round(target.z)
+                    x: Math.floor(target.x) + 0.5,
+                    y: Math.floor(target.y) + 0.5,
+                    z: Math.floor(target.z) + 0.5
                 };
                 
                 addBlock(blockPos.x, blockPos.y, blockPos.z, selectedBlock);
+                
+                // Sincronizar con otros jugadores si soy host
+                if (isHost) {
+                    broadcastToPeers({
+                        type: 'block_add',
+                        block: {
+                            x: blockPos.x,
+                            y: blockPos.y,
+                            z: blockPos.z,
+                            type: selectedBlock
+                        }
+                    });
+                }
+            } else if (e.button === 2) { // Click derecho - eliminar
+                // Implementar eliminación de bloques
             }
         }
 
@@ -594,9 +739,15 @@
             const material = new THREE.MeshStandardMaterial({ color: colors[type] });
             const block = new THREE.Mesh(geometry, material);
             block.position.set(x, y, z);
+            block.userData = { type, x, y, z };
             
             scene.add(block);
-            blocks.push({ mesh: block, type, x, y, z });
+            blocks.push(block);
+        }
+
+        function clearBlocks() {
+            blocks.forEach(block => scene.remove(block));
+            blocks = [];
         }
 
         // Funciones de menú
@@ -622,6 +773,7 @@
             isMapEditorOpen = true;
             document.getElementById('map-editor-panel').style.display = 'block';
             document.getElementById('main-menu').style.display = 'none';
+            updateHostButton();
         }
 
         function closeMapEditor() {
@@ -646,6 +798,13 @@
             if (player) {
                 player.children[0].material.color.set(playerSkin.clothes);
                 player.children[1].material.color.set(playerSkin.skin);
+                
+                // Enviar actualización a otros jugadores
+                broadcastToPeers({
+                    type: 'player_update',
+                    skin: playerSkin,
+                    nametag: playerNametag
+                });
             }
         }
 
@@ -654,8 +813,18 @@
             playerNametag.color = document.getElementById('nametag-color').value;
             
             if (player) {
-                player.remove(player.children[2]);
+                // Remover nametag anterior
+                const oldSprite = player.children.find(child => child.isSprite);
+                if (oldSprite) player.remove(oldSprite);
+                
                 createNametag(player);
+                
+                // Enviar actualización a otros jugadores
+                broadcastToPeers({
+                    type: 'player_update',
+                    skin: playerSkin,
+                    nametag: playerNametag
+                });
             }
         }
 
@@ -668,14 +837,12 @@
                 addChatMessage(playerName, message);
                 input.value = '';
                 
-                // Enviar por P2P si hay conexión
-                if (peer && peer.open) {
-                    broadcastToPeers({
-                        type: 'chat',
-                        sender: playerName,
-                        message: message
-                    });
-                }
+                // Enviar por P2P
+                broadcastToPeers({
+                    type: 'chat',
+                    sender: playerName,
+                    message: message
+                });
             }
         }
 
@@ -689,6 +856,9 @@
             const container = document.getElementById('chat-messages');
             const msgDiv = document.createElement('div');
             msgDiv.className = 'chat-message';
+            if (sender === 'Sistema') {
+                msgDiv.classList.add('system');
+            }
             msgDiv.innerHTML = `<span class="sender">${sender}:</span> ${message}`;
             container.appendChild(msgDiv);
             container.scrollTop = container.scrollHeight;
@@ -697,35 +867,36 @@
         // Funciones de mapa
         function saveMap() {
             const mapData = blocks.map(b => ({
-                type: b.type,
-                x: b.x,
-                y: b.y,
-                z: b.z
+                type: b.userData.type,
+                x: b.position.x,
+                y: b.position.y,
+                z: b.position.z
             }));
             
             localStorage.setItem('savedMap', JSON.stringify(mapData));
-            alert('Mapa guardado!');
+            addChatMessage('Sistema', 'Mapa guardado localmente');
         }
 
         function loadMap() {
             const savedMap = localStorage.getItem('savedMap');
             if (savedMap) {
-                // Limpiar bloques existentes
-                blocks.forEach(b => scene.remove(b.mesh));
-                blocks = [];
-                
-                const mapData = JSON.parse(savedMap);
-                mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
-                alert('Mapa cargado!');
+                try {
+                    const mapData = JSON.parse(savedMap);
+                    clearBlocks();
+                    mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
+                    addChatMessage('Sistema', 'Mapa cargado localmente');
+                } catch (e) {
+                    addChatMessage('Sistema', 'Error al cargar el mapa');
+                }
             }
         }
 
         function exportMap() {
             const mapData = blocks.map(b => ({
-                type: b.type,
-                x: b.x,
-                y: b.y,
-                z: b.z
+                type: b.userData.type,
+                x: b.position.x,
+                y: b.position.y,
+                z: b.position.z
             }));
             
             const dataStr = JSON.stringify(mapData);
@@ -736,6 +907,8 @@
             linkElement.setAttribute('href', dataUri);
             linkElement.setAttribute('download', exportFileDefaultName);
             linkElement.click();
+            
+            addChatMessage('Sistema', 'Mapa exportado');
         }
 
         function importMap(event) {
@@ -745,52 +918,205 @@
             reader.onload = function(e) {
                 try {
                     const mapData = JSON.parse(e.target.result);
-                    
-                    // Limpiar bloques existentes
-                    blocks.forEach(b => scene.remove(b.mesh));
-                    blocks = [];
-                    
+                    clearBlocks();
                     mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
-                    alert('Mapa importado!');
+                    addChatMessage('Sistema', 'Mapa importado');
                 } catch (error) {
-                    alert('Error al importar el mapa');
+                    addChatMessage('Sistema', 'Error al importar el mapa');
                 }
             };
             
             reader.readAsText(file);
         }
 
-        // Funciones P2P
-        function initPeer() {
-            peer = new Peer(playerId);
+        // Funciones de Host
+        function becomeHost() {
+            isHost = true;
+            document.getElementById('host-indicator').style.display = 'block';
+            document.getElementById('become-host-btn').style.display = 'none';
+            document.getElementById('host-load-map').style.display = 'block';
+            document.getElementById('host-status').innerHTML = 'Eres el host. Puedes cargar mapas para todos.';
             
-            peer.on('open', (id) => {
-                document.getElementById('peer-id').textContent = id;
-            });
+            addChatMessage('Sistema', 'Ahora eres el HOST');
             
-            peer.on('connection', (conn) => {
-                setupConnection(conn);
+            // Notificar a todos que soy el host
+            broadcastToPeers({
+                type: 'host_change',
+                hostId: playerId
             });
         }
 
-        function connectToPeer() {
-            const peerId = document.getElementById('peer-connect').value;
-            const conn = peer.connect(peerId);
-            setupConnection(conn);
+        function hostLoadMap() {
+            if (!isHost) {
+                addChatMessage('Sistema', 'Solo el host puede cargar mapas');
+                return;
+            }
+            
+            // Cargar mapa desde archivo
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const mapData = JSON.parse(e.target.result);
+                        
+                        // Limpiar y cargar mapa localmente
+                        clearBlocks();
+                        mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
+                        
+                        // Enviar mapa a todos los jugadores conectados
+                        broadcastToPeers({
+                            type: 'host_map',
+                            mapData: mapData
+                        });
+                        
+                        addChatMessage('Sistema', 'Mapa cargado y compartido con todos los jugadores');
+                    } catch (error) {
+                        addChatMessage('Sistema', 'Error al cargar el mapa');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function updateHostButton() {
+            const btn = document.getElementById('become-host-btn');
+            const loadBtn = document.getElementById('host-load-map');
+            if (isHost) {
+                btn.style.display = 'none';
+                loadBtn.style.display = 'block';
+            }
+        }
+
+        // Funciones P2P mejoradas
+        function initPeer() {
+            try {
+                peer = new Peer(playerId, {
+                    host: '0.peerjs.com',
+                    port: 443,
+                    path: '/',
+                    secure: true,
+                    config: {
+                        iceServers: [
+                            { urls: 'stun:stun.l.google.com:19302' },
+                            { urls: 'stun:stun1.l.google.com:19302' }
+                        ]
+                    }
+                });
+                
+                peer.on('open', (id) => {
+                    document.getElementById('peer-id').textContent = id;
+                    document.getElementById('peer-status').className = 'status-online';
+                    document.getElementById('peer-status').textContent = 'Conectado al servidor P2P';
+                    addChatMessage('Sistema', 'P2P conectado. Tu ID: ' + id);
+                });
+                
+                peer.on('connection', (conn) => {
+                    setupConnection(conn);
+                });
+                
+                peer.on('error', (err) => {
+                    console.error('Peer error:', err);
+                    document.getElementById('peer-status').className = 'status-offline';
+                    document.getElementById('peer-status').textContent = 'Error: ' + err.type;
+                });
+                
+                peer.on('disconnected', () => {
+                    document.getElementById('peer-status').className = 'status-offline';
+                    document.getElementById('peer-status').textContent = 'Desconectado';
+                });
+                
+            } catch (error) {
+                console.error('Error initializing peer:', error);
+                addChatMessage('Sistema', 'Error al conectar P2P');
+            }
         }
 
         function setupConnection(conn) {
+            connections.push(conn);
+            
             conn.on('open', () => {
-                addChatMessage('Sistema', `Conectado a ${conn.peer}`);
+                addChatMessage('Sistema', `¡Conectado a ${conn.peer}!`);
+                
+                // Enviar información del jugador
+                conn.send({
+                    type: 'player_info',
+                    id: playerId,
+                    name: playerName,
+                    skin: playerSkin,
+                    nametag: playerNametag,
+                    isHost: isHost
+                });
+                
+                // Enviar mapa actual si soy host
+                if (isHost && blocks.length > 0) {
+                    const mapData = blocks.map(b => ({
+                        type: b.userData.type,
+                        x: b.position.x,
+                        y: b.position.y,
+                        z: b.position.z
+                    }));
+                    
+                    conn.send({
+                        type: 'host_map',
+                        mapData: mapData
+                    });
+                }
+                
+                updatePeersList();
                 
                 conn.on('data', (data) => {
                     handlePeerData(data, conn.peer);
                 });
                 
-                // Guardar conexión
-                if (!players[conn.peer]) {
-                    players[conn.peer] = { conn, position: { x: 0, y: 0, z: 0 } };
-                }
+                conn.on('close', () => {
+                    connections = connections.filter(c => c !== conn);
+                    if (remotePlayers[conn.peer]) {
+                        scene.remove(remotePlayers[conn.peer]);
+                        delete remotePlayers[conn.peer];
+                    }
+                    updatePeersList();
+                    addChatMessage('Sistema', `Jugador ${conn.peer} desconectado`);
+                });
+            });
+        }
+
+        function connectToPeer() {
+            const peerId = document.getElementById('peer-connect').value.trim();
+            if (!peerId) {
+                addChatMessage('Sistema', 'Por favor ingresa un ID');
+                return;
+            }
+            
+            document.getElementById('connect-btn').disabled = true;
+            
+            const conn = peer.connect(peerId, {
+                reliable: true,
+                serialization: 'json'
+            });
+            
+            conn.on('open', () => {
+                setupConnection(conn);
+                document.getElementById('connect-btn').disabled = false;
+            });
+            
+            conn.on('error', (err) => {
+                addChatMessage('Sistema', `Error al conectar: ${err}`);
+                document.getElementById('connect-btn').disabled = false;
+            });
+        }
+
+        function copyPeerId() {
+            const peerId = document.getElementById('peer-id').textContent;
+            navigator.clipboard.writeText(peerId).then(() => {
+                addChatMessage('Sistema', 'ID copiado al portapapeles');
             });
         }
 
@@ -799,22 +1125,64 @@
                 case 'chat':
                     addChatMessage(data.sender, data.message);
                     break;
+                    
                 case 'position':
-                    updatePeerPosition(peerId, data.position);
+                    updateRemotePlayerPosition(peerId, data.position);
+                    break;
+                    
+                case 'player_info':
+                    if (!remotePlayers[peerId]) {
+                        remotePlayers[peerId] = createRemotePlayer(
+                            peerId, 
+                            data.name, 
+                            data.skin, 
+                            data.nametag
+                        );
+                    }
+                    break;
+                    
+                case 'player_update':
+                    if (remotePlayers[peerId]) {
+                        scene.remove(remotePlayers[peerId]);
+                        remotePlayers[peerId] = createRemotePlayer(
+                            peerId,
+                            'Jugador',
+                            data.skin,
+                            data.nametag
+                        );
+                    }
+                    break;
+                    
+                case 'host_change':
+                    if (data.hostId === playerId) {
+                        isHost = true;
+                        document.getElementById('host-indicator').style.display = 'block';
+                    }
+                    break;
+                    
+                case 'host_map':
+                    // Cargar mapa enviado por el host
+                    clearBlocks();
+                    data.mapData.forEach(b => addBlock(b.x, b.y, b.z, b.type));
+                    addChatMessage('Sistema', 'Mapa actualizado por el HOST');
+                    break;
+                    
+                case 'block_add':
+                    addBlock(data.block.x, data.block.y, data.block.z, data.block.type);
                     break;
             }
         }
 
         function broadcastToPeers(data) {
-            Object.values(players).forEach(p => {
-                if (p.conn && p.conn.open) {
-                    p.conn.send(data);
+            connections.forEach(conn => {
+                if (conn.open) {
+                    conn.send(data);
                 }
             });
         }
 
         function updatePosition() {
-            if (player && peer && peer.open) {
+            if (player && peer && peer.open && connections.length > 0) {
                 broadcastToPeers({
                     type: 'position',
                     position: {
@@ -826,30 +1194,25 @@
             }
         }
 
-        function updatePeerPosition(peerId, position) {
-            if (!players[peerId]) {
-                // Crear jugador remoto
-                const group = new THREE.Group();
-                
-                const bodyGeometry = new THREE.BoxGeometry(1, 2, 1);
-                const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff88 });
-                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                body.position.y = 1;
-                group.add(body);
+        function updateRemotePlayerPosition(peerId, position) {
+            if (remotePlayers[peerId]) {
+                remotePlayers[peerId].position.set(position.x, position.y, position.z);
+            }
+        }
 
-                const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-                const headMaterial = new THREE.MeshStandardMaterial({ color: 0xff9966 });
-                const head = new THREE.Mesh(headGeometry, headMaterial);
-                head.position.y = 2.4;
-                group.add(head);
-                
-                group.position.set(position.x, position.y, position.z);
-                scene.add(group);
-                
-                players[peerId] = { mesh: group, position };
-            } else {
-                players[peerId].mesh.position.set(position.x, position.y, position.z);
-                players[peerId].position = position;
+        function updatePeersList() {
+            const listDiv = document.getElementById('peers-list');
+            listDiv.innerHTML = '';
+            
+            connections.forEach(conn => {
+                const peerDiv = document.createElement('div');
+                peerDiv.className = 'peer-item';
+                peerDiv.textContent = `📱 ${conn.peer}`;
+                listDiv.appendChild(peerDiv);
+            });
+            
+            if (connections.length === 0) {
+                listDiv.innerHTML = '<div class="peer-item">No hay jugadores conectados</div>';
             }
         }
 
@@ -862,6 +1225,26 @@
         function showP2P() {
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('p2p-panel').style.display = 'block';
+        }
+
+        function howToPlay() {
+            alert(
+                '🎮 CÓMO JUGAR BLOCKWORLD 🎮\n\n' +
+                'MOVIMIENTO:\n' +
+                '- WASD: Moverte\n' +
+                '- Espacio: Saltar\n\n' +
+                'EDITOR DE MAPAS:\n' +
+                '- Click izquierdo: Colocar bloque\n' +
+                '- Click derecho: Eliminar bloque\n' +
+                '- Guardar/Cargar mapas\n\n' +
+                'MULTIJUGADOR:\n' +
+                '- Comparte tu ID para conectar\n' +
+                '- El HOST puede cargar mapas para todos\n' +
+                '- Chat integrado\n\n' +
+                'PERSONALIZACIÓN:\n' +
+                '- Cambia colores de piel y ropa\n' +
+                '- Personaliza tu nametag'
+            );
         }
     </script>
 </body>
