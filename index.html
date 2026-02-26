@@ -2,61 +2,50 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox Clone P2P - Fixed</title>
+    <title>Roblox P2P - Cámara y Colisiones</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #1a1a1a; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .panel { pointer-events: auto; background: rgba(0,0,0,0.85); color: white; padding: 20px; border-radius: 10px; }
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #000; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        .panel { pointer-events: auto; background: rgba(0,0,0,0.9); color: white; padding: 20px; border-radius: 8px; border: 1px solid #555; }
         
-        /* Menú Principal */
         #main-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; text-align: center; }
-        
-        /* Código de Sala (Esquina) */
-        #room-info { position: absolute; top: 10px; left: 10px; background: rgba(0,255,0,0.2); padding: 10px; border: 1px solid #2ecc71; display: none; pointer-events: auto; }
-        
-        /* Editor e Interfaz */
-        #editor-controls { position: absolute; top: 20px; right: 20px; display: none; }
+        #room-info { position: absolute; top: 10px; left: 10px; display: none; }
+        #editor-ui { position: absolute; top: 20px; right: 20px; display: none; }
         #game-ui { position: absolute; bottom: 20px; left: 20px; display: none; }
         
-        button { cursor: pointer; padding: 10px; margin: 5px; border: none; border-radius: 5px; font-weight: bold; }
-        .btn-green { background: #2ecc71; color: white; }
-        .btn-blue { background: #3498db; color: white; }
-        input { padding: 8px; border-radius: 5px; margin-bottom: 10px; width: 80%; }
-        
-        #instructions { font-size: 12px; color: #aaa; margin-top: 10px; }
+        button { cursor: pointer; padding: 12px; margin: 5px; border: none; border-radius: 4px; font-weight: bold; width: 100%; }
+        .btn-green { background: #27ae60; color: white; }
+        .btn-blue { background: #2980b9; color: white; }
+        input { padding: 10px; margin: 5px 0; border-radius: 4px; width: 90%; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; }
     </style>
 </head>
 <body>
 
+    <div id="crosshair"></div>
+
     <div id="ui-layer">
-        <div id="room-info" class="panel">
-            <small>ID DE TU MUNDO:</small>
-            <div id="my-id" style="font-weight: bold; color: #2ecc71;">Cargando...</div>
-        </div>
+        <div id="room-info" class="panel">ID: <span id="my-id">...</span></div>
 
         <div id="main-menu" class="panel">
-            <h1>BLOCK CRAFT P2P</h1>
-            <button class="btn-blue" style="width:100%" onclick="openEditor()">1. CREAR / EDITAR MAPA</button>
+            <h1>BLOCK CRAFT</h1>
+            <button class="btn-blue" onclick="startEditor()">EDITOR DE MAPA</button>
+            <button class="btn-blue" onclick="document.getElementById('file-input').click()">CARGAR MAPA (.JSON)</button>
+            <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
+            <input type="text" id="peer-input" placeholder="ID de amigo...">
+            <button class="btn-green" onclick="connectPeer()">UNIRSE A PARTIDA</button>
             <hr>
-            <input type="file" id="map-upload" accept=".json" style="display:none" onchange="handleMapUpload(event)">
-            <button class="btn-green" style="width:100%" onclick="document.getElementById('map-upload').click()">2. CARGAR MAPA (.JSON)</button>
-            <br><br>
-            <input type="text" id="peer-id-input" placeholder="ID de amigo para unirse...">
-            <button class="btn-blue" onclick="connectToPeer()">UNIRSE A PARTIDA</button>
-            <hr>
-            <button id="play-btn" class="btn-green" style="width:100%; font-size: 1.2em;" disabled onclick="startPlayMode()">¡JUGAR AHORA!</button>
+            <button id="play-btn" class="btn-green" disabled onclick="startPlay()">¡JUGAR!</button>
         </div>
 
-        <div id="editor-controls" class="panel">
-            <h3>MODO EDITOR</h3>
-            <p id="instructions">Haz CLICK en el suelo para poner bloques</p>
-            <button class="btn-green" onclick="exportMap()">GUARDAR Y EXPORTAR</button>
-            <button onclick="location.reload()">VOLVER</button>
+        <div id="editor-ui" class="panel">
+            <h3>Editor</h3>
+            <p>Click para poner bloque</p>
+            <button class="btn-green" onclick="exportMap()">EXPORTAR Y SALIR</button>
         </div>
 
         <div id="game-ui">
-            <div id="chat-box" style="background: rgba(0,0,0,0.5); height: 100px; width: 250px; overflow-y: auto; margin-bottom:5px;"></div>
-            <input type="text" id="chat-input" placeholder="Presiona Enter para chat..." style="pointer-events: auto; width: 240px;">
+            <input type="text" id="chat" placeholder="Escribe aquí...">
         </div>
     </div>
 
@@ -64,175 +53,154 @@
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
     <script>
-        let scene, camera, renderer, player, clock, raycaster, mouse;
+        let scene, camera, renderer, player, controls, raycaster, mouse;
+        let blocks = [];
         let mapData = [];
-        let isEditor = false, isPlaying = false;
         let peer, conn;
-        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let keys = {};
+        let isEditor = false, isPlaying = false;
+        let yaw = 0, pitch = 0; // Para rotación de cámara
 
-        // Inicializar PeerJS (P2P)
-        peer = new Peer();
-        peer.on('open', (id) => {
-            document.getElementById('my-id').innerText = id;
-        });
-
-        function initBase() {
+        function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87ceeb);
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
             const light = new THREE.DirectionalLight(0xffffff, 1);
-            light.position.set(5, 10, 7.5);
+            light.position.set(10, 20, 10);
             scene.add(light);
             scene.add(new THREE.AmbientLight(0x404040));
 
-            // Suelo para el editor
-            const groundGeo = new THREE.PlaneGeometry(100, 100);
-            const groundMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
-            const ground = new THREE.Mesh(groundGeo, groundMat);
+            // Suelo base
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(200, 200),
+                new THREE.MeshStandardMaterial({ color: 0x333333 })
+            );
             ground.rotation.x = -Math.PI / 2;
-            ground.name = "suelo";
+            ground.name = "ground";
             scene.add(ground);
 
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
-            clock = new THREE.Clock();
+            
+            peer = new Peer();
+            peer.on('open', id => document.getElementById('my-id').innerText = id);
         }
 
-        // --- EDITOR: COLOCACIÓN MANUAL ---
-        function openEditor() {
+        // --- EDITOR ---
+        function startEditor() {
             isEditor = true;
             document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('editor-controls').style.display = 'block';
-            initBase();
-            camera.position.set(20, 20, 20);
-            camera.lookAt(0, 0, 0);
-
-            window.addEventListener('mousedown', onEditorClick);
-        }
-
-        function onEditorClick(event) {
-            if (!isEditor) return;
-            // Calcular posición del mouse
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(scene.children);
-
-            if (intersects.length > 0) {
-                const point = intersects[0].point;
-                const bx = Math.round(point.x / 2) * 2;
-                const bz = Math.round(point.z / 2) * 2;
-                
-                const geo = new THREE.BoxGeometry(2, 2, 2);
-                const mat = new THREE.MeshStandardMaterial({ color: 0x2ecc71 });
-                const block = new THREE.Mesh(geo, mat);
-                block.position.set(bx, 1, bz);
-                scene.add(block);
-                mapData.push({ x: bx, y: 1, z: bz });
-            }
-        }
-
-        // --- MANEJO DE MAPAS ---
-        function exportMap() {
-            const blob = new Blob([JSON.stringify(mapData)], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = "mapa.json"; a.click();
-            location.reload();
-        }
-
-        function handleMapUpload(e) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                mapData = JSON.parse(ev.target.result);
-                document.getElementById('play-btn').disabled = false;
-                alert("Mapa cargado. ¡Ya puedes jugar!");
-            };
-            reader.readAsText(e.target.files[0]);
-        }
-
-        // --- MODO JUEGO ---
-        function startPlayMode() {
-            isPlaying = true;
-            isEditor = false;
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'block';
-            document.getElementById('room-info').style.display = 'block';
-            
-            initBase();
-            
-            // Cargar mapa
-            mapData.forEach(d => {
-                const b = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), new THREE.MeshStandardMaterial({color: 0x2ecc71}));
-                b.position.set(d.x, d.y, d.z);
-                scene.add(b);
-            });
-
-            // Jugador
-            player = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({color: 0xff0000}));
-            player.position.y = 1;
-            scene.add(player);
-
-            setupControls();
+            document.getElementById('editor-ui').style.display = 'block';
+            init();
+            camera.position.set(0, 50, 50);
+            camera.lookAt(0,0,0);
+            window.addEventListener('mousedown', placeBlock);
             animate();
         }
 
-        function setupControls() {
-            window.addEventListener('keydown', (e) => {
-                if(e.code == 'KeyW') moveForward = true;
-                if(e.code == 'KeyS') moveBackward = true;
-                if(e.code == 'KeyA') moveLeft = true;
-                if(e.code == 'KeyD') moveRight = true;
+        function placeBlock(e) {
+            if(!isEditor) return;
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects(scene.children);
+            if(hits.length > 0) {
+                const p = hits[0].point;
+                const pos = { x: Math.round(p.x/2)*2, y: 1, z: Math.round(p.z/2)*2 };
+                const mesh = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), new THREE.MeshStandardMaterial({color: 0x27ae60}));
+                mesh.position.set(pos.x, pos.y, pos.z);
+                scene.add(mesh);
+                mapData.push(pos);
+            }
+        }
+
+        // --- JUEGO Y COLISIONES ---
+        function startPlay() {
+            isPlaying = true; isEditor = false;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('room-info').style.display = 'block';
+            document.getElementById('crosshair').style.display = 'block';
+            init();
+            
+            // Cargar Bloques con Colisión
+            mapData.forEach(pos => {
+                const box = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), new THREE.MeshStandardMaterial({color: 0x95a5a6}));
+                box.position.set(pos.x, pos.y, pos.z);
+                scene.add(box);
+                blocks.push(new THREE.Box3().setFromObject(box));
             });
-            window.addEventListener('keyup', (e) => {
-                if(e.code == 'KeyW') moveForward = false;
-                if(e.code == 'KeyS') moveBackward = false;
-                if(e.code == 'KeyA') moveLeft = false;
-                if(e.code == 'KeyD') moveRight = false;
+
+            // Personaje
+            player = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2, 1.5), new THREE.MeshStandardMaterial({color: 0xe74c3c}));
+            player.position.set(0, 1, 10);
+            scene.add(player);
+
+            document.addEventListener('keydown', e => keys[e.code] = true);
+            document.addEventListener('keyup', e => keys[e.code] = false);
+            
+            // Bloqueo de Cámara
+            document.body.onclick = () => document.body.requestPointerLock();
+            document.addEventListener('mousemove', e => {
+                if(document.pointerLockElement === document.body) {
+                    yaw -= e.movementX * 0.003;
+                    pitch -= e.movementY * 0.003;
+                    pitch = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, pitch));
+                }
             });
+            animate();
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            if (isPlaying && player) {
-                const delta = clock.getDelta();
-                const speed = 10 * delta;
+            if(isPlaying && player) {
+                let oldPos = player.position.clone();
+                const speed = 0.15;
+                
+                // Movimiento relativo a la rotación
+                if(keys['KeyW']) player.position.x -= Math.sin(yaw) * speed, player.position.z -= Math.cos(yaw) * speed;
+                if(keys['KeyS']) player.position.x += Math.sin(yaw) * speed, player.position.z += Math.cos(yaw) * speed;
+                if(keys['KeyA']) player.position.x -= Math.cos(yaw) * speed, player.position.z += Math.sin(yaw) * speed;
+                if(keys['KeyD']) player.position.x += Math.cos(yaw) * speed, player.position.z -= Math.sin(yaw) * speed;
 
-                if (moveForward) player.translateZ(-speed);
-                if (moveBackward) player.translateZ(speed);
-                if (moveLeft) player.translateX(-speed);
-                if (moveRight) player.translateX(speed);
+                // Sistema de Colisión
+                let playerBox = new THREE.Box3().setFromObject(player);
+                for(let wall of blocks) {
+                    if(playerBox.intersectsBox(wall)) {
+                        player.position.copy(oldPos); // Rebotar si toca pared
+                    }
+                }
 
-                // CÁMARA CORREGIDA (Detrás del jugador, no invertida)
-                const camOffset = new THREE.Vector3(0, 5, 10); // 10 unidades atrás
-                const targetPos = player.position.clone().add(camOffset);
-                camera.position.lerp(targetPos, 0.1);
+                // Cámara sigue jugador (3ra Persona)
+                const camDist = 10;
+                camera.position.x = player.position.x + Math.sin(yaw) * camDist;
+                camera.position.z = player.position.z + Math.cos(yaw) * camDist;
+                camera.position.y = player.position.y + 5 + Math.sin(pitch) * camDist;
                 camera.lookAt(player.position);
             }
             renderer.render(scene, camera);
         }
 
-        function connectToPeer() {
-            const targetId = document.getElementById('peer-id-input').value;
-            conn = peer.connect(targetId);
-            conn.on('open', () => {
-                alert("Conectado con éxito");
-                startPlayMode();
-            });
+        // --- SISTEMA DE ARCHIVOS ---
+        function exportMap() {
+            const blob = new Blob([JSON.stringify(mapData)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'mapa.json'; a.click();
+            location.reload();
         }
 
-        window.addEventListener('resize', () => {
-            if(camera) {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-        });
+        function loadMap(e) {
+            const reader = new FileReader();
+            reader.onload = ev => {
+                mapData = JSON.parse(ev.target.result);
+                document.getElementById('play-btn').disabled = false;
+                alert("Mapa Cargado Correctamente");
+            };
+            reader.readAsText(e.target.files[0]);
+        }
     </script>
 </body>
 </html>
