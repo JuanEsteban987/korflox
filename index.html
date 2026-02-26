@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox 2008 - Jump & Build</title>
+    <title>Roblox 2008 - P2P & Fixed Physics</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: "Arial Black", sans-serif; background: #000; }
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
@@ -16,7 +16,8 @@
         .btn-editor { background: #0055ff; color: white; border-color: #55aaff; }
         #editor-ui { position: absolute; bottom: 20px; right: 20px; display: none; width: 220px; }
         #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; }
-        #room-info { position: absolute; top: 50px; left: 10px; font-size: 12px; background: white; padding: 5px; border: 2px solid black; }
+        #room-info { position: absolute; top: 50px; left: 10px; font-size: 12px; background: white; padding: 5px; border: 2px solid black; pointer-events: auto; }
+        input { pointer-events: auto; padding: 5px; margin: 5px; border: 2px inset #eee; }
     </style>
 </head>
 <body>
@@ -25,14 +26,24 @@
 
     <div id="ui-layer">
         <div id="top-bar"><span style="color: white;">ROBLOX - [BETA 2008]</span></div>
-        <div id="room-info" class="panel">Server ID: <span id="my-id" style="color:blue">...</span></div>
+        
+        <div id="room-info" class="panel">
+            Server ID: <span id="my-id" style="color:blue">Cargando...</span>
+        </div>
 
         <div id="main-menu" class="panel">
             <h1>ROBLOX</h1>
             <button class="btn-editor" onclick="startEditor()">BUILD MODE</button>
             <button onclick="document.getElementById('file-input').click()">LOAD MAP (.JSON)</button>
             <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
-            <button id="play-btn" class="btn-play" disabled onclick="startPlay()">PLAY</button>
+            
+            <div style="margin: 10px; padding: 10px; border: 1px solid #999;">
+                <p style="font-size: 12px; margin: 0;">JOIN A SERVER:</p>
+                <input type="text" id="peer-input" placeholder="Paste ID here...">
+                <button style="width: auto;" onclick="connectToPeer()">JOIN GAME</button>
+            </div>
+
+            <button id="play-btn" class="btn-play" disabled onclick="startPlay()">PLAY SOLO</button>
         </div>
 
         <div id="editor-ui" class="panel">
@@ -48,12 +59,13 @@
 
     <script>
         let scene, camera, renderer, player, raycaster, mouse;
-        let blocks = []; // Objetos 3D de los bloques
-        let mapData = []; // Datos de posición
-        let peer, keys = {};
+        let blocks = []; 
+        let mapData = []; 
+        let peer, conn;
+        let keys = {};
         let isEditor = false, isPlaying = false;
         let yaw = 0, pitch = 0;
-        let vy = 0; // Velocidad vertical para salto
+        let vy = 0; 
         let onGround = false;
 
         function init() {
@@ -80,8 +92,14 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
             
-            peer = new Peer();
-            peer.on('open', id => document.getElementById('my-id').innerText = id);
+            if(!peer) {
+                peer = new Peer();
+                peer.on('open', id => document.getElementById('my-id').innerText = id);
+                peer.on('connection', c => {
+                    conn = c;
+                    alert("Un jugador se ha unido a tu servidor.");
+                });
+            }
         }
 
         // --- MODO EDITOR ---
@@ -93,8 +111,8 @@
             camera.position.set(0, 60, 60);
             camera.lookAt(0,0,0);
             window.addEventListener('mousedown', onEditorMouseClick);
-            window.addEventListener('contextmenu', e => e.preventDefault()); // Desactivar menu derecho
-            render();
+            window.addEventListener('contextmenu', e => e.preventDefault());
+            animate();
         }
 
         function onEditorMouseClick(e) {
@@ -106,8 +124,7 @@
             const hits = raycaster.intersectObjects(scene.children);
             if(hits.length > 0) {
                 const target = hits[0].object;
-
-                if(e.button === 0) { // Clic Izquierdo - Poner
+                if(e.button === 0) {
                     const p = hits[0].point;
                     const pos = { x: Math.round(p.x/4)*4, y: 2, z: Math.round(p.z/4)*4 };
                     const mesh = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0xcccccc}));
@@ -115,8 +132,7 @@
                     mesh.isBlock = true;
                     scene.add(mesh);
                     blocks.push(mesh);
-                } 
-                else if(e.button === 2) { // Clic Derecho - Quitar
+                } else if(e.button === 2) {
                     if(target.isBlock) {
                         scene.remove(target);
                         blocks = blocks.filter(b => b !== target);
@@ -125,15 +141,24 @@
             }
         }
 
+        // --- P2P CONNECTION ---
+        function connectToPeer() {
+            const remoteId = document.getElementById('peer-input').value;
+            if(!remoteId) return alert("Introduce un ID válido.");
+            conn = peer.connect(remoteId);
+            conn.on('open', () => {
+                alert("Conectado al servidor: " + remoteId);
+                startPlay();
+            });
+        }
+
         // --- MODO JUEGO ---
         function startPlay() {
             isPlaying = true; isEditor = false;
             document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('editor-ui').style.display = 'none';
             document.getElementById('crosshair').style.display = 'block';
             init();
             
-            // Cargar bloques
             mapData.forEach(pos => {
                 const box = new THREE.Mesh(new THREE.BoxGeometry(4,4,4), new THREE.MeshStandardMaterial({color: 0x8d8d8d}));
                 box.position.set(pos.x, pos.y, pos.z);
@@ -142,13 +167,12 @@
                 blocks.push(box);
             });
 
-            // Avatar Noob
             player = new THREE.Group();
             const body = new THREE.Mesh(new THREE.BoxGeometry(2,2,1), new THREE.MeshStandardMaterial({color: 0x0055ff}));
             const head = new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2), new THREE.MeshStandardMaterial({color: 0xffff00}));
             head.position.y = 1.6;
             player.add(body, head);
-            player.position.set(0, 5, 20);
+            player.position.set(0, 10, 20);
             scene.add(player);
 
             document.addEventListener('keydown', e => keys[e.code] = true);
@@ -158,27 +182,29 @@
             document.addEventListener('mousemove', e => {
                 if(document.pointerLockElement === document.body) {
                     yaw -= e.movementX * 0.003;
-                    pitch += e.movementY * 0.003; // Corregido: + en lugar de -
+                    pitch += e.movementY * 0.003; 
                     pitch = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, pitch));
                 }
             });
-            render();
+            animate();
         }
 
-        function render() {
-            requestAnimationFrame(render);
+        function animate() {
+            requestAnimationFrame(animate);
             if(isPlaying && player) {
                 let oldPos = player.position.clone();
                 const speed = 0.25;
 
-                // Salto y Gravedad
-                vy -= 0.02; // Gravedad
+                vy -= 0.02; 
                 player.position.y += vy;
 
+                // Suelo baseplate
                 if(player.position.y < 1.5) {
                     player.position.y = 1.5;
                     vy = 0;
                     onGround = true;
+                } else {
+                    onGround = false;
                 }
 
                 if(keys['Space'] && onGround) {
@@ -186,34 +212,31 @@
                     onGround = false;
                 }
                 
-                // Movimiento WASD
                 if(keys['KeyW']) player.position.x -= Math.sin(yaw) * speed, player.position.z -= Math.cos(yaw) * speed;
                 if(keys['KeyS']) player.position.x += Math.sin(yaw) * speed, player.position.z += Math.cos(yaw) * speed;
                 if(keys['KeyA']) player.position.x -= Math.cos(yaw) * speed, player.position.z += Math.sin(yaw) * speed;
                 if(keys['KeyD']) player.position.x += Math.cos(yaw) * speed, player.position.z -= Math.sin(yaw) * speed;
 
-                // Colisiones Básicas con Bloques
-                let pBox = new THREE.Box3().setFromCenterAndSize(player.position, new THREE.Vector3(2,4,2));
-                blocks.forEach(b => {
+                // COLISIONES MEJORADAS
+                let pBox = new THREE.Box3().setFromCenterAndSize(player.position, new THREE.Vector3(1.8, 3.8, 1.8));
+                
+                for(let b of blocks) {
                     let bBox = new THREE.Box3().setFromObject(b);
                     if(pBox.intersectsBox(bBox)) {
-                        // Si choca por los lados, vuelve a la posición previa
-                        if (Math.abs(oldPos.y - player.position.y) < 0.1) {
+                        // Colisión Vertical (Encima del bloque)
+                        if(oldPos.y >= b.position.y + 3.8) { 
+                            player.position.y = b.position.y + 4;
+                            vy = 0;
+                            onGround = true;
+                        } else {
+                            // Colisión Lateral
                             player.position.x = oldPos.x;
                             player.position.z = oldPos.z;
-                        } else {
-                            // Si choca por arriba (suelo)
-                            if(vy < 0) {
-                                player.position.y = b.position.y + 3;
-                                vy = 0;
-                                onGround = true;
-                            }
                         }
                     }
-                });
+                }
 
-                // Cámara 3ra Persona No Invertida
-                const camDist = 18;
+                const camDist = 20;
                 camera.position.x = player.position.x + Math.sin(yaw) * Math.cos(pitch) * camDist;
                 camera.position.z = player.position.z + Math.cos(yaw) * Math.cos(pitch) * camDist;
                 camera.position.y = player.position.y + 6 + Math.sin(pitch) * camDist;
