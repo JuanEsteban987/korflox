@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ROBLOX 2008 - FULL ENGINE PRO</title>
+    <title>ROBLOX 2008 - FINAL ENGINE FIX</title>
     <style>
         /* INTERFAZ CLÁSICA ROBLOX 2008 */
         body { 
@@ -211,7 +211,7 @@
 
     <div id="ui-layer">
         <div id="top-bar">
-            <span style="color: white; font-weight: bold; letter-spacing: 1px;">ROBLOX v2008.2 FULL</span>
+            <span style="color: white; font-weight: bold; letter-spacing: 1px;">ROBLOX v2008.3 STABLE</span>
         </div>
         
         <div id="hud">
@@ -243,7 +243,7 @@
 
         <div id="inventory">
             <div class="slot active" id="slot-1"><span>1</span><br><b>ESPADA</b></div>
-            <div class="slot" id="slot-2"><span>2</span><br>EMPTY</div>
+            <div class="slot" id="slot-2"><span>2</span><br>VACÍO</div>
         </div>
 
         <div id="editor-ui" class="panel">
@@ -449,12 +449,13 @@
         }
 
         /**
-         * FÍSICAS AVANZADAS (COLLIDERS Y, -Y Y LATERALES)
+         * FÍSICAS AVANZADAS - SOLUCIÓN ANTI-HUNDIMIENTO
          */
         function checkHorizontalCollisions() {
+            // Caja de colisión ligeramente más ancha para evitar atravesar esquinas
             let pBox = new THREE.Box3().setFromCenterAndSize(
                 player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
-                new THREE.Vector3(2.2, 4.2, 2.2)
+                new THREE.Vector3(2.1, 4.0, 2.1)
             );
             for (let b of blocks) {
                 if (pBox.intersectsBox(new THREE.Box3().setFromObject(b))) return true;
@@ -463,37 +464,39 @@
         }
 
         function handleVerticalPhysics(oldPos) {
-            // Caja de colisión para el eje Y
+            // El truco aquí es usar una caja de colisión precisa para los pies
             let pBox = new THREE.Box3().setFromCenterAndSize(
                 player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
-                new THREE.Vector3(1.8, 4.9, 1.8) // Altura ajustada para el personaje
+                new THREE.Vector3(1.8, 5.0, 1.8) 
             );
 
-            onGround = (player.position.y <= 0.05);
+            onGround = false;
+
+            // Suelo base
+            if (player.position.y <= 0.05) {
+                player.position.y = 0;
+                vy = 0;
+                onGround = true;
+            }
 
             for (let b of blocks) {
                 let bBox = new THREE.Box3().setFromObject(b);
                 if (pBox.intersectsBox(bBox)) {
                     
                     // --- COLLIDER Y (SUELO DE BLOQUES) ---
-                    if (oldPos.y >= b.position.y + 3.7) {
-                        player.position.y = b.position.y + 4;
-                        vy = 0;
+                    // Detectamos si venimos desde arriba con un margen de tolerancia
+                    if (oldPos.y >= b.position.y + 3.6) {
+                        player.position.y = b.position.y + 4; // Fijar posición exacta sobre el bloque
+                        vy = 0; // Detener caída inmediatamente
                         onGround = true;
                     } 
                     
                     // --- COLLIDER -Y (TECHO DE BLOQUES) ---
-                    else if (oldPos.y + 4.6 <= b.position.y) {
-                        player.position.y = b.position.y - 5.0; // Lo empuja hacia abajo
-                        vy = -0.15; // Detiene el salto bruscamente
+                    else if (oldPos.y + 4.2 <= b.position.y) {
+                        player.position.y = b.position.y - 5.1;
+                        vy = -0.1; // Rebote hacia abajo
                     }
                 }
-            }
-            
-            if (player.position.y < 0) {
-                player.position.y = 0;
-                vy = 0;
-                onGround = true;
             }
         }
 
@@ -562,8 +565,11 @@
                 const moveSpeed = 0.45;
                 let walking = false;
 
+                // Aplicar gravedad ANTES de la corrección física
                 vy -= 0.025; 
                 player.position.y += vy;
+                
+                // Corrección de posición (Aquí se evita el hundimiento)
                 handleVerticalPhysics(oldPos);
 
                 let dx = 0, dz = 0;
@@ -572,7 +578,10 @@
                 if (keys['KeyA']) { dx -= Math.cos(yaw); dz += Math.sin(yaw); walking = true; }
                 if (keys['KeyD']) { dx += Math.cos(yaw); dz -= Math.sin(yaw); walking = true; }
                 
-                if (keys['Space'] && onGround) { vy = 0.6; onGround = false; }
+                if (keys['Space'] && onGround) { 
+                    vy = 0.6; 
+                    onGround = false; 
+                }
 
                 player.position.x += dx * moveSpeed;
                 if (checkHorizontalCollisions()) player.position.x = oldPos.x;
@@ -693,15 +702,16 @@
 
         function exportMap() {
             const blob = new Blob([JSON.stringify(mapData)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob); a.download = "roblox_place.json"; a.click();
+            a.href = url; a.download = "roblox_place.json"; a.click();
         }
 
         function loadMap(e) {
             const reader = new FileReader();
             reader.onload = ev => {
                 mapData = JSON.parse(ev.target.result);
-                alert("Mapa cargado!");
+                alert("Mapa cargado con éxito!");
                 if (renderer) syncBlocksInScene();
             };
             reader.readAsText(e.target.files[0]);
