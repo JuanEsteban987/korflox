@@ -186,7 +186,7 @@
             bottom: 20px; 
             right: 20px; 
             display: none; 
-            width: 280px; 
+            width: 300px; 
         }
 
         #copy-toast {
@@ -202,23 +202,8 @@
             z-index: 1000;
         }
 
-        /* Estilo para el toggle de PVP */
-        .pvp-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 10px 0;
-            padding: 5px;
-            background: #ccc;
-            border: 2px inset #fff;
-        }
-        .pvp-toggle label {
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        /* NUEVOS ESTILOS PARA SELECTOR DE EQUIPO, COLOR Y ZOMBIES */
-        .tool-row {
+        /* Estilo para toggles y selects */
+        .pvp-toggle, .zombie-mode, .spawner-mode, .tool-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -227,40 +212,18 @@
             background: #ddd;
             border: 2px inset #fff;
         }
-        .tool-row label {
+        .pvp-toggle label, .zombie-mode label, .spawner-mode label, .tool-row label {
             font-weight: bold;
             font-size: 12px;
         }
-        .tool-row select, .tool-row input[type="color"] {
-            width: 100px;
-            padding: 3px;
-        }
-        .btn-new-map {
-            background: #ffaa00;
-            border-color: #cc8800;
-            font-weight: bold;
-        }
-        /* NUEVO: Checkbox para modo zombie */
-        .zombie-mode {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 10px 0;
-            padding: 5px;
-            background: #c99;
-            border: 2px inset #fff;
-        }
-        .zombie-mode label {
-            font-weight: bold;
-            font-size: 14px;
-            color: #330000;
-        }
+        .zombie-mode { background: #c99; }
+        .spawner-mode { background: #9c9; }
+        .btn-new-map { background: #ffaa00; border-color: #cc8800; }
     </style>
 </head>
 <body>
 
     <div id="copy-toast">ID Copiada al Portapapeles!</div>
-
     <div id="crosshair"></div>
 
     <div id="ui-layer">
@@ -304,13 +267,13 @@
             <h3 style="margin:0">STAMPER TOOL</h3>
             <hr>
             <p style="font-size: 11px; text-align: left;">
-                • <b>Click Izq:</b> Poner Bloque / Zombie<br>
+                • <b>Click Izq:</b> Colocar según modo<br>
                 • <b>Click Der:</b> Girar Cámara<br>
-                • <b>Shift + Click:</b> Borrar Bloque / Zombie<br>
+                • <b>Shift + Click:</b> Borrar<br>
                 • <b>WASD:</b> Volar Cámara<br>
                 • <b>Q / E:</b> Bajar / Subir
             </p>
-            <!-- Selector de equipo -->
+            <!-- Selector de equipo (color torso/piernas) -->
             <div class="tool-row">
                 <label for="team-select">Equipo:</label>
                 <select id="team-select">
@@ -320,21 +283,31 @@
                     <option value="#ffff44">Amarillo</option>
                 </select>
             </div>
+            <!-- Selector de color de piel (cabeza/brazos) -->
+            <div class="tool-row">
+                <label for="skin-color">Color Piel:</label>
+                <input type="color" id="skin-color" value="#ffff00">
+            </div>
             <!-- Selector de color para bloques -->
             <div class="tool-row">
                 <label for="block-color">Color Bloque:</label>
                 <input type="color" id="block-color" value="#999999">
             </div>
-            <!-- NUEVO: Modo zombie -->
+            <!-- Modo Zombie (entidad estática) -->
             <div class="zombie-mode">
-                <label for="zombie-mode">Modo Zombie</label>
+                <label for="zombie-mode">🧟 Modo Zombie</label>
                 <input type="checkbox" id="zombie-mode">
             </div>
-            <!-- Botón para nuevo mapa -->
+            <!-- NUEVO: Modo Spawner de Zombies -->
+            <div class="spawner-mode">
+                <label for="spawner-mode">⚙️ Modo Spawner</label>
+                <input type="checkbox" id="spawner-mode">
+            </div>
+            <!-- Botón nuevo mapa -->
             <button class="btn-new-map" onclick="newMap()">NUEVO MAPA</button>
             <!-- Toggle PVP -->
             <div class="pvp-toggle">
-                <label for="pvp-checkbox">PVP Activado</label>
+                <label for="pvp-checkbox">⚔️ PVP Activado</label>
                 <input type="checkbox" id="pvp-checkbox" checked>
             </div>
             <button class="btn-play" onclick="exportMap()">SAVE PLACE</button>
@@ -346,9 +319,12 @@
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
     <script>
-        /**
-         * VARIABLES GLOBALES Y MOTOR
-         */
+        // ==================== CONSTANTES GLOBALES ====================
+        const BLOCK_SIZE = 2; // Bloques más pequeños (eran 4)
+        const PLAYER_HEIGHT = 5.0; // Altura total del personaje (centro en y+2.5)
+        const PLAYER_CENTER_Y_OFFSET = PLAYER_HEIGHT / 2; // 2.5
+
+        // ==================== VARIABLES GLOBALES ====================
         let scene, camera, renderer, player, otherPlayers = {}, conn;
         let blocks = [], mapData = [], keys = {};
         let isPlaying = false, isEditor = false, isAttacking = false;
@@ -359,17 +335,22 @@
         let mouse = new THREE.Vector2();
         let pvpEnabled = true;
         let teamColor = '#ff4444';
+        let skinColor = '#ffff00'; // NUEVO: color de piel
         let blockColor = '#999999';
+        let zombieMode = false;
+        let spawnerMode = false; // NUEVO: modo spawner
 
-        // NUEVAS VARIABLES PARA ZOMBIES
+        // Zombies estáticos
         let zombies = []; // meshes de zombies
         let mapZombies = []; // datos de zombies { x, y, z }
-        let zombieMode = false; // modo de colocación
-        let lastZombieDamageTime = 0; // para controlar daño por tiempo
 
-        /**
-         * COPIAR ID AL PORTAPAPELES
-         */
+        // NUEVO: Spawners de zombies
+        let spawners = []; // meshes de spawners
+        let mapSpawners = []; // datos de spawners { x, y, z, lastSpawn, interval }
+        const SPAWNER_INTERVAL = 5000; // 5 segundos
+        let lastSpawnCheck = 0;
+
+        // ==================== FUNCIONES DE INTERFAZ ====================
         document.getElementById('my-id').onclick = function() {
             const text = this.innerText;
             if(text === "Conectando...") return;
@@ -380,9 +361,7 @@
             });
         };
 
-        /**
-         * RED Y MULTIJUGADOR (MODIFICADO PARA INCLUIR ZOMBIES)
-         */
+        // ==================== RED ====================
         function initNetwork() {
             peer = new Peer();
             peer.on('open', id => { 
@@ -394,8 +373,8 @@
                 conn = c;
                 conn.on('open', () => {
                     conn.send({ type: 'map', data: mapData });
-                    // NUEVO: Enviar también los zombies
                     conn.send({ type: 'zombies', data: mapZombies });
+                    conn.send({ type: 'spawners', data: mapSpawners }); // NUEVO
                 });
                 setupNetworkEvents();
             });
@@ -415,19 +394,20 @@
                     mapData = data.data; 
                     syncBlocksInScene(); 
                 }
-                // NUEVO: Recibir zombies
                 if(data.type === 'zombies') {
                     mapZombies = data.data;
                     syncZombiesInScene();
+                }
+                if(data.type === 'spawners') { // NUEVO
+                    mapSpawners = data.data;
+                    syncSpawnersInScene();
                 }
                 if(data.type === 'move') handleRemotePlayerMove(data);
                 if(data.type === 'damage' && data.target === myID) takeDamage(20);
             });
         }
 
-        /**
-         * ENGINE CORE
-         */
+        // ==================== MOTOR GRÁFICO ====================
         function initEngine() {
             if(renderer) return;
             scene = new THREE.Scene();
@@ -459,36 +439,36 @@
             });
         }
 
-        /**
-         * PERSONAJE Y HUMANOID
-         */
-        function createCharacter(name, teamColorHex) {
+        // ==================== PERSONAJE ====================
+        function createCharacter(name, teamColorHex, skinColorHex) {
             const group = new THREE.Group();
             const teamColor = new THREE.Color(teamColorHex || '#ff4444');
-            const skin = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+            const skin = new THREE.MeshStandardMaterial({ color: new THREE.Color(skinColorHex || '#ffff00') });
             const torsoMat = new THREE.MeshStandardMaterial({ color: teamColor });
             const legMat = new THREE.MeshStandardMaterial({ color: teamColor.clone().multiplyScalar(0.7) });
 
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skin);
-            head.position.y = 4.2;
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 1), torsoMat);
-            torso.position.y = 2.6;
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skin);
-            armL.position.set(-1.5, 2.6, 0);
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), skin);
-            armR.position.set(1.5, 2.6, 0);
-            const legL = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), legMat);
-            legL.position.set(-0.5, 0.6, 0);
-            const legR = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), legMat);
-            legR.position.set(0.5, 0.6, 0);
+            // Escalamos ligeramente para que el personaje sea proporcionado a bloques de 2
+            const scale = 0.9; // para que no sea demasiado grande
+            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2*scale, 1.2*scale, 1.2*scale), skin);
+            head.position.y = 4.2*scale;
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(2*scale, 2*scale, 1*scale), torsoMat);
+            torso.position.y = 2.6*scale;
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), skin);
+            armL.position.set(-1.5*scale, 2.6*scale, 0);
+            const armR = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), skin);
+            armR.position.set(1.5*scale, 2.6*scale, 0);
+            const legL = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), legMat);
+            legL.position.set(-0.5*scale, 0.6*scale, 0);
+            const legR = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), legMat);
+            legR.position.set(0.5*scale, 0.6*scale, 0);
 
             const swordGroup = new THREE.Group();
-            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.4, 3, 0.15), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
-            blade.position.y = 1.5;
-            const hilt = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.2, 0.4), new THREE.MeshStandardMaterial({ color: 0x886600 }));
-            hilt.position.y = 0.4;
+            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.4*scale, 3*scale, 0.15*scale), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
+            blade.position.y = 1.5*scale;
+            const hilt = new THREE.Mesh(new THREE.BoxGeometry(1.2*scale, 0.2*scale, 0.4*scale), new THREE.MeshStandardMaterial({ color: 0x886600 }));
+            hilt.position.y = 0.4*scale;
             swordGroup.add(blade, hilt);
-            swordGroup.position.set(1.5, 2.5, -1);
+            swordGroup.position.set(1.5*scale, 2.5*scale, -1*scale);
             swordGroup.rotation.x = -Math.PI / 2;
 
             group.add(head, torso, armL, armR, legL, legR, swordGroup);
@@ -503,10 +483,10 @@
             
             const txtMap = new THREE.CanvasTexture(canvas);
             const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: txtMap }));
-            sprite.position.y = 6.5; sprite.scale.set(4, 1, 1);
+            sprite.position.y = 6.5*scale; sprite.scale.set(4*scale, 1*scale, 1);
             group.add(sprite);
 
-            group.userData = { armL, armR, legL, legR, sword: swordGroup, name, teamColor: teamColorHex };
+            group.userData = { armL, armR, legL, legR, sword: swordGroup, name, teamColor: teamColorHex, skinColor: skinColorHex };
             return group;
         }
 
@@ -524,23 +504,43 @@
             vy = 0;
         }
 
+        // ==================== ATAQUE (DAÑA A PLAYERS Y ZOMBIES) ====================
         function performAttack() {
             if (!swordEquipped || isAttacking) return;
-            if (!pvpEnabled) return;
-
+            // PVP check: si está desactivado, no daña a players, pero sí a zombies?
+            // Decidimos que la espada siempre daña zombies, independientemente del PVP.
             isAttacking = true;
             player.userData.sword.rotation.x = 0.5;
             
             const attackRay = new THREE.Raycaster();
             const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-            attackRay.set(player.position, forward);
+            attackRay.set(player.position.clone().add(new THREE.Vector3(0, 2, 0)), forward); // rayo desde el torso
             
-            Object.keys(otherPlayers).forEach(id => {
-                const intersect = attackRay.intersectObject(otherPlayers[id], true);
-                if (intersect.length > 0 && intersect[0].distance < 10) {
-                    if (conn && conn.open) conn.send({ type: 'damage', target: id });
+            // Daño a otros jugadores (solo si PVP activado)
+            if (pvpEnabled) {
+                Object.keys(otherPlayers).forEach(id => {
+                    const intersect = attackRay.intersectObject(otherPlayers[id], true);
+                    if (intersect.length > 0 && intersect[0].distance < 10) {
+                        if (conn && conn.open) conn.send({ type: 'damage', target: id });
+                    }
+                });
+            }
+
+            // Daño a zombies estáticos
+            const zombieIntersects = attackRay.intersectObjects(zombies, true);
+            if (zombieIntersects.length > 0) {
+                const hitZombie = zombieIntersects[0].object.parent; // el grupo
+                if (hitZombie && hitZombie.isZombie) {
+                    // Eliminar zombie
+                    scene.remove(hitZombie);
+                    zombies = zombies.filter(z => z !== hitZombie);
+                    // También eliminarlo de mapZombies (ya no respawneará)
+                    mapZombies = mapZombies.filter(z => !(z.x === hitZombie.position.x && z.y === hitZombie.position.y && z.z === hitZombie.position.z));
                 }
-            });
+            }
+
+            // NUEVO: Daño a zombies generados por spawners? Por ahora los spawners generan zombies estáticos que también están en zombies.
+            // Los zombies generados por spawners no se guardan en mapZombies, pero sí en zombies. Al morir, desaparecen.
 
             setTimeout(() => {
                 player.userData.sword.rotation.x = -Math.PI / 2;
@@ -548,13 +548,11 @@
             }, 300);
         }
 
-        /**
-         * FÍSICAS MEJORADAS - SOLUCIÓN ANTI-HUNDIMIENTO
-         */
+        // ==================== FÍSICAS MEJORADAS (SIN MICRO-SALTOS) ====================
         function checkHorizontalCollisions() {
             let pBox = new THREE.Box3().setFromCenterAndSize(
-                player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
-                new THREE.Vector3(2.1, 4.0, 2.1)
+                player.position.clone().add(new THREE.Vector3(0, PLAYER_CENTER_Y_OFFSET, 0)), 
+                new THREE.Vector3(2.1, PLAYER_HEIGHT, 2.1) // ancho un poco mayor que el modelo
             );
             for (let b of blocks) {
                 if (pBox.intersectsBox(new THREE.Box3().setFromObject(b))) return true;
@@ -563,13 +561,15 @@
         }
 
         function handleVerticalPhysics(oldPos) {
+            // Caja de colisión para vertical (ligeramente más pequeña)
             let pBox = new THREE.Box3().setFromCenterAndSize(
-                player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
-                new THREE.Vector3(1.8, 5.0, 1.8) 
+                player.position.clone().add(new THREE.Vector3(0, PLAYER_CENTER_Y_OFFSET, 0)), 
+                new THREE.Vector3(1.8, PLAYER_HEIGHT, 1.8)
             );
 
             onGround = false;
 
+            // Suelo base
             if (player.position.y <= 0.05) {
                 player.position.y = 0;
                 vy = 0;
@@ -580,41 +580,63 @@
                 let bBox = new THREE.Box3().setFromObject(b);
                 if (pBox.intersectsBox(bBox)) {
                     
-                    const playerBottom = oldPos.y;
-                    const blockTop = b.position.y + 2;
+                    const playerBottom = oldPos.y; // parte baja del personaje (pies)
+                    const blockTop = b.position.y + BLOCK_SIZE/2; // cima del bloque
                     
-                    if (playerBottom >= blockTop - 0.5) {
-                        player.position.y = blockTop + 2.5;
+                    // Venimos desde arriba
+                    if (playerBottom >= blockTop - 0.3) {
+                        player.position.y = blockTop + PLAYER_CENTER_Y_OFFSET;
                         vy = 0;
                         onGround = true;
                     } 
-                    else if (oldPos.y + 5 <= b.position.y - 2) {
-                        player.position.y = b.position.y - 5;
+                    // Techo
+                    else if (oldPos.y + PLAYER_HEIGHT <= b.position.y - BLOCK_SIZE/2) {
+                        player.position.y = b.position.y - BLOCK_SIZE/2 - PLAYER_CENTER_Y_OFFSET;
                         vy = -0.1;
                     }
                 }
             }
         }
 
-        // NUEVA FUNCIÓN PARA ESTABILIZAR AL JUGADOR SOBRE BLOQUES (ELIMINA MICRO-SALTOS)
-        function stabilizeVertical() {
+        // NUEVA: Detección de suelo mediante raycast para mayor precisión
+        function stabilizeWithRaycast() {
             if (!player) return;
-            // Buscar el bloque más cercano por debajo
-            let closestDist = Infinity;
-            let targetY = null;
-            for (let b of blocks) {
-                const blockTop = b.position.y + 2;
-                const playerBottom = player.position.y - 2.5; // los pies están en y - 2.5
-                const dist = playerBottom - blockTop;
-                if (dist > 0 && dist < 0.2 && dist < closestDist) { // muy cerca por encima
-                    closestDist = dist;
-                    targetY = blockTop + 2.5;
+            const origin = player.position.clone();
+            origin.y += 0.1; // ligeramente arriba de los pies
+            const direction = new THREE.Vector3(0, -1, 0);
+            const rayLength = PLAYER_CENTER_Y_OFFSET + 0.5; // hasta debajo de los pies
+            raycaster.set(origin, direction);
+            const intersects = raycaster.intersectObjects(blocks);
+            let groundDist = null;
+            for (let hit of intersects) {
+                const dist = hit.distance;
+                if (dist < rayLength) {
+                    groundDist = dist;
+                    break;
                 }
             }
-            if (targetY !== null) {
-                player.position.y = targetY;
-                vy = 0;
-                onGround = true;
+            if (groundDist !== null) {
+                // El suelo está a groundDist del origen. El origen está en player.y + 0.1
+                // Queremos que los pies estén justo en la superficie del bloque.
+                // La superficie del bloque está en hit.point.y.
+                // Los pies del personaje están en player.y - PLAYER_CENTER_Y_OFFSET.
+                // Queremos: player.y - PLAYER_CENTER_Y_OFFSET = hit.point.y
+                // => player.y = hit.point.y + PLAYER_CENTER_Y_OFFSET
+                const targetY = intersects[0].point.y + PLAYER_CENTER_Y_OFFSET;
+                if (Math.abs(player.position.y - targetY) > 0.05) {
+                    player.position.y = targetY;
+                    vy = 0;
+                    onGround = true;
+                } else {
+                    onGround = true;
+                }
+            } else {
+                // Si no hay suelo, pero estamos cerca del suelo base
+                if (player.position.y <= PLAYER_CENTER_Y_OFFSET + 0.1) {
+                    player.position.y = PLAYER_CENTER_Y_OFFSET;
+                    vy = 0;
+                    onGround = true;
+                }
             }
         }
 
@@ -631,48 +653,46 @@
             }
         }
 
-        // NUEVA FUNCIÓN PARA CREAR UN ZOMBIE
+        // ==================== ZOMBIES Y SPAWNERS ====================
         function createZombie(pos) {
             const group = new THREE.Group();
+            group.isZombie = true;
             // Cuerpo verde
-            const bodyGeo = new THREE.CylinderGeometry(1.5, 1.5, 3, 8);
+            const bodyGeo = new THREE.CylinderGeometry(1, 1, 2.5, 8);
             const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
             const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 1.5;
+            body.position.y = 1.25;
             body.castShadow = true;
             body.receiveShadow = true;
             group.add(body);
             // Cabeza
-            const headGeo = new THREE.SphereGeometry(1, 8);
+            const headGeo = new THREE.SphereGeometry(0.8, 8);
             const headMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
             const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 3.5;
+            head.position.y = 2.5 + 0.4;
             head.castShadow = true;
             head.receiveShadow = true;
             group.add(head);
             // Ojos rojos
-            const eyeGeo = new THREE.SphereGeometry(0.3, 6);
+            const eyeGeo = new THREE.SphereGeometry(0.2, 6);
             const eyeMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
             const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeL.position.set(-0.5, 3.7, 0.8);
+            eyeL.position.set(-0.4, 2.9, 0.6);
             group.add(eyeL);
             const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeR.position.set(0.5, 3.7, 0.8);
+            eyeR.position.set(0.4, 2.9, 0.6);
             group.add(eyeR);
             
             group.position.set(pos.x, pos.y, pos.z);
             return group;
         }
 
-        // NUEVA FUNCIÓN PARA COLOCAR ZOMBIE EN EL EDITOR
         function spawnZombie(pos) {
             const z = createZombie(pos);
             scene.add(z);
             zombies.push(z);
-            mapZombies.push({ x: pos.x, y: pos.y, z: pos.z });
         }
 
-        // NUEVA FUNCIÓN PARA SINCRONIZAR ZOMBIES EN ESCENA
         function syncZombiesInScene() {
             zombies.forEach(z => scene.remove(z));
             zombies = [];
@@ -683,25 +703,84 @@
             });
         }
 
-        // NUEVA FUNCIÓN PARA DETECTAR COLISIONES CON ZOMBIES (EN MODO JUEGO)
+        // NUEVO: Spawners
+        function createSpawner(pos) {
+            const group = new THREE.Group();
+            group.isSpawner = true;
+            // Base gris
+            const baseGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.5, 8);
+            const baseMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+            const base = new THREE.Mesh(baseGeo, baseMat);
+            base.position.y = 0.25;
+            base.castShadow = true;
+            base.receiveShadow = true;
+            group.add(base);
+            // Esfera roja brillante
+            const sphereGeo = new THREE.SphereGeometry(0.8, 8);
+            const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
+            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+            sphere.position.y = 1.2;
+            sphere.castShadow = true;
+            group.add(sphere);
+            
+            group.position.set(pos.x, pos.y, pos.z);
+            return group;
+        }
+
+        function spawnSpawner(pos) {
+            const s = createSpawner(pos);
+            scene.add(s);
+            spawners.push(s);
+            mapSpawners.push({ x: pos.x, y: pos.y, z: pos.z, lastSpawn: 0 });
+        }
+
+        function syncSpawnersInScene() {
+            spawners.forEach(s => scene.remove(s));
+            spawners = [];
+            mapSpawners.forEach(p => {
+                const s = createSpawner(new THREE.Vector3(p.x, p.y, p.z));
+                scene.add(s);
+                spawners.push(s);
+            });
+        }
+
+        // NUEVO: Actualizar spawners (generar zombies)
+        function updateSpawners(now) {
+            if (!isPlaying) return;
+            if (now - lastSpawnCheck < 1000) return; // comprobar cada 1s
+            lastSpawnCheck = now;
+            for (let i = 0; i < mapSpawners.length; i++) {
+                const sp = mapSpawners[i];
+                if (!sp.lastSpawn) sp.lastSpawn = 0;
+                if (now - sp.lastSpawn > SPAWNER_INTERVAL) {
+                    sp.lastSpawn = now;
+                    // Generar zombie en la misma posición (ligeramente arriba)
+                    const pos = new THREE.Vector3(sp.x, sp.y + 1, sp.z);
+                    const zombie = createZombie(pos);
+                    scene.add(zombie);
+                    zombies.push(zombie);
+                    // Los zombies generados no se guardan en mapZombies (son temporales)
+                }
+            }
+        }
+
+        // ==================== DAÑO DE ZOMBIES AL JUGADOR ====================
         function checkZombieDamage() {
             if (!player || !isPlaying) return;
             const now = Date.now();
-            if (now - lastZombieDamageTime < 200) return; // daño cada 0.2 segundos
+            if (now - lastZombieDamageTime < 200) return; // daño cada 0.2s
             const playerBox = new THREE.Box3().setFromObject(player);
             for (let z of zombies) {
                 const zombieBox = new THREE.Box3().setFromObject(z);
                 if (playerBox.intersectsBox(zombieBox)) {
                     takeDamage(5);
                     lastZombieDamageTime = now;
-                    break; // solo un daño por frame
+                    break;
                 }
             }
         }
 
-        /**
-         * MODO PLAY
-         */
+        // ==================== MODO JUEGO ====================
         function startPlay() {
             isPlaying = true; isEditor = false;
             const name = document.getElementById('username-input').value || "Guest";
@@ -713,10 +792,12 @@
             
             initEngine();
             syncBlocksInScene();
-            syncZombiesInScene(); // NUEVO: cargar zombies
+            syncZombiesInScene();
+            syncSpawnersInScene(); // NUEVO
 
             teamColor = document.getElementById('team-select').value;
-            player = createCharacter(name, teamColor);
+            skinColor = document.getElementById('skin-color').value; // NUEVO
+            player = createCharacter(name, teamColor, skinColor);
             player.position.set(0, 15, 50);
             scene.add(player);
 
@@ -747,19 +828,23 @@
 
         function loop() {
             requestAnimationFrame(loop);
+            const now = Date.now();
             
             if (isPlaying && player) {
                 const oldPos = player.position.clone();
                 const moveSpeed = 0.45;
                 let walking = false;
 
+                // Gravedad
                 vy -= 0.025; 
                 player.position.y += vy;
                 
+                // Física de colisión con bloques
                 handleVerticalPhysics(oldPos);
-                // NUEVO: estabilizar para evitar micro-saltos
-                stabilizeVertical();
+                // Estabilización por raycast (elimina micro-saltos)
+                stabilizeWithRaycast();
 
+                // Movimiento horizontal
                 let dx = 0, dz = 0;
                 if (keys['KeyW']) { dx -= Math.sin(yaw); dz -= Math.cos(yaw); walking = true; }
                 if (keys['KeyS']) { dx += Math.sin(yaw); dz += Math.cos(yaw); walking = true; }
@@ -779,17 +864,22 @@
                 player.rotation.y = yaw;
                 animateWalking(player, walking);
 
-                // NUEVO: comprobar daño de zombies
+                // Daño de zombies
                 checkZombieDamage();
 
+                // Actualizar spawners
+                updateSpawners(now);
+
+                // Enviar datos a otros jugadores
                 if (conn && conn.open) {
                     conn.send({
                         type: 'move', id: myID, x: player.position.x, y: player.position.y, z: player.position.z,
                         ry: player.rotation.y, walking: walking, name: player.userData.name,
-                        team: teamColor
+                        team: teamColor, skin: skinColor // NUEVO
                     });
                 }
 
+                // Cámara en tercera persona
                 const dist = 30;
                 camera.position.set(
                     player.position.x + Math.sin(yaw) * Math.cos(pitch) * dist,
@@ -805,7 +895,7 @@
 
         function handleRemotePlayerMove(data) {
             if (!otherPlayers[data.id]) {
-                otherPlayers[data.id] = createCharacter(data.name, data.team || '#ff4444');
+                otherPlayers[data.id] = createCharacter(data.name, data.team || '#ff4444', data.skin || '#ffff00');
                 scene.add(otherPlayers[data.id]);
             }
             const op = otherPlayers[data.id];
@@ -814,42 +904,41 @@
             animateWalking(op, data.walking);
         }
 
-        /**
-         * MODO EDITOR (MODIFICADO PARA ZOMBIES)
-         */
+        // ==================== MODO EDITOR ====================
         function startEditor() {
             isEditor = true; isPlaying = false;
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('editor-ui').style.display = 'block';
             initEngine();
             syncBlocksInScene();
-            syncZombiesInScene(); // NUEVO: cargar zombies
+            syncZombiesInScene();
+            syncSpawnersInScene();
             camera.position.set(60, 60, 60); camera.lookAt(0, 0, 0);
 
+            // Event listeners para los controles
             const pvpCheck = document.getElementById('pvp-checkbox');
             pvpEnabled = pvpCheck.checked;
-            pvpCheck.addEventListener('change', (e) => {
-                pvpEnabled = e.target.checked;
-            });
+            pvpCheck.addEventListener('change', (e) => { pvpEnabled = e.target.checked; });
 
             const teamSelect = document.getElementById('team-select');
             teamColor = teamSelect.value;
-            teamSelect.addEventListener('change', (e) => {
-                teamColor = e.target.value;
-            });
+            teamSelect.addEventListener('change', (e) => { teamColor = e.target.value; });
+
+            const skinInput = document.getElementById('skin-color');
+            skinColor = skinInput.value;
+            skinInput.addEventListener('input', (e) => { skinColor = e.target.value; });
 
             const blockColorInput = document.getElementById('block-color');
             blockColor = blockColorInput.value;
-            blockColorInput.addEventListener('input', (e) => {
-                blockColor = e.target.value;
-            });
+            blockColorInput.addEventListener('input', (e) => { blockColor = e.target.value; });
 
-            // NUEVO: modo zombie
             const zombieCheck = document.getElementById('zombie-mode');
             zombieMode = zombieCheck.checked;
-            zombieCheck.addEventListener('change', (e) => {
-                zombieMode = e.target.checked;
-            });
+            zombieCheck.addEventListener('change', (e) => { zombieMode = e.target.checked; });
+
+            const spawnerCheck = document.getElementById('spawner-mode'); // NUEVO
+            spawnerMode = spawnerCheck.checked;
+            spawnerCheck.addEventListener('change', (e) => { spawnerMode = e.target.checked; });
 
             window.addEventListener('keydown', e => keys[e.code] = true);
             window.addEventListener('keyup', e => keys[e.code] = false);
@@ -865,32 +954,46 @@
                     if (intersects.length > 0) {
                         const hit = intersects[0];
                         if (e.shiftKey) {
-                            // Borrar: puede ser bloque o zombie
+                            // Borrar según el tipo
                             if (hit.object.isBlock) {
                                 scene.remove(hit.object);
                                 blocks = blocks.filter(b => b !== hit.object);
                                 mapData = mapData.filter(p => !(p.x === hit.object.position.x && p.y === hit.object.position.y && p.z === hit.object.position.z));
                             } else if (hit.object.parent && hit.object.parent.isZombie) {
-                                // Si el hit es parte de un zombie, eliminar el grupo
                                 const zombieGroup = hit.object.parent;
                                 scene.remove(zombieGroup);
                                 zombies = zombies.filter(z => z !== zombieGroup);
                                 mapZombies = mapZombies.filter(p => !(p.x === zombieGroup.position.x && p.y === zombieGroup.position.y && p.z === zombieGroup.position.z));
+                            } else if (hit.object.parent && hit.object.parent.isSpawner) {
+                                const spawnerGroup = hit.object.parent;
+                                scene.remove(spawnerGroup);
+                                spawners = spawners.filter(s => s !== spawnerGroup);
+                                mapSpawners = mapSpawners.filter(p => !(p.x === spawnerGroup.position.x && p.y === spawnerGroup.position.y && p.z === spawnerGroup.position.z));
                             }
                         } else {
                             let pos;
                             if (hit.object.name === "ground") {
-                                pos = new THREE.Vector3(Math.round(hit.point.x / 4) * 4, 2, Math.round(hit.point.z / 4) * 4);
+                                pos = new THREE.Vector3(
+                                    Math.round(hit.point.x / BLOCK_SIZE) * BLOCK_SIZE,
+                                    BLOCK_SIZE/2,
+                                    Math.round(hit.point.z / BLOCK_SIZE) * BLOCK_SIZE
+                                );
                             } else {
                                 const normal = hit.face.normal.clone();
                                 normal.applyQuaternion(hit.object.quaternion);
-                                pos = hit.object.position.clone().add(normal.multiplyScalar(4));
+                                pos = hit.object.position.clone().add(normal.multiplyScalar(BLOCK_SIZE));
+                                // Redondear a múltiplo de BLOCK_SIZE para mantener grid
+                                pos.x = Math.round(pos.x / BLOCK_SIZE) * BLOCK_SIZE;
+                                pos.y = Math.round(pos.y / BLOCK_SIZE) * BLOCK_SIZE;
+                                pos.z = Math.round(pos.z / BLOCK_SIZE) * BLOCK_SIZE;
                             }
-                            if (zombieMode) {
-                                // Colocar zombie
+                            // Determinar modo
+                            if (spawnerMode) {
+                                spawnSpawner(pos);
+                            } else if (zombieMode) {
                                 spawnZombie(pos);
+                                mapZombies.push({ x: pos.x, y: pos.y, z: pos.z });
                             } else {
-                                // Colocar bloque
                                 spawnBlock(pos, blockColor);
                                 mapData.push({ x: pos.x, y: pos.y, z: pos.z, color: blockColor });
                             }
@@ -921,7 +1024,7 @@
 
         function spawnBlock(pos, colorHex) {
             const color = new THREE.Color(colorHex || '#999999');
-            const b = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshStandardMaterial({ color: color, metalness: 0.2, roughness: 0.7 }));
+            const b = new THREE.Mesh(new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), new THREE.MeshStandardMaterial({ color: color, metalness: 0.2, roughness: 0.7 }));
             b.position.set(pos.x, pos.y, pos.z);
             b.castShadow = b.receiveShadow = b.isBlock = true;
             scene.add(b); blocks.push(b);
@@ -938,17 +1041,9 @@
 
         function exportMap() {
             const dataToSave = {
-                blocks: mapData.map(b => ({
-                    x: b.x,
-                    y: b.y,
-                    z: b.z,
-                    color: b.color || '#999999'
-                })),
-                zombies: mapZombies.map(z => ({
-                    x: z.x,
-                    y: z.y,
-                    z: z.z
-                }))
+                blocks: mapData.map(b => ({ x: b.x, y: b.y, z: b.z, color: b.color || '#999999' })),
+                zombies: mapZombies.map(z => ({ x: z.x, y: z.y, z: z.z })),
+                spawners: mapSpawners.map(s => ({ x: s.x, y: s.y, z: s.z }))
             };
             const blob = new Blob([JSON.stringify(dataToSave)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -960,18 +1055,21 @@
             const reader = new FileReader();
             reader.onload = ev => {
                 const data = JSON.parse(ev.target.result);
-                // Compatibilidad con mapas antiguos (solo bloques)
+                // Compatibilidad con formatos antiguos
                 if (Array.isArray(data)) {
                     mapData = data;
                     mapZombies = [];
+                    mapSpawners = [];
                 } else {
                     mapData = data.blocks || [];
                     mapZombies = data.zombies || [];
+                    mapSpawners = data.spawners || [];
                 }
                 alert("Mapa cargado con éxito!");
                 if (renderer) {
                     syncBlocksInScene();
                     syncZombiesInScene();
+                    syncSpawnersInScene();
                 }
             };
             reader.readAsText(e.target.files[0]);
@@ -981,11 +1079,14 @@
             if (confirm("¿Crear un nuevo mapa? Se perderán los cambios no guardados.")) {
                 mapData = [];
                 mapZombies = [];
+                mapSpawners = [];
                 syncBlocksInScene();
                 syncZombiesInScene();
+                syncSpawnersInScene();
             }
         }
 
+        // Iniciar red
         initNetwork();
     </script>
 </body>
