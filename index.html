@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RTS con cámara, profesiones y enemigos neutrales</title>
+    <title>RTS con constructor y menú de inicio</title>
     <style>
         body {
             margin: 0;
@@ -18,6 +18,7 @@
             padding: 20px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+            position: relative;
         }
         canvas {
             display: block;
@@ -95,10 +96,48 @@
             display: flex;
             gap: 5px;
         }
+        /* Menú de inicio */
+        #startMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 16px;
+        }
+        #startBox {
+            background: #3a4a3a;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            border: 3px solid #b0a880;
+        }
+        #startBox h1 {
+            color: #e0d8b0;
+            margin-bottom: 30px;
+            font-size: 3rem;
+        }
+        #startBtn {
+            font-size: 2rem;
+            padding: 15px 40px;
+            background: #8b6b4a;
+            border-bottom: 5px solid #5a3e1a;
+        }
     </style>
 </head>
 <body>
 <div id="gameContainer">
+    <div id="startMenu">
+        <div id="startBox">
+            <h1>⚔️ AGE OF GRID ⚔️</h1>
+            <button id="startBtn">Comenzar partida</button>
+        </div>
+    </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div id="infoPanel">
         <div id="resources">🌲 300  🍖 150  ⚔️ 0  Ronda: 1</div>
@@ -124,7 +163,7 @@
     // --------------------------------------------------------------
     // CONSTANTES
     // --------------------------------------------------------------
-    const CELDA = 20;                // píxeles por celda (más pequeño para mapa gigante)
+    const CELDA = 20;                // píxeles por celda
     const COLUMNAS = 100;            // mapa ancho
     const FILAS = 100;               // mapa alto
     const ANCHO_VENTANA = 800;
@@ -146,7 +185,7 @@
         "#3a6ea5", // agua
         "#2d5a2d", // bosque
         "#7a6a5a", // montaña
-        "#b88a3a"  // mina (nuevo)
+        "#b88a3a"  // mina
     ];
 
     // --------------------------------------------------------------
@@ -178,7 +217,7 @@
                     tipo: tipo,
                     recurso: recurso,
                     edificio: null,
-                    construyendo: null,
+                    construyendo: null, // { tipo, progreso, tiempoTotal, equipo, constructorAsignado }
                     unidad: null
                 });
             }
@@ -199,7 +238,7 @@
         equipo: "jugador"
     };
 
-    // Centro enemigo en el otro extremo
+    // Centro enemigo
     mapa[10][10].tipo = TERRENO.TIERRA;
     mapa[10][10].edificio = {
         tipo: "centro",
@@ -210,44 +249,43 @@
     };
 
     // --------------------------------------------------------------
-    // CLASE UNIDAD (movimiento por casillas)
+    // CLASE UNIDAD
     // --------------------------------------------------------------
     class Unidad {
         constructor(x, y, tipo, hp, ataque, velocidad, equipo, profesion = null) {
-            this.x = x;             // entero (celda)
+            this.x = x;
             this.y = y;
-            this.tipo = tipo;       // "aldeano", "soldado", "explorador"
-            this.profesion = profesion; // para aldeanos
+            this.tipo = tipo;
+            this.profesion = profesion;
             this.hp = hp;
             this.maxHp = hp;
             this.ataque = ataque;
-            this.velocidad = velocidad; // celdas por segundo
+            this.velocidad = velocidad;
             this.equipo = equipo;
-            this.destino = null;     // {x, y} en celdas
-            this.camino = [];         // lista de {x, y} (pathfinding)
+            this.destino = null;
+            this.camino = [];
             this.estado = "idle";     // idle, moviendo, atacando, recolectando, construyendo
             this.objetivoAtaque = null;
             this.objetivoRecurso = null;
+            this.objetivoConstruccion = null; // celda donde construye
             this.carga = 0;
             this.capacidadCarga = 20;
             this.tiempoAtaque = 0;
             this.rangoAtaque = (tipo === "soldado" ? 1.5 : (tipo === "explorador" ? 3 : 1));
-            this.tiempoMovimiento = 0; // acumulador para movimiento paso a paso
-            this.pasoTiempo = 1.0 / this.velocidad; // segundos por celda
-            this.hostil = false; // para enemigos: si son neutrales o no
+            this.tiempoMovimiento = 0;
+            this.pasoTiempo = 1.0 / this.velocidad;
+            this.hostil = false;
+            this.tiempoConstruccion = 0; // acumulador para construir
         }
 
-        // Asignar destino (celda entera)
         irA(destX, destY) {
             if (destX < 0 || destX >= COLUMNAS || destY < 0 || destY >= FILAS) return false;
-            // Por ahora movimiento directo sin pathfinding (simplificado)
             this.destino = { x: destX, y: destY };
-            this.camino = []; // luego implementaremos A*
+            this.camino = [];
             this.estado = "moviendo";
             return true;
         }
 
-        // Actualizar movimiento por pasos discretos
         actualizarMovimiento(dt) {
             if (this.estado !== "moviendo" || !this.destino) return;
 
@@ -255,7 +293,6 @@
             while (this.tiempoMovimiento >= this.pasoTiempo && this.estado === "moviendo") {
                 this.tiempoMovimiento -= this.pasoTiempo;
 
-                // Calcular dirección hacia el destino
                 let dx = this.destino.x - this.x;
                 let dy = this.destino.y - this.y;
                 if (dx === 0 && dy === 0) {
@@ -264,14 +301,12 @@
                     break;
                 }
 
-                // Moverse una celda en la dirección más adecuada (simple)
                 if (Math.abs(dx) > Math.abs(dy)) {
                     this.x += (dx > 0 ? 1 : -1);
                 } else {
                     this.y += (dy > 0 ? 1 : -1);
                 }
 
-                // Comprobar si llegó
                 if (this.x === this.destino.x && this.y === this.destino.y) {
                     this.estado = "idle";
                     this.destino = null;
@@ -302,7 +337,13 @@
             let lista = (this.equipo === "jugador") ? unidadesJugador : unidadesEnemigo;
             let idx = lista.indexOf(this);
             if (idx !== -1) lista.splice(idx, 1);
-            // Limpiar referencia en mapa
+            // Liberar construcción si estaba asignado
+            if (this.objetivoConstruccion) {
+                let celda = mapa[this.objetivoConstruccion.y][this.objetivoConstruccion.x];
+                if (celda.construyendo && celda.construyendo.constructorAsignado === this) {
+                    celda.construyendo.constructorAsignado = null;
+                }
+            }
             for (let f = 0; f < FILAS; f++) {
                 for (let c = 0; c < COLUMNAS; c++) {
                     if (mapa[f][c].unidad === this) mapa[f][c].unidad = null;
@@ -317,15 +358,17 @@
     let unidadesJugador = [];
     let unidadesEnemigo = [];
 
-    // Crear aldeano inicial
-    unidadesJugador.push(new Unidad(50, 50, "aldeano", 25, 2, 2.0, "jugador", "leñador"));
-    // Crear soldado enemigo neutral (no hostil)
+    // Crear aldeano inicial con profesión constructor (para poder construir)
+    unidadesJugador.push(new Unidad(50, 50, "aldeano", 25, 2, 2.0, "jugador", "constructor"));
+    // Crear otro aldeano leñador
+    unidadesJugador.push(new Unidad(51, 50, "aldeano", 25, 2, 2.0, "jugador", "leñador"));
+    // Crear soldado enemigo neutral
     unidadesEnemigo.push(new Unidad(12, 12, "soldado", 40, 8, 1.5, "enemigo"));
 
     // --------------------------------------------------------------
     // CÁMARA
     // --------------------------------------------------------------
-    let camX = 40; // celda superior izquierda
+    let camX = 40;
     let camY = 40;
     const teclas = { w: false, a: false, s: false, d: false };
 
@@ -340,7 +383,7 @@
     // VARIABLES DE SELECCIÓN
     // --------------------------------------------------------------
     let unidadSeleccionada = null;
-    let edificioSeleccionado = null; // { celda, tipo, equipo }
+    let edificioSeleccionado = null;
     let modoConstruccion = null;
 
     // --------------------------------------------------------------
@@ -348,7 +391,7 @@
     // --------------------------------------------------------------
     let ronda = 1;
     let tiempoRonda = 0;
-    const TIEMPO_POR_RONDA = 30; // segundos
+    const TIEMPO_POR_RONDA = 30;
 
     function actualizarRondas(dt) {
         tiempoRonda += dt;
@@ -356,13 +399,11 @@
             tiempoRonda = 0;
             ronda++;
             if (ronda >= 50) {
-                // Todos los enemigos se vuelven hostiles
                 unidadesEnemigo.forEach(u => u.hostil = true);
             }
         }
     }
 
-    // Función para activar hostilidad en un área
     function activarHostilidadRadio(x, y, radio) {
         unidadesEnemigo.forEach(u => {
             let d = Math.hypot(u.x - x, u.y - y);
@@ -414,7 +455,7 @@
     }
 
     // --------------------------------------------------------------
-    // CONSTRUCCIÓN DE EDIFICIOS
+    // CONSTRUCCIÓN DE EDIFICIOS (requiere constructor cerca)
     // --------------------------------------------------------------
     buildBarracksBtn.addEventListener('click', () => {
         if (recursos.madera >= 200) {
@@ -429,63 +470,98 @@
         let celda = mapa[y][x];
         if (celda.tipo !== TERRENO.TIERRA || celda.edificio || celda.construyendo) return false;
 
+        // Verificar que haya un constructor cerca (radio 2)
+        let constructorCerca = unidadesJugador.some(u => u.tipo === "aldeano" && u.profesion === "constructor" && Math.hypot(u.x - x, u.y - y) <= 2);
+        if (!constructorCerca) {
+            alert("Necesitas un constructor cerca para iniciar la construcción");
+            return false;
+        }
+
         recursos.madera -= modoConstruccion.costo;
         celda.construyendo = {
             tipo: modoConstruccion.tipo,
             progreso: 0,
-            tiempoTotal: 5.0, // 5 segundos
-            equipo: "jugador"
+            tiempoTotal: 10.0, // 10 segundos de construcción (puede ser más realista)
+            equipo: "jugador",
+            constructorAsignado: null
         };
         modoConstruccion = null;
         return true;
     }
 
+    // Actualizar construcciones: los constructores asignados aumentan progreso
     function actualizarConstrucciones(dt) {
+        // Primero, asignar constructores a construcciones sin asignar si están cerca
         for (let f = 0; f < FILAS; f++) {
             for (let c = 0; c < COLUMNAS; c++) {
                 let celda = mapa[f][c];
-                if (celda.construyendo) {
-                    celda.construyendo.progreso += dt;
-                    if (celda.construyendo.progreso >= celda.construyendo.tiempoTotal) {
-                        celda.edificio = {
-                            tipo: celda.construyendo.tipo,
-                            salud: 300,
-                            maxSalud: 300,
-                            equipo: celda.construyendo.equipo,
-                            produccion: []
-                        };
-                        celda.construyendo = null;
+                if (celda.construyendo && !celda.construyendo.constructorAsignado) {
+                    // Buscar un constructor libre cerca
+                    let constructor = unidadesJugador.find(u => u.tipo === "aldeano" && u.profesion === "constructor" && u.estado === "idle" && Math.hypot(u.x - c, u.y - f) <= 2);
+                    if (constructor) {
+                        constructor.estado = "construyendo";
+                        constructor.objetivoConstruccion = { x: c, y: f };
+                        celda.construyendo.constructorAsignado = constructor;
                     }
                 }
             }
         }
+
+        // Ahora, los constructores trabajan
+        unidadesJugador.forEach(u => {
+            if (u.estado === "construyendo" && u.objetivoConstruccion) {
+                let celda = mapa[u.objetivoConstruccion.y][u.objetivoConstruccion.x];
+                if (!celda.construyendo || celda.construyendo.constructorAsignado !== u) {
+                    u.estado = "idle";
+                    u.objetivoConstruccion = null;
+                    return;
+                }
+                // Aumentar progreso
+                celda.construyendo.progreso += dt * 0.5; // velocidad de construcción
+                if (celda.construyendo.progreso >= celda.construyendo.tiempoTotal) {
+                    // Construcción completada
+                    celda.edificio = {
+                        tipo: celda.construyendo.tipo,
+                        salud: 300,
+                        maxSalud: 300,
+                        equipo: celda.construyendo.equipo,
+                        produccion: []
+                    };
+                    celda.construyendo = null;
+                    u.estado = "idle";
+                    u.objetivoConstruccion = null;
+                }
+            }
+        });
     }
 
     // --------------------------------------------------------------
-    // ENTRENAMIENTO (menú cuartel)
+    // ENTRENAMIENTO (tiempo 3 segundos)
     // --------------------------------------------------------------
     document.getElementById('trainAldeano').addEventListener('click', () => {
         if (!edificioSeleccionado) return;
         let celda = edificioSeleccionado.celda;
         if (recursos.madera >= 50) {
             recursos.madera -= 50;
-            celda.edificio.produccion.push({ tipo: "aldeano", tiempo: 0, total: 4 });
+            celda.edificio.produccion.push({ tipo: "aldeano", tiempo: 0, total: 3 }); // 3 segundos
         }
     });
     document.getElementById('trainSoldado').addEventListener('click', () => {
         if (!edificioSeleccionado) return;
+        let celda = edificioSeleccionado.celda;
         if (recursos.madera >= 60 && recursos.comida >= 40) {
             recursos.madera -= 60;
             recursos.comida -= 40;
-            celda.edificio.produccion.push({ tipo: "soldado", tiempo: 0, total: 5 });
+            celda.edificio.produccion.push({ tipo: "soldado", tiempo: 0, total: 3 }); // 3 segundos
         }
     });
     document.getElementById('trainExplorador').addEventListener('click', () => {
         if (!edificioSeleccionado) return;
+        let celda = edificioSeleccionado.celda;
         if (recursos.madera >= 40 && recursos.comida >= 20) {
             recursos.madera -= 40;
             recursos.comida -= 20;
-            celda.edificio.produccion.push({ tipo: "explorador", tiempo: 0, total: 3 });
+            celda.edificio.produccion.push({ tipo: "explorador", tiempo: 0, total: 3 }); // 3 segundos
         }
     });
 
@@ -544,7 +620,9 @@
         unidadesJugador.forEach(u => {
             if (u.tipo !== "aldeano") return;
 
-            // Recolección según profesión
+            // Si está construyendo, no recolecta
+            if (u.estado === "construyendo") return;
+
             if (u.estado === "recolectando" && u.objetivoRecurso) {
                 let celda = mapa[u.objetivoRecurso.y][u.objetivoRecurso.x];
                 if (!celda.recurso || celda.recurso.cantidad <= 0) {
@@ -553,12 +631,10 @@
                     return;
                 }
 
-                // Verificar que la profesión pueda recolectar ese recurso
                 let puede = false;
                 if (u.profesion === "leñador" && celda.recurso.tipo === "madera") puede = true;
                 if (u.profesion === "minero" && celda.recurso.tipo === "piedra") puede = true;
-                if (u.profesion === "recolector" && celda.recurso.tipo === "comida") puede = true;
-                // Para simplificar, asumimos que hay arbustos de comida (no implementados)
+                if (u.profesion === "recolector" && celda.recurso.tipo === "comida") puede = true; // no implementado
                 if (!puede) {
                     u.estado = "idle";
                     return;
@@ -581,7 +657,6 @@
                 }
             }
 
-            // Depositar en centro
             if (u.estado === "idle" && u.x === CENTRO_JUGADOR_X && u.y === CENTRO_JUGADOR_Y && u.carga > 0) {
                 if (u.profesion === "leñador") recursos.madera += u.carga;
                 if (u.profesion === "minero") recursos.piedra += u.carga;
@@ -589,10 +664,8 @@
                 u.carga = 0;
             }
 
-            // Buscar recursos si está idle
-            if (u.estado === "idle" && u.profesion) {
+            if (u.estado === "idle" && u.profesion && u.profesion !== "constructor") {
                 let tipoBuscado = u.profesion === "leñador" ? "madera" : (u.profesion === "minero" ? "piedra" : "comida");
-                // Buscar en un radio
                 for (let dy = -5; dy <= 5; dy++) {
                     for (let dx = -5; dx <= 5; dx++) {
                         let nx = u.x + dx;
@@ -616,14 +689,13 @@
     // --------------------------------------------------------------
     function actualizarIAEnemiga(dt) {
         unidadesEnemigo.forEach(enemigo => {
-            if (!enemigo.hostil) return; // neutral, no hace nada
+            if (!enemigo.hostil) return;
 
             if (enemigo.estado === "atacando" && enemigo.objetivoAtaque) {
                 enemigo.atacar(enemigo.objetivoAtaque);
                 return;
             }
 
-            // Buscar objetivo jugador
             let objetivo = null;
             let distMin = 1000;
 
@@ -660,21 +732,19 @@
     // COMBATE
     // --------------------------------------------------------------
     function actualizarCombate(dt) {
-        // Ataques de enemigos hostiles
         unidadesEnemigo.forEach(e => {
             if (e.hostil && e.estado === "atacando" && e.objetivoAtaque) {
                 e.atacar(e.objetivoAtaque);
             }
         });
 
-        // Ataques de jugadores a enemigos
         unidadesJugador.forEach(u => {
             if (u.tipo !== "aldeano" && u.estado === "idle") {
                 let enemigoCercano = null;
                 let distMin = 5;
                 unidadesEnemigo.forEach(e => {
                     let d = Math.hypot(e.x - u.x, e.y - u.y);
-                    if (d < distMin && e.hostil) { // solo atacan a hostiles
+                    if (d < distMin && e.hostil) {
                         distMin = d;
                         enemigoCercano = e;
                     }
@@ -686,14 +756,12 @@
             }
             if (u.estado === "atacando" && u.objetivoAtaque) {
                 u.atacar(u.objetivoAtaque);
-                // Si atacamos a un enemigo neutral, se vuelve hostil
                 if (u.objetivoAtaque.equipo === "enemigo" && !u.objetivoAtaque.hostil) {
                     activarHostilidadRadio(u.objetivoAtaque.x, u.objetivoAtaque.y, 5);
                 }
             }
         });
 
-        // Daño a edificios
         unidadesEnemigo.forEach(e => {
             if (!e.hostil) return;
             for (let f = 0; f < FILAS; f++) {
@@ -712,7 +780,7 @@
     }
 
     // --------------------------------------------------------------
-    // DIBUJADO (solo parte visible)
+    // DIBUJADO
     // --------------------------------------------------------------
     function dibujar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -731,7 +799,6 @@
                 ctx.fillStyle = COLOR_TERRENO[celda.tipo];
                 ctx.fillRect(xCanvas, yCanvas, CELDA-1, CELDA-1);
 
-                // Recursos
                 if (celda.recurso) {
                     if (celda.recurso.tipo === "madera") {
                         ctx.fillStyle = "#3c8c3c";
@@ -744,28 +811,31 @@
                     }
                 }
 
-                // Edificios
                 if (celda.edificio) {
                     ctx.fillStyle = celda.edificio.equipo === "jugador" ? "#a52a2a" : "#8b3a3a";
                     ctx.fillRect(xCanvas + 2, yCanvas + 2, CELDA-6, CELDA-6);
-                    // Barra de salud
                     let saludPercent = celda.edificio.salud / celda.edificio.maxSalud;
                     ctx.fillStyle = "#0f0";
                     ctx.fillRect(xCanvas + 2, yCanvas - 3, (CELDA-6) * saludPercent, 3);
                 }
 
-                // Construcción
                 if (celda.construyendo) {
                     ctx.fillStyle = "#aaa";
                     ctx.fillRect(xCanvas + 2, yCanvas + 2, CELDA-6, CELDA-6);
                     ctx.fillStyle = "#ff0";
                     let progreso = celda.construyendo.progreso / celda.construyendo.tiempoTotal;
                     ctx.fillRect(xCanvas + 2, yCanvas + CELDA-8, (CELDA-6) * progreso, 4);
+                    // Mostrar si tiene constructor asignado
+                    if (celda.construyendo.constructorAsignado) {
+                        ctx.fillStyle = "#00f";
+                        ctx.beginPath();
+                        ctx.arc(xCanvas + CELDA-5, yCanvas + 5, 3, 0, 2*Math.PI);
+                        ctx.fill();
+                    }
                 }
             }
         }
 
-        // Unidades (dibujar después)
         function dibujarUnidad(u, color) {
             if (u.x < inicioX || u.x >= finX || u.y < inicioY || u.y >= finY) return;
             let xCanvas = (u.x - camX) * CELDA;
@@ -781,13 +851,18 @@
                 ctx.arc(xCanvas + CELDA/2, yCanvas + CELDA/2, 12, 0, 2*Math.PI);
                 ctx.stroke();
             }
-            // Barra de salud
             ctx.fillStyle = "#0f0";
             ctx.fillRect(xCanvas + 2, yCanvas - 6, 16 * (u.hp / u.maxHp), 3);
+            // Mostrar profesión si es aldeano
+            if (u.tipo === "aldeano" && u.profesion) {
+                ctx.fillStyle = "#000";
+                ctx.font = "8px Arial";
+                ctx.fillText(u.profesion[0], xCanvas + 2, yCanvas + 4);
+            }
         }
 
         unidadesJugador.forEach(u => dibujarUnidad(u, u.tipo === "aldeano" ? "#f0d880" : "#c04040"));
-        unidadesEnemigo.forEach(u => dibujarUnidad(u, u.hostil ? "#a00" : "#6a6a6a")); // gris si neutral
+        unidadesEnemigo.forEach(u => dibujarUnidad(u, u.hostil ? "#a00" : "#6a6a6a"));
 
         // Rejilla
         ctx.strokeStyle = "#4a6a4a";
@@ -810,44 +885,49 @@
     // LOOP PRINCIPAL
     // --------------------------------------------------------------
     let ultimoTiempo = performance.now() / 1000;
+    let juegoActivo = false; // controlado por menú
+
     function gameLoop(now) {
         now /= 1000;
         let dt = Math.min(0.1, now - ultimoTiempo);
         ultimoTiempo = now;
 
-        actualizarCamara();
-        actualizarRondas(dt);
-        actualizarConstrucciones(dt);
-        actualizarEntrenamiento(dt);
-        actualizarAldeanos(dt);
-        actualizarIAEnemiga(dt);
-        actualizarCombate(dt);
+        if (juegoActivo) {
+            actualizarCamara();
+            actualizarRondas(dt);
+            actualizarConstrucciones(dt);
+            actualizarEntrenamiento(dt);
+            actualizarAldeanos(dt);
+            actualizarIAEnemiga(dt);
+            actualizarCombate(dt);
 
-        // Mover unidades
-        [...unidadesJugador, ...unidadesEnemigo].forEach(u => u.actualizarMovimiento(dt));
+            [...unidadesJugador, ...unidadesEnemigo].forEach(u => u.actualizarMovimiento(dt));
 
-        // Actualizar ocupación en mapa
-        for (let f = 0; f < FILAS; f++) {
-            for (let c = 0; c < COLUMNAS; c++) {
-                mapa[f][c].unidad = null;
+            for (let f = 0; f < FILAS; f++) {
+                for (let c = 0; c < COLUMNAS; c++) {
+                    mapa[f][c].unidad = null;
+                }
             }
+            [...unidadesJugador, ...unidadesEnemigo].forEach(u => {
+                if (u.x >= 0 && u.x < COLUMNAS && u.y >= 0 && u.y < FILAS) {
+                    mapa[u.y][u.x].unidad = u;
+                }
+            });
+
+            dibujar();
+            actualizarUI();
+        } else {
+            // Solo dibujar el menú (ya está visible)
         }
-        [...unidadesJugador, ...unidadesEnemigo].forEach(u => {
-            if (u.x >= 0 && u.x < COLUMNAS && u.y >= 0 && u.y < FILAS) {
-                mapa[u.y][u.x].unidad = u;
-            }
-        });
-
-        dibujar();
-        actualizarUI();
 
         requestAnimationFrame(gameLoop);
     }
 
     // --------------------------------------------------------------
-    // EVENTOS DE TECLADO (WASD)
+    // EVENTOS DE TECLADO
     // --------------------------------------------------------------
     window.addEventListener('keydown', (e) => {
+        if (!juegoActivo) return;
         switch(e.key.toLowerCase()) {
             case 'w': teclas.w = true; e.preventDefault(); break;
             case 'a': teclas.a = true; e.preventDefault(); break;
@@ -856,6 +936,7 @@
         }
     });
     window.addEventListener('keyup', (e) => {
+        if (!juegoActivo) return;
         switch(e.key.toLowerCase()) {
             case 'w': teclas.w = false; e.preventDefault(); break;
             case 'a': teclas.a = false; e.preventDefault(); break;
@@ -868,6 +949,7 @@
     // EVENTOS DE RATÓN
     // --------------------------------------------------------------
     canvas.addEventListener('mousedown', (e) => {
+        if (!juegoActivo) return;
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
@@ -876,13 +958,12 @@
         const col = Math.floor(mouseX / CELDA) + camX;
         const fila = Math.floor(mouseY / CELDA) + camY;
 
-        if (e.button === 0) { // Izquierdo
+        if (e.button === 0) {
             if (modoConstruccion) {
                 iniciarConstruccion(col, fila);
                 return;
             }
 
-            // Seleccionar unidad del jugador
             let unidad = unidadesJugador.find(u => u.x === col && u.y === fila);
             if (unidad) {
                 unidadSeleccionada = unidad;
@@ -897,11 +978,10 @@
                     edificioSeleccionado = null;
                 }
             }
-        } else if (e.button === 2) { // Derecho: orden
+        } else if (e.button === 2) {
             e.preventDefault();
             if (unidadSeleccionada) {
                 unidadSeleccionada.irA(col, fila);
-                // Si es aldeano y hay recurso, asignar recolección según profesión
                 if (unidadSeleccionada.tipo === "aldeano" && mapa[fila] && mapa[fila][col].recurso) {
                     let recurso = mapa[fila][col].recurso;
                     if ((unidadSeleccionada.profesion === "leñador" && recurso.tipo === "madera") ||
@@ -915,7 +995,17 @@
 
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // Iniciar
+    // --------------------------------------------------------------
+    // MENÚ DE INICIO
+    // --------------------------------------------------------------
+    const startMenu = document.getElementById('startMenu');
+    const startBtn = document.getElementById('startBtn');
+    startBtn.addEventListener('click', () => {
+        startMenu.style.display = 'none';
+        juegoActivo = true;
+    });
+
+    // Iniciar loop
     requestAnimationFrame(gameLoop);
 </script>
 </body>
