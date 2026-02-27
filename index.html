@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RTS con enemigos y generación de tropas</title>
+    <title>RTS con enemigos y construcción · Age of Grid</title>
     <style>
         body {
             margin: 0;
@@ -30,24 +30,31 @@
             margin-top: 12px;
             color: #e0d8b0;
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
             background: #3b4a3b;
             padding: 8px 16px;
             border-radius: 40px;
             border: 1px solid #8b7a5a;
+            flex-wrap: wrap;
         }
         #resources {
             font-size: 1.3rem;
             font-weight: bold;
             text-shadow: 2px 2px 0 #2a3a2a;
+            min-width: 180px;
         }
         #selectedInfo {
             background: #4a5a4a;
             padding: 4px 16px;
             border-radius: 30px;
             border: 1px solid #b0a880;
+            min-width: 200px;
+            text-align: center;
+        }
+        .botones {
+            display: flex;
+            gap: 8px;
         }
         button {
             background: #6b8c5c;
@@ -60,7 +67,6 @@
             border-bottom: 3px solid #3a5a3a;
             transition: 0.1s ease;
             font-size: 1rem;
-            margin: 2px;
         }
         button:hover {
             background: #7b9c6c;
@@ -71,12 +77,13 @@
             transform: translateY(4px);
             border-bottom-width: 0;
         }
-        #enemyCounter {
-            background: #5a3a3a;
-            padding: 4px 16px;
-            border-radius: 30px;
-            border: 1px solid #c08a8a;
-            color: #ffb0b0;
+        button:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        #construirBtn {
+            background: #b88a3a;
+            border-bottom-color: #6b4e1a;
         }
     </style>
 </head>
@@ -85,23 +92,21 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div id="infoPanel">
         <div id="resources">🌲 200  🍖 100  ⚔️ 0</div>
-        <div id="selectedInfo">👤 Ninguna unidad</div>
-        <div id="enemyCounter">👾 Enemigos: 3</div>
-        <div>
-            <button id="buildBtn">🏠 Construir (50🌲)</button>
-            <button id="spawnAldeano">👷 Aldeano (50🍖)</button>
-            <button id="spawnSoldado">⚔️ Soldado (100🌲)</button>
+        <div id="selectedInfo">🏠 Ninguno</div>
+        <div class="botones">
+            <button id="buildBarracksBtn" title="Construir cuartel (150🌲)">🏛️ Cuartel</button>
+            <button id="trainUnitBtn" style="display:none;">⚔️ Entrenar</button>
         </div>
     </div>
 </div>
 
 <script>
     // --------------------------------------------------------------
-    // CONSTANTES Y CONFIGURACIÓN
+    // CONSTANTES
     // --------------------------------------------------------------
-    const CELDA = 40;                // píxeles por celda
-    const COLUMNAS = 20;             // 800/40
-    const FILAS = 15;                // 600/40
+    const CELDA = 25;                // píxeles por celda (más pequeña para mapa grande)
+    const COLUMNAS = 32;             // 800/25
+    const FILAS = 24;                // 600/25
 
     // Tipos de terreno
     const TERRENO = {
@@ -111,7 +116,6 @@
         MONTAÑA: 3
     };
 
-    // Colores para visualización
     const COLOR_TERRENO = [
         "#6b8e4c", // tierra
         "#3a6ea5", // agua
@@ -128,57 +132,79 @@
     // MAPA (matriz de celdas)
     // --------------------------------------------------------------
     let mapa = [];
-    for (let f = 0; f < FILAS; f++) {
-        let fila = [];
-        for (let c = 0; c < COLUMNAS; c++) {
-            // Generar terreno aleatorio ponderado
-            let r = Math.random();
-            let tipo;
-            if (r < 0.6) tipo = TERRENO.TIERRA;
-            else if (r < 0.75) tipo = TERRENO.BOSQUE;
-            else if (r < 0.9) tipo = TERRENO.AGUA;
-            else tipo = TERRENO.MONTAÑA;
+    function generarMapa() {
+        for (let f = 0; f < FILAS; f++) {
+            let fila = [];
+            for (let c = 0; c < COLUMNAS; c++) {
+                let r = Math.random();
+                let tipo;
+                if (r < 0.55) tipo = TERRENO.TIERRA;
+                else if (r < 0.7) tipo = TERRENO.BOSQUE;
+                else if (r < 0.85) tipo = TERRENO.AGUA;
+                else tipo = TERRENO.MONTAÑA;
 
-            fila.push({
-                tipo: tipo,
-                recurso: (tipo === TERRENO.BOSQUE) ? { tipo: "madera", cantidad: 100 } : null,
-                edificio: null,
-                unidad: null,
-                unidadEnemiga: null  // para separar del jugador
-            });
+                fila.push({
+                    tipo: tipo,
+                    recurso: (tipo === TERRENO.BOSQUE) ? { tipo: "madera", cantidad: 100 } : null,
+                    edificio: null,    // edificio actual (si está construido)
+                    construyendo: null, // { tipo, progreso, tiempoTotal, aldeanoAsignado } para edificio en construcción
+                    unidad: null
+                });
+            }
+            mapa.push(fila);
         }
-        mapa.push(fila);
     }
+    generarMapa();
 
-    // Asegurar que la posición inicial del jugador sea tierra y poner centro urbano
-    mapa[7][5].tipo = TERRENO.TIERRA;
-    mapa[7][5].recurso = null;
-    mapa[7][5].edificio = { tipo: "centro", hp: 500, equipo: "jugador" }; // centro urbano
+    // Asegurar zona inicial del jugador (centro del mapa)
+    mapa[12][16].tipo = TERRENO.TIERRA; // centro aproximado
+    mapa[12][16].recurso = null;
+
+    // Crear centro del jugador (ya construido)
+    mapa[12][16].edificio = {
+        tipo: "centro",
+        salud: 500,
+        produccion: [], // cola de entrenamiento
+        equipo: "jugador"
+    };
+
+    // Crear centro enemigo en esquina superior izquierda
+    mapa[2][2].tipo = TERRENO.TIERRA;
+    mapa[2][2].edificio = {
+        tipo: "centro",
+        salud: 500,
+        produccion: [],
+        equipo: "enemigo"
+    };
 
     // --------------------------------------------------------------
-    // CLASES ENTIDADES
+    // CLASES
     // --------------------------------------------------------------
-    class UnidadJugador {
-        constructor(x, y, tipo, hp, ataque, velocidad, capacidadCarga = 10) {
-            this.x = x;             // float columna
-            this.y = y;             // float fila
-            this.tipo = tipo;       // "aldeano" o "soldado"
+    class Unidad {
+        constructor(x, y, tipo, hp, ataque, velocidad, equipo) {
+            this.x = x;             // float celda
+            this.y = y;
+            this.tipo = tipo;       // "aldeano", "soldado"
             this.hp = hp;
+            this.maxHp = hp;
             this.ataque = ataque;
-            this.velocidad = velocidad; // celdas por segundo
+            this.velocidad = velocidad; // celdas/segundo
+            this.equipo = equipo;    // "jugador" o "enemigo"
             this.destino = null;
-            this.estado = "idle";      // idle, moviendo, recolectando, atacando
+            this.estado = "idle";    // idle, moviendo, atacando, recolectando, construyendo
+            this.objetivoAtaque = null; // unidad o edificio enemigo
             this.objetivoRecurso = null;
             this.carga = 0;
-            this.capacidadCarga = capacidadCarga;
-            this.enemigoObjetivo = null; // para combate
-            this.tiempoUltimoAtaque = 0;
+            this.capacidadCarga = 10;
+            this.tiempoAtaque = 0;   // cooldown
+            this.rangoAtaque = (tipo === "soldado") ? 1.5 : 1; // cuerpo a cuerpo
         }
 
         irA(destX, destY) {
             if (destX < 0 || destX >= COLUMNAS || destY < 0 || destY >= FILAS) return false;
             this.destino = { x: destX, y: destY };
             this.estado = "moviendo";
+            this.objetivoAtaque = null;
             return true;
         }
 
@@ -187,9 +213,9 @@
 
             let dx = this.destino.x - this.x;
             let dy = this.destino.y - this.y;
-            let distancia = Math.sqrt(dx*dx + dy*dy);
+            let dist = Math.hypot(dx, dy);
 
-            if (distancia < 0.1) {
+            if (dist < 0.1) {
                 this.x = this.destino.x;
                 this.y = this.destino.y;
                 this.destino = null;
@@ -198,221 +224,62 @@
             }
 
             let step = this.velocidad * dt;
-            if (step > distancia) step = distancia;
-            this.x += (dx / distancia) * step;
-            this.y += (dy / distancia) * step;
+            if (step > dist) step = dist;
+            this.x += (dx / dist) * step;
+            this.y += (dy / dist) * step;
         }
 
-        // Recolectar (solo aldeanos)
-        recolectar(recursoCelda) {
-            if (this.tipo !== "aldeano") return;
-            // Verificar adyacencia
-            let adyacente = false;
-            for (let dy = -1; dy <= 1; dy++) {
-                for (let dx = -1; dx <= 1; dx++) {
-                    if (dx === 0 && dy === 0) continue;
-                    let nx = recursoCelda.x + dx;
-                    let ny = recursoCelda.y + dy;
-                    if (Math.abs(nx - this.x) < 0.5 && Math.abs(ny - this.y) < 0.5) {
-                        adyacente = true;
-                        break;
-                    }
-                }
-            }
-            if (!adyacente) {
-                this.irA(recursoCelda.x, recursoCelda.y);
-                this.objetivoRecurso = recursoCelda;
-                return;
-            }
-
-            this.estado = "recolectando";
-            this.objetivoRecurso = recursoCelda;
-        }
-
-        actualizarRecoleccion(dt) {
-            if (this.estado !== "recolectando" || !this.objetivoRecurso) return;
-
-            let celda = mapa[this.objetivoRecurso.y][this.objetivoRecurso.x];
-            if (!celda.recurso || celda.recurso.cantidad <= 0) {
-                this.estado = "idle";
-                this.objetivoRecurso = null;
-                return;
-            }
-
-            if (!this.recoleccionTimer) this.recoleccionTimer = 0;
-            this.recoleccionTimer += dt;
-            while (this.recoleccionTimer >= 0.5 && celda.recurso.cantidad > 0 && this.carga < this.capacidadCarga) {
-                this.recoleccionTimer -= 0.5;
-                let recolectado = Math.min(5, celda.recurso.cantidad, this.capacidadCarga - this.carga);
-                celda.recurso.cantidad -= recolectado;
-                this.carga += recolectado;
-                recursos.madera += recolectado; // simplificado, directo al jugador
-            }
-
-            if (celda.recurso.cantidad <= 0) {
-                celda.recurso = null;
-                this.estado = "idle";
-                this.objetivoRecurso = null;
-            }
-        }
-
-        // Combate
-        atacarEnemigo(enemigo, dt) {
-            if (this.estado !== "atacando") this.estado = "atacando";
-            this.enemigoObjetivo = enemigo;
-
-            // Calcular distancia
-            let dx = enemigo.x - this.x;
-            let dy = enemigo.y - this.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            let rangoAtaque = 1.2; // celdas
-
-            if (dist <= rangoAtaque) {
-                // Atacar si ha pasado el tiempo de enfriamiento
-                if (!this.ultimoAtaque) this.ultimoAtaque = 0;
-                this.ultimoAtaque += dt;
-                let velocidadAtaque = 1.0; // 1 ataque por segundo
-                if (this.ultimoAtaque >= 1.0 / velocidadAtaque) {
-                    this.ultimoAtaque = 0;
-                    enemigo.hp -= this.ataque;
-                    if (enemigo.hp <= 0) {
-                        // Eliminar enemigo
-                        let idx = enemigos.indexOf(enemigo);
-                        if (idx !== -1) enemigos.splice(idx, 1);
-                        this.enemigoObjetivo = null;
-                        this.estado = "idle";
-                    }
+        atacar(objetivo) {
+            if (!objetivo) return;
+            let dx = objetivo.x - this.x;
+            let dy = objetivo.y - this.y;
+            let dist = Math.hypot(dx, dy);
+            if (dist <= this.rangoAtaque) {
+                objetivo.hp -= this.ataque;
+                if (objetivo.hp <= 0) {
+                    objetivo.morir();
+                    this.estado = "idle";
+                    this.objetivoAtaque = null;
                 }
             } else {
-                // Moverse hacia el enemigo
-                this.irA(enemigo.x, enemigo.y);
+                // Acercarse
+                this.irA(objetivo.x, objetivo.y);
+                this.objetivoAtaque = objetivo;
             }
         }
-    }
 
-    class UnidadEnemiga {
-        constructor(x, y, hp, ataque, velocidad) {
-            this.x = x;
-            this.y = y;
-            this.hp = hp;
-            this.ataque = ataque;
-            this.velocidad = velocidad;
-            this.destino = null;
-            this.estado = "patrullando"; // patrullando, atacando
-            this.objetivoJugador = null;
-            this.tiempoUltimoAtaque = 0;
-            this.patrullaDestino = { x: Math.random() * COLUMNAS, y: Math.random() * FILAS };
-        }
-
-        irA(destX, destY) {
-            this.destino = { x: destX, y: destY };
-        }
-
-        actualizarMovimiento(dt) {
-            if (!this.destino) return;
-
-            let dx = this.destino.x - this.x;
-            let dy = this.destino.y - this.y;
-            let distancia = Math.sqrt(dx*dx + dy*dy);
-
-            if (distancia < 0.1) {
-                this.x = this.destino.x;
-                this.y = this.destino.y;
-                this.destino = null;
-                return;
-            }
-
-            let step = this.velocidad * dt;
-            if (step > distancia) step = distancia;
-            this.x += (dx / distancia) * step;
-            this.y += (dy / distancia) * step;
-        }
-
-        // IA simple: si ve una unidad jugador cerca, ataca; si no, patrulla
-        actualizarIA(dt, unidadesJugador) {
-            // Buscar unidad jugador más cercana en un radio
-            let unidadCercana = null;
-            let distMin = 5; // radio de detección
-            for (let u of unidadesJugador) {
-                let dx = u.x - this.x;
-                let dy = u.y - this.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < distMin) {
-                    distMin = dist;
-                    unidadCercana = u;
+        morir() {
+            // Eliminar del mapa y de la lista correspondiente
+            let lista = (this.equipo === "jugador") ? unidadesJugador : unidadesEnemigo;
+            let idx = lista.indexOf(this);
+            if (idx !== -1) lista.splice(idx, 1);
+            // Limpiar referencia en mapa
+            for (let f = 0; f < FILAS; f++) {
+                for (let c = 0; c < COLUMNAS; c++) {
+                    if (mapa[f][c].unidad === this) mapa[f][c].unidad = null;
                 }
-            }
-
-            if (unidadCercana) {
-                // Atacar
-                this.estado = "atacando";
-                this.objetivoJugador = unidadCercana;
-
-                // Calcular distancia para atacar
-                let dx = unidadCercana.x - this.x;
-                let dy = unidadCercana.y - this.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                let rangoAtaque = 1.2;
-
-                if (dist <= rangoAtaque) {
-                    // Atacar
-                    if (!this.ultimoAtaque) this.ultimoAtaque = 0;
-                    this.ultimoAtaque += dt;
-                    let velocidadAtaque = 1.0;
-                    if (this.ultimoAtaque >= 1.0 / velocidadAtaque) {
-                        this.ultimoAtaque = 0;
-                        unidadCercana.hp -= this.ataque;
-                        if (unidadCercana.hp <= 0) {
-                            let idx = unidades.indexOf(unidadCercana);
-                            if (idx !== -1) unidades.splice(idx, 1);
-                            this.objetivoJugador = null;
-                            this.estado = "patrullando";
-                        }
-                    }
-                } else {
-                    // Moverse hacia la unidad
-                    this.irA(unidadCercana.x, unidadCercana.y);
-                }
-            } else {
-                // Patrullar: si no tiene destino, asignar uno aleatorio
-                if (!this.destino) {
-                    this.patrullaDestino = { x: Math.random() * COLUMNAS, y: Math.random() * FILAS };
-                    this.irA(this.patrullaDestino.x, this.patrullaDestino.y);
-                }
-                this.estado = "patrullando";
             }
         }
     }
 
     // --------------------------------------------------------------
-    // UNIDADES DEL JUGADOR
+    // LISTAS DE UNIDADES
     // --------------------------------------------------------------
-    let unidades = [];
+    let unidadesJugador = [];
+    let unidadesEnemigo = [];
 
     // Crear aldeano inicial cerca del centro
-    unidades.push(new UnidadJugador(5, 7, "aldeano", 25, 3, 4.0, 10));
-    // Crear un soldado de prueba
-    unidades.push(new UnidadJugador(6, 7, "soldado", 50, 10, 3.0, 0));
+    unidadesJugador.push(new Unidad(16, 12, "aldeano", 25, 3, 4.0, "jugador"));
+
+    // Crear soldado enemigo inicial cerca de su centro
+    unidadesEnemigo.push(new Unidad(3, 3, "soldado", 40, 8, 3.0, "enemigo"));
 
     // --------------------------------------------------------------
-    // ENEMIGOS
-    // --------------------------------------------------------------
-    let enemigos = [];
-
-    // Crear 3 enemigos iniciales en posiciones aleatorias (evitar cerca del jugador)
-    for (let i = 0; i < 3; i++) {
-        let x, y;
-        do {
-            x = Math.random() * COLUMNAS;
-            y = Math.random() * FILAS;
-        } while (Math.hypot(x - 5, y - 7) < 3); // evitar spawn cerca del centro
-        enemigos.push(new UnidadEnemiga(x, y, 30, 8, 2.5));
-    }
-
-    // --------------------------------------------------------------
-    // SELECCIÓN
+    // VARIABLES DE SELECCIÓN
     // --------------------------------------------------------------
     let unidadSeleccionada = null;
+    let edificioSeleccionado = null; // { celda, tipo, equipo }
+    let modoConstruccion = null; // { tipo, costo } o null
 
     // --------------------------------------------------------------
     // CANVAS Y CONTEXTO
@@ -425,112 +292,414 @@
     // --------------------------------------------------------------
     const resourcesSpan = document.getElementById('resources');
     const selectedInfoSpan = document.getElementById('selectedInfo');
-    const enemyCounterSpan = document.getElementById('enemyCounter');
-    const buildBtn = document.getElementById('buildBtn');
-    const spawnAldeanoBtn = document.getElementById('spawnAldeano');
-    const spawnSoldadoBtn = document.getElementById('spawnSoldado');
+    const buildBarracksBtn = document.getElementById('buildBarracksBtn');
+    const trainUnitBtn = document.getElementById('trainUnitBtn');
 
     function actualizarUI() {
-        resourcesSpan.innerHTML = `🌲 ${recursos.madera}  🍖 ${recursos.comida}  ⚔️ ${unidades.length}`;
-        if (unidadSeleccionada) {
-            selectedInfoSpan.innerHTML = `👤 ${unidadSeleccionada.tipo} (${Math.round(unidadSeleccionada.x)},${Math.round(unidadSeleccionada.y)}) ${unidadSeleccionada.estado} HP:${unidadSeleccionada.hp}`;
+        resourcesSpan.innerHTML = `🌲 ${recursos.madera}  🍖 ${recursos.comida} ⚔️ ${unidadesJugador.length}`;
+
+        if (edificioSeleccionado) {
+            let tipo = edificioSeleccionado.tipo;
+            selectedInfoSpan.innerHTML = `🏠 ${tipo} (${Math.round(edificioSeleccionado.celda.x)},${Math.round(edificioSeleccionado.celda.y)})`;
+            if (tipo === "centro" && edificioSeleccionado.equipo === "jugador") {
+                trainUnitBtn.style.display = "inline-block";
+                trainUnitBtn.innerText = "👨‍🌾 Aldeano (50🌲)";
+                trainUnitBtn.onclick = () => entrenarUnidad("aldeano");
+            } else if (tipo === "cuartel" && edificioSeleccionado.equipo === "jugador") {
+                trainUnitBtn.style.display = "inline-block";
+                trainUnitBtn.innerText = "⚔️ Soldado (50🌲 30🍖)";
+                trainUnitBtn.onclick = () => entrenarUnidad("soldado");
+            } else {
+                trainUnitBtn.style.display = "none";
+            }
+        } else if (unidadSeleccionada) {
+            selectedInfoSpan.innerHTML = `👤 ${unidadSeleccionada.tipo} (${Math.round(unidadSeleccionada.hp)}/${unidadSeleccionada.maxHp})`;
+            trainUnitBtn.style.display = "none";
         } else {
-            selectedInfoSpan.innerHTML = `👤 Ninguna unidad`;
+            selectedInfoSpan.innerHTML = `🏠 Ninguno`;
+            trainUnitBtn.style.display = "none";
         }
-        enemyCounterSpan.innerHTML = `👾 Enemigos: ${enemigos.length}`;
+    }
+
+    // --------------------------------------------------------------
+    // CONSTRUCCIÓN DE EDIFICIOS
+    // --------------------------------------------------------------
+    buildBarracksBtn.addEventListener('click', () => {
+        if (recursos.madera >= 150) {
+            modoConstruccion = { tipo: "cuartel", costo: 150 };
+            selectedInfoSpan.innerHTML = "🏗️ Coloca el cuartel en tierra";
+        } else {
+            alert("No tienes suficiente madera (150)");
+        }
+    });
+
+    function iniciarConstruccion(x, y) {
+        if (!modoConstruccion) return false;
+        let celda = mapa[y][x];
+        // Verificar terreno libre y sin edificio
+        if (celda.tipo !== TERRENO.TIERRA || celda.edificio || celda.construyendo) return false;
+
+        // Descontar recursos
+        recursos.madera -= modoConstruccion.costo;
+
+        // Crear construcción
+        celda.construyendo = {
+            tipo: modoConstruccion.tipo,
+            progreso: 0,
+            tiempoTotal: 3.0, // 3 segundos
+            equipo: "jugador"
+        };
+
+        modoConstruccion = null;
+        return true;
+    }
+
+    // Actualizar construcciones cada frame
+    function actualizarConstrucciones(dt) {
+        for (let f = 0; f < FILAS; f++) {
+            for (let c = 0; c < COLUMNAS; c++) {
+                let celda = mapa[f][c];
+                if (celda.construyendo) {
+                    celda.construyendo.progreso += dt;
+                    if (celda.construyendo.progreso >= celda.construyendo.tiempoTotal) {
+                        // Construcción completada
+                        celda.edificio = {
+                            tipo: celda.construyendo.tipo,
+                            salud: 200,
+                            equipo: celda.construyendo.equipo,
+                            produccion: []
+                        };
+                        celda.construyendo = null;
+                    }
+                }
+            }
+        }
+    }
+
+    // --------------------------------------------------------------
+    // ENTRENAMIENTO DE UNIDADES
+    // --------------------------------------------------------------
+    function entrenarUnidad(tipo) {
+        if (!edificioSeleccionado) return;
+        let celda = edificioSeleccionado.celda;
+        let edificio = celda.edificio;
+        if (!edificio || edificio.equipo !== "jugador") return;
+
+        if (tipo === "aldeano" && recursos.madera >= 50) {
+            recursos.madera -= 50;
+            // Simular tiempo de entrenamiento (3s) con cola
+            edificio.produccion.push({ tipo: "aldeano", tiempo: 0, total: 3 });
+        } else if (tipo === "soldado" && recursos.madera >= 50 && recursos.comida >= 30) {
+            recursos.madera -= 50;
+            recursos.comida -= 30;
+            edificio.produccion.push({ tipo: "soldado", tiempo: 0, total: 4 });
+        }
+    }
+
+    function actualizarEntrenamiento(dt) {
+        // Procesar colas de todos los edificios
+        for (let f = 0; f < FILAS; f++) {
+            for (let c = 0; c < COLUMNAS; c++) {
+                let edificio = mapa[f][c].edificio;
+                if (edificio && edificio.produccion && edificio.produccion.length > 0) {
+                    let primero = edificio.produccion[0];
+                    primero.tiempo += dt;
+                    if (primero.tiempo >= primero.total) {
+                        // Crear unidad
+                        let nuevaUnidad = new Unidad(c, f, primero.tipo,
+                            primero.tipo === "aldeano" ? 25 : 40,
+                            primero.tipo === "aldeano" ? 3 : 8,
+                            primero.tipo === "aldeano" ? 4 : 3,
+                            "jugador");
+                        unidadesJugador.push(nuevaUnidad);
+                        edificio.produccion.shift();
+                    }
+                }
+            }
+        }
+    }
+
+    // --------------------------------------------------------------
+    // IA ENEMIGA
+    // --------------------------------------------------------------
+    let tiempoUltimoSpawn = 0;
+    function actualizarIAEnemiga(dt) {
+        // Spawn periódico de enemigos
+        tiempoUltimoSpawn += dt;
+        if (tiempoUltimoSpawn > 10) { // cada 10 segundos
+            tiempoUltimoSpawn = 0;
+            // Buscar centro enemigo
+            for (let f = 0; f < FILAS; f++) {
+                for (let c = 0; c < COLUMNAS; c++) {
+                    let ed = mapa[f][c].edificio;
+                    if (ed && ed.equipo === "enemigo" && ed.tipo === "centro") {
+                        // Crear soldado enemigo cerca
+                        unidadesEnemigo.push(new Unidad(c+1, f+1, "soldado", 40, 8, 3.0, "enemigo"));
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Comportamiento de unidades enemigas: atacar lo más cercano
+        unidadesEnemigo.forEach(enemigo => {
+            if (enemigo.estado === "atacando" && enemigo.objetivoAtaque) {
+                enemigo.atacar(enemigo.objetivoAtaque);
+                return;
+            }
+
+            // Buscar objetivo cercano (unidad o edificio del jugador)
+            let objetivo = null;
+            let distMin = 1000;
+
+            // Buscar unidades jugador
+            unidadesJugador.forEach(u => {
+                let d = Math.hypot(u.x - enemigo.x, u.y - enemigo.y);
+                if (d < distMin) {
+                    distMin = d;
+                    objetivo = u;
+                }
+            });
+
+            // Buscar edificios del jugador
+            for (let f = 0; f < FILAS; f++) {
+                for (let c = 0; c < COLUMNAS; c++) {
+                    let ed = mapa[f][c].edificio;
+                    if (ed && ed.equipo === "jugador") {
+                        let d = Math.hypot(c - enemigo.x, f - enemigo.y);
+                        if (d < distMin) {
+                            distMin = d;
+                            objetivo = { x: c, y: f, hp: ed.salud, edificio: true, celda: {x:c, y:f} };
+                        }
+                    }
+                }
+            }
+
+            if (objetivo) {
+                enemigo.estado = "atacando";
+                enemigo.objetivoAtaque = objetivo;
+                if (objetivo.edificio) {
+                    // Moverse a la celda del edificio
+                    enemigo.irA(objetivo.x, objetivo.y);
+                }
+            } else {
+                // Patrullar aleatoriamente
+                if (Math.random() < 0.01) {
+                    enemigo.irA(Math.random() * COLUMNAS, Math.random() * FILAS);
+                }
+            }
+        });
+    }
+
+    // --------------------------------------------------------------
+    // RECOLECCIÓN PARA ALDEANOS
+    // --------------------------------------------------------------
+    function actualizarAldeanos(dt) {
+        unidadesJugador.forEach(u => {
+            if (u.tipo !== "aldeano") return;
+
+            // Si está recolectando
+            if (u.estado === "recolectando" && u.objetivoRecurso) {
+                let celda = mapa[u.objetivoRecurso.y][u.objetivoRecurso.x];
+                if (!celda.recurso || celda.recurso.cantidad <= 0) {
+                    u.estado = "idle";
+                    u.objetivoRecurso = null;
+                    return;
+                }
+
+                if (!u.recoleccionTimer) u.recoleccionTimer = 0;
+                u.recoleccionTimer += dt;
+                while (u.recoleccionTimer >= 0.5 && celda.recurso.cantidad > 0 && u.carga < u.capacidadCarga) {
+                    u.recoleccionTimer -= 0.5;
+                    let recolectado = Math.min(10, celda.recurso.cantidad, u.capacidadCarga - u.carga);
+                    celda.recurso.cantidad -= recolectado;
+                    u.carga += recolectado;
+                }
+
+                if (celda.recurso.cantidad <= 0) {
+                    celda.recurso = null;
+                    u.estado = "idle";
+                    u.objetivoRecurso = null;
+                }
+
+                if (u.carga >= u.capacidadCarga) {
+                    // Ir al centro a depositar
+                    u.irA(16, 12); // centro del jugador
+                    u.estado = "moviendo";
+                }
+            }
+
+            // Si está idle y hay recursos cerca, ir a recolectar (simple)
+            if (u.estado === "idle") {
+                // Buscar árbol cercano
+                for (let dy = -3; dy <= 3; dy++) {
+                    for (let dx = -3; dx <= 3; dx++) {
+                        let nx = Math.round(u.x) + dx;
+                        let ny = Math.round(u.y) + dy;
+                        if (nx >= 0 && nx < COLUMNAS && ny >= 0 && ny < FILAS) {
+                            if (mapa[ny][nx].recurso) {
+                                u.objetivoRecurso = { x: nx, y: ny };
+                                u.irA(nx, ny);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Depositar al llegar al centro
+            if (u.estado === "idle" && Math.hypot(u.x - 16, u.y - 12) < 1.0 && u.carga > 0) {
+                recursos.madera += u.carga;
+                u.carga = 0;
+            }
+        });
+    }
+
+    // --------------------------------------------------------------
+    // COMBATE (ataques entre unidades)
+    // --------------------------------------------------------------
+    function actualizarCombate(dt) {
+        // Ataques de enemigos a unidades jugador
+        unidadesEnemigo.forEach(e => {
+            if (e.estado === "atacando" && e.objetivoAtaque) {
+                e.atacar(e.objetivoAtaque);
+            }
+        });
+
+        // Ataques de unidades jugador a enemigos (si están en rango)
+        unidadesJugador.forEach(u => {
+            if (u.tipo === "soldado" && u.estado === "idle") {
+                // Buscar enemigo cercano
+                let enemigoCercano = null;
+                let distMin = 5;
+                unidadesEnemigo.forEach(e => {
+                    let d = Math.hypot(e.x - u.x, e.y - u.y);
+                    if (d < distMin) {
+                        distMin = d;
+                        enemigoCercano = e;
+                    }
+                });
+                if (enemigoCercano) {
+                    u.estado = "atacando";
+                    u.objetivoAtaque = enemigoCercano;
+                }
+            }
+            if (u.estado === "atacando" && u.objetivoAtaque) {
+                u.atacar(u.objetivoAtaque);
+            }
+        });
+
+        // Ataques a edificios
+        // (simplificado: si un enemigo está cerca de un edificio, lo daña)
+        unidadesEnemigo.forEach(e => {
+            for (let f = 0; f < FILAS; f++) {
+                for (let c = 0; c < COLUMNAS; c++) {
+                    let ed = mapa[f][c].edificio;
+                    if (ed && ed.equipo === "jugador") {
+                        let d = Math.hypot(c - e.x, f - e.y);
+                        if (d < 1.5) {
+                            ed.salud -= e.ataque * dt; // daño por segundo
+                            if (ed.salud <= 0) {
+                                mapa[f][c].edificio = null;
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     // --------------------------------------------------------------
     // DIBUJADO
     // --------------------------------------------------------------
     function dibujarMapa() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let fila = 0; fila < FILAS; fila++) {
             for (let col = 0; col < COLUMNAS; col++) {
                 let celda = mapa[fila][col];
                 ctx.fillStyle = COLOR_TERRENO[celda.tipo];
                 ctx.fillRect(col * CELDA, fila * CELDA, CELDA-1, CELDA-1);
 
-                // Dibujar recursos (árboles)
+                // Recursos (árboles)
                 if (celda.recurso) {
-                    if (celda.recurso.tipo === "madera") {
-                        ctx.fillStyle = "#3c8c3c";
-                        ctx.beginPath();
-                        ctx.arc(col * CELDA + CELDA/2, fila * CELDA + CELDA/2, 12, 0, 2*Math.PI);
-                        ctx.fill();
-                        ctx.fillStyle = "#5a3e1a";
-                        ctx.fillRect(col * CELDA + 15, fila * CELDA + 25, 10, 10);
-                    }
+                    ctx.fillStyle = "#3c8c3c";
+                    ctx.beginPath();
+                    ctx.arc(col * CELDA + CELDA/2, fila * CELDA + CELDA/2, 8, 0, 2*Math.PI);
+                    ctx.fill();
+                    ctx.fillStyle = "#5a3e1a";
+                    ctx.fillRect(col * CELDA + 8, fila * CELDA + 15, 6, 6);
                 }
 
-                // Dibujar edificio del jugador (centro)
-                if (celda.edificio && celda.edificio.equipo === "jugador") {
-                    ctx.fillStyle = "#a52a2a";
-                    ctx.fillRect(col * CELDA + 4, fila * CELDA + 4, CELDA-8, CELDA-8);
-                    ctx.fillStyle = "#d4a017";
-                    ctx.font = "bold 16px monospace";
-                    ctx.fillText("🏰", col * CELDA + 8, fila * CELDA + 28);
+                // Edificio construido
+                if (celda.edificio) {
+                    ctx.fillStyle = celda.edificio.equipo === "jugador" ? "#a52a2a" : "#8b3a3a";
+                    ctx.fillRect(col * CELDA + 2, fila * CELDA + 2, CELDA-6, CELDA-6);
+                    // Mostrar salud
+                    ctx.fillStyle = "#00ff00";
+                    let saludPercent = celda.edificio.salud / 500;
+                    ctx.fillRect(col * CELDA + 2, fila * CELDA - 3, (CELDA-6) * saludPercent, 3);
+                }
+
+                // Construcción en progreso
+                if (celda.construyendo) {
+                    ctx.fillStyle = "#aaaaaa";
+                    ctx.fillRect(col * CELDA + 2, fila * CELDA + 2, CELDA-6, CELDA-6);
+                    ctx.fillStyle = "#ffff00";
+                    let progreso = celda.construyendo.progreso / celda.construyendo.tiempoTotal;
+                    ctx.fillRect(col * CELDA + 2, fila * CELDA + CELDA-6, (CELDA-6) * progreso, 4);
+                }
+
+                // Resaltar celda si estamos en modo construcción
+                if (modoConstruccion) {
+                    ctx.strokeStyle = "#ffd700";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(col * CELDA, fila * CELDA, CELDA, CELDA);
                 }
             }
         }
 
-        // Dibujar enemigos
-        enemigos.forEach(e => {
-            let x = e.x * CELDA;
-            let y = e.y * CELDA;
-            ctx.fillStyle = "#c03030";
-            ctx.beginPath();
-            ctx.arc(x + CELDA/2, y + CELDA/2, 14, 0, 2*Math.PI);
-            ctx.fill();
-            ctx.fillStyle = "#000";
-            ctx.font = "bold 14px monospace";
-            ctx.fillText("👾", x + 12, y + 26);
-            // Barra de vida
-            ctx.fillStyle = "#600";
-            ctx.fillRect(x + 5, y - 8, 30, 4);
-            ctx.fillStyle = "#f00";
-            ctx.fillRect(x + 5, y - 8, 30 * (e.hp / 30), 4);
-        });
-
-        // Dibujar unidades del jugador
-        unidades.forEach(u => {
+        // Unidades jugador
+        unidadesJugador.forEach(u => {
             let x = u.x * CELDA;
             let y = u.y * CELDA;
-            ctx.fillStyle = (u.tipo === "aldeano") ? "#f0d880" : "#80c0f0";
+            ctx.fillStyle = (u.tipo === "aldeano") ? "#f0d880" : "#c04040";
             ctx.beginPath();
-            ctx.arc(x + CELDA/2, y + CELDA/2, 12, 0, 2*Math.PI);
+            ctx.arc(x + CELDA/2, y + CELDA/2, 10, 0, 2*Math.PI);
             ctx.fill();
             ctx.strokeStyle = "#000";
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1;
             ctx.stroke();
-            // Indicador de selección
             if (unidadSeleccionada === u) {
                 ctx.strokeStyle = "#ffd700";
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.arc(x + CELDA/2, y + CELDA/2, 16, 0, 2*Math.PI);
+                ctx.arc(x + CELDA/2, y + CELDA/2, 14, 0, 2*Math.PI);
                 ctx.stroke();
             }
-            // Barra de vida
-            ctx.fillStyle = "#060";
-            ctx.fillRect(x + 5, y - 8, 30, 4);
-            ctx.fillStyle = "#0f0";
-            let maxHp = u.tipo === "aldeano" ? 25 : 50;
-            ctx.fillRect(x + 5, y - 8, 30 * (u.hp / maxHp), 4);
-            // Carga
-            if (u.carga > 0) {
-                ctx.fillStyle = "#8b4513";
-                ctx.fillRect(x + 5, y - 14, 30 * (u.carga / u.capacidadCarga), 3);
-            }
+            // Barra de salud
+            ctx.fillStyle = "#00ff00";
+            ctx.fillRect(x + 2, y - 6, 20 * (u.hp / u.maxHp), 3);
         });
 
-        // Dibujar rejilla
+        // Unidades enemigo
+        unidadesEnemigo.forEach(u => {
+            let x = u.x * CELDA;
+            let y = u.y * CELDA;
+            ctx.fillStyle = "#a00";
+            ctx.beginPath();
+            ctx.arc(x + CELDA/2, y + CELDA/2, 10, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = "#000";
+            ctx.stroke();
+        });
+
+        // Rejilla
         ctx.strokeStyle = "#4a6a4a";
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 0.5;
         for (let i = 0; i <= COLUMNAS; i++) {
             ctx.beginPath();
             ctx.moveTo(i * CELDA, 0);
             ctx.lineTo(i * CELDA, canvas.height);
-            ctx.strokeStyle = "#6a8a6a";
             ctx.stroke();
         }
         for (let i = 0; i <= FILAS; i++) {
@@ -542,73 +711,35 @@
     }
 
     // --------------------------------------------------------------
-    // ACTUALIZACIÓN POR FRAME (loop)
+    // LOOP PRINCIPAL
     // --------------------------------------------------------------
     let ultimoTiempo = performance.now() / 1000;
-
     function gameLoop(now) {
         now /= 1000;
         let dt = Math.min(0.1, now - ultimoTiempo);
         ultimoTiempo = now;
 
-        // Actualizar unidades del jugador
-        unidades.forEach(u => {
-            u.actualizarMovimiento(dt);
-            if (u.tipo === "aldeano") {
-                u.actualizarRecoleccion(dt);
-            }
+        // Actualizaciones
+        actualizarConstrucciones(dt);
+        actualizarEntrenamiento(dt);
+        actualizarAldeanos(dt);
+        actualizarIAEnemiga(dt);
+        actualizarCombate(dt);
 
-            // Combate: si hay enemigos cerca y es soldado, atacar
-            if (u.tipo === "soldado" && enemigos.length > 0) {
-                // Buscar enemigo más cercano
-                let enemigoCercano = null;
-                let distMin = 6;
-                for (let e of enemigos) {
-                    let dx = e.x - u.x;
-                    let dy = e.y - u.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < distMin) {
-                        distMin = dist;
-                        enemigoCercano = e;
-                    }
-                }
-                if (enemigoCercano) {
-                    u.atacarEnemigo(enemigoCercano, dt);
-                }
-            }
+        // Mover todas las unidades
+        [...unidadesJugador, ...unidadesEnemigo].forEach(u => u.actualizarMovimiento(dt));
 
-            // Limpiar referencia a enemigo muerto
-            if (u.enemigoObjetivo && !enemigos.includes(u.enemigoObjetivo)) {
-                u.enemigoObjetivo = null;
-                u.estado = "idle";
-            }
-        });
-
-        // Actualizar enemigos
-        enemigos.forEach(e => {
-            e.actualizarMovimiento(dt);
-            e.actualizarIA(dt, unidades);
-        });
-
-        // Actualizar ocupación en mapa (solo para referencia visual)
+        // Actualizar ocupación en mapa
         for (let f = 0; f < FILAS; f++) {
             for (let c = 0; c < COLUMNAS; c++) {
                 mapa[f][c].unidad = null;
-                mapa[f][c].unidadEnemiga = null;
             }
         }
-        unidades.forEach(u => {
+        [...unidadesJugador, ...unidadesEnemigo].forEach(u => {
             let cx = Math.round(u.x);
             let cy = Math.round(u.y);
             if (cx >= 0 && cx < COLUMNAS && cy >= 0 && cy < FILAS) {
                 mapa[cy][cx].unidad = u;
-            }
-        });
-        enemigos.forEach(e => {
-            let cx = Math.round(e.x);
-            let cy = Math.round(e.y);
-            if (cx >= 0 && cx < COLUMNAS && cy >= 0 && cy < FILAS) {
-                mapa[cy][cx].unidadEnemiga = e;
             }
         });
 
@@ -625,27 +756,40 @@
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
-
         const mouseX = (e.clientX - rect.left) * scaleX;
         const mouseY = (e.clientY - rect.top) * scaleY;
-
         const col = Math.floor(mouseX / CELDA);
         const fila = Math.floor(mouseY / CELDA);
 
-        if (e.button === 0) { // Izquierdo: seleccionar
-            let unidadEnCelda = unidades.find(u => Math.round(u.x) === col && Math.round(u.y) === fila);
-            if (unidadEnCelda) {
-                unidadSeleccionada = unidadEnCelda;
-            } else {
-                unidadSeleccionada = null;
+        if (e.button === 0) { // Izquierdo
+            // Si estamos en modo construcción, colocar edificio
+            if (modoConstruccion) {
+                iniciarConstruccion(col, fila);
+                return;
             }
-        } else if (e.button === 2) { // Derecho: ordenar movimiento
+
+            // Seleccionar unidad o edificio
+            let unidad = [...unidadesJugador, ...unidadesEnemigo].find(u => Math.round(u.x) === col && Math.round(u.y) === col && u.equipo === "jugador");
+            if (unidad) {
+                unidadSeleccionada = unidad;
+                edificioSeleccionado = null;
+            } else {
+                let celda = mapa[fila][col];
+                if (celda.edificio && celda.edificio.equipo === "jugador") {
+                    edificioSeleccionado = { celda: {x:col, y:fila}, tipo: celda.edificio.tipo, equipo: "jugador" };
+                    unidadSeleccionada = null;
+                } else {
+                    unidadSeleccionada = null;
+                    edificioSeleccionado = null;
+                }
+            }
+        } else if (e.button === 2) { // Derecho: orden
             e.preventDefault();
             if (unidadSeleccionada) {
                 unidadSeleccionada.irA(col, fila);
                 // Si es aldeano y hay recurso, asignar recolección
                 if (unidadSeleccionada.tipo === "aldeano" && mapa[fila][col].recurso) {
-                    unidadSeleccionada.recolectar({ x: col, y: fila });
+                    unidadSeleccionada.objetivoRecurso = { x: col, y: fila };
                 }
             }
         }
@@ -653,60 +797,7 @@
 
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // Botones
-    buildBtn.addEventListener('click', () => {
-        if (recursos.madera >= 50 && unidadSeleccionada) {
-            let x = Math.round(unidadSeleccionada.x);
-            let y = Math.round(unidadSeleccionada.y);
-            if (mapa[y][x].tipo === TERRENO.TIERRA && !mapa[y][x].edificio) {
-                mapa[y][x].edificio = { tipo: "torre", hp: 100, equipo: "jugador" };
-                recursos.madera -= 50;
-            }
-        }
-    });
-
-    spawnAldeanoBtn.addEventListener('click', () => {
-        if (recursos.comida >= 50) {
-            // Buscar una celda libre cerca del centro (5,7)
-            for (let dy = -1; dy <= 1; dy++) {
-                for (let dx = -1; dx <= 1; dx++) {
-                    let nx = 5 + dx;
-                    let ny = 7 + dy;
-                    if (nx >= 0 && nx < COLUMNAS && ny >= 0 && ny < FILAS) {
-                        if (mapa[ny][nx].tipo === TERRENO.TIERRA && !mapa[ny][nx].unidad && !mapa[ny][nx].unidadEnemiga && !mapa[ny][nx].edificio) {
-                            unidades.push(new UnidadJugador(nx, ny, "aldeano", 25, 3, 4.0, 10));
-                            recursos.comida -= 50;
-                            return;
-                        }
-                    }
-                }
-            }
-            alert("No hay espacio libre cerca del centro");
-        }
-    });
-
-    spawnSoldadoBtn.addEventListener('click', () => {
-        if (recursos.madera >= 100) {
-            for (let dy = -1; dy <= 1; dy++) {
-                for (let dx = -1; dx <= 1; dx++) {
-                    let nx = 5 + dx;
-                    let ny = 7 + dy;
-                    if (nx >= 0 && nx < COLUMNAS && ny >= 0 && ny < FILAS) {
-                        if (mapa[ny][nx].tipo === TERRENO.TIERRA && !mapa[ny][nx].unidad && !mapa[ny][nx].unidadEnemiga && !mapa[ny][nx].edificio) {
-                            unidades.push(new UnidadJugador(nx, ny, "soldado", 50, 10, 3.0, 0));
-                            recursos.madera -= 100;
-                            return;
-                        }
-                    }
-                }
-            }
-            alert("No hay espacio libre cerca del centro");
-        }
-    });
-
-    // --------------------------------------------------------------
-    // INICIO
-    // --------------------------------------------------------------
+    // Iniciar loop
     requestAnimationFrame(gameLoop);
 </script>
 </body>
