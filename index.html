@@ -186,7 +186,7 @@
             bottom: 20px; 
             right: 20px; 
             display: none; 
-            width: 260px; 
+            width: 280px; 
         }
 
         #copy-toast {
@@ -215,6 +215,30 @@
         .pvp-toggle label {
             font-weight: bold;
             font-size: 14px;
+        }
+
+        /* NUEVOS ESTILOS PARA SELECTOR DE EQUIPO Y COLOR */
+        .tool-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px;
+            background: #ddd;
+            border: 2px inset #fff;
+        }
+        .tool-row label {
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .tool-row select, .tool-row input[type="color"] {
+            width: 100px;
+            padding: 3px;
+        }
+        .btn-new-map {
+            background: #ffaa00;
+            border-color: #cc8800;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -271,7 +295,24 @@
                 • <b>WASD:</b> Volar Cámara<br>
                 • <b>Q / E:</b> Bajar / Subir
             </p>
-            <!-- NUEVO: Toggle PVP -->
+            <!-- NUEVO: Selector de equipo -->
+            <div class="tool-row">
+                <label for="team-select">Equipo:</label>
+                <select id="team-select">
+                    <option value="#ff4444" selected>Rojo</option>
+                    <option value="#4444ff">Azul</option>
+                    <option value="#44ff44">Verde</option>
+                    <option value="#ffff44">Amarillo</option>
+                </select>
+            </div>
+            <!-- NUEVO: Selector de color para bloques -->
+            <div class="tool-row">
+                <label for="block-color">Color Bloque:</label>
+                <input type="color" id="block-color" value="#999999">
+            </div>
+            <!-- NUEVO: Botón para nuevo mapa -->
+            <button class="btn-new-map" onclick="newMap()">NUEVO MAPA</button>
+            <!-- Toggle PVP existente -->
             <div class="pvp-toggle">
                 <label for="pvp-checkbox">PVP Activado</label>
                 <input type="checkbox" id="pvp-checkbox" checked>
@@ -296,8 +337,10 @@
         let rightClickDown = false;
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
-        // NUEVO: Variable para controlar PVP
         let pvpEnabled = true;
+        // NUEVAS VARIABLES
+        let teamColor = '#ff4444'; // color por defecto (rojo)
+        let blockColor = '#999999'; // color por defecto para bloques
 
         /**
          * COPIAR ID AL PORTAPAPELES
@@ -385,13 +428,16 @@
         }
 
         /**
-         * PERSONAJE Y HUMANOID
+         * PERSONAJE Y HUMANOID - MODIFICADO PARA SOPORTAR COLOR DE EQUIPO
          */
-        function createCharacter(name) {
+        function createCharacter(name, teamColorHex) {
             const group = new THREE.Group();
-            const skin = new THREE.MeshStandardMaterial({ color: 0xffff00 });
-            const torsoMat = new THREE.MeshStandardMaterial({ color: 0x0055ff });
-            const legMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 });
+            // Convertir hex string a número Color de THREE
+            const teamColor = new THREE.Color(teamColorHex || '#ff4444');
+            const skin = new THREE.MeshStandardMaterial({ color: 0xffff00 }); // cabeza amarilla
+            const torsoMat = new THREE.MeshStandardMaterial({ color: teamColor });
+            // piernas: un tono más oscuro del mismo color
+            const legMat = new THREE.MeshStandardMaterial({ color: teamColor.clone().multiplyScalar(0.7) });
 
             const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skin);
             head.position.y = 4.2;
@@ -430,7 +476,7 @@
             sprite.position.y = 6.5; sprite.scale.set(4, 1, 1);
             group.add(sprite);
 
-            group.userData = { armL, armR, legL, legR, sword: swordGroup, name };
+            group.userData = { armL, armR, legL, legR, sword: swordGroup, name, teamColor: teamColorHex };
             return group;
         }
 
@@ -450,8 +496,7 @@
 
         function performAttack() {
             if (!swordEquipped || isAttacking) return;
-            // NUEVO: Verificar si PVP está activado antes de atacar
-            if (!pvpEnabled) return; // Si PVP desactivado, no se puede dañar
+            if (!pvpEnabled) return;
 
             isAttacking = true;
             player.userData.sword.rotation.x = 0.5;
@@ -477,7 +522,6 @@
          * FÍSICAS MEJORADAS - SOLUCIÓN ANTI-HUNDIMIENTO
          */
         function checkHorizontalCollisions() {
-            // Caja de colisión ligeramente más ancha para evitar atravesar esquinas
             let pBox = new THREE.Box3().setFromCenterAndSize(
                 player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
                 new THREE.Vector3(2.1, 4.0, 2.1)
@@ -489,7 +533,6 @@
         }
 
         function handleVerticalPhysics(oldPos) {
-            // Caja de colisión para los pies (ligeramente más pequeña que la horizontal)
             let pBox = new THREE.Box3().setFromCenterAndSize(
                 player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
                 new THREE.Vector3(1.8, 5.0, 1.8) 
@@ -497,7 +540,6 @@
 
             onGround = false;
 
-            // Suelo base
             if (player.position.y <= 0.05) {
                 player.position.y = 0;
                 vy = 0;
@@ -508,22 +550,16 @@
                 let bBox = new THREE.Box3().setFromObject(b);
                 if (pBox.intersectsBox(bBox)) {
                     
-                    // --- COLLIDER Y (SUELO DE BLOQUES) ---
-                    // Detectamos si venimos desde arriba (el personaje está cayendo)
-                    // Usamos la posición anterior Y + altura del personaje para determinar dirección
-                    const playerBottom = oldPos.y; // los pies estaban en oldPos.y
-                    const blockTop = b.position.y + 2; // el bloque mide 4, su tope está en y+2
+                    const playerBottom = oldPos.y;
+                    const blockTop = b.position.y + 2;
                     
-                    // Si antes estábamos por encima del bloque y ahora intersectamos, es un suelo
-                    if (playerBottom >= blockTop - 0.5) { // margen de 0.5
-                        // Colocar al personaje justo encima del bloque
-                        player.position.y = blockTop + 2.5; // ajuste: centro del personaje a 2.5 del suelo
+                    if (playerBottom >= blockTop - 0.5) {
+                        player.position.y = blockTop + 2.5;
                         vy = 0;
                         onGround = true;
                     } 
-                    // --- COLLIDER -Y (TECHO) ---
-                    else if (oldPos.y + 5 <= b.position.y - 2) { // cabeza por debajo del bloque
-                        player.position.y = b.position.y - 5; // empujar hacia abajo
+                    else if (oldPos.y + 5 <= b.position.y - 2) {
+                        player.position.y = b.position.y - 5;
                         vy = -0.1;
                     }
                 }
@@ -558,7 +594,10 @@
             initEngine();
             syncBlocksInScene();
 
-            player = createCharacter(name);
+            // Obtener el equipo seleccionado actualmente
+            teamColor = document.getElementById('team-select').value;
+
+            player = createCharacter(name, teamColor);
             player.position.set(0, 15, 50);
             scene.add(player);
 
@@ -595,11 +634,9 @@
                 const moveSpeed = 0.45;
                 let walking = false;
 
-                // Aplicar gravedad ANTES de la corrección física
                 vy -= 0.025; 
                 player.position.y += vy;
                 
-                // Corrección de posición (evita hundimiento)
                 handleVerticalPhysics(oldPos);
 
                 let dx = 0, dz = 0;
@@ -624,7 +661,8 @@
                 if (conn && conn.open) {
                     conn.send({
                         type: 'move', id: myID, x: player.position.x, y: player.position.y, z: player.position.z,
-                        ry: player.rotation.y, walking: walking, name: player.userData.name
+                        ry: player.rotation.y, walking: walking, name: player.userData.name,
+                        team: teamColor // NUEVO: enviar equipo
                     });
                 }
 
@@ -643,7 +681,8 @@
 
         function handleRemotePlayerMove(data) {
             if (!otherPlayers[data.id]) {
-                otherPlayers[data.id] = createCharacter(data.name);
+                // Crear con el equipo recibido
+                otherPlayers[data.id] = createCharacter(data.name, data.team || '#ff4444');
                 scene.add(otherPlayers[data.id]);
             }
             const op = otherPlayers[data.id];
@@ -663,11 +702,24 @@
             syncBlocksInScene();
             camera.position.set(60, 60, 60); camera.lookAt(0, 0, 0);
 
-            // Leer estado inicial del toggle PVP (por defecto true)
+            // Leer estado inicial del toggle PVP
             const pvpCheck = document.getElementById('pvp-checkbox');
             pvpEnabled = pvpCheck.checked;
             pvpCheck.addEventListener('change', (e) => {
                 pvpEnabled = e.target.checked;
+            });
+
+            // NUEVO: Actualizar teamColor y blockColor cuando cambien en el editor
+            const teamSelect = document.getElementById('team-select');
+            teamColor = teamSelect.value;
+            teamSelect.addEventListener('change', (e) => {
+                teamColor = e.target.value;
+            });
+
+            const blockColorInput = document.getElementById('block-color');
+            blockColor = blockColorInput.value;
+            blockColorInput.addEventListener('input', (e) => {
+                blockColor = e.target.value;
             });
 
             window.addEventListener('keydown', e => keys[e.code] = true);
@@ -698,8 +750,9 @@
                                 normal.applyQuaternion(hit.object.quaternion);
                                 pos = hit.object.position.clone().add(normal.multiplyScalar(4));
                             }
-                            spawnBlock(pos);
-                            mapData.push({ x: pos.x, y: pos.y, z: pos.z });
+                            // NUEVO: pasar color actual
+                            spawnBlock(pos, blockColor);
+                            mapData.push({ x: pos.x, y: pos.y, z: pos.z, color: blockColor });
                         }
                     }
                 }
@@ -725,8 +778,10 @@
             if (keys['KeyQ']) camera.position.y -= es;
         }
 
-        function spawnBlock(pos) {
-            const b = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.2, roughness: 0.7 }));
+        // NUEVA FUNCIÓN: spawnBlock ahora acepta color
+        function spawnBlock(pos, colorHex) {
+            const color = new THREE.Color(colorHex || '#999999');
+            const b = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshStandardMaterial({ color: color, metalness: 0.2, roughness: 0.7 }));
             b.position.set(pos.x, pos.y, pos.z);
             b.castShadow = b.receiveShadow = b.isBlock = true;
             scene.add(b); blocks.push(b);
@@ -734,11 +789,23 @@
 
         function syncBlocksInScene() {
             blocks.forEach(b => scene.remove(b));
-            blocks = []; mapData.forEach(p => spawnBlock(p));
+            blocks = []; 
+            mapData.forEach(p => {
+                // Si el mapa guardado no tiene color, usar gris
+                const col = p.color || '#999999';
+                spawnBlock(new THREE.Vector3(p.x, p.y, p.z), col);
+            });
         }
 
         function exportMap() {
-            const blob = new Blob([JSON.stringify(mapData)], { type: 'application/json' });
+            // Guardar también el color
+            const dataToSave = mapData.map(b => ({
+                x: b.x,
+                y: b.y,
+                z: b.z,
+                color: b.color || '#999999'
+            }));
+            const blob = new Blob([JSON.stringify(dataToSave)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url; a.download = "roblox_place.json"; a.click();
@@ -752,6 +819,14 @@
                 if (renderer) syncBlocksInScene();
             };
             reader.readAsText(e.target.files[0]);
+        }
+
+        // NUEVA FUNCIÓN: crear un mapa nuevo (vacío)
+        function newMap() {
+            if (confirm("¿Crear un nuevo mapa? Se perderán los cambios no guardados.")) {
+                mapData = [];
+                syncBlocksInScene();
+            }
         }
 
         initNetwork();
