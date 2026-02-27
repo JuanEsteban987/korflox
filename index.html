@@ -2,13 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RPG 2D Retro 2008 - Multijugador, NPCs, Tiendas, Dinero</title>
+    <title>RPG 2D Retro - Minecraft Style</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         * {
             box-sizing: border-box;
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
         }
         body {
             margin: 0;
@@ -117,7 +116,6 @@
             image-rendering: crisp-edges;
             background: #2d3a4a;
         }
-        /* Paneles laterales */
         .panel {
             background: #322b3f;
             border: 5px solid #b88b4a;
@@ -158,30 +156,29 @@
             background: #aa5533;
             border: 4px inset #ffaa66;
         }
-        .inventory-list {
-            list-style: none;
-            padding: 0;
-            max-height: 150px;
-            overflow-y: auto;
-            background: #1e1c2a;
-            border: 3px inset #6f5e45;
-            padding: 5px;
-        }
-        .inventory-list li {
-            padding: 5px;
-            border-bottom: 1px dashed #8b7a5c;
-            font-size: 10px;
-        }
-        #status {
-            color: #aaf0e9;
-            font-size: 10px;
-            word-break: break-all;
-        }
-        .weapon-creator {
-            background: #251f31;
-            border: 3px solid #9e7d5c;
-            padding: 10px;
+        .inventory-bar {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
             margin-top: 10px;
+            background: #1e1c2a;
+            border: 4px inset #6f5e45;
+            padding: 10px;
+        }
+        .slot {
+            width: 40px;
+            height: 40px;
+            background: #2a2540;
+            border: 3px outset #9a8b6e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .slot.selected {
+            border: 3px inset #ffcc66;
+            background: #4a3f60;
         }
         #npcDialog {
             position: absolute;
@@ -202,17 +199,17 @@
             color: #ffbb77;
             border-bottom: 2px solid #aa8b5c;
         }
-        #npcDialog .shop-item {
+        .shop-item {
             background: #1f1b30;
             border: 2px solid #7a5b3b;
             padding: 8px;
             margin: 5px 0;
             cursor: pointer;
         }
-        #npcDialog .shop-item:hover {
+        .shop-item:hover {
             background: #3a3150;
         }
-        #npcDialog .close-btn {
+        .close-btn {
             margin-top: 15px;
             background: #4e3b2c;
             border: 3px outset #b88b4a;
@@ -225,9 +222,8 @@
 </head>
 <body>
     <div id="gameWrapper">
-        <!-- MENÚ INICIAL -->
         <div id="menuScreen">
-            <h1>⚔️ PIXEL RPG 2008 ⚔️<br>MULTIPLAYER + NPCs + TIENDAS</h1>
+            <h1>⚔️ PIXEL RPG 2008 ⚔️<br>MULTIPLAYER + CONSTRUCCIÓN</h1>
             <button class="menu-btn" id="createGameBtn">🎮 CREAR PARTIDA (HOST)</button>
             <button class="menu-btn secondary" id="joinGameBtn">🔌 UNIRSE A PARTIDA</button>
             <div id="joinOptions" style="display: none; margin-top: 20px;">
@@ -235,11 +231,10 @@
                 <button class="menu-btn" id="connectToHostBtn">CONECTAR</button>
             </div>
             <div style="margin-top: 40px; font-size: 10px; color: #9f8f70;">
-                ⚡ Creador de armas, NPCs y tiendas disponibles en partida ⚡
+                ⚡ Click izquierdo: eliminar bloque | Click derecho: colocar bloque seleccionado ⚡
             </div>
         </div>
 
-        <!-- PANTALLA DE JUEGO -->
         <div id="gameScreen">
             <div id="gameHeader">
                 <span>👤 <span id="playerNameDisplay">Aventurero</span></span>
@@ -253,26 +248,27 @@
                     <div id="npcDialog"></div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <!-- Panel de control -->
                     <div class="panel">
                         <h3>🎮 CONTROLES</h3>
                         <div>WASD: mover</div>
-                        <div>E: hablar con NPC cercano</div>
-                        <button id="editorBtn">✏️ EDITOR: OFF</button>
+                        <div>E: hablar con NPC</div>
+                        <div>Números 1-9: seleccionar bloque</div>
+                        <button id="buildModeBtn">🔨 MODO CONSTRUCCIÓN: OFF</button>
                         <div style="margin-top: 10px;">
-                            <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN (solo host)</button>
-                            <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC (solo host)</button>
+                            <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN (host)</button>
+                            <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC (host)</button>
                         </div>
                         <label>🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="100" value="20" step="1"> <span id="mapSizeValue">20</span></label>
                         <button id="resizeBtn">🔄 REINICIAR MAPA (host)</button>
                     </div>
-                    <!-- Inventario y dinero -->
                     <div class="panel">
                         <h3>💰 DINERO: <span id="goldPanel">0</span> 🪙</h3>
-                        <h3>🎒 INVENTARIO</h3>
-                        <ul class="inventory-list" id="inventoryList"><li>Vacío</li></ul>
+                        <h3>🎒 BLOQUES DISPONIBLES</h3>
+                        <div id="blockInventory" class="inventory-bar">
+                            <!-- Slots generados por JS -->
+                        </div>
+                        <div style="margin-top: 10px;">Selecciona un bloque y haz clic derecho para colocarlo</div>
                     </div>
-                    <!-- Creador de armas -->
                     <div class="panel weapon-creator">
                         <h3>⚒️ CREADOR DE ARMAS</h3>
                         <input type="text" id="weaponName" placeholder="Nombre" value="Espada básica">
@@ -292,17 +288,26 @@
     </div>
 
     <script>
-        // ---------- CONFIGURACIÓN GLOBAL ----------
+        // ---------- CONFIGURACIÓN ----------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const TILE_SIZE = 40; // fijo, la cámara se encarga
+        const TILE_SIZE = 40; // fijo
         let MAP_SIZE = 20;
 
-        // Map data
+        // Tipos de bloques (colores)
+        const BLOCK_TYPES = [
+            { name: 'Aire', color: '#4caf50', solid: false }, // 0: suelo (aire)
+            { name: 'Piedra', color: '#9e9e9e', solid: true }, // 1: pared gris
+            { name: 'Tierra', color: '#8B5A2B', solid: true }, // 2: marrón
+            { name: 'Hierba', color: '#2e8b57', solid: true }, // 3: verde oscuro
+            { name: 'Arcoíris', color: 'rainbow', solid: true } // 4: especial
+        ];
+
+        // Mapa: almacena el tipo de bloque (0 = aire, 1..4)
         let map = [];
         let items = [];
-        let npcs = [];          // {x, y, name, dialog, shop: [{name, price, sprite, damage}]}
-        let spawnPoint = { x: 10, y: 10 }; // por defecto
+        let npcs = [];
+        let spawnPoint = { x: 10, y: 10 };
 
         // Jugador local
         let player = {
@@ -310,7 +315,7 @@
             y: 10,
             name: "Aventurero",
             color: "#e94560",
-            gold: 100            // dinero inicial
+            gold: 100
         };
 
         // Jugador remoto
@@ -322,12 +327,12 @@
             connected: false
         };
 
-        // Inventario local
-        let inventory = [];
+        // Inventario de bloques (simula la barra de Minecraft)
+        let blockInventory = [1, 2, 3, 4, 0, 0, 0, 0, 0]; // Tipos de bloque disponibles, 0 significa vacío
+        let selectedSlot = 0; // 0-8
 
-        // Editor
-        let editorMode = false;
-        let placementMode = null; // 'spawn' o 'npc'
+        // Modo construcción
+        let buildMode = false;
 
         // Cámara
         let camera = { x: 0, y: 0 };
@@ -351,18 +356,18 @@
         const playerNameDisplay = document.getElementById('playerNameDisplay');
         const goldDisplay = document.getElementById('goldDisplay');
         const goldPanel = document.getElementById('goldPanel');
-        const editorBtn = document.getElementById('editorBtn');
+        const buildModeBtn = document.getElementById('buildModeBtn');
         const mapSizeSlider = document.getElementById('mapSizeSlider');
         const mapSizeValue = document.getElementById('mapSizeValue');
         const resizeBtn = document.getElementById('resizeBtn');
-        const inventoryList = document.getElementById('inventoryList');
+        const setSpawnBtn = document.getElementById('setSpawnBtn');
+        const setNpcBtn = document.getElementById('setNpcBtn');
+        const npcDialog = document.getElementById('npcDialog');
         const createWeaponBtn = document.getElementById('createWeaponBtn');
         const weaponName = document.getElementById('weaponName');
         const weaponDamage = document.getElementById('weaponDamage');
         const weaponSprite = document.getElementById('weaponSprite');
-        const setSpawnBtn = document.getElementById('setSpawnBtn');
-        const setNpcBtn = document.getElementById('setNpcBtn');
-        const npcDialog = document.getElementById('npcDialog');
+        const blockInventoryDiv = document.getElementById('blockInventory');
 
         // ---------- FUNCIONES DE INICIALIZACIÓN ----------
         function initMap(size) {
@@ -371,48 +376,23 @@
             for (let i = 0; i < MAP_SIZE; i++) {
                 map[i] = [];
                 for (let j = 0; j < MAP_SIZE; j++) {
-                    map[i][j] = 0;
-                }
-            }
-            // Bordes pared
-            for (let i = 0; i < MAP_SIZE; i++) {
-                map[0][i] = 1;
-                map[MAP_SIZE-1][i] = 1;
-                map[i][0] = 1;
-                map[i][MAP_SIZE-1] = 1;
-            }
-            // Paredes internas aleatorias
-            for (let i = 2; i < MAP_SIZE-2; i++) {
-                for (let j = 2; j < MAP_SIZE-2; j++) {
-                    if (Math.random() < 0.1) map[i][j] = 1;
-                }
-            }
-            // Items aleatorios
-            items = [];
-            for (let i = 1; i < MAP_SIZE-1; i++) {
-                for (let j = 1; j < MAP_SIZE-1; j++) {
-                    if (map[i][j] === 0 && Math.random() < 0.05) {
-                        items.push({ x: j, y: i, type: '★' });
+                    // Por defecto todo aire (0) excepto bordes que serán piedra (1)
+                    if (i === 0 || i === MAP_SIZE-1 || j === 0 || j === MAP_SIZE-1) {
+                        map[i][j] = 1; // piedra
+                    } else {
+                        map[i][j] = 0; // aire
                     }
                 }
             }
-            // Spawn por defecto en el centro
+            // Sin items ni npcs por defecto
+            items = [];
+            npcs = [];
             spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
             player.x = spawnPoint.x;
             player.y = spawnPoint.y;
-            // NPCs por defecto (algunos ejemplos)
-            npcs = [
-                { x: 5, y: 5, name: "Comerciante", dialog: "¡Bienvenido!", shop: [
-                    { name: "Poción", price: 10, sprite: "🧪", damage: 0 },
-                    { name: "Espada de madera", price: 50, sprite: "🗡️", damage: 3 }
-                ]},
-                { x: 8, y: 8, name: "Herrero", dialog: "Compras mis armas?", shop: [
-                    { name: "Hacha de hierro", price: 80, sprite: "🪓", damage: 8 }
-                ]}
-            ];
         }
 
-        // Actualizar cámara
+        // Dibujar cámara
         function updateCamera() {
             let targetX = player.x * TILE_SIZE + TILE_SIZE/2 - canvas.width/2;
             let targetY = player.y * TILE_SIZE + TILE_SIZE/2 - canvas.height/2;
@@ -420,6 +400,28 @@
             let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
             camera.x = Math.max(0, Math.min(targetX, maxX));
             camera.y = Math.max(0, Math.min(targetY, maxY));
+        }
+
+        // Dibujar el jugador estilo Minecraft (cabeza y cuerpo)
+        function drawPlayer(px, py, name, isLocal) {
+            // Cuerpo (camisa)
+            ctx.fillStyle = isLocal ? '#e94560' : '#4a90e2';
+            ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2);
+            // Cabeza
+            ctx.fillStyle = '#FFD700'; // color piel
+            ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/4);
+            // Ojos
+            ctx.fillStyle = '#000';
+            ctx.fillRect(px - TILE_SIZE/8, py - TILE_SIZE/2.5, TILE_SIZE/12, TILE_SIZE/12);
+            ctx.fillRect(px + TILE_SIZE/16, py - TILE_SIZE/2.5, TILE_SIZE/12, TILE_SIZE/12);
+            // Nametag
+            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.textAlign = 'center';
+            ctx.strokeText(name, px, py - TILE_SIZE/1.5);
+            ctx.fillText(name, px, py - TILE_SIZE/1.5);
         }
 
         // Dibujar todo
@@ -436,24 +438,33 @@
             startRow = Math.max(0, startRow);
             endRow = Math.min(MAP_SIZE, endRow);
 
-            // Tiles
+            // Dibujar tiles
             for (let row = startRow; row < endRow; row++) {
                 for (let col = startCol; col < endCol; col++) {
                     let x = col * TILE_SIZE - camera.x;
                     let y = row * TILE_SIZE - camera.y;
-                    ctx.fillStyle = map[row][col] === 0 ? '#4caf50' : '#9e9e9e';
+                    let blockType = map[row][col];
+                    if (blockType === 0) {
+                        ctx.fillStyle = '#4caf50'; // suelo verde
+                    } else if (blockType === 4) {
+                        // Arcoíris: cambiar color con el tiempo
+                        let hue = (Date.now() / 20 + col * 10 + row * 10) % 360;
+                        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                    } else {
+                        ctx.fillStyle = BLOCK_TYPES[blockType].color;
+                    }
                     ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
                     ctx.strokeStyle = '#555';
                     ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
                 }
             }
 
-            // Spawn point (dibujar solo para host como ayuda)
-            if (isHost && placementMode === 'spawn') {
+            // Dibujar spawn point solo para host si está en modo colocación
+            if (isHost && buildMode && document.getElementById('setSpawnBtn').classList.contains('active')) {
                 let sx = spawnPoint.x * TILE_SIZE - camera.x;
                 let sy = spawnPoint.y * TILE_SIZE - camera.y;
-                ctx.fillStyle = '#ffaa00';
                 ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#ffaa00';
                 ctx.fillRect(sx, sy, TILE_SIZE, TILE_SIZE);
                 ctx.globalAlpha = 1;
                 ctx.fillStyle = 'white';
@@ -461,8 +472,8 @@
                 ctx.fillText('🚩', sx + TILE_SIZE/2, sy + TILE_SIZE/2);
             }
 
-            // Items
-            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P', monospace`;
+            // Dibujar items (estrellas)
+            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = 'gold';
@@ -474,7 +485,7 @@
                 }
             });
 
-            // NPCs
+            // Dibujar NPCs
             ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
             npcs.forEach(npc => {
                 if (npc.x >= startCol && npc.x < endCol && npc.y >= startRow && npc.y < endRow) {
@@ -493,66 +504,79 @@
                 if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
                     let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    ctx.beginPath();
-                    ctx.arc(rx, ry, TILE_SIZE/3, 0, 2*Math.PI);
-                    ctx.fillStyle = remotePlayer.color;
-                    ctx.fill();
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                    ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
-                    ctx.fillStyle = 'white';
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 3;
-                    ctx.textAlign = 'center';
-                    ctx.strokeText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
-                    ctx.fillText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
+                    drawPlayer(rx, ry, remotePlayer.name, false);
                 }
             }
 
             // Jugador local
             let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
             let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-            ctx.beginPath();
-            ctx.arc(px, py, TILE_SIZE/3, 0, 2*Math.PI);
-            ctx.fillStyle = player.color;
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
-            ctx.fillStyle = 'white';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 3;
-            ctx.textAlign = 'center';
-            ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 5);
-            ctx.fillText(player.name, px, py - TILE_SIZE/2 - 5);
+            drawPlayer(px, py, player.name, true);
 
-            // Actualizar displays de dinero
+            // Actualizar displays de oro
             goldDisplay.textContent = player.gold;
             goldPanel.textContent = player.gold;
         }
 
-        // Actualizar lista de inventario
-        function updateInventoryDisplay() {
-            if (inventory.length === 0) {
-                inventoryList.innerHTML = '<li>Vacío</li>';
-            } else {
-                inventoryList.innerHTML = inventory.map((item, i) => {
-                    if (typeof item === 'object') {
-                        return `<li>${item.sprite} ${item.name} (daño ${item.damage})</li>`;
-                    } else {
-                        return `<li>${item}</li>`;
-                    }
-                }).join('');
+        // Actualizar la barra de inventario de bloques
+        function updateBlockInventoryDisplay() {
+            blockInventoryDiv.innerHTML = '';
+            for (let i = 0; i < blockInventory.length; i++) {
+                let slot = document.createElement('div');
+                slot.className = 'slot';
+                if (i === selectedSlot) slot.classList.add('selected');
+                let blockType = blockInventory[i];
+                if (blockType > 0) {
+                    slot.textContent = ['', '🪨', '🌱', '🌿', '🌈'][blockType] || '?';
+                } else {
+                    slot.textContent = '';
+                }
+                slot.dataset.index = i;
+                slot.addEventListener('click', () => {
+                    selectedSlot = i;
+                    updateBlockInventoryDisplay();
+                });
+                blockInventoryDiv.appendChild(slot);
             }
         }
 
-        // Interacción con NPC (tecla E)
+        // Obtener el bloque seleccionado
+        function getSelectedBlock() {
+            return blockInventory[selectedSlot];
+        }
+
+        // Movimiento
+        function tryMove(dx, dy) {
+            let newX = player.x + dx;
+            let newY = player.y + dy;
+            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
+            if (map[newY][newX] !== 0) return; // solo se puede caminar sobre aire (0)
+            player.x = newX;
+            player.y = newY;
+            // Recoger items si los hay
+            for (let i = items.length - 1; i >= 0; i--) {
+                if (items[i].x === player.x && items[i].y === player.y) {
+                    // Añadir al inventario de objetos (no bloques) - por simplicidad lo dejamos como estrella
+                    inventory.push(items[i].type);
+                    items.splice(i, 1);
+                    updateInventoryDisplay();
+                    sendItemPickup(i);
+                }
+            }
+            sendMove();
+            draw();
+        }
+
+        // Inventario de objetos (para armas, etc.)
+        let inventory = []; // objetos normales
+        function updateInventoryDisplay() {
+            // Por ahora no mostramos, pero se podría hacer una lista
+        }
+
+        // Interacción con NPC
         function interactWithNPC() {
-            let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1); // adyacente
+            let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1);
             if (!npc) return;
-            // Mostrar diálogo con tienda
             let dialogHtml = `<h2>${npc.name}</h2><p>${npc.dialog || "¿Qué deseas?"}</p>`;
             if (npc.shop && npc.shop.length > 0) {
                 dialogHtml += '<h3>Tienda:</h3>';
@@ -564,16 +588,13 @@
             npcDialog.innerHTML = dialogHtml;
             npcDialog.style.display = 'block';
 
-            // Eventos de compra
             document.querySelectorAll('.shop-item').forEach(el => {
                 el.addEventListener('click', (e) => {
                     let idx = e.target.dataset.index;
                     let item = npc.shop[idx];
                     if (player.gold >= item.price) {
                         player.gold -= item.price;
-                        // Crear objeto para inventario
-                        let newItem = { name: item.name, sprite: item.sprite, damage: item.damage };
-                        inventory.push(newItem);
+                        inventory.push({ name: item.name, sprite: item.sprite, damage: item.damage });
                         updateInventoryDisplay();
                         draw();
                         alert(`Has comprado ${item.name}`);
@@ -587,34 +608,117 @@
             });
         }
 
-        // Recoger item
-        function pickupItemAt(x, y) {
-            for (let i = items.length - 1; i >= 0; i--) {
-                if (items[i].x === x && items[i].y === y) {
-                    inventory.push(items[i].type);
-                    items.splice(i, 1);
-                    updateInventoryDisplay();
-                    sendItemPickup(i);
+        // ---------- EVENTOS ----------
+        window.addEventListener('keydown', (e) => {
+            // Movimiento WASD
+            const key = e.key.toLowerCase();
+            if (key === 'w') tryMove(0, -1);
+            if (key === 's') tryMove(0, 1);
+            if (key === 'a') tryMove(-1, 0);
+            if (key === 'd') tryMove(1, 0);
+            // Tecla E para interactuar
+            if (key === 'e') interactWithNPC();
+            // Números 1-9 para seleccionar slot
+            let num = parseInt(key);
+            if (num >= 1 && num <= 9) {
+                selectedSlot = num - 1;
+                updateBlockInventoryDisplay();
+                draw();
+            }
+        });
+
+        // Click en canvas para construir
+        canvas.addEventListener('mousedown', (e) => {
+            if (!buildMode) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let mouseX = (e.clientX - rect.left) * scaleX + camera.x;
+            let mouseY = (e.clientY - rect.top) * scaleY + camera.y;
+            const col = Math.floor(mouseX / TILE_SIZE);
+            const row = Math.floor(mouseY / TILE_SIZE);
+            if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
+
+            // Si estamos en modo colocación de spawn o NPC
+            if (isHost && document.getElementById('setSpawnBtn').classList.contains('active')) {
+                spawnPoint = { x: col, y: row };
+                sendSpawnUpdate();
+                draw();
+                return;
+            }
+            if (isHost && document.getElementById('setNpcBtn').classList.contains('active')) {
+                let name = prompt("Nombre del NPC:");
+                if (name) {
+                    npcs.push({ x: col, y: row, name, dialog: "¡Hola!", shop: [] });
+                    sendNpcUpdate();
                     draw();
-                    break;
+                }
+                return;
+            }
+
+            // Construcción normal
+            if (e.button === 0) { // Izquierdo: eliminar bloque (poner aire)
+                map[row][col] = 0;
+                sendMapEdit(row, col, 0);
+                draw();
+            } else if (e.button === 2) { // Derecho: colocar bloque seleccionado
+                let block = getSelectedBlock();
+                if (block > 0) {
+                    map[row][col] = block;
+                    sendMapEdit(row, col, block);
+                    draw();
                 }
             }
-        }
+        });
 
-        // Movimiento
-        function tryMove(dx, dy) {
-            let newX = player.x + dx;
-            let newY = player.y + dy;
-            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
-            if (map[newY][newX] === 1) return;
-            player.x = newX;
-            player.y = newY;
-            pickupItemAt(newX, newY);
-            sendMove();
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Botón modo construcción
+        buildModeBtn.addEventListener('click', () => {
+            buildMode = !buildMode;
+            buildModeBtn.textContent = buildMode ? "🔨 MODO CONSTRUCCIÓN: ON" : "🔨 MODO CONSTRUCCIÓN: OFF";
+        });
+
+        // Botones de spawn y NPC
+        setSpawnBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            setSpawnBtn.classList.toggle('active');
+            setNpcBtn.classList.remove('active');
+            buildMode = true;
+            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
+        });
+        setNpcBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            setNpcBtn.classList.toggle('active');
+            setSpawnBtn.classList.remove('active');
+            buildMode = true;
+            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
+        });
+
+        // Slider tamaño
+        mapSizeSlider.addEventListener('input', (e) => {
+            mapSizeValue.textContent = e.target.value;
+        });
+        resizeBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            let newSize = parseInt(mapSizeSlider.value);
+            initMap(newSize);
+            if (conn && conn.open) sendFullState();
             draw();
-        }
+        });
 
-        // ---------- PEERJS COMUNICACIÓN ----------
+        // Creador de armas
+        createWeaponBtn.addEventListener('click', () => {
+            let name = weaponName.value.trim() || "Arma";
+            let damage = parseInt(weaponDamage.value) || 1;
+            let sprite = weaponSprite.value;
+            inventory.push({ name, damage, sprite });
+            // No mostramos inventario de objetos en UI, pero se puede agregar después
+            alert(`Arma ${name} creada`);
+        });
+
+        // ---------- PEERJS (similar al original) ----------
         function setupConnection(connection, isHostConnection) {
             conn = connection;
             connectionStatus.textContent = 'Conectado a: ' + connection.peer;
@@ -624,9 +728,7 @@
                 remotePlayer.connected = false;
                 draw();
             });
-            if (!isHost) {
-                requestFullState();
-            }
+            if (!isHost) requestFullState();
         }
 
         function requestFullState() {
@@ -721,93 +823,6 @@
             if (conn && conn.open && isHost) conn.send({ type: 'npcUpdate', npcs });
         }
 
-        // ---------- EVENTOS DE RATÓN PARA EDITOR/COLOCACIÓN ----------
-        canvas.addEventListener('mousedown', (e) => {
-            if (!editorMode) return;
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            let mouseX = (e.clientX - rect.left) * scaleX + camera.x;
-            let mouseY = (e.clientY - rect.top) * scaleY + camera.y;
-            const col = Math.floor(mouseX / TILE_SIZE);
-            const row = Math.floor(mouseY / TILE_SIZE);
-            if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
-
-            if (placementMode === 'spawn' && isHost) {
-                spawnPoint = { x: col, y: row };
-                sendSpawnUpdate();
-                draw();
-            } else if (placementMode === 'npc' && isHost) {
-                // Crear NPC por defecto (luego se puede editar con diálogo)
-                let name = prompt("Nombre del NPC:", "Comerciante");
-                if (name) {
-                    npcs.push({ x: col, y: row, name: name, dialog: "¡Bienvenido!", shop: [] });
-                    sendNpcUpdate();
-                    draw();
-                }
-            } else {
-                // Modo edición normal: pintar pared/suelo
-                let value = (e.button === 0) ? 1 : 0;
-                map[row][col] = value;
-                sendMapEdit(row, col, value);
-                draw();
-            }
-        });
-
-        canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-        // Tecla E para interactuar
-        document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'e') {
-                interactWithNPC();
-            }
-        });
-
-        // Botones de modo
-        editorBtn.addEventListener('click', () => {
-            editorMode = !editorMode;
-            editorBtn.textContent = editorMode ? "✏️ EDITOR: ON" : "✏️ EDITOR: OFF";
-            if (!editorMode) placementMode = null;
-        });
-
-        setSpawnBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host puede colocar spawn"); return; }
-            placementMode = 'spawn';
-            editorMode = true;
-            editorBtn.textContent = "✏️ EDITOR: ON";
-        });
-
-        setNpcBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host puede colocar NPCs"); return; }
-            placementMode = 'npc';
-            editorMode = true;
-            editorBtn.textContent = "✏️ EDITOR: ON";
-        });
-
-        // Slider tamaño
-        mapSizeSlider.addEventListener('input', (e) => {
-            mapSizeValue.textContent = e.target.value;
-        });
-        resizeBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host puede redimensionar"); return; }
-            let newSize = parseInt(mapSizeSlider.value);
-            initMap(newSize);
-            inventory = [];
-            updateInventoryDisplay();
-            if (conn && conn.open) sendFullState();
-            draw();
-        });
-
-        // Creador de armas
-        createWeaponBtn.addEventListener('click', () => {
-            let name = weaponName.value.trim() || "Arma";
-            let damage = parseInt(weaponDamage.value) || 1;
-            let sprite = weaponSprite.value;
-            inventory.push({ name, damage, sprite });
-            updateInventoryDisplay();
-        });
-
         // ---------- FLUJO DEL MENÚ ----------
         createGameBtn.addEventListener('click', () => {
             isHost = true;
@@ -821,6 +836,7 @@
                 player.name = "Host";
                 playerNameDisplay.textContent = player.name;
                 initMap(20);
+                updateBlockInventoryDisplay();
                 draw();
             });
             peer.on('connection', (connection) => {
@@ -849,6 +865,8 @@
                     gameScreen.style.display = 'flex';
                     player.name = "Cliente";
                     playerNameDisplay.textContent = player.name;
+                    updateBlockInventoryDisplay();
+                    draw();
                 });
                 conn.on('error', (err) => {
                     connectionStatus.textContent = 'Error: ' + err;
@@ -856,9 +874,9 @@
             });
         });
 
-        // Inicialización por defecto
+        // Inicialización
         initMap(20);
-        updateInventoryDisplay();
+        updateBlockInventoryDisplay();
     </script>
 </body>
 </html>
