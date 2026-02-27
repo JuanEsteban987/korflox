@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <title>ROBLOX 2008 - FINAL ENGINE FIX</title>
     <style>
-        /* INTERFAZ CLÁSICA ROBLOX 2008 */
+        /* INTERFAZ CLÁSICA ROBLOX 2008 - ESTILO RETRO MEJORADO */
         body { 
             margin: 0; 
             overflow: hidden; 
-            font-family: "Arial", sans-serif; 
+            font-family: 'Courier New', 'Arial', sans-serif; 
             background-color: #000; 
             user-select: none;
+            image-rendering: pixelated;
         }
 
         #ui-layer { 
@@ -30,20 +31,27 @@
             width: 100%; 
             height: 40px; 
             background: #cc0000; 
-            border-bottom: 3px solid #880000; 
+            border-bottom: 4px solid #880000; 
             display: flex; 
             align-items: center; 
             padding: 0 10px; 
             pointer-events: auto; 
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.3);
+            color: white;
+            text-shadow: 2px 2px 0 #880000;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .panel { 
             pointer-events: auto; 
-            background: #eeeeee; 
-            border: 4px outset #ffffff; 
+            background: #c0c0c0; 
+            border: 5px outset #ffffff; 
             padding: 15px; 
-            color: #333; 
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.5); 
+            color: #000; 
+            box-shadow: 5px 5px 0px #000000;
+            font-family: 'Courier New', monospace;
+            image-rendering: pixelated;
         }
 
         #main-menu { 
@@ -51,41 +59,55 @@
             top: 50%; 
             left: 50%; 
             transform: translate(-50%, -50%); 
-            width: 450px; 
+            width: 480px; 
             text-align: center; 
             display: block;
+            background: #c0c0c0;
+            border: 6px ridge #ffffff;
         }
 
         h1 { 
             color: #cc0000; 
-            -webkit-text-stroke: 1.5px black; 
-            font-size: 52px; 
+            -webkit-text-stroke: 2px black; 
+            font-size: 56px; 
             margin: 10px 0; 
-            font-family: "Arial Black", sans-serif; 
+            font-family: 'Arial Black', 'Courier New', sans-serif; 
+            text-shadow: 3px 3px 0 #880000;
+            letter-spacing: -1px;
         }
 
         button { 
             cursor: pointer; 
-            padding: 10px; 
-            margin: 5px; 
+            padding: 12px; 
+            margin: 8px; 
             font-weight: bold; 
             background: #d4d0c8; 
-            border: 3px outset #ffffff; 
+            border: 4px outset #ffffff; 
             width: 90%; 
             text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            box-shadow: 2px 2px 0 #000;
         }
 
-        button:active { border: 3px inset #ffffff; }
-        .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 18px; }
+        button:active { 
+            border: 4px inset #ffffff; 
+            transform: translate(2px,2px);
+            box-shadow: none;
+        }
+        .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 20px; }
 
         /* HUD DE SALUD */
         #hud { 
             position: absolute; 
             top: 50px; 
             right: 20px; 
-            width: 220px; 
+            width: 240px; 
             display: none; 
             pointer-events: auto; 
+            background: #c0c0c0;
+            border: 4px ridge #ffffff;
+            padding: 8px;
         }
 
         .health-bg { 
@@ -105,10 +127,13 @@
         #username-display { 
             color: white; 
             font-weight: bold; 
-            text-shadow: 2px 2px black; 
+            text-shadow: 2px 2px 0 #000; 
             margin-bottom: 5px; 
             text-align: right; 
-            font-size: 14px;
+            font-size: 16px;
+            background: #000;
+            padding: 3px;
+            border: 2px inset #fff;
         }
 
         /* INVENTARIO */
@@ -119,25 +144,29 @@
             transform: translateX(-50%); 
             display: none; 
             pointer-events: auto; 
-            gap: 8px; 
+            gap: 10px; 
+            background: #c0c0c0;
+            border: 4px ridge #ffffff;
+            padding: 10px;
         }
 
         .slot { 
-            width: 70px; 
-            height: 70px; 
-            background: rgba(0,0,0,0.7); 
-            border: 3px outset #ffffff; 
+            width: 80px; 
+            height: 80px; 
+            background: #808080; 
+            border: 4px inset #ffffff; 
             display: flex; 
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
             color: white; 
-            font-size: 11px; 
+            font-size: 12px; 
+            text-shadow: 1px 1px 0 #000;
         }
 
         .slot.active { 
             border-color: #ffff00; 
-            background: rgba(255,255,255,0.2); 
+            background: #a0a0a0; 
         }
 
         #room-info { 
@@ -145,14 +174,15 @@
             top: 55px; 
             left: 10px; 
             font-size: 12px; 
-            background: white; 
+            background: #c0c0c0; 
             padding: 8px; 
-            border: 2px solid black; 
+            border: 4px ridge #ffffff; 
             pointer-events: auto; 
+            color: #000;
         }
 
         #my-id {
-            color: blue; 
+            color: #00f; 
             font-family: monospace; 
             font-weight: bold; 
             cursor: pointer;
@@ -163,22 +193,26 @@
             position: absolute; 
             top: 50%; 
             left: 50%; 
-            width: 18px; 
-            height: 18px; 
+            width: 20px; 
+            height: 20px; 
             border: 2px solid white; 
-            border-radius: 50%; 
+            border-radius: 0; 
             transform: translate(-50%, -50%); 
             display: none; 
             mix-blend-mode: difference; 
             z-index: 5;
+            background: rgba(255,255,255,0.3);
+            clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%);
         }
 
-        input { 
+        input, select { 
             pointer-events: auto; 
             padding: 10px; 
             margin: 8px; 
-            border: 2px inset #eee; 
+            border: 4px inset #eee; 
             width: 85%; 
+            font-family: 'Courier New', monospace;
+            background: #fff;
         }
         
         #editor-ui { 
@@ -186,7 +220,9 @@
             bottom: 20px; 
             right: 20px; 
             display: none; 
-            width: 300px; 
+            width: 320px; 
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         #copy-toast {
@@ -194,30 +230,34 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,255,0,0.8);
+            background: #00ff00;
             color: black;
             padding: 10px 20px;
-            border-radius: 5px;
+            border: 4px ridge #fff;
             display: none;
             z-index: 1000;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
         }
 
-        /* Estilo para toggles y selects */
-        .pvp-toggle, .zombie-mode, .spawner-mode, .tool-row {
+        /* Estilos para toggles y selects */
+        .tool-row, .pvp-toggle, .zombie-mode, .spawner-mode, .item-mode {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin: 8px 0;
             padding: 5px;
-            background: #ddd;
-            border: 2px inset #fff;
+            background: #a0a0a0;
+            border: 4px inset #fff;
         }
-        .pvp-toggle label, .zombie-mode label, .spawner-mode label, .tool-row label {
+        .tool-row label, .pvp-toggle label, .zombie-mode label, .spawner-mode label, .item-mode label {
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
+            color: #000;
         }
-        .zombie-mode { background: #c99; }
-        .spawner-mode { background: #9c9; }
+        .zombie-mode { background: #b88; }
+        .spawner-mode { background: #8b8; }
+        .item-mode { background: #88b; }
         .btn-new-map { background: #ffaa00; border-color: #cc8800; }
     </style>
 </head>
@@ -228,12 +268,13 @@
 
     <div id="ui-layer">
         <div id="top-bar">
-            <span style="color: white; font-weight: bold; letter-spacing: 1px;">ROBLOX v2008.3 STABLE</span>
+            <span style="color: white; font-weight: bold; letter-spacing: 2px;">ROBLOX v2008.3 - CLASSIC EDITION</span>
         </div>
         
         <div id="hud">
             <div id="username-display">Guest Player</div>
             <div class="health-bg"><div id="health-bar"></div></div>
+            <div style="margin-top:5px; background:#000; color:#fff; padding:2px; text-align:center; border:2px inset #fff;">HP</div>
         </div>
 
         <div id="room-info" class="panel">
@@ -247,7 +288,7 @@
             
             <button class="btn-play" onclick="startPlay()">ENTRAR AL MUNDO</button>
             
-            <div style="margin: 15px; padding: 10px; border: 1px solid #999; background: #ddd; border-radius: 5px;">
+            <div style="margin: 15px; padding: 10px; border: 4px inset #fff; background: #aaa;">
                 <p style="font-size: 12px; margin: 0 0 5px 0; font-weight: bold;">UNIRSE A UN AMIGO:</p>
                 <input type="text" id="peer-input" placeholder="Pega la ID aquí...">
                 <button style="width: auto; padding: 10px 20px;" onclick="connectToPeer()">JOIN GAME</button>
@@ -261,12 +302,14 @@
         <div id="inventory">
             <div class="slot active" id="slot-1"><span>1</span><br><b>ESPADA</b></div>
             <div class="slot" id="slot-2"><span>2</span><br>VACÍO</div>
+            <div class="slot" id="slot-3"><span>3</span><br>VACÍO</div>
+            <div class="slot" id="slot-4"><span>4</span><br>VACÍO</div>
         </div>
 
         <div id="editor-ui" class="panel">
-            <h3 style="margin:0">STAMPER TOOL</h3>
-            <hr>
-            <p style="font-size: 11px; text-align: left;">
+            <h3 style="margin:0; text-align:center;">STAMPER TOOL</h3>
+            <hr style="border: 2px inset #fff;">
+            <p style="font-size: 11px; text-align: left; background:#000; color:#0f0; padding:5px; border:2px inset #fff;">
                 • <b>Click Izq:</b> Colocar según modo<br>
                 • <b>Click Der:</b> Girar Cámara<br>
                 • <b>Shift + Click:</b> Borrar<br>
@@ -283,7 +326,7 @@
                     <option value="#ffff44">Amarillo</option>
                 </select>
             </div>
-            <!-- Selector de color de piel (cabeza/brazos) -->
+            <!-- Selector de color de piel -->
             <div class="tool-row">
                 <label for="skin-color">Color Piel:</label>
                 <input type="color" id="skin-color" value="#ffff00">
@@ -293,15 +336,31 @@
                 <label for="block-color">Color Bloque:</label>
                 <input type="color" id="block-color" value="#999999">
             </div>
-            <!-- Modo Zombie (entidad estática) -->
+            <!-- Modo Zombie -->
             <div class="zombie-mode">
                 <label for="zombie-mode">🧟 Modo Zombie</label>
                 <input type="checkbox" id="zombie-mode">
             </div>
-            <!-- NUEVO: Modo Spawner de Zombies -->
+            <!-- Modo Spawner -->
             <div class="spawner-mode">
                 <label for="spawner-mode">⚙️ Modo Spawner</label>
                 <input type="checkbox" id="spawner-mode">
+            </div>
+            <!-- NUEVO: Modo Items (Armas, Bebidas, Comida) -->
+            <div class="item-mode">
+                <label for="item-mode">🎒 Modo Item</label>
+                <input type="checkbox" id="item-mode">
+            </div>
+            <!-- Selector de tipo de item (solo visible en modo item) -->
+            <div class="tool-row" id="item-type-row" style="display:none;">
+                <label for="item-type">Tipo:</label>
+                <select id="item-type">
+                    <option value="sword">Espada (rango 3)</option>
+                    <option value="longsword">Espada Larga (rango 5)</option>
+                    <option value="dagger">Daga (rango 2, rápido)</option>
+                    <option value="potion">Poción de vida</option>
+                    <option value="food">Comida</option>
+                </select>
             </div>
             <!-- Botón nuevo mapa -->
             <button class="btn-new-map" onclick="newMap()">NUEVO MAPA</button>
@@ -320,9 +379,9 @@
 
     <script>
         // ==================== CONSTANTES GLOBALES ====================
-        const BLOCK_SIZE = 2; // Bloques más pequeños (eran 4)
-        const PLAYER_HEIGHT = 5.0; // Altura total del personaje (centro en y+2.5)
-        const PLAYER_CENTER_Y_OFFSET = PLAYER_HEIGHT / 2; // 2.5
+        const BLOCK_SIZE = 2;
+        const PLAYER_HEIGHT = 5.0;
+        const PLAYER_CENTER_Y_OFFSET = PLAYER_HEIGHT / 2;
 
         // ==================== VARIABLES GLOBALES ====================
         let scene, camera, renderer, player, otherPlayers = {}, conn;
@@ -335,20 +394,46 @@
         let mouse = new THREE.Vector2();
         let pvpEnabled = true;
         let teamColor = '#ff4444';
-        let skinColor = '#ffff00'; // NUEVO: color de piel
+        let skinColor = '#ffff00';
         let blockColor = '#999999';
         let zombieMode = false;
-        let spawnerMode = false; // NUEVO: modo spawner
+        let spawnerMode = false;
+        let itemMode = false; // NUEVO
+        let currentItemType = 'sword'; // NUEVO
 
         // Zombies estáticos
-        let zombies = []; // meshes de zombies
-        let mapZombies = []; // datos de zombies { x, y, z }
+        let zombies = [];
+        let mapZombies = [];
 
-        // NUEVO: Spawners de zombies
-        let spawners = []; // meshes de spawners
-        let mapSpawners = []; // datos de spawners { x, y, z, lastSpawn, interval }
-        const SPAWNER_INTERVAL = 5000; // 5 segundos
+        // Spawners
+        let spawners = [];
+        let mapSpawners = [];
+        const SPAWNER_INTERVAL = 5000;
         let lastSpawnCheck = 0;
+
+        // NUEVO: Items (armas, consumibles)
+        let items = []; // meshes de items
+        let mapItems = []; // datos de items { x, y, z, type, range? }
+
+        // NUEVO: Sonidos simples (usando Web Audio API)
+        let audioCtx = null;
+        function playSound(type) {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) { return; }
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.value = (type === 'attack') ? 440 : (type === 'pickup') ? 660 : 330;
+            gain.gain.value = 0.1;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
 
         // ==================== FUNCIONES DE INTERFAZ ====================
         document.getElementById('my-id').onclick = function() {
@@ -360,6 +445,15 @@
                 setTimeout(() => { toast.style.display = 'none'; }, 2000);
             });
         };
+
+        // Mostrar/ocultar selector de tipo de item según modo item
+        document.getElementById('item-mode').addEventListener('change', (e) => {
+            itemMode = e.target.checked;
+            document.getElementById('item-type-row').style.display = itemMode ? 'flex' : 'none';
+        });
+        document.getElementById('item-type').addEventListener('change', (e) => {
+            currentItemType = e.target.value;
+        });
 
         // ==================== RED ====================
         function initNetwork() {
@@ -374,7 +468,8 @@
                 conn.on('open', () => {
                     conn.send({ type: 'map', data: mapData });
                     conn.send({ type: 'zombies', data: mapZombies });
-                    conn.send({ type: 'spawners', data: mapSpawners }); // NUEVO
+                    conn.send({ type: 'spawners', data: mapSpawners });
+                    conn.send({ type: 'items', data: mapItems }); // NUEVO
                 });
                 setupNetworkEvents();
             });
@@ -398,9 +493,13 @@
                     mapZombies = data.data;
                     syncZombiesInScene();
                 }
-                if(data.type === 'spawners') { // NUEVO
+                if(data.type === 'spawners') {
                     mapSpawners = data.data;
                     syncSpawnersInScene();
+                }
+                if(data.type === 'items') { // NUEVO
+                    mapItems = data.data;
+                    syncItemsInScene();
                 }
                 if(data.type === 'move') handleRemotePlayerMove(data);
                 if(data.type === 'damage' && data.target === myID) takeDamage(20);
@@ -447,8 +546,7 @@
             const torsoMat = new THREE.MeshStandardMaterial({ color: teamColor });
             const legMat = new THREE.MeshStandardMaterial({ color: teamColor.clone().multiplyScalar(0.7) });
 
-            // Escalamos ligeramente para que el personaje sea proporcionado a bloques de 2
-            const scale = 0.9; // para que no sea demasiado grande
+            const scale = 0.9;
             const head = new THREE.Mesh(new THREE.BoxGeometry(1.2*scale, 1.2*scale, 1.2*scale), skin);
             head.position.y = 4.2*scale;
             const torso = new THREE.Mesh(new THREE.BoxGeometry(2*scale, 2*scale, 1*scale), torsoMat);
@@ -495,6 +593,7 @@
             if (health < 0) health = 0;
             document.getElementById('health-bar').style.width = health + "%";
             if (health <= 0) handleDeath();
+            playSound('damage');
         }
 
         function handleDeath() {
@@ -504,43 +603,39 @@
             vy = 0;
         }
 
-        // ==================== ATAQUE (DAÑA A PLAYERS Y ZOMBIES) ====================
+        // ==================== ATAQUE (CON RANGO VARIABLE) ====================
+        let weaponRange = 10; // por defecto (espada normal)
         function performAttack() {
             if (!swordEquipped || isAttacking) return;
-            // PVP check: si está desactivado, no daña a players, pero sí a zombies?
-            // Decidimos que la espada siempre daña zombies, independientemente del PVP.
             isAttacking = true;
             player.userData.sword.rotation.x = 0.5;
             
             const attackRay = new THREE.Raycaster();
             const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-            attackRay.set(player.position.clone().add(new THREE.Vector3(0, 2, 0)), forward); // rayo desde el torso
+            attackRay.set(player.position.clone().add(new THREE.Vector3(0, 2, 0)), forward);
             
             // Daño a otros jugadores (solo si PVP activado)
             if (pvpEnabled) {
                 Object.keys(otherPlayers).forEach(id => {
                     const intersect = attackRay.intersectObject(otherPlayers[id], true);
-                    if (intersect.length > 0 && intersect[0].distance < 10) {
+                    if (intersect.length > 0 && intersect[0].distance < weaponRange) {
                         if (conn && conn.open) conn.send({ type: 'damage', target: id });
+                        playSound('attack');
                     }
                 });
             }
 
-            // Daño a zombies estáticos
+            // Daño a zombies
             const zombieIntersects = attackRay.intersectObjects(zombies, true);
             if (zombieIntersects.length > 0) {
-                const hitZombie = zombieIntersects[0].object.parent; // el grupo
+                const hitZombie = zombieIntersects[0].object.parent;
                 if (hitZombie && hitZombie.isZombie) {
-                    // Eliminar zombie
                     scene.remove(hitZombie);
                     zombies = zombies.filter(z => z !== hitZombie);
-                    // También eliminarlo de mapZombies (ya no respawneará)
-                    mapZombies = mapZombies.filter(z => !(z.x === hitZombie.position.x && z.y === hitZombie.position.y && z.z === hitZombie.position.z));
+                    // No lo quitamos de mapZombies si es estático (se regenerará con spawners)
+                    playSound('attack');
                 }
             }
-
-            // NUEVO: Daño a zombies generados por spawners? Por ahora los spawners generan zombies estáticos que también están en zombies.
-            // Los zombies generados por spawners no se guardan en mapZombies, pero sí en zombies. Al morir, desaparecen.
 
             setTimeout(() => {
                 player.userData.sword.rotation.x = -Math.PI / 2;
@@ -548,11 +643,11 @@
             }, 300);
         }
 
-        // ==================== FÍSICAS MEJORADAS (SIN MICRO-SALTOS) ====================
+        // ==================== FÍSICAS ====================
         function checkHorizontalCollisions() {
             let pBox = new THREE.Box3().setFromCenterAndSize(
                 player.position.clone().add(new THREE.Vector3(0, PLAYER_CENTER_Y_OFFSET, 0)), 
-                new THREE.Vector3(2.1, PLAYER_HEIGHT, 2.1) // ancho un poco mayor que el modelo
+                new THREE.Vector3(2.1, PLAYER_HEIGHT, 2.1)
             );
             for (let b of blocks) {
                 if (pBox.intersectsBox(new THREE.Box3().setFromObject(b))) return true;
@@ -561,7 +656,6 @@
         }
 
         function handleVerticalPhysics(oldPos) {
-            // Caja de colisión para vertical (ligeramente más pequeña)
             let pBox = new THREE.Box3().setFromCenterAndSize(
                 player.position.clone().add(new THREE.Vector3(0, PLAYER_CENTER_Y_OFFSET, 0)), 
                 new THREE.Vector3(1.8, PLAYER_HEIGHT, 1.8)
@@ -569,7 +663,6 @@
 
             onGround = false;
 
-            // Suelo base
             if (player.position.y <= 0.05) {
                 player.position.y = 0;
                 vy = 0;
@@ -580,16 +673,14 @@
                 let bBox = new THREE.Box3().setFromObject(b);
                 if (pBox.intersectsBox(bBox)) {
                     
-                    const playerBottom = oldPos.y; // parte baja del personaje (pies)
-                    const blockTop = b.position.y + BLOCK_SIZE/2; // cima del bloque
+                    const playerBottom = oldPos.y;
+                    const blockTop = b.position.y + BLOCK_SIZE/2;
                     
-                    // Venimos desde arriba
                     if (playerBottom >= blockTop - 0.3) {
                         player.position.y = blockTop + PLAYER_CENTER_Y_OFFSET;
                         vy = 0;
                         onGround = true;
                     } 
-                    // Techo
                     else if (oldPos.y + PLAYER_HEIGHT <= b.position.y - BLOCK_SIZE/2) {
                         player.position.y = b.position.y - BLOCK_SIZE/2 - PLAYER_CENTER_Y_OFFSET;
                         vy = -0.1;
@@ -598,13 +689,12 @@
             }
         }
 
-        // NUEVA: Detección de suelo mediante raycast para mayor precisión
         function stabilizeWithRaycast() {
             if (!player) return;
             const origin = player.position.clone();
-            origin.y += 0.1; // ligeramente arriba de los pies
+            origin.y += 0.1;
             const direction = new THREE.Vector3(0, -1, 0);
-            const rayLength = PLAYER_CENTER_Y_OFFSET + 0.5; // hasta debajo de los pies
+            const rayLength = PLAYER_CENTER_Y_OFFSET + 0.5;
             raycaster.set(origin, direction);
             const intersects = raycaster.intersectObjects(blocks);
             let groundDist = null;
@@ -616,12 +706,6 @@
                 }
             }
             if (groundDist !== null) {
-                // El suelo está a groundDist del origen. El origen está en player.y + 0.1
-                // Queremos que los pies estén justo en la superficie del bloque.
-                // La superficie del bloque está en hit.point.y.
-                // Los pies del personaje están en player.y - PLAYER_CENTER_Y_OFFSET.
-                // Queremos: player.y - PLAYER_CENTER_Y_OFFSET = hit.point.y
-                // => player.y = hit.point.y + PLAYER_CENTER_Y_OFFSET
                 const targetY = intersects[0].point.y + PLAYER_CENTER_Y_OFFSET;
                 if (Math.abs(player.position.y - targetY) > 0.05) {
                     player.position.y = targetY;
@@ -631,7 +715,6 @@
                     onGround = true;
                 }
             } else {
-                // Si no hay suelo, pero estamos cerca del suelo base
                 if (player.position.y <= PLAYER_CENTER_Y_OFFSET + 0.1) {
                     player.position.y = PLAYER_CENTER_Y_OFFSET;
                     vy = 0;
@@ -657,7 +740,6 @@
         function createZombie(pos) {
             const group = new THREE.Group();
             group.isZombie = true;
-            // Cuerpo verde
             const bodyGeo = new THREE.CylinderGeometry(1, 1, 2.5, 8);
             const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
             const body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -665,7 +747,6 @@
             body.castShadow = true;
             body.receiveShadow = true;
             group.add(body);
-            // Cabeza
             const headGeo = new THREE.SphereGeometry(0.8, 8);
             const headMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
             const head = new THREE.Mesh(headGeo, headMat);
@@ -673,7 +754,6 @@
             head.castShadow = true;
             head.receiveShadow = true;
             group.add(head);
-            // Ojos rojos
             const eyeGeo = new THREE.SphereGeometry(0.2, 6);
             const eyeMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
             const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
@@ -703,11 +783,9 @@
             });
         }
 
-        // NUEVO: Spawners
         function createSpawner(pos) {
             const group = new THREE.Group();
             group.isSpawner = true;
-            // Base gris
             const baseGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.5, 8);
             const baseMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
             const base = new THREE.Mesh(baseGeo, baseMat);
@@ -715,7 +793,6 @@
             base.castShadow = true;
             base.receiveShadow = true;
             group.add(base);
-            // Esfera roja brillante
             const sphereGeo = new THREE.SphereGeometry(0.8, 8);
             const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
             const sphere = new THREE.Mesh(sphereGeo, sphereMat);
@@ -744,31 +821,112 @@
             });
         }
 
-        // NUEVO: Actualizar spawners (generar zombies)
         function updateSpawners(now) {
             if (!isPlaying) return;
-            if (now - lastSpawnCheck < 1000) return; // comprobar cada 1s
+            if (now - lastSpawnCheck < 1000) return;
             lastSpawnCheck = now;
             for (let i = 0; i < mapSpawners.length; i++) {
                 const sp = mapSpawners[i];
                 if (!sp.lastSpawn) sp.lastSpawn = 0;
                 if (now - sp.lastSpawn > SPAWNER_INTERVAL) {
                     sp.lastSpawn = now;
-                    // Generar zombie en la misma posición (ligeramente arriba)
                     const pos = new THREE.Vector3(sp.x, sp.y + 1, sp.z);
                     const zombie = createZombie(pos);
                     scene.add(zombie);
                     zombies.push(zombie);
-                    // Los zombies generados no se guardan en mapZombies (son temporales)
                 }
             }
         }
 
-        // ==================== DAÑO DE ZOMBIES AL JUGADOR ====================
+        // ==================== ITEMS (ARMAS, COMIDA, BEBIDAS) ====================
+        function createItem(pos, type) {
+            const group = new THREE.Group();
+            group.isItem = true;
+            group.itemType = type;
+            
+            let color, shape;
+            switch(type) {
+                case 'sword': color = 0xcccccc; shape = 'box'; group.range = 3; break;
+                case 'longsword': color = 0xaaaaaa; shape = 'box'; group.range = 5; break;
+                case 'dagger': color = 0x888888; shape = 'box'; group.range = 2; break;
+                case 'potion': color = 0xff00ff; shape = 'sphere'; group.heal = 30; break;
+                case 'food': color = 0x8b4513; shape = 'sphere'; group.heal = 15; break;
+                default: color = 0xffffff; shape = 'box';
+            }
+            
+            if (shape === 'box') {
+                const geo = new THREE.BoxGeometry(1, 1, 1);
+                const mat = new THREE.MeshStandardMaterial({ color: color, emissive: 0x222222 });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                group.add(mesh);
+            } else {
+                const geo = new THREE.SphereGeometry(0.8, 8);
+                const mat = new THREE.MeshStandardMaterial({ color: color, emissive: 0x222222 });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                group.add(mesh);
+            }
+            
+            group.position.set(pos.x, pos.y, pos.z);
+            return group;
+        }
+
+        function spawnItem(pos, type) {
+            const item = createItem(pos, type);
+            scene.add(item);
+            items.push(item);
+            mapItems.push({ x: pos.x, y: pos.y, z: pos.z, type: type });
+        }
+
+        function syncItemsInScene() {
+            items.forEach(i => scene.remove(i));
+            items = [];
+            mapItems.forEach(p => {
+                const item = createItem(new THREE.Vector3(p.x, p.y, p.z), p.type);
+                scene.add(item);
+                items.push(item);
+            });
+        }
+
+        // NUEVO: Detección de recogida de items
+        function checkItemPickup() {
+            if (!player || !isPlaying) return;
+            const playerBox = new THREE.Box3().setFromObject(player);
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                const itemBox = new THREE.Box3().setFromObject(item);
+                if (playerBox.intersectsBox(itemBox)) {
+                    // Recoger item
+                    const type = item.itemType;
+                    if (type === 'potion' || type === 'food') {
+                        health = Math.min(100, health + (item.heal || 20));
+                        document.getElementById('health-bar').style.width = health + "%";
+                        playSound('pickup');
+                    } else {
+                        // Arma: equipar y cambiar rango
+                        swordEquipped = true;
+                        weaponRange = item.range || 10;
+                        playSound('pickup');
+                        // Actualizar UI del inventario (opcional)
+                    }
+                    // Eliminar item
+                    scene.remove(item);
+                    items.splice(i, 1);
+                    // También eliminarlo de mapItems (para que no reaparezca al recargar)
+                    mapItems = mapItems.filter(m => !(m.x === item.position.x && m.y === item.position.y && m.z === item.position.z));
+                }
+            }
+        }
+
+        // ==================== DAÑO DE ZOMBIES ====================
+        let lastZombieDamageTime = 0;
         function checkZombieDamage() {
             if (!player || !isPlaying) return;
             const now = Date.now();
-            if (now - lastZombieDamageTime < 200) return; // daño cada 0.2s
+            if (now - lastZombieDamageTime < 200) return;
             const playerBox = new THREE.Box3().setFromObject(player);
             for (let z of zombies) {
                 const zombieBox = new THREE.Box3().setFromObject(z);
@@ -793,10 +951,11 @@
             initEngine();
             syncBlocksInScene();
             syncZombiesInScene();
-            syncSpawnersInScene(); // NUEVO
+            syncSpawnersInScene();
+            syncItemsInScene(); // NUEVO
 
             teamColor = document.getElementById('team-select').value;
-            skinColor = document.getElementById('skin-color').value; // NUEVO
+            skinColor = document.getElementById('skin-color').value;
             player = createCharacter(name, teamColor, skinColor);
             player.position.set(0, 15, 50);
             scene.add(player);
@@ -835,16 +994,12 @@
                 const moveSpeed = 0.45;
                 let walking = false;
 
-                // Gravedad
                 vy -= 0.025; 
                 player.position.y += vy;
                 
-                // Física de colisión con bloques
                 handleVerticalPhysics(oldPos);
-                // Estabilización por raycast (elimina micro-saltos)
                 stabilizeWithRaycast();
 
-                // Movimiento horizontal
                 let dx = 0, dz = 0;
                 if (keys['KeyW']) { dx -= Math.sin(yaw); dz -= Math.cos(yaw); walking = true; }
                 if (keys['KeyS']) { dx += Math.sin(yaw); dz += Math.cos(yaw); walking = true; }
@@ -864,22 +1019,18 @@
                 player.rotation.y = yaw;
                 animateWalking(player, walking);
 
-                // Daño de zombies
                 checkZombieDamage();
-
-                // Actualizar spawners
+                checkItemPickup(); // NUEVO
                 updateSpawners(now);
 
-                // Enviar datos a otros jugadores
                 if (conn && conn.open) {
                     conn.send({
                         type: 'move', id: myID, x: player.position.x, y: player.position.y, z: player.position.z,
                         ry: player.rotation.y, walking: walking, name: player.userData.name,
-                        team: teamColor, skin: skinColor // NUEVO
+                        team: teamColor, skin: skinColor
                     });
                 }
 
-                // Cámara en tercera persona
                 const dist = 30;
                 camera.position.set(
                     player.position.x + Math.sin(yaw) * Math.cos(pitch) * dist,
@@ -913,9 +1064,9 @@
             syncBlocksInScene();
             syncZombiesInScene();
             syncSpawnersInScene();
+            syncItemsInScene();
             camera.position.set(60, 60, 60); camera.lookAt(0, 0, 0);
 
-            // Event listeners para los controles
             const pvpCheck = document.getElementById('pvp-checkbox');
             pvpEnabled = pvpCheck.checked;
             pvpCheck.addEventListener('change', (e) => { pvpEnabled = e.target.checked; });
@@ -936,9 +1087,20 @@
             zombieMode = zombieCheck.checked;
             zombieCheck.addEventListener('change', (e) => { zombieMode = e.target.checked; });
 
-            const spawnerCheck = document.getElementById('spawner-mode'); // NUEVO
+            const spawnerCheck = document.getElementById('spawner-mode');
             spawnerMode = spawnerCheck.checked;
             spawnerCheck.addEventListener('change', (e) => { spawnerMode = e.target.checked; });
+
+            const itemCheck = document.getElementById('item-mode');
+            itemMode = itemCheck.checked;
+            itemCheck.addEventListener('change', (e) => {
+                itemMode = e.target.checked;
+                document.getElementById('item-type-row').style.display = itemMode ? 'flex' : 'none';
+            });
+
+            const itemTypeSelect = document.getElementById('item-type');
+            currentItemType = itemTypeSelect.value;
+            itemTypeSelect.addEventListener('change', (e) => { currentItemType = e.target.value; });
 
             window.addEventListener('keydown', e => keys[e.code] = true);
             window.addEventListener('keyup', e => keys[e.code] = false);
@@ -969,6 +1131,11 @@
                                 scene.remove(spawnerGroup);
                                 spawners = spawners.filter(s => s !== spawnerGroup);
                                 mapSpawners = mapSpawners.filter(p => !(p.x === spawnerGroup.position.x && p.y === spawnerGroup.position.y && p.z === spawnerGroup.position.z));
+                            } else if (hit.object.parent && hit.object.parent.isItem) {
+                                const itemGroup = hit.object.parent;
+                                scene.remove(itemGroup);
+                                items = items.filter(i => i !== itemGroup);
+                                mapItems = mapItems.filter(p => !(p.x === itemGroup.position.x && p.y === itemGroup.position.y && p.z === itemGroup.position.z));
                             }
                         } else {
                             let pos;
@@ -982,7 +1149,6 @@
                                 const normal = hit.face.normal.clone();
                                 normal.applyQuaternion(hit.object.quaternion);
                                 pos = hit.object.position.clone().add(normal.multiplyScalar(BLOCK_SIZE));
-                                // Redondear a múltiplo de BLOCK_SIZE para mantener grid
                                 pos.x = Math.round(pos.x / BLOCK_SIZE) * BLOCK_SIZE;
                                 pos.y = Math.round(pos.y / BLOCK_SIZE) * BLOCK_SIZE;
                                 pos.z = Math.round(pos.z / BLOCK_SIZE) * BLOCK_SIZE;
@@ -993,6 +1159,8 @@
                             } else if (zombieMode) {
                                 spawnZombie(pos);
                                 mapZombies.push({ x: pos.x, y: pos.y, z: pos.z });
+                            } else if (itemMode) {
+                                spawnItem(pos, currentItemType);
                             } else {
                                 spawnBlock(pos, blockColor);
                                 mapData.push({ x: pos.x, y: pos.y, z: pos.z, color: blockColor });
@@ -1043,7 +1211,8 @@
             const dataToSave = {
                 blocks: mapData.map(b => ({ x: b.x, y: b.y, z: b.z, color: b.color || '#999999' })),
                 zombies: mapZombies.map(z => ({ x: z.x, y: z.y, z: z.z })),
-                spawners: mapSpawners.map(s => ({ x: s.x, y: s.y, z: s.z }))
+                spawners: mapSpawners.map(s => ({ x: s.x, y: s.y, z: s.z })),
+                items: mapItems.map(i => ({ x: i.x, y: i.y, z: i.z, type: i.type }))
             };
             const blob = new Blob([JSON.stringify(dataToSave)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -1055,21 +1224,23 @@
             const reader = new FileReader();
             reader.onload = ev => {
                 const data = JSON.parse(ev.target.result);
-                // Compatibilidad con formatos antiguos
                 if (Array.isArray(data)) {
                     mapData = data;
                     mapZombies = [];
                     mapSpawners = [];
+                    mapItems = [];
                 } else {
                     mapData = data.blocks || [];
                     mapZombies = data.zombies || [];
                     mapSpawners = data.spawners || [];
+                    mapItems = data.items || [];
                 }
                 alert("Mapa cargado con éxito!");
                 if (renderer) {
                     syncBlocksInScene();
                     syncZombiesInScene();
                     syncSpawnersInScene();
+                    syncItemsInScene();
                 }
             };
             reader.readAsText(e.target.files[0]);
@@ -1080,13 +1251,14 @@
                 mapData = [];
                 mapZombies = [];
                 mapSpawners = [];
+                mapItems = [];
                 syncBlocksInScene();
                 syncZombiesInScene();
                 syncSpawnersInScene();
+                syncItemsInScene();
             }
         }
 
-        // Iniciar red
         initNetwork();
     </script>
 </body>
