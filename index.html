@@ -186,7 +186,7 @@
             bottom: 20px; 
             right: 20px; 
             display: none; 
-            width: 240px; 
+            width: 260px; 
         }
 
         #copy-toast {
@@ -200,6 +200,21 @@
             border-radius: 5px;
             display: none;
             z-index: 1000;
+        }
+
+        /* Estilo para el toggle de PVP */
+        .pvp-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px;
+            background: #ccc;
+            border: 2px inset #fff;
+        }
+        .pvp-toggle label {
+            font-weight: bold;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -256,6 +271,11 @@
                 • <b>WASD:</b> Volar Cámara<br>
                 • <b>Q / E:</b> Bajar / Subir
             </p>
+            <!-- NUEVO: Toggle PVP -->
+            <div class="pvp-toggle">
+                <label for="pvp-checkbox">PVP Activado</label>
+                <input type="checkbox" id="pvp-checkbox" checked>
+            </div>
             <button class="btn-play" onclick="exportMap()">SAVE PLACE</button>
             <button onclick="location.reload()" style="background: #888; color: white;">SALIR</button>
         </div>
@@ -276,6 +296,8 @@
         let rightClickDown = false;
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
+        // NUEVO: Variable para controlar PVP
+        let pvpEnabled = true;
 
         /**
          * COPIAR ID AL PORTAPAPELES
@@ -428,6 +450,9 @@
 
         function performAttack() {
             if (!swordEquipped || isAttacking) return;
+            // NUEVO: Verificar si PVP está activado antes de atacar
+            if (!pvpEnabled) return; // Si PVP desactivado, no se puede dañar
+
             isAttacking = true;
             player.userData.sword.rotation.x = 0.5;
             
@@ -449,7 +474,7 @@
         }
 
         /**
-         * FÍSICAS AVANZADAS - SOLUCIÓN ANTI-HUNDIMIENTO
+         * FÍSICAS MEJORADAS - SOLUCIÓN ANTI-HUNDIMIENTO
          */
         function checkHorizontalCollisions() {
             // Caja de colisión ligeramente más ancha para evitar atravesar esquinas
@@ -464,7 +489,7 @@
         }
 
         function handleVerticalPhysics(oldPos) {
-            // El truco aquí es usar una caja de colisión precisa para los pies
+            // Caja de colisión para los pies (ligeramente más pequeña que la horizontal)
             let pBox = new THREE.Box3().setFromCenterAndSize(
                 player.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 
                 new THREE.Vector3(1.8, 5.0, 1.8) 
@@ -484,17 +509,22 @@
                 if (pBox.intersectsBox(bBox)) {
                     
                     // --- COLLIDER Y (SUELO DE BLOQUES) ---
-                    // Detectamos si venimos desde arriba con un margen de tolerancia
-                    if (oldPos.y >= b.position.y + 3.6) {
-                        player.position.y = b.position.y + 4; // Fijar posición exacta sobre el bloque
-                        vy = 0; // Detener caída inmediatamente
+                    // Detectamos si venimos desde arriba (el personaje está cayendo)
+                    // Usamos la posición anterior Y + altura del personaje para determinar dirección
+                    const playerBottom = oldPos.y; // los pies estaban en oldPos.y
+                    const blockTop = b.position.y + 2; // el bloque mide 4, su tope está en y+2
+                    
+                    // Si antes estábamos por encima del bloque y ahora intersectamos, es un suelo
+                    if (playerBottom >= blockTop - 0.5) { // margen de 0.5
+                        // Colocar al personaje justo encima del bloque
+                        player.position.y = blockTop + 2.5; // ajuste: centro del personaje a 2.5 del suelo
+                        vy = 0;
                         onGround = true;
                     } 
-                    
-                    // --- COLLIDER -Y (TECHO DE BLOQUES) ---
-                    else if (oldPos.y + 4.2 <= b.position.y) {
-                        player.position.y = b.position.y - 5.1;
-                        vy = -0.1; // Rebote hacia abajo
+                    // --- COLLIDER -Y (TECHO) ---
+                    else if (oldPos.y + 5 <= b.position.y - 2) { // cabeza por debajo del bloque
+                        player.position.y = b.position.y - 5; // empujar hacia abajo
+                        vy = -0.1;
                     }
                 }
             }
@@ -569,7 +599,7 @@
                 vy -= 0.025; 
                 player.position.y += vy;
                 
-                // Corrección de posición (Aquí se evita el hundimiento)
+                // Corrección de posición (evita hundimiento)
                 handleVerticalPhysics(oldPos);
 
                 let dx = 0, dz = 0;
@@ -632,6 +662,13 @@
             initEngine();
             syncBlocksInScene();
             camera.position.set(60, 60, 60); camera.lookAt(0, 0, 0);
+
+            // Leer estado inicial del toggle PVP (por defecto true)
+            const pvpCheck = document.getElementById('pvp-checkbox');
+            pvpEnabled = pvpCheck.checked;
+            pvpCheck.addEventListener('change', (e) => {
+                pvpEnabled = e.target.checked;
+            });
 
             window.addEventListener('keydown', e => keys[e.code] = true);
             window.addEventListener('keyup', e => keys[e.code] = false);
