@@ -2,160 +2,303 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RPG 2D Multijugador P2P - Inventario y mapa gigante</title>
+    <title>RPG 2D Retro 2008 - P2P, Armas, Editor</title>
     <style>
+        /* Estilo retro pixelado */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
         body {
             margin: 0;
+            min-height: 100vh;
+            background: #2a1e0f; /* marrón oscuro como madera */
+            font-family: 'Press Start 2P', cursive;
+            color: #f0e6d2;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #1a1a2e;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        #gameContainer {
-            display: flex;
-            gap: 20px;
-            margin: 20px;
-            flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
+
+        #gameWrapper {
+            position: relative;
+            width: fit-content;
+            border: 8px solid #8b5a2b;
+            box-shadow: 0 0 0 4px #4a2c1a, 0 10px 20px rgba(0,0,0,0.5);
+            background: #4a2c1a;
+        }
+
         canvas {
-            border: 2px solid #0f3460;
-            background: #16213e;
+            display: block;
+            border: 4px solid #c49a6c;
+            background: #2e1b0e;
             cursor: crosshair;
+            width: 800px;
+            height: 800px;
         }
-        .panel {
-            background: #0f3460;
-            padding: 15px;
-            border-radius: 10px;
-            min-width: 250px;
-        }
-        .panel h3 {
-            margin-top: 0;
-            color: #e94560;
-        }
-        .controls {
-            margin: 10px 0;
+
+        /* Menú principal superpuesto */
+        #mainMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border: 4px solid #c49a6c;
         }
-        button {
-            background: #e94560;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
+
+        #mainMenu h1 {
+            font-size: 36px;
+            color: #ffd966;
+            text-shadow: 4px 4px 0 #b45f06, 6px 6px 0 #000;
+            margin-bottom: 40px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .menuBtn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 20px;
+            padding: 15px 30px;
+            margin: 10px;
+            width: 250px;
+            background: #8b5a2b;
+            border: 4px solid #c49a6c;
+            color: #ffd966;
+            text-shadow: 2px 2px 0 #5a3e1b;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
+            box-shadow: 0 6px 0 #4a2c1a;
+            transition: all 0.1s ease;
         }
-        button:hover {
-            background: #ff6b8b;
+
+        .menuBtn:hover {
+            background: #b87c4b;
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #4a2c1a;
         }
-        button.secondary {
-            background: #0f3460;
-            border: 1px solid #e94560;
+
+        .menuBtn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #4a2c1a;
         }
+
+        /* Panel lateral con estilo retro */
+        #sidePanel {
+            background: #2e1b0e;
+            border: 4px solid #c49a6c;
+            padding: 20px;
+            width: 320px;
+            margin-left: 20px;
+            box-shadow: 0 0 0 4px #8b5a2b;
+        }
+
+        #sidePanel h2, #sidePanel h3 {
+            color: #ffd966;
+            text-shadow: 2px 2px 0 #8b5a2b;
+            border-bottom: 4px solid #c49a6c;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .panelSection {
+            background: #4a2c1a;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #c49a6c;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 12px;
+            color: #f0e6d2;
+        }
+
         input, select {
-            padding: 5px;
-            border-radius: 5px;
-            border: none;
+            font-family: 'Press Start 2P', cursive;
+            background: #1e130a;
+            border: 2px solid #c49a6c;
+            color: #ffd966;
+            padding: 8px;
+            width: 100%;
+            font-size: 12px;
         }
-        .inventory-list {
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ffd966;
+        }
+
+        .btn {
+            font-family: 'Press Start 2P', cursive;
+            background: #8b5a2b;
+            border: 2px solid #c49a6c;
+            color: #ffd966;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 5px 0;
+            width: 100%;
+            text-shadow: 1px 1px 0 #5a3e1b;
+            box-shadow: 0 4px 0 #4a2c1a;
+            transition: 0.1s;
+        }
+
+        .btn:hover {
+            background: #b87c4b;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #4a2c1a;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .inventoryList {
             list-style: none;
             padding: 0;
             max-height: 200px;
             overflow-y: auto;
+            background: #1e130a;
+            border: 2px solid #c49a6c;
+            margin: 10px 0;
         }
-        .inventory-list li {
-            background: #16213e;
-            margin: 5px 0;
-            padding: 5px;
-            border-radius: 3px;
+
+        .inventoryList li {
+            padding: 8px;
+            border-bottom: 1px solid #c49a6c;
+            color: #f0e6d2;
+            font-size: 10px;
+            line-height: 1.5;
         }
-        .peer-section {
-            border-top: 1px solid #e94560;
-            padding-top: 10px;
-            margin-top: 10px;
+
+        .inventoryList li:last-child {
+            border-bottom: none;
         }
+
         #status {
-            font-size: 12px;
+            font-size: 10px;
             color: #aaf0e9;
+            background: #1e130a;
+            padding: 8px;
+            border: 2px solid #c49a6c;
+        }
+
+        .peerSection {
+            margin-top: 20px;
+        }
+
+        /* Estilo para el creador de armas */
+        .weaponCreator {
+            background: #3e2a15;
+            padding: 10px;
+            border: 2px solid #c49a6c;
+            margin-bottom: 20px;
+        }
+
+        .weaponCreator input, .weaponCreator select {
+            margin-bottom: 5px;
         }
     </style>
     <!-- Incluimos PeerJS -->
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
-    <h1>🌟 RPG 2D P2P - Inventario + Mapa redimensionable</h1>
-    <div id="gameContainer">
+    <div id="gameWrapper">
         <canvas id="gameCanvas" width="800" height="800"></canvas>
-        
-        <div class="panel">
-            <h3>👤 Jugador local</h3>
-            <div class="controls">
-                <label>Nametag: <input type="text" id="nameInput" value="Aventurero" maxlength="20"></label>
-                <label>🎮 Tamaño mapa (N x N): 
-                    <input type="range" id="mapSizeSlider" min="5" max="100" value="15" step="1">
-                    <span id="mapSizeValue">15</span>
-                </label>
-                <button id="resizeBtn">🔄 Redimensionar y reiniciar</button>
-                <button id="editorBtn" class="secondary">✏️ Modo Editor: OFF</button>
-            </div>
+        <!-- Menú principal -->
+        <div id="mainMenu">
+            <h1>🌟 PIXEL RPG 2008 🌟</h1>
+            <button class="menuBtn" id="playBtn">▶ JUGAR</button>
+            <button class="menuBtn" id="optionsBtn">⚙ OPCIONES</button>
+            <button class="menuBtn" id="exitBtn">🚪 SALIR</button>
+        </div>
+    </div>
 
-            <div class="peer-section">
-                <h3>🌐 Multijugador P2P</h3>
-                <div>
-                    <button id="startPeerBtn">🟢 Iniciar Peer</button>
-                    <span id="peerIdDisplay">-</span>
-                </div>
-                <div style="margin-top: 5px;">
-                    <input type="text" id="peerConnectInput" placeholder="ID del otro jugador">
-                    <button id="connectBtn">🔗 Conectar</button>
-                </div>
-                <div id="status">Desconectado</div>
-            </div>
+    <div id="sidePanel">
+        <h2>👤 AVENTURERO</h2>
+        <div class="panelSection">
+            <label>NOMBRE:</label>
+            <input type="text" id="nameInput" value="Héroe" maxlength="20">
+            <label>🎮 TAMAÑO MAPA (N x N)</label>
+            <input type="range" id="mapSizeSlider" min="5" max="100" value="15" step="1">
+            <span id="mapSizeValue" style="display:block; text-align:center; margin:5px 0;">15</span>
+            <button class="btn" id="resizeBtn">🔄 REDIMENSIONAR</button>
+            <button class="btn" id="editorBtn">✏️ EDITOR: OFF</button>
+        </div>
 
-            <h3>🎒 Inventario</h3>
-            <ul class="inventory-list" id="inventoryList">
-                <li>Vacío</li>
-            </ul>
+        <h3>⚔️ CREADOR DE ARMAS</h3>
+        <div class="weaponCreator">
+            <label>TIPO:</label>
+            <select id="weaponType">
+                <option value="🗡️ Espada">🗡️ Espada</option>
+                <option value="🏹 Arco">🏹 Arco</option>
+                <option value="🔮 Varita">🔮 Varita</option>
+            </select>
+            <label>NOMBRE:</label>
+            <input type="text" id="weaponName" value="Filo Oscuro" maxlength="15">
+            <label>DAÑO (1-99):</label>
+            <input type="number" id="weaponDamage" min="1" max="99" value="10">
+            <button class="btn" id="createWeaponBtn">🛠️ CREAR Y AÑADIR</button>
+        </div>
+
+        <h3>🎒 INVENTARIO</h3>
+        <ul class="inventoryList" id="inventoryList">
+            <li>VACÍO</li>
+        </ul>
+
+        <div class="peerSection">
+            <h3>🌐 MULTIJUGADOR P2P</h3>
+            <button class="btn" id="startPeerBtn">🟢 INICIAR PEER</button>
+            <div style="margin:10px 0; font-size:10px; word-break:break-all;">ID: <span id="peerIdDisplay">-</span></div>
+            <input type="text" id="peerConnectInput" placeholder="ID DESTINO">
+            <button class="btn" id="connectBtn">🔗 CONECTAR</button>
+            <div id="status">DESCONECTADO</div>
         </div>
     </div>
 
     <script>
-        // ---------- Configuración global ----------
+        // ---------- Configuración ----------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        let MAP_SIZE = 15;                // valor inicial
-        let TILE_SIZE = 800 / MAP_SIZE;   // se recalcula al redimensionar
+        let MAP_SIZE = 15;
+        let TILE_SIZE = 800 / MAP_SIZE;
 
-        // Matriz del mapa: 0 = suelo, 1 = pared
+        // Matriz del mapa
         let map = [];
-
         // Objetos (items) en el mapa: cada objeto tiene {x, y, type}
         let items = [];
-        const ITEM_TYPES = ['★', '⚔️', '🧪']; // se usará el primero para dibujar
+        const ITEM_TYPES = ['★']; // por ahora solo estrellas (monedas)
 
-        // Inventario del jugador local
+        // Inventario local (incluye armas)
         let inventory = [];
 
         // Jugador local
         let player = {
-            x: 5,
-            y: 5,
-            name: "Aventurero",
-            color: '#e94560'  // rojo
+            x: 7,
+            y: 7,
+            name: "Héroe",
+            color: '#e94560'
         };
 
-        // Jugador remoto (solo uno por simplicidad)
+        // Jugador remoto
         let remotePlayer = {
             x: 0,
             y: 0,
             name: "Remoto",
-            color: '#4a90e2',  // azul
+            color: '#4a90e2',
             connected: false
         };
 
@@ -174,20 +317,29 @@
         const startPeerBtn = document.getElementById('startPeerBtn');
         const connectBtn = document.getElementById('connectBtn');
         const peerConnectInput = document.getElementById('peerConnectInput');
+        // Armas
+        const weaponType = document.getElementById('weaponType');
+        const weaponName = document.getElementById('weaponName');
+        const weaponDamage = document.getElementById('weaponDamage');
+        const createWeaponBtn = document.getElementById('createWeaponBtn');
+        // Menú
+        const mainMenu = document.getElementById('mainMenu');
+        const playBtn = document.getElementById('playBtn');
+        const optionsBtn = document.getElementById('optionsBtn');
+        const exitBtn = document.getElementById('exitBtn');
 
         // ---------- PeerJS ----------
         let peer = null;
         let conn = null;
         let myPeerId = null;
 
-        // Inicializar Peer (genera ID aleatorio)
         function initPeer() {
             if (peer) peer.destroy();
-            peer = new Peer(); // genera ID aleatorio
+            peer = new Peer();
             peer.on('open', (id) => {
                 myPeerId = id;
                 peerIdDisplay.textContent = id;
-                statusDiv.textContent = 'Peer activo, esperando conexión...';
+                statusDiv.textContent = 'PEER ACTIVO, ESPERANDO...';
             });
             peer.on('connection', (connection) => {
                 conn = connection;
@@ -195,46 +347,37 @@
             });
             peer.on('error', (err) => {
                 console.error(err);
-                statusDiv.textContent = 'Error: ' + err.type;
+                statusDiv.textContent = 'ERROR: ' + err.type;
             });
         }
 
-        // Configurar conexión una vez establecida
         function setupConnection(connection) {
             conn = connection;
-            statusDiv.textContent = 'Conectado a: ' + connection.peer;
-            connection.on('data', (data) => {
-                // Procesar mensajes entrantes
-                handlePeerData(data);
-            });
+            statusDiv.textContent = 'CONECTADO A: ' + connection.peer;
+            connection.on('data', (data) => handlePeerData(data));
             connection.on('close', () => {
-                statusDiv.textContent = 'Conexión cerrada';
+                statusDiv.textContent = 'CONEXIÓN CERRADA';
                 remotePlayer.connected = false;
                 draw();
             });
-            // Enviar nuestro estado actual al conectarnos
             sendFullState();
         }
 
-        // Enviar estado completo al otro jugador
         function sendFullState() {
             if (conn && conn.open) {
                 conn.send({
                     type: 'fullState',
                     map: map,
                     items: items,
-                    player: { x: player.x, y: player.y, name: player.name },
-                    inventory: inventory
+                    player: { x: player.x, y: player.y, name: player.name }
                 });
             }
         }
 
-        // Manejar datos entrantes
         function handlePeerData(data) {
             switch (data.type) {
                 case 'fullState':
-                    // Recibimos el mapa, items y posición del otro
-                    if (data.map) map = data.map; // sincronizar mapa (opcional, podría ser conflicto)
+                    if (data.map) map = data.map;
                     if (data.items) items = data.items;
                     if (data.player) {
                         remotePlayer.x = data.player.x;
@@ -242,11 +385,9 @@
                         remotePlayer.name = data.player.name;
                         remotePlayer.connected = true;
                     }
-                    // Opcional: sincronizar inventario? No, cada quien su inventario.
                     draw();
                     break;
                 case 'move':
-                    // Otro jugador se movió
                     remotePlayer.x = data.x;
                     remotePlayer.y = data.y;
                     remotePlayer.name = data.name;
@@ -254,26 +395,20 @@
                     draw();
                     break;
                 case 'mapEdit':
-                    // Editar un tile
                     if (data.row !== undefined && data.col !== undefined) {
                         map[data.row][data.col] = data.value;
                         draw();
                     }
                     break;
                 case 'itemPickup':
-                    // Alguien recogió un item (sincronizar eliminación)
                     if (data.itemIndex !== undefined) {
                         items.splice(data.itemIndex, 1);
                         draw();
                     }
                     break;
-                case 'inventoryUpdate':
-                    // Podríamos sincronizar inventarios, pero no necesario
-                    break;
             }
         }
 
-        // Enviar movimiento
         function sendMove() {
             if (conn && conn.open) {
                 conn.send({
@@ -285,7 +420,6 @@
             }
         }
 
-        // Enviar edición de mapa
         function sendMapEdit(row, col, value) {
             if (conn && conn.open) {
                 conn.send({
@@ -297,7 +431,6 @@
             }
         }
 
-        // Enviar recolección de item
         function sendItemPickup(index) {
             if (conn && conn.open) {
                 conn.send({
@@ -312,7 +445,6 @@
             MAP_SIZE = size;
             TILE_SIZE = 800 / MAP_SIZE;
 
-            // Crear matriz vacía (todo suelo)
             map = [];
             for (let i = 0; i < MAP_SIZE; i++) {
                 map[i] = [];
@@ -320,14 +452,14 @@
                     map[i][j] = 0;
                 }
             }
-            // Bordes como paredes
+            // Bordes pared
             for (let i = 0; i < MAP_SIZE; i++) {
                 map[0][i] = 1;
                 map[MAP_SIZE-1][i] = 1;
                 map[i][0] = 1;
                 map[i][MAP_SIZE-1] = 1;
             }
-            // Algunas paredes internas aleatorias (10%)
+            // Paredes aleatorias internas (10%)
             for (let i = 2; i < MAP_SIZE-2; i++) {
                 for (let j = 2; j < MAP_SIZE-2; j++) {
                     if (Math.random() < 0.1) {
@@ -335,32 +467,28 @@
                     }
                 }
             }
-            // Asegurar espacio para el jugador
+            // Posición inicial jugador
             player.x = Math.floor(MAP_SIZE/2);
             player.y = Math.floor(MAP_SIZE/2);
             map[player.y][player.x] = 0;
 
-            // Generar items aleatorios (10% de celdas de suelo)
+            // Generar items (estrellas) en 5% de celdas suelo
             items = [];
             for (let i = 1; i < MAP_SIZE-1; i++) {
                 for (let j = 1; j < MAP_SIZE-1; j++) {
-                    if (map[i][j] === 0 && Math.random() < 0.05) { // 5% de probabilidad
-                        items.push({ x: j, y: i, type: ITEM_TYPES[0] });
+                    if (map[i][j] === 0 && Math.random() < 0.05) {
+                        items.push({ x: j, y: i, type: '★' });
                     }
                 }
             }
         }
 
-        // Redimensionar mapa desde el slider
         function resizeMap() {
             let newSize = parseInt(mapSizeSlider.value);
             initMap(newSize);
-            // Reiniciar inventario local (opcional)
-            inventory = [];
+            inventory = []; // opcional: reiniciar inventario
             updateInventoryDisplay();
-            if (conn && conn.open) {
-                sendFullState(); // enviar nuevo estado al otro
-            }
+            if (conn && conn.open) sendFullState();
             draw();
         }
 
@@ -368,28 +496,20 @@
         function draw() {
             ctx.clearRect(0, 0, 800, 800);
 
-            // Dibujar tiles
+            // Tiles
             for (let row = 0; row < MAP_SIZE; row++) {
                 for (let col = 0; col < MAP_SIZE; col++) {
                     let x = col * TILE_SIZE;
                     let y = row * TILE_SIZE;
-
-                    // Color según tipo
-                    if (map[row][col] === 0) {
-                        ctx.fillStyle = '#4caf50';   // suelo verde
-                    } else {
-                        ctx.fillStyle = '#9e9e9e';   // pared gris
-                    }
+                    ctx.fillStyle = map[row][col] === 0 ? '#4caf50' : '#9e9e9e';
                     ctx.fillRect(x, y, TILE_SIZE - 1, TILE_SIZE - 1);
-
-                    // Borde
                     ctx.strokeStyle = '#555';
                     ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
                 }
             }
 
-            // Dibujar items
-            ctx.font = `${TILE_SIZE * 0.6}px Arial`;
+            // Items (estrellas)
+            ctx.font = `${TILE_SIZE * 0.6}px 'Press Start 2P', monospace`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = 'gold';
@@ -399,7 +519,7 @@
                 ctx.fillText(item.type, x, y);
             });
 
-            // Dibujar jugador remoto si conectado
+            // Jugador remoto
             if (remotePlayer.connected) {
                 let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2;
                 let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2;
@@ -410,17 +530,16 @@
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.stroke();
-                // Nametag
-                ctx.font = `bold ${TILE_SIZE/4}px Arial`;
+                ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P', monospace`;
                 ctx.fillStyle = 'white';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 3;
                 ctx.textAlign = 'center';
-                ctx.strokeText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 2);
-                ctx.fillText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 2);
+                ctx.strokeText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
+                ctx.fillText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
             }
 
-            // Dibujar jugador local
+            // Jugador local
             let px = player.x * TILE_SIZE + TILE_SIZE/2;
             let py = player.y * TILE_SIZE + TILE_SIZE/2;
             ctx.beginPath();
@@ -430,22 +549,24 @@
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 2;
             ctx.stroke();
-            // Nametag local
-            ctx.font = `bold ${TILE_SIZE/4}px Arial`;
+            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P', monospace`;
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
             ctx.textAlign = 'center';
-            ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 2);
-            ctx.fillText(player.name, px, py - TILE_SIZE/2 - 2);
+            ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 5);
+            ctx.fillText(player.name, px, py - TILE_SIZE/2 - 5);
         }
 
-        // Actualizar lista de inventario en el DOM
+        // Actualizar lista de inventario
         function updateInventoryDisplay() {
             if (inventory.length === 0) {
-                inventoryList.innerHTML = '<li>Vacío</li>';
+                inventoryList.innerHTML = '<li>VACÍO</li>';
             } else {
-                inventoryList.innerHTML = inventory.map((item, i) => `<li>${item} (${i+1})</li>`).join('');
+                inventoryList.innerHTML = inventory.map((item, i) => {
+                    if (typeof item === 'string') return `<li>${item}</li>`;
+                    else return `<li>${item.icon} ${item.name} (daño ${item.damage})</li>`;
+                }).join('');
             }
         }
 
@@ -454,7 +575,7 @@
             for (let i = items.length - 1; i >= 0; i--) {
                 if (items[i].x === x && items[i].y === y) {
                     let item = items[i].type;
-                    inventory.push(item);
+                    inventory.push(item); // item es '★'
                     items.splice(i, 1);
                     updateInventoryDisplay();
                     sendItemPickup(i);
@@ -464,22 +585,39 @@
             }
         }
 
-        // ---------- Movimiento local ----------
+        // Movimiento
         function tryMove(dx, dy) {
             let newX = player.x + dx;
             let newY = player.y + dy;
             if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return false;
-            if (map[newY][newX] === 1) return false; // pared
+            if (map[newY][newX] === 1) return false;
 
             player.x = newX;
             player.y = newY;
-            pickupItemAt(newX, newY); // recoger automático
+            pickupItemAt(newX, newY);
             sendMove();
             draw();
             return true;
         }
 
-        // ---------- Eventos ----------
+        // ---------- Creador de armas ----------
+        function createWeapon() {
+            let type = weaponType.value;  // ej: "🗡️ Espada"
+            let name = weaponName.value.trim() || "Arma";
+            let damage = parseInt(weaponDamage.value) || 1;
+            // Extraer solo el emoji del tipo
+            let icon = type.split(' ')[0];
+            let weapon = {
+                icon: icon,
+                name: name,
+                damage: damage,
+                type: type
+            };
+            inventory.push(weapon);
+            updateInventoryDisplay();
+        }
+
+        // ---------- Eventos teclado ----------
         document.addEventListener('keydown', (e) => {
             if (editorMode) return;
             switch(e.key) {
@@ -502,7 +640,7 @@
             const col = Math.floor(mouseX / TILE_SIZE);
             const row = Math.floor(mouseY / TILE_SIZE);
             if (row >= 0 && row < MAP_SIZE && col >= 0 && col < MAP_SIZE) {
-                let value = (e.button === 0) ? 1 : 0; // izq pared, der suelo
+                let value = (e.button === 0) ? 1 : 0;
                 map[row][col] = value;
                 sendMapEdit(row, col, value);
                 draw();
@@ -510,19 +648,17 @@
         });
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Botón editor
+        // Botones de interfaz
         editorBtn.addEventListener('click', () => {
             editorMode = !editorMode;
-            editorBtn.textContent = editorMode ? "✏️ Modo Editor: ON" : "✏️ Modo Editor: OFF";
+            editorBtn.textContent = editorMode ? "✏️ EDITOR: ON" : "✏️ EDITOR: OFF";
         });
 
-        // Nametag
         nameInput.addEventListener('input', (e) => {
-            player.name = e.target.value || "Jugador";
+            player.name = e.target.value || "Héroe";
             draw();
         });
 
-        // Slider tamaño
         mapSizeSlider.addEventListener('input', (e) => {
             mapSizeValue.textContent = e.target.value;
         });
@@ -533,19 +669,31 @@
         connectBtn.addEventListener('click', () => {
             let remoteId = peerConnectInput.value.trim();
             if (!remoteId || !peer) {
-                alert('Primero inicia Peer o escribe un ID válido');
+                alert('Primero inicia Peer');
                 return;
             }
             conn = peer.connect(remoteId);
-            conn.on('open', () => {
-                setupConnection(conn);
-            });
-            conn.on('error', (err) => {
-                statusDiv.textContent = 'Error conexión: ' + err;
-            });
+            conn.on('open', () => setupConnection(conn));
+            conn.on('error', (err) => statusDiv.textContent = 'ERROR: ' + err);
         });
 
-        // Inicializar mapa por defecto
+        // Crear arma
+        createWeaponBtn.addEventListener('click', createWeapon);
+
+        // Menú principal
+        playBtn.addEventListener('click', () => {
+            mainMenu.style.display = 'none';
+        });
+        optionsBtn.addEventListener('click', () => {
+            alert('OPCIONES: Usa el panel lateral para ajustes.');
+        });
+        exitBtn.addEventListener('click', () => {
+            if (confirm('¿Seguro que quieres salir?')) {
+                window.close(); // Puede no funcionar en todos los navegadores
+            }
+        });
+
+        // Inicializar
         initMap(15);
         draw();
         updateInventoryDisplay();
