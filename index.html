@@ -2,11 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RPG 2D Retro 2008 - Multijugador P2P + Creador de armas</title>
+    <title>RPG 2D Retro 2008 - Multijugador, NPCs, Tiendas, Dinero</title>
     <style>
-        /* Estilo retro píxel / 2008 */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        
         * {
             box-sizing: border-box;
             image-rendering: pixelated;
@@ -24,7 +22,7 @@
             padding: 10px;
         }
         #gameWrapper {
-            max-width: 1200px;
+            max-width: 1300px;
             width: 100%;
             background: #1a1e2b;
             border: 6px solid #7a5b3b;
@@ -32,7 +30,6 @@
             padding: 20px;
             border-radius: 20px 20px 0 0;
         }
-        /* Menú principal */
         #menuScreen {
             display: flex;
             flex-direction: column;
@@ -84,7 +81,6 @@
             width: 280px;
             font-size: 14px;
         }
-        /* Pantalla de juego */
         #gameScreen {
             display: none;
             flex-direction: column;
@@ -112,12 +108,13 @@
             border: 6px solid #7a5b3b;
             background: #1f2635;
             box-shadow: inset 0 0 0 3px #3c2f23;
+            position: relative;
         }
         canvas {
             display: block;
             width: 800px;
             height: 800px;
-            image-rendering: crisp-edges; /* píxel */
+            image-rendering: crisp-edges;
             background: #2d3a4a;
         }
         /* Paneles laterales */
@@ -157,6 +154,10 @@
         .panel button:hover {
             background: #6b4f38;
         }
+        .panel button.active {
+            background: #aa5533;
+            border: 4px inset #ffaa66;
+        }
         .inventory-list {
             list-style: none;
             padding: 0;
@@ -182,15 +183,51 @@
             padding: 10px;
             margin-top: 10px;
         }
+        #npcDialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2a2540;
+            border: 6px ridge #b88b4a;
+            padding: 20px;
+            min-width: 300px;
+            color: #ffdba0;
+            z-index: 100;
+            box-shadow: 10px 10px 0 #00000080;
+            display: none;
+        }
+        #npcDialog h2 {
+            margin-top: 0;
+            color: #ffbb77;
+            border-bottom: 2px solid #aa8b5c;
+        }
+        #npcDialog .shop-item {
+            background: #1f1b30;
+            border: 2px solid #7a5b3b;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        #npcDialog .shop-item:hover {
+            background: #3a3150;
+        }
+        #npcDialog .close-btn {
+            margin-top: 15px;
+            background: #4e3b2c;
+            border: 3px outset #b88b4a;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
     </style>
-    <!-- PeerJS -->
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
     <div id="gameWrapper">
         <!-- MENÚ INICIAL -->
         <div id="menuScreen">
-            <h1>⚔️ PIXEL RPG 2008 ⚔️<br>MULTIPLAYER + ARMAS</h1>
+            <h1>⚔️ PIXEL RPG 2008 ⚔️<br>MULTIPLAYER + NPCs + TIENDAS</h1>
             <button class="menu-btn" id="createGameBtn">🎮 CREAR PARTIDA (HOST)</button>
             <button class="menu-btn secondary" id="joinGameBtn">🔌 UNIRSE A PARTIDA</button>
             <div id="joinOptions" style="display: none; margin-top: 20px;">
@@ -198,39 +235,45 @@
                 <button class="menu-btn" id="connectToHostBtn">CONECTAR</button>
             </div>
             <div style="margin-top: 40px; font-size: 10px; color: #9f8f70;">
-                ⚡ Creador de armas disponible en partida ⚡
+                ⚡ Creador de armas, NPCs y tiendas disponibles en partida ⚡
             </div>
         </div>
 
-        <!-- PANTALLA DE JUEGO (oculta al inicio) -->
+        <!-- PANTALLA DE JUEGO -->
         <div id="gameScreen">
             <div id="gameHeader">
                 <span>👤 <span id="playerNameDisplay">Aventurero</span></span>
+                <span>💰 Oro: <span id="goldDisplay">0</span></span>
                 <span>🆔 <span id="peerIdDisplay">-</span></span>
                 <span>📡 <span id="connectionStatus">Desconectado</span></span>
             </div>
             <div id="gameArea">
                 <div id="canvasContainer">
                     <canvas id="gameCanvas" width="800" height="800"></canvas>
+                    <div id="npcDialog"></div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <!-- Panel de control -->
                     <div class="panel">
                         <h3>🎮 CONTROLES</h3>
                         <div>WASD: mover</div>
-                        <div>E: abrir/cerrar creador</div>
-                        <button id="editorBtn">✏️ EDITOR MAPA: OFF</button>
+                        <div>E: hablar con NPC cercano</div>
+                        <button id="editorBtn">✏️ EDITOR: OFF</button>
+                        <div style="margin-top: 10px;">
+                            <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN (solo host)</button>
+                            <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC (solo host)</button>
+                        </div>
                         <label>🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="100" value="20" step="1"> <span id="mapSizeValue">20</span></label>
-                        <button id="resizeBtn">🔄 REINICIAR MAPA</button>
+                        <button id="resizeBtn">🔄 REINICIAR MAPA (host)</button>
                     </div>
-                    <!-- Inventario -->
+                    <!-- Inventario y dinero -->
                     <div class="panel">
+                        <h3>💰 DINERO: <span id="goldPanel">0</span> 🪙</h3>
                         <h3>🎒 INVENTARIO</h3>
                         <ul class="inventory-list" id="inventoryList"><li>Vacío</li></ul>
-                        <div>Selecciona arma para equipar (no implementado)</div>
                     </div>
-                    <!-- Creador de armas (colapsable) -->
-                    <div class="panel weapon-creator" id="weaponCreator">
+                    <!-- Creador de armas -->
+                    <div class="panel weapon-creator">
                         <h3>⚒️ CREADOR DE ARMAS</h3>
                         <input type="text" id="weaponName" placeholder="Nombre" value="Espada básica">
                         <input type="number" id="weaponDamage" placeholder="Daño" value="5" min="1" max="99">
@@ -249,32 +292,28 @@
     </div>
 
     <script>
-        // ---------- VARIABLES GLOBALES ----------
+        // ---------- CONFIGURACIÓN GLOBAL ----------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // Tamaño del mapa (número de tiles)
+        const TILE_SIZE = 40; // fijo, la cámara se encarga
         let MAP_SIZE = 20;
-        // Tamaño de cada tile (se recalcula según viewport, pero usaremos fijo para cámara)
-        const TILE_SIZE = 40; // 800/20 = 40, pero al redimensionar ajustamos
-        // El canvas siempre es 800x800, la cámara muestra una región del mapa
 
-        // Matriz del mapa (0 suelo, 1 pared)
+        // Map data
         let map = [];
-        // Objetos (items) visibles en el mapa
         let items = [];
-        // Inventario local
-        let inventory = [];
+        let npcs = [];          // {x, y, name, dialog, shop: [{name, price, sprite, damage}]}
+        let spawnPoint = { x: 10, y: 10 }; // por defecto
 
         // Jugador local
         let player = {
             x: 10,
             y: 10,
             name: "Aventurero",
-            color: "#e94560"
+            color: "#e94560",
+            gold: 100            // dinero inicial
         };
 
-        // Jugador remoto (solo uno para simplificar)
+        // Jugador remoto
         let remotePlayer = {
             x: 0,
             y: 0,
@@ -283,20 +322,21 @@
             connected: false
         };
 
+        // Inventario local
+        let inventory = [];
+
         // Editor
         let editorMode = false;
+        let placementMode = null; // 'spawn' o 'npc'
 
-        // Variables de cámara (viewport)
-        let camera = {
-            x: 0,
-            y: 0
-        };
+        // Cámara
+        let camera = { x: 0, y: 0 };
 
         // PeerJS
         let peer = null;
         let conn = null;
         let myPeerId = null;
-        let isHost = false;  // para saber quién controla el mapa
+        let isHost = false;
 
         // Elementos DOM
         const menuScreen = document.getElementById('menuScreen');
@@ -309,6 +349,8 @@
         const peerIdDisplay = document.getElementById('peerIdDisplay');
         const connectionStatus = document.getElementById('connectionStatus');
         const playerNameDisplay = document.getElementById('playerNameDisplay');
+        const goldDisplay = document.getElementById('goldDisplay');
+        const goldPanel = document.getElementById('goldPanel');
         const editorBtn = document.getElementById('editorBtn');
         const mapSizeSlider = document.getElementById('mapSizeSlider');
         const mapSizeValue = document.getElementById('mapSizeValue');
@@ -318,6 +360,9 @@
         const weaponName = document.getElementById('weaponName');
         const weaponDamage = document.getElementById('weaponDamage');
         const weaponSprite = document.getElementById('weaponSprite');
+        const setSpawnBtn = document.getElementById('setSpawnBtn');
+        const setNpcBtn = document.getElementById('setNpcBtn');
+        const npcDialog = document.getElementById('npcDialog');
 
         // ---------- FUNCIONES DE INICIALIZACIÓN ----------
         function initMap(size) {
@@ -336,15 +381,13 @@
                 map[i][0] = 1;
                 map[i][MAP_SIZE-1] = 1;
             }
-            // Paredes internas aleatorias (10%)
+            // Paredes internas aleatorias
             for (let i = 2; i < MAP_SIZE-2; i++) {
                 for (let j = 2; j < MAP_SIZE-2; j++) {
-                    if (Math.random() < 0.1) {
-                        map[i][j] = 1;
-                    }
+                    if (Math.random() < 0.1) map[i][j] = 1;
                 }
             }
-            // Generar items (5% de celdas suelo)
+            // Items aleatorios
             items = [];
             for (let i = 1; i < MAP_SIZE-1; i++) {
                 for (let j = 1; j < MAP_SIZE-1; j++) {
@@ -353,56 +396,72 @@
                     }
                 }
             }
-            // Colocar jugador en centro
-            player.x = Math.floor(MAP_SIZE/2);
-            player.y = Math.floor(MAP_SIZE/2);
+            // Spawn por defecto en el centro
+            spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
+            player.x = spawnPoint.x;
+            player.y = spawnPoint.y;
+            // NPCs por defecto (algunos ejemplos)
+            npcs = [
+                { x: 5, y: 5, name: "Comerciante", dialog: "¡Bienvenido!", shop: [
+                    { name: "Poción", price: 10, sprite: "🧪", damage: 0 },
+                    { name: "Espada de madera", price: 50, sprite: "🗡️", damage: 3 }
+                ]},
+                { x: 8, y: 8, name: "Herrero", dialog: "Compras mis armas?", shop: [
+                    { name: "Hacha de hierro", price: 80, sprite: "🪓", damage: 8 }
+                ]}
+            ];
         }
 
-        // Actualizar cámara para centrar en el jugador
+        // Actualizar cámara
         function updateCamera() {
-            // Centro teórico del jugador en píxeles
             let targetX = player.x * TILE_SIZE + TILE_SIZE/2 - canvas.width/2;
             let targetY = player.y * TILE_SIZE + TILE_SIZE/2 - canvas.height/2;
-            // Limitar al tamaño del mapa
             let maxX = MAP_SIZE * TILE_SIZE - canvas.width;
             let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
             camera.x = Math.max(0, Math.min(targetX, maxX));
             camera.y = Math.max(0, Math.min(targetY, maxY));
         }
 
-        // Dibujar todo con cámara
+        // Dibujar todo
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            updateCamera(); // recalcular posición de cámara
+            updateCamera();
 
-            // Dibujar tiles (solo los visibles)
             let startCol = Math.floor(camera.x / TILE_SIZE);
             let endCol = Math.ceil((camera.x + canvas.width) / TILE_SIZE);
             let startRow = Math.floor(camera.y / TILE_SIZE);
             let endRow = Math.ceil((camera.y + canvas.height) / TILE_SIZE);
-
             startCol = Math.max(0, startCol);
             endCol = Math.min(MAP_SIZE, endCol);
             startRow = Math.max(0, startRow);
             endRow = Math.min(MAP_SIZE, endRow);
 
+            // Tiles
             for (let row = startRow; row < endRow; row++) {
                 for (let col = startCol; col < endCol; col++) {
                     let x = col * TILE_SIZE - camera.x;
                     let y = row * TILE_SIZE - camera.y;
-
-                    if (map[row][col] === 0) {
-                        ctx.fillStyle = '#4caf50';
-                    } else {
-                        ctx.fillStyle = '#9e9e9e';
-                    }
+                    ctx.fillStyle = map[row][col] === 0 ? '#4caf50' : '#9e9e9e';
                     ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
                     ctx.strokeStyle = '#555';
                     ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
                 }
             }
 
-            // Dibujar items
+            // Spawn point (dibujar solo para host como ayuda)
+            if (isHost && placementMode === 'spawn') {
+                let sx = spawnPoint.x * TILE_SIZE - camera.x;
+                let sy = spawnPoint.y * TILE_SIZE - camera.y;
+                ctx.fillStyle = '#ffaa00';
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(sx, sy, TILE_SIZE, TILE_SIZE);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = 'white';
+                ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
+                ctx.fillText('🚩', sx + TILE_SIZE/2, sy + TILE_SIZE/2);
+            }
+
+            // Items
             ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P', monospace`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -415,7 +474,21 @@
                 }
             });
 
-            // Dibujar jugador remoto
+            // NPCs
+            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
+            npcs.forEach(npc => {
+                if (npc.x >= startCol && npc.x < endCol && npc.y >= startRow && npc.y < endRow) {
+                    let x = npc.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+                    let y = npc.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+                    ctx.fillStyle = '#44aaff';
+                    ctx.fillText('👤', x, y-10);
+                    ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(npc.name, x, y + TILE_SIZE/2);
+                }
+            });
+
+            // Jugador remoto
             if (remotePlayer.connected) {
                 if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
                     let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
@@ -427,8 +500,7 @@
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
                     ctx.stroke();
-                    // Nametag
-                    ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P', monospace`;
+                    ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
                     ctx.fillStyle = 'white';
                     ctx.strokeStyle = 'black';
                     ctx.lineWidth = 3;
@@ -438,7 +510,7 @@
                 }
             }
 
-            // Dibujar jugador local
+            // Jugador local
             let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
             let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
             ctx.beginPath();
@@ -448,16 +520,20 @@
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 2;
             ctx.stroke();
-            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P', monospace`;
+            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
             ctx.textAlign = 'center';
             ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 5);
             ctx.fillText(player.name, px, py - TILE_SIZE/2 - 5);
+
+            // Actualizar displays de dinero
+            goldDisplay.textContent = player.gold;
+            goldPanel.textContent = player.gold;
         }
 
-        // Actualizar lista de inventario en DOM
+        // Actualizar lista de inventario
         function updateInventoryDisplay() {
             if (inventory.length === 0) {
                 inventoryList.innerHTML = '<li>Vacío</li>';
@@ -472,12 +548,50 @@
             }
         }
 
+        // Interacción con NPC (tecla E)
+        function interactWithNPC() {
+            let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1); // adyacente
+            if (!npc) return;
+            // Mostrar diálogo con tienda
+            let dialogHtml = `<h2>${npc.name}</h2><p>${npc.dialog || "¿Qué deseas?"}</p>`;
+            if (npc.shop && npc.shop.length > 0) {
+                dialogHtml += '<h3>Tienda:</h3>';
+                npc.shop.forEach((item, idx) => {
+                    dialogHtml += `<div class="shop-item" data-index="${idx}">${item.sprite} ${item.name} - ${item.price} 🪙 (Daño ${item.damage})</div>`;
+                });
+            }
+            dialogHtml += '<div class="close-btn">Cerrar</div>';
+            npcDialog.innerHTML = dialogHtml;
+            npcDialog.style.display = 'block';
+
+            // Eventos de compra
+            document.querySelectorAll('.shop-item').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    let idx = e.target.dataset.index;
+                    let item = npc.shop[idx];
+                    if (player.gold >= item.price) {
+                        player.gold -= item.price;
+                        // Crear objeto para inventario
+                        let newItem = { name: item.name, sprite: item.sprite, damage: item.damage };
+                        inventory.push(newItem);
+                        updateInventoryDisplay();
+                        draw();
+                        alert(`Has comprado ${item.name}`);
+                    } else {
+                        alert('No tienes suficiente oro.');
+                    }
+                });
+            });
+            document.querySelector('.close-btn').addEventListener('click', () => {
+                npcDialog.style.display = 'none';
+            });
+        }
+
         // Recoger item
         function pickupItemAt(x, y) {
             for (let i = items.length - 1; i >= 0; i--) {
                 if (items[i].x === x && items[i].y === y) {
-                    let item = items[i].type;
-                    inventory.push(item); // item normal (estrella)
+                    inventory.push(items[i].type);
                     items.splice(i, 1);
                     updateInventoryDisplay();
                     sendItemPickup(i);
@@ -492,7 +606,7 @@
             let newX = player.x + dx;
             let newY = player.y + dy;
             if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
-            if (map[newY][newX] === 1) return; // pared
+            if (map[newY][newX] === 1) return;
             player.x = newX;
             player.y = newY;
             pickupItemAt(newX, newY);
@@ -510,37 +624,31 @@
                 remotePlayer.connected = false;
                 draw();
             });
-            // Si soy el cliente (me conecté), pido el estado completo al host
             if (!isHost) {
                 requestFullState();
             }
         }
 
         function requestFullState() {
-            if (conn && conn.open) {
-                conn.send({ type: 'requestFullState' });
-            }
+            if (conn && conn.open) conn.send({ type: 'requestFullState' });
         }
 
         function handlePeerData(data, isHostConnection) {
             switch (data.type) {
                 case 'requestFullState':
-                    // El cliente pide el estado; enviar todo (solo host responde)
-                    if (isHost) {
-                        sendFullState();
-                    }
+                    if (isHost) sendFullState();
                     break;
                 case 'fullState':
-                    // Cliente recibe estado del host
                     if (data.map) map = data.map;
                     if (data.items) items = data.items;
+                    if (data.npcs) npcs = data.npcs;
+                    if (data.spawnPoint) spawnPoint = data.spawnPoint;
                     if (data.player) {
                         remotePlayer.x = data.player.x;
                         remotePlayer.y = data.player.y;
                         remotePlayer.name = data.player.name;
                         remotePlayer.connected = true;
                     }
-                    // Ajustar tamaño del mapa local
                     MAP_SIZE = map.length;
                     mapSizeSlider.value = MAP_SIZE;
                     mapSizeValue.textContent = MAP_SIZE;
@@ -565,9 +673,17 @@
                         draw();
                     }
                     break;
-                case 'newWeapon':
-                    // Recibir arma creada (opcional, podríamos añadirla al mundo)
-                    // Por ahora solo la añade al inventario del que la crea, pero podemos sincronizar
+                case 'spawnUpdate':
+                    if (data.spawnPoint) {
+                        spawnPoint = data.spawnPoint;
+                        draw();
+                    }
+                    break;
+                case 'npcUpdate':
+                    if (data.npcs) {
+                        npcs = data.npcs;
+                        draw();
+                    }
                     break;
             }
         }
@@ -578,49 +694,34 @@
                     type: 'fullState',
                     map: map,
                     items: items,
+                    npcs: npcs,
+                    spawnPoint: spawnPoint,
                     player: { x: player.x, y: player.y, name: player.name }
                 });
             }
         }
 
         function sendMove() {
-            if (conn && conn.open) {
-                conn.send({
-                    type: 'move',
-                    x: player.x,
-                    y: player.y,
-                    name: player.name
-                });
-            }
+            if (conn && conn.open) conn.send({ type: 'move', x: player.x, y: player.y, name: player.name });
         }
 
         function sendMapEdit(row, col, value) {
-            if (conn && conn.open) {
-                conn.send({ type: 'mapEdit', row, col, value });
-            }
+            if (conn && conn.open) conn.send({ type: 'mapEdit', row, col, value });
         }
 
         function sendItemPickup(index) {
-            if (conn && conn.open) {
-                conn.send({ type: 'itemPickup', itemIndex: index });
-            }
+            if (conn && conn.open) conn.send({ type: 'itemPickup', itemIndex: index });
         }
 
-        // ---------- MANEJADORES DE EVENTOS ----------
-        document.addEventListener('keydown', (e) => {
-            if (editorMode) return;
-            if (e.key === 'e') {
-                // Mostrar/ocultar creador de armas (ya visible)
-                return;
-            }
-            const key = e.key.toLowerCase();
-            if (key === 'w') tryMove(0, -1);
-            if (key === 's') tryMove(0, 1);
-            if (key === 'a') tryMove(-1, 0);
-            if (key === 'd') tryMove(1, 0);
-        });
+        function sendSpawnUpdate() {
+            if (conn && conn.open && isHost) conn.send({ type: 'spawnUpdate', spawnPoint });
+        }
 
-        // Editor de mapa
+        function sendNpcUpdate() {
+            if (conn && conn.open && isHost) conn.send({ type: 'npcUpdate', npcs });
+        }
+
+        // ---------- EVENTOS DE RATÓN PARA EDITOR/COLOCACIÓN ----------
         canvas.addEventListener('mousedown', (e) => {
             if (!editorMode) return;
             e.preventDefault();
@@ -631,19 +732,57 @@
             let mouseY = (e.clientY - rect.top) * scaleY + camera.y;
             const col = Math.floor(mouseX / TILE_SIZE);
             const row = Math.floor(mouseY / TILE_SIZE);
-            if (row >= 0 && row < MAP_SIZE && col >= 0 && col < MAP_SIZE) {
-                let value = (e.button === 0) ? 1 : 0; // izq pared, der suelo
+            if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
+
+            if (placementMode === 'spawn' && isHost) {
+                spawnPoint = { x: col, y: row };
+                sendSpawnUpdate();
+                draw();
+            } else if (placementMode === 'npc' && isHost) {
+                // Crear NPC por defecto (luego se puede editar con diálogo)
+                let name = prompt("Nombre del NPC:", "Comerciante");
+                if (name) {
+                    npcs.push({ x: col, y: row, name: name, dialog: "¡Bienvenido!", shop: [] });
+                    sendNpcUpdate();
+                    draw();
+                }
+            } else {
+                // Modo edición normal: pintar pared/suelo
+                let value = (e.button === 0) ? 1 : 0;
                 map[row][col] = value;
                 sendMapEdit(row, col, value);
                 draw();
             }
         });
+
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Botón editor
+        // Tecla E para interactuar
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'e') {
+                interactWithNPC();
+            }
+        });
+
+        // Botones de modo
         editorBtn.addEventListener('click', () => {
             editorMode = !editorMode;
-            editorBtn.textContent = editorMode ? "✏️ EDITOR MAPA: ON" : "✏️ EDITOR MAPA: OFF";
+            editorBtn.textContent = editorMode ? "✏️ EDITOR: ON" : "✏️ EDITOR: OFF";
+            if (!editorMode) placementMode = null;
+        });
+
+        setSpawnBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host puede colocar spawn"); return; }
+            placementMode = 'spawn';
+            editorMode = true;
+            editorBtn.textContent = "✏️ EDITOR: ON";
+        });
+
+        setNpcBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host puede colocar NPCs"); return; }
+            placementMode = 'npc';
+            editorMode = true;
+            editorBtn.textContent = "✏️ EDITOR: ON";
         });
 
         // Slider tamaño
@@ -651,13 +790,12 @@
             mapSizeValue.textContent = e.target.value;
         });
         resizeBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host puede redimensionar"); return; }
             let newSize = parseInt(mapSizeSlider.value);
             initMap(newSize);
-            inventory = []; // opcional
+            inventory = [];
             updateInventoryDisplay();
-            if (conn && conn.open && isHost) {
-                sendFullState(); // host actualiza a todos
-            }
+            if (conn && conn.open) sendFullState();
             draw();
         });
 
@@ -666,22 +804,12 @@
             let name = weaponName.value.trim() || "Arma";
             let damage = parseInt(weaponDamage.value) || 1;
             let sprite = weaponSprite.value;
-            let newWeapon = {
-                name: name,
-                damage: damage,
-                sprite: sprite
-            };
-            inventory.push(newWeapon);
+            inventory.push({ name, damage, sprite });
             updateInventoryDisplay();
-            // Opcional: enviar a otros jugadores (podría caer como item)
         });
-
-        // Nametag (simple, no hay input en gameScreen, pero podemos cambiarlo)
-        // En este ejemplo, no hay campo para cambiar nametag en juego, pero se puede añadir.
 
         // ---------- FLUJO DEL MENÚ ----------
         createGameBtn.addEventListener('click', () => {
-            // Iniciar como host
             isHost = true;
             peer = new Peer();
             peer.on('open', (id) => {
@@ -692,7 +820,6 @@
                 gameScreen.style.display = 'flex';
                 player.name = "Host";
                 playerNameDisplay.textContent = player.name;
-                // Inicializar mapa por defecto
                 initMap(20);
                 draw();
             });
@@ -703,7 +830,6 @@
         });
 
         joinGameBtn.addEventListener('click', () => {
-            // Mostrar campo para ID
             joinOptions.style.display = 'block';
         });
 
@@ -716,7 +842,6 @@
                 myPeerId = id;
                 peerIdDisplay.textContent = id;
                 connectionStatus.textContent = 'Conectando...';
-                // Conectar al host
                 conn = peer.connect(hostId);
                 conn.on('open', () => {
                     setupConnection(conn, false);
@@ -724,7 +849,6 @@
                     gameScreen.style.display = 'flex';
                     player.name = "Cliente";
                     playerNameDisplay.textContent = player.name;
-                    // El mapa se cargará al recibir fullState
                 });
                 conn.on('error', (err) => {
                     connectionStatus.textContent = 'Error: ' + err;
@@ -732,9 +856,9 @@
             });
         });
 
-        // Inicialización por si acaso
+        // Inicialización por defecto
         initMap(20);
-        draw();
+        updateInventoryDisplay();
     </script>
 </body>
 </html>
