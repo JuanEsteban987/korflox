@@ -217,7 +217,7 @@
             font-size: 14px;
         }
 
-        /* NUEVOS ESTILOS PARA SELECTOR DE EQUIPO Y COLOR */
+        /* NUEVOS ESTILOS PARA SELECTOR DE EQUIPO, COLOR Y ZOMBIES */
         .tool-row {
             display: flex;
             align-items: center;
@@ -239,6 +239,21 @@
             background: #ffaa00;
             border-color: #cc8800;
             font-weight: bold;
+        }
+        /* NUEVO: Checkbox para modo zombie */
+        .zombie-mode {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px;
+            background: #c99;
+            border: 2px inset #fff;
+        }
+        .zombie-mode label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #330000;
         }
     </style>
 </head>
@@ -289,13 +304,13 @@
             <h3 style="margin:0">STAMPER TOOL</h3>
             <hr>
             <p style="font-size: 11px; text-align: left;">
-                • <b>Click Izq:</b> Poner Bloque<br>
+                • <b>Click Izq:</b> Poner Bloque / Zombie<br>
                 • <b>Click Der:</b> Girar Cámara<br>
-                • <b>Shift + Click:</b> Borrar Bloque<br>
+                • <b>Shift + Click:</b> Borrar Bloque / Zombie<br>
                 • <b>WASD:</b> Volar Cámara<br>
                 • <b>Q / E:</b> Bajar / Subir
             </p>
-            <!-- NUEVO: Selector de equipo -->
+            <!-- Selector de equipo -->
             <div class="tool-row">
                 <label for="team-select">Equipo:</label>
                 <select id="team-select">
@@ -305,14 +320,19 @@
                     <option value="#ffff44">Amarillo</option>
                 </select>
             </div>
-            <!-- NUEVO: Selector de color para bloques -->
+            <!-- Selector de color para bloques -->
             <div class="tool-row">
                 <label for="block-color">Color Bloque:</label>
                 <input type="color" id="block-color" value="#999999">
             </div>
-            <!-- NUEVO: Botón para nuevo mapa -->
+            <!-- NUEVO: Modo zombie -->
+            <div class="zombie-mode">
+                <label for="zombie-mode">Modo Zombie</label>
+                <input type="checkbox" id="zombie-mode">
+            </div>
+            <!-- Botón para nuevo mapa -->
             <button class="btn-new-map" onclick="newMap()">NUEVO MAPA</button>
-            <!-- Toggle PVP existente -->
+            <!-- Toggle PVP -->
             <div class="pvp-toggle">
                 <label for="pvp-checkbox">PVP Activado</label>
                 <input type="checkbox" id="pvp-checkbox" checked>
@@ -338,9 +358,14 @@
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
         let pvpEnabled = true;
-        // NUEVAS VARIABLES
-        let teamColor = '#ff4444'; // color por defecto (rojo)
-        let blockColor = '#999999'; // color por defecto para bloques
+        let teamColor = '#ff4444';
+        let blockColor = '#999999';
+
+        // NUEVAS VARIABLES PARA ZOMBIES
+        let zombies = []; // meshes de zombies
+        let mapZombies = []; // datos de zombies { x, y, z }
+        let zombieMode = false; // modo de colocación
+        let lastZombieDamageTime = 0; // para controlar daño por tiempo
 
         /**
          * COPIAR ID AL PORTAPAPELES
@@ -356,7 +381,7 @@
         };
 
         /**
-         * RED Y MULTIJUGADOR
+         * RED Y MULTIJUGADOR (MODIFICADO PARA INCLUIR ZOMBIES)
          */
         function initNetwork() {
             peer = new Peer();
@@ -369,6 +394,8 @@
                 conn = c;
                 conn.on('open', () => {
                     conn.send({ type: 'map', data: mapData });
+                    // NUEVO: Enviar también los zombies
+                    conn.send({ type: 'zombies', data: mapZombies });
                 });
                 setupNetworkEvents();
             });
@@ -387,6 +414,11 @@
                 if(data.type === 'map') { 
                     mapData = data.data; 
                     syncBlocksInScene(); 
+                }
+                // NUEVO: Recibir zombies
+                if(data.type === 'zombies') {
+                    mapZombies = data.data;
+                    syncZombiesInScene();
                 }
                 if(data.type === 'move') handleRemotePlayerMove(data);
                 if(data.type === 'damage' && data.target === myID) takeDamage(20);
@@ -428,15 +460,13 @@
         }
 
         /**
-         * PERSONAJE Y HUMANOID - MODIFICADO PARA SOPORTAR COLOR DE EQUIPO
+         * PERSONAJE Y HUMANOID
          */
         function createCharacter(name, teamColorHex) {
             const group = new THREE.Group();
-            // Convertir hex string a número Color de THREE
             const teamColor = new THREE.Color(teamColorHex || '#ff4444');
-            const skin = new THREE.MeshStandardMaterial({ color: 0xffff00 }); // cabeza amarilla
+            const skin = new THREE.MeshStandardMaterial({ color: 0xffff00 });
             const torsoMat = new THREE.MeshStandardMaterial({ color: teamColor });
-            // piernas: un tono más oscuro del mismo color
             const legMat = new THREE.MeshStandardMaterial({ color: teamColor.clone().multiplyScalar(0.7) });
 
             const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), skin);
@@ -566,6 +596,28 @@
             }
         }
 
+        // NUEVA FUNCIÓN PARA ESTABILIZAR AL JUGADOR SOBRE BLOQUES (ELIMINA MICRO-SALTOS)
+        function stabilizeVertical() {
+            if (!player) return;
+            // Buscar el bloque más cercano por debajo
+            let closestDist = Infinity;
+            let targetY = null;
+            for (let b of blocks) {
+                const blockTop = b.position.y + 2;
+                const playerBottom = player.position.y - 2.5; // los pies están en y - 2.5
+                const dist = playerBottom - blockTop;
+                if (dist > 0 && dist < 0.2 && dist < closestDist) { // muy cerca por encima
+                    closestDist = dist;
+                    targetY = blockTop + 2.5;
+                }
+            }
+            if (targetY !== null) {
+                player.position.y = targetY;
+                vy = 0;
+                onGround = true;
+            }
+        }
+
         function animateWalking(char, isWalking) {
             const time = Date.now() * 0.01;
             const ud = char.userData;
@@ -576,6 +628,74 @@
                 ud.armR.rotation.x = Math.sin(time) * 0.8;
             } else {
                 ud.legL.rotation.x = ud.legR.rotation.x = ud.armL.rotation.x = ud.armR.rotation.x = 0;
+            }
+        }
+
+        // NUEVA FUNCIÓN PARA CREAR UN ZOMBIE
+        function createZombie(pos) {
+            const group = new THREE.Group();
+            // Cuerpo verde
+            const bodyGeo = new THREE.CylinderGeometry(1.5, 1.5, 3, 8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 1.5;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
+            // Cabeza
+            const headGeo = new THREE.SphereGeometry(1, 8);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 3.5;
+            head.castShadow = true;
+            head.receiveShadow = true;
+            group.add(head);
+            // Ojos rojos
+            const eyeGeo = new THREE.SphereGeometry(0.3, 6);
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.5, 3.7, 0.8);
+            group.add(eyeL);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeR.position.set(0.5, 3.7, 0.8);
+            group.add(eyeR);
+            
+            group.position.set(pos.x, pos.y, pos.z);
+            return group;
+        }
+
+        // NUEVA FUNCIÓN PARA COLOCAR ZOMBIE EN EL EDITOR
+        function spawnZombie(pos) {
+            const z = createZombie(pos);
+            scene.add(z);
+            zombies.push(z);
+            mapZombies.push({ x: pos.x, y: pos.y, z: pos.z });
+        }
+
+        // NUEVA FUNCIÓN PARA SINCRONIZAR ZOMBIES EN ESCENA
+        function syncZombiesInScene() {
+            zombies.forEach(z => scene.remove(z));
+            zombies = [];
+            mapZombies.forEach(p => {
+                const z = createZombie(new THREE.Vector3(p.x, p.y, p.z));
+                scene.add(z);
+                zombies.push(z);
+            });
+        }
+
+        // NUEVA FUNCIÓN PARA DETECTAR COLISIONES CON ZOMBIES (EN MODO JUEGO)
+        function checkZombieDamage() {
+            if (!player || !isPlaying) return;
+            const now = Date.now();
+            if (now - lastZombieDamageTime < 200) return; // daño cada 0.2 segundos
+            const playerBox = new THREE.Box3().setFromObject(player);
+            for (let z of zombies) {
+                const zombieBox = new THREE.Box3().setFromObject(z);
+                if (playerBox.intersectsBox(zombieBox)) {
+                    takeDamage(5);
+                    lastZombieDamageTime = now;
+                    break; // solo un daño por frame
+                }
             }
         }
 
@@ -593,10 +713,9 @@
             
             initEngine();
             syncBlocksInScene();
+            syncZombiesInScene(); // NUEVO: cargar zombies
 
-            // Obtener el equipo seleccionado actualmente
             teamColor = document.getElementById('team-select').value;
-
             player = createCharacter(name, teamColor);
             player.position.set(0, 15, 50);
             scene.add(player);
@@ -638,6 +757,8 @@
                 player.position.y += vy;
                 
                 handleVerticalPhysics(oldPos);
+                // NUEVO: estabilizar para evitar micro-saltos
+                stabilizeVertical();
 
                 let dx = 0, dz = 0;
                 if (keys['KeyW']) { dx -= Math.sin(yaw); dz -= Math.cos(yaw); walking = true; }
@@ -658,11 +779,14 @@
                 player.rotation.y = yaw;
                 animateWalking(player, walking);
 
+                // NUEVO: comprobar daño de zombies
+                checkZombieDamage();
+
                 if (conn && conn.open) {
                     conn.send({
                         type: 'move', id: myID, x: player.position.x, y: player.position.y, z: player.position.z,
                         ry: player.rotation.y, walking: walking, name: player.userData.name,
-                        team: teamColor // NUEVO: enviar equipo
+                        team: teamColor
                     });
                 }
 
@@ -681,7 +805,6 @@
 
         function handleRemotePlayerMove(data) {
             if (!otherPlayers[data.id]) {
-                // Crear con el equipo recibido
                 otherPlayers[data.id] = createCharacter(data.name, data.team || '#ff4444');
                 scene.add(otherPlayers[data.id]);
             }
@@ -692,7 +815,7 @@
         }
 
         /**
-         * MODO EDITOR
+         * MODO EDITOR (MODIFICADO PARA ZOMBIES)
          */
         function startEditor() {
             isEditor = true; isPlaying = false;
@@ -700,16 +823,15 @@
             document.getElementById('editor-ui').style.display = 'block';
             initEngine();
             syncBlocksInScene();
+            syncZombiesInScene(); // NUEVO: cargar zombies
             camera.position.set(60, 60, 60); camera.lookAt(0, 0, 0);
 
-            // Leer estado inicial del toggle PVP
             const pvpCheck = document.getElementById('pvp-checkbox');
             pvpEnabled = pvpCheck.checked;
             pvpCheck.addEventListener('change', (e) => {
                 pvpEnabled = e.target.checked;
             });
 
-            // NUEVO: Actualizar teamColor y blockColor cuando cambien en el editor
             const teamSelect = document.getElementById('team-select');
             teamColor = teamSelect.value;
             teamSelect.addEventListener('change', (e) => {
@@ -720,6 +842,13 @@
             blockColor = blockColorInput.value;
             blockColorInput.addEventListener('input', (e) => {
                 blockColor = e.target.value;
+            });
+
+            // NUEVO: modo zombie
+            const zombieCheck = document.getElementById('zombie-mode');
+            zombieMode = zombieCheck.checked;
+            zombieCheck.addEventListener('change', (e) => {
+                zombieMode = e.target.checked;
             });
 
             window.addEventListener('keydown', e => keys[e.code] = true);
@@ -736,10 +865,17 @@
                     if (intersects.length > 0) {
                         const hit = intersects[0];
                         if (e.shiftKey) {
+                            // Borrar: puede ser bloque o zombie
                             if (hit.object.isBlock) {
                                 scene.remove(hit.object);
                                 blocks = blocks.filter(b => b !== hit.object);
                                 mapData = mapData.filter(p => !(p.x === hit.object.position.x && p.y === hit.object.position.y && p.z === hit.object.position.z));
+                            } else if (hit.object.parent && hit.object.parent.isZombie) {
+                                // Si el hit es parte de un zombie, eliminar el grupo
+                                const zombieGroup = hit.object.parent;
+                                scene.remove(zombieGroup);
+                                zombies = zombies.filter(z => z !== zombieGroup);
+                                mapZombies = mapZombies.filter(p => !(p.x === zombieGroup.position.x && p.y === zombieGroup.position.y && p.z === zombieGroup.position.z));
                             }
                         } else {
                             let pos;
@@ -750,9 +886,14 @@
                                 normal.applyQuaternion(hit.object.quaternion);
                                 pos = hit.object.position.clone().add(normal.multiplyScalar(4));
                             }
-                            // NUEVO: pasar color actual
-                            spawnBlock(pos, blockColor);
-                            mapData.push({ x: pos.x, y: pos.y, z: pos.z, color: blockColor });
+                            if (zombieMode) {
+                                // Colocar zombie
+                                spawnZombie(pos);
+                            } else {
+                                // Colocar bloque
+                                spawnBlock(pos, blockColor);
+                                mapData.push({ x: pos.x, y: pos.y, z: pos.z, color: blockColor });
+                            }
                         }
                     }
                 }
@@ -778,7 +919,6 @@
             if (keys['KeyQ']) camera.position.y -= es;
         }
 
-        // NUEVA FUNCIÓN: spawnBlock ahora acepta color
         function spawnBlock(pos, colorHex) {
             const color = new THREE.Color(colorHex || '#999999');
             const b = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshStandardMaterial({ color: color, metalness: 0.2, roughness: 0.7 }));
@@ -791,20 +931,25 @@
             blocks.forEach(b => scene.remove(b));
             blocks = []; 
             mapData.forEach(p => {
-                // Si el mapa guardado no tiene color, usar gris
                 const col = p.color || '#999999';
                 spawnBlock(new THREE.Vector3(p.x, p.y, p.z), col);
             });
         }
 
         function exportMap() {
-            // Guardar también el color
-            const dataToSave = mapData.map(b => ({
-                x: b.x,
-                y: b.y,
-                z: b.z,
-                color: b.color || '#999999'
-            }));
+            const dataToSave = {
+                blocks: mapData.map(b => ({
+                    x: b.x,
+                    y: b.y,
+                    z: b.z,
+                    color: b.color || '#999999'
+                })),
+                zombies: mapZombies.map(z => ({
+                    x: z.x,
+                    y: z.y,
+                    z: z.z
+                }))
+            };
             const blob = new Blob([JSON.stringify(dataToSave)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -814,18 +959,30 @@
         function loadMap(e) {
             const reader = new FileReader();
             reader.onload = ev => {
-                mapData = JSON.parse(ev.target.result);
+                const data = JSON.parse(ev.target.result);
+                // Compatibilidad con mapas antiguos (solo bloques)
+                if (Array.isArray(data)) {
+                    mapData = data;
+                    mapZombies = [];
+                } else {
+                    mapData = data.blocks || [];
+                    mapZombies = data.zombies || [];
+                }
                 alert("Mapa cargado con éxito!");
-                if (renderer) syncBlocksInScene();
+                if (renderer) {
+                    syncBlocksInScene();
+                    syncZombiesInScene();
+                }
             };
             reader.readAsText(e.target.files[0]);
         }
 
-        // NUEVA FUNCIÓN: crear un mapa nuevo (vacío)
         function newMap() {
             if (confirm("¿Crear un nuevo mapa? Se perderán los cambios no guardados.")) {
                 mapData = [];
+                mapZombies = [];
                 syncBlocksInScene();
+                syncZombiesInScene();
             }
         }
 
