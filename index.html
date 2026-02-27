@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RPG 2D estilo Roblox - Editor de mapas y nametags</title>
+    <title>RPG 2D Multijugador P2P - Inventario y mapa gigante</title>
     <style>
         body {
             margin: 0;
@@ -13,115 +13,360 @@
             color: white;
             font-family: Arial, sans-serif;
         }
-        canvas {
-            border: 2px solid #0f3460;
-            background: #16213e;
-            margin-top: 20px;
-            cursor: crosshair;
-        }
-        .controls {
-            margin: 10px;
+        #gameContainer {
             display: flex;
             gap: 20px;
-            align-items: center;
+            margin: 20px;
             flex-wrap: wrap;
             justify-content: center;
         }
-        button {
+        canvas {
+            border: 2px solid #0f3460;
+            background: #16213e;
+            cursor: crosshair;
+        }
+        .panel {
             background: #0f3460;
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 250px;
+        }
+        .panel h3 {
+            margin-top: 0;
+            color: #e94560;
+        }
+        .controls {
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background: #e94560;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+            transition: 0.2s;
         }
-        button.active {
-            background: #e94560;
+        button:hover {
+            background: #ff6b8b;
         }
-        input {
+        button.secondary {
+            background: #0f3460;
+            border: 1px solid #e94560;
+        }
+        input, select {
             padding: 5px;
             border-radius: 5px;
             border: none;
         }
-        label {
-            font-size: 14px;
+        .inventory-list {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
         }
-        .info {
-            margin: 5px;
-            font-size: 14px;
+        .inventory-list li {
+            background: #16213e;
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .peer-section {
+            border-top: 1px solid #e94560;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        #status {
+            font-size: 12px;
+            color: #aaf0e9;
         }
     </style>
+    <!-- Incluimos PeerJS -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
-    <h1>🌟 RPG 2D - Editor de mapas y Nametags</h1>
-    <div class="controls">
-        <div>
-            <button id="editorBtn">✏️ Modo Editor: OFF</button>
-            <span id="editorStatus" style="margin-left: 5px;">(Desactivado)</span>
+    <h1>🌟 RPG 2D P2P - Inventario + Mapa redimensionable</h1>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="800"></canvas>
+        
+        <div class="panel">
+            <h3>👤 Jugador local</h3>
+            <div class="controls">
+                <label>Nametag: <input type="text" id="nameInput" value="Aventurero" maxlength="20"></label>
+                <label>🎮 Tamaño mapa (N x N): 
+                    <input type="range" id="mapSizeSlider" min="5" max="100" value="15" step="1">
+                    <span id="mapSizeValue">15</span>
+                </label>
+                <button id="resizeBtn">🔄 Redimensionar y reiniciar</button>
+                <button id="editorBtn" class="secondary">✏️ Modo Editor: OFF</button>
+            </div>
+
+            <div class="peer-section">
+                <h3>🌐 Multijugador P2P</h3>
+                <div>
+                    <button id="startPeerBtn">🟢 Iniciar Peer</button>
+                    <span id="peerIdDisplay">-</span>
+                </div>
+                <div style="margin-top: 5px;">
+                    <input type="text" id="peerConnectInput" placeholder="ID del otro jugador">
+                    <button id="connectBtn">🔗 Conectar</button>
+                </div>
+                <div id="status">Desconectado</div>
+            </div>
+
+            <h3>🎒 Inventario</h3>
+            <ul class="inventory-list" id="inventoryList">
+                <li>Vacío</li>
+            </ul>
         </div>
-        <div>
-            <label>👤 Nametag:</label>
-            <input type="text" id="nameInput" value="Aventurero" maxlength="20">
-        </div>
-        <div>
-            <span>📦 Tamaño del mapa: 10x10 (80x80px por tile)</span>
-        </div>
-    </div>
-    <canvas id="gameCanvas" width="800" height="800"></canvas>
-    <div class="info">
-        <p>🡑🡐🡓🡒 WASD para moverte | En modo editor: clic izquierdo para colocar pared (gris), clic derecho para suelo (verde)</p>
     </div>
 
     <script>
-        // ---------- Configuración ----------
+        // ---------- Configuración global ----------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const TILE_SIZE = 80;          // 800/10 = 80px por tile
-        const MAP_SIZE = 10;            // 10x10 tiles
+        let MAP_SIZE = 15;                // valor inicial
+        let TILE_SIZE = 800 / MAP_SIZE;   // se recalcula al redimensionar
 
-        // Mapa: 0 = suelo (verde), 1 = pared (gris)
+        // Matriz del mapa: 0 = suelo, 1 = pared
         let map = [];
-        for (let i = 0; i < MAP_SIZE; i++) {
-            map[i] = [];
-            for (let j = 0; j < MAP_SIZE; j++) {
-                map[i][j] = 0;          // Inicialmente todo suelo
-            }
-        }
 
-        // Jugador
+        // Objetos (items) en el mapa: cada objeto tiene {x, y, type}
+        let items = [];
+        const ITEM_TYPES = ['★', '⚔️', '🧪']; // se usará el primero para dibujar
+
+        // Inventario del jugador local
+        let inventory = [];
+
+        // Jugador local
         let player = {
-            x: 1,                       // Posición en tiles (columna)
-            y: 1,                       // fila
-            name: "Aventurero"
+            x: 5,
+            y: 5,
+            name: "Aventurero",
+            color: '#e94560'  // rojo
+        };
+
+        // Jugador remoto (solo uno por simplicidad)
+        let remotePlayer = {
+            x: 0,
+            y: 0,
+            name: "Remoto",
+            color: '#4a90e2',  // azul
+            connected: false
         };
 
         // Editor
         let editorMode = false;
-        const editorBtn = document.getElementById('editorBtn');
-        const editorStatus = document.getElementById('editorStatus');
+
+        // Elementos DOM
         const nameInput = document.getElementById('nameInput');
+        const editorBtn = document.getElementById('editorBtn');
+        const mapSizeSlider = document.getElementById('mapSizeSlider');
+        const mapSizeValue = document.getElementById('mapSizeValue');
+        const resizeBtn = document.getElementById('resizeBtn');
+        const inventoryList = document.getElementById('inventoryList');
+        const peerIdDisplay = document.getElementById('peerIdDisplay');
+        const statusDiv = document.getElementById('status');
+        const startPeerBtn = document.getElementById('startPeerBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const peerConnectInput = document.getElementById('peerConnectInput');
 
-        // Para evitar el menú contextual con clic derecho
-        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        // ---------- PeerJS ----------
+        let peer = null;
+        let conn = null;
+        let myPeerId = null;
 
-        // ---------- Actualizar nametag desde input ----------
-        nameInput.addEventListener('input', (e) => {
-            player.name = e.target.value || "Jugador";
-        });
+        // Inicializar Peer (genera ID aleatorio)
+        function initPeer() {
+            if (peer) peer.destroy();
+            peer = new Peer(); // genera ID aleatorio
+            peer.on('open', (id) => {
+                myPeerId = id;
+                peerIdDisplay.textContent = id;
+                statusDiv.textContent = 'Peer activo, esperando conexión...';
+            });
+            peer.on('connection', (connection) => {
+                conn = connection;
+                setupConnection(conn);
+            });
+            peer.on('error', (err) => {
+                console.error(err);
+                statusDiv.textContent = 'Error: ' + err.type;
+            });
+        }
 
-        // ---------- Botón de modo editor ----------
-        editorBtn.addEventListener('click', () => {
-            editorMode = !editorMode;
-            editorBtn.textContent = editorMode ? "✏️ Modo Editor: ON" : "✏️ Modo Editor: OFF";
-            editorStatus.textContent = editorMode ? "(Activado)" : "(Desactivado)";
-            editorBtn.classList.toggle('active', editorMode);
-        });
+        // Configurar conexión una vez establecida
+        function setupConnection(connection) {
+            conn = connection;
+            statusDiv.textContent = 'Conectado a: ' + connection.peer;
+            connection.on('data', (data) => {
+                // Procesar mensajes entrantes
+                handlePeerData(data);
+            });
+            connection.on('close', () => {
+                statusDiv.textContent = 'Conexión cerrada';
+                remotePlayer.connected = false;
+                draw();
+            });
+            // Enviar nuestro estado actual al conectarnos
+            sendFullState();
+        }
 
-        // ---------- Dibujar mapa y jugador ----------
+        // Enviar estado completo al otro jugador
+        function sendFullState() {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'fullState',
+                    map: map,
+                    items: items,
+                    player: { x: player.x, y: player.y, name: player.name },
+                    inventory: inventory
+                });
+            }
+        }
+
+        // Manejar datos entrantes
+        function handlePeerData(data) {
+            switch (data.type) {
+                case 'fullState':
+                    // Recibimos el mapa, items y posición del otro
+                    if (data.map) map = data.map; // sincronizar mapa (opcional, podría ser conflicto)
+                    if (data.items) items = data.items;
+                    if (data.player) {
+                        remotePlayer.x = data.player.x;
+                        remotePlayer.y = data.player.y;
+                        remotePlayer.name = data.player.name;
+                        remotePlayer.connected = true;
+                    }
+                    // Opcional: sincronizar inventario? No, cada quien su inventario.
+                    draw();
+                    break;
+                case 'move':
+                    // Otro jugador se movió
+                    remotePlayer.x = data.x;
+                    remotePlayer.y = data.y;
+                    remotePlayer.name = data.name;
+                    remotePlayer.connected = true;
+                    draw();
+                    break;
+                case 'mapEdit':
+                    // Editar un tile
+                    if (data.row !== undefined && data.col !== undefined) {
+                        map[data.row][data.col] = data.value;
+                        draw();
+                    }
+                    break;
+                case 'itemPickup':
+                    // Alguien recogió un item (sincronizar eliminación)
+                    if (data.itemIndex !== undefined) {
+                        items.splice(data.itemIndex, 1);
+                        draw();
+                    }
+                    break;
+                case 'inventoryUpdate':
+                    // Podríamos sincronizar inventarios, pero no necesario
+                    break;
+            }
+        }
+
+        // Enviar movimiento
+        function sendMove() {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'move',
+                    x: player.x,
+                    y: player.y,
+                    name: player.name
+                });
+            }
+        }
+
+        // Enviar edición de mapa
+        function sendMapEdit(row, col, value) {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'mapEdit',
+                    row: row,
+                    col: col,
+                    value: value
+                });
+            }
+        }
+
+        // Enviar recolección de item
+        function sendItemPickup(index) {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'itemPickup',
+                    itemIndex: index
+                });
+            }
+        }
+
+        // ---------- Funciones del mapa ----------
+        function initMap(size) {
+            MAP_SIZE = size;
+            TILE_SIZE = 800 / MAP_SIZE;
+
+            // Crear matriz vacía (todo suelo)
+            map = [];
+            for (let i = 0; i < MAP_SIZE; i++) {
+                map[i] = [];
+                for (let j = 0; j < MAP_SIZE; j++) {
+                    map[i][j] = 0;
+                }
+            }
+            // Bordes como paredes
+            for (let i = 0; i < MAP_SIZE; i++) {
+                map[0][i] = 1;
+                map[MAP_SIZE-1][i] = 1;
+                map[i][0] = 1;
+                map[i][MAP_SIZE-1] = 1;
+            }
+            // Algunas paredes internas aleatorias (10%)
+            for (let i = 2; i < MAP_SIZE-2; i++) {
+                for (let j = 2; j < MAP_SIZE-2; j++) {
+                    if (Math.random() < 0.1) {
+                        map[i][j] = 1;
+                    }
+                }
+            }
+            // Asegurar espacio para el jugador
+            player.x = Math.floor(MAP_SIZE/2);
+            player.y = Math.floor(MAP_SIZE/2);
+            map[player.y][player.x] = 0;
+
+            // Generar items aleatorios (10% de celdas de suelo)
+            items = [];
+            for (let i = 1; i < MAP_SIZE-1; i++) {
+                for (let j = 1; j < MAP_SIZE-1; j++) {
+                    if (map[i][j] === 0 && Math.random() < 0.05) { // 5% de probabilidad
+                        items.push({ x: j, y: i, type: ITEM_TYPES[0] });
+                    }
+                }
+            }
+        }
+
+        // Redimensionar mapa desde el slider
+        function resizeMap() {
+            let newSize = parseInt(mapSizeSlider.value);
+            initMap(newSize);
+            // Reiniciar inventario local (opcional)
+            inventory = [];
+            updateInventoryDisplay();
+            if (conn && conn.open) {
+                sendFullState(); // enviar nuevo estado al otro
+            }
+            draw();
+        }
+
+        // ---------- Dibujado ----------
         function draw() {
-            // Fondo del canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, 800, 800);
 
             // Dibujar tiles
             for (let row = 0; row < MAP_SIZE; row++) {
@@ -135,7 +380,7 @@
                     } else {
                         ctx.fillStyle = '#9e9e9e';   // pared gris
                     }
-                    ctx.fillRect(x, y, TILE_SIZE - 1, TILE_SIZE - 1); // -1 para ver la cuadrícula
+                    ctx.fillRect(x, y, TILE_SIZE - 1, TILE_SIZE - 1);
 
                     // Borde
                     ctx.strokeStyle = '#555';
@@ -143,108 +388,167 @@
                 }
             }
 
-            // Dibujar jugador (un círculo)
-            let playerX = player.x * TILE_SIZE + TILE_SIZE/2;
-            let playerY = player.y * TILE_SIZE + TILE_SIZE/2;
+            // Dibujar items
+            ctx.font = `${TILE_SIZE * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'gold';
+            items.forEach(item => {
+                let x = item.x * TILE_SIZE + TILE_SIZE/2;
+                let y = item.y * TILE_SIZE + TILE_SIZE/2;
+                ctx.fillText(item.type, x, y);
+            });
 
+            // Dibujar jugador remoto si conectado
+            if (remotePlayer.connected) {
+                let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2;
+                let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2;
+                ctx.beginPath();
+                ctx.arc(rx, ry, TILE_SIZE/3, 0, 2*Math.PI);
+                ctx.fillStyle = remotePlayer.color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // Nametag
+                ctx.font = `bold ${TILE_SIZE/4}px Arial`;
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 3;
+                ctx.textAlign = 'center';
+                ctx.strokeText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 2);
+                ctx.fillText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 2);
+            }
+
+            // Dibujar jugador local
+            let px = player.x * TILE_SIZE + TILE_SIZE/2;
+            let py = player.y * TILE_SIZE + TILE_SIZE/2;
             ctx.beginPath();
-            ctx.arc(playerX, playerY, TILE_SIZE/3, 0, 2 * Math.PI);
-            ctx.fillStyle = '#e94560';
+            ctx.arc(px, py, TILE_SIZE/3, 0, 2*Math.PI);
+            ctx.fillStyle = player.color;
             ctx.fill();
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 2;
             ctx.stroke();
-
-            // Dibujar nametag encima del jugador
-            ctx.font = 'bold 16px Arial';
+            // Nametag local
+            ctx.font = `bold ${TILE_SIZE/4}px Arial`;
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
             ctx.textAlign = 'center';
-            ctx.strokeText(player.name, playerX, playerY - TILE_SIZE/2 - 5);
-            ctx.fillText(player.name, playerX, playerY - TILE_SIZE/2 - 5);
+            ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 2);
+            ctx.fillText(player.name, px, py - TILE_SIZE/2 - 2);
         }
 
-        // ---------- Movimiento con WASD (considerando colisiones) ----------
-        document.addEventListener('keydown', (e) => {
-            if (editorMode) return; // En modo editor no nos movemos
-
-            let newX = player.x;
-            let newY = player.y;
-
-            switch(e.key) {
-                case 'w': newY--; break;
-                case 's': newY++; break;
-                case 'a': newX--; break;
-                case 'd': newX++; break;
-                default: return;
+        // Actualizar lista de inventario en el DOM
+        function updateInventoryDisplay() {
+            if (inventory.length === 0) {
+                inventoryList.innerHTML = '<li>Vacío</li>';
+            } else {
+                inventoryList.innerHTML = inventory.map((item, i) => `<li>${item} (${i+1})</li>`).join('');
             }
+        }
 
-            // Verificar límites del mapa
-            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
-
-            // Verificar si la celda destino es suelo (0) - las paredes (1) bloquean
-            if (map[newY][newX] === 0) {
-                player.x = newX;
-                player.y = newY;
+        // Recoger item si el jugador está sobre uno
+        function pickupItemAt(x, y) {
+            for (let i = items.length - 1; i >= 0; i--) {
+                if (items[i].x === x && items[i].y === y) {
+                    let item = items[i].type;
+                    inventory.push(item);
+                    items.splice(i, 1);
+                    updateInventoryDisplay();
+                    sendItemPickup(i);
+                    draw();
+                    break;
+                }
             }
+        }
 
+        // ---------- Movimiento local ----------
+        function tryMove(dx, dy) {
+            let newX = player.x + dx;
+            let newY = player.y + dy;
+            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return false;
+            if (map[newY][newX] === 1) return false; // pared
+
+            player.x = newX;
+            player.y = newY;
+            pickupItemAt(newX, newY); // recoger automático
+            sendMove();
             draw();
+            return true;
+        }
+
+        // ---------- Eventos ----------
+        document.addEventListener('keydown', (e) => {
+            if (editorMode) return;
+            switch(e.key) {
+                case 'w': tryMove(0, -1); break;
+                case 's': tryMove(0, 1); break;
+                case 'a': tryMove(-1, 0); break;
+                case 'd': tryMove(1, 0); break;
+            }
         });
 
-        // ---------- Eventos de clic para editar mapa ----------
+        // Editor: clics en canvas
         canvas.addEventListener('mousedown', (e) => {
             if (!editorMode) return;
-
-            // Obtener coordenadas del clic relativas al canvas
+            e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-
             const mouseX = (e.clientX - rect.left) * scaleX;
             const mouseY = (e.clientY - rect.top) * scaleY;
-
             const col = Math.floor(mouseX / TILE_SIZE);
             const row = Math.floor(mouseY / TILE_SIZE);
-
-            if (col >= 0 && col < MAP_SIZE && row >= 0 && row < MAP_SIZE) {
-                // Botón izquierdo: pared (1), botón derecho: suelo (0)
-                if (e.button === 0) { // izquierdo
-                    map[row][col] = 1;
-                } else if (e.button === 2) { // derecho
-                    map[row][col] = 0;
-                }
+            if (row >= 0 && row < MAP_SIZE && col >= 0 && col < MAP_SIZE) {
+                let value = (e.button === 0) ? 1 : 0; // izq pared, der suelo
+                map[row][col] = value;
+                sendMapEdit(row, col, value);
                 draw();
             }
         });
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // ---------- Inicializar con algunas paredes de ejemplo ----------
-        function initMap() {
-            // Paredes alrededor
-            for (let i = 0; i < MAP_SIZE; i++) {
-                map[0][i] = 1;           // fila superior
-                map[MAP_SIZE-1][i] = 1;   // fila inferior
-                map[i][0] = 1;            // columna izquierda
-                map[i][MAP_SIZE-1] = 1;    // columna derecha
+        // Botón editor
+        editorBtn.addEventListener('click', () => {
+            editorMode = !editorMode;
+            editorBtn.textContent = editorMode ? "✏️ Modo Editor: ON" : "✏️ Modo Editor: OFF";
+        });
+
+        // Nametag
+        nameInput.addEventListener('input', (e) => {
+            player.name = e.target.value || "Jugador";
+            draw();
+        });
+
+        // Slider tamaño
+        mapSizeSlider.addEventListener('input', (e) => {
+            mapSizeValue.textContent = e.target.value;
+        });
+        resizeBtn.addEventListener('click', resizeMap);
+
+        // PeerJS
+        startPeerBtn.addEventListener('click', initPeer);
+        connectBtn.addEventListener('click', () => {
+            let remoteId = peerConnectInput.value.trim();
+            if (!remoteId || !peer) {
+                alert('Primero inicia Peer o escribe un ID válido');
+                return;
             }
-            // Algunas paredes internas
-            map[3][3] = 1;
-            map[4][4] = 1;
-            map[5][5] = 1;
-            map[7][2] = 1;
-            map[2][7] = 1;
+            conn = peer.connect(remoteId);
+            conn.on('open', () => {
+                setupConnection(conn);
+            });
+            conn.on('error', (err) => {
+                statusDiv.textContent = 'Error conexión: ' + err;
+            });
+        });
 
-            // Asegurar que el jugador empieza en suelo
-            player.x = 5;
-            player.y = 5;
-            map[5][5] = 0; // si por casualidad era pared, la quitamos
-        }
-
-        initMap();
+        // Inicializar mapa por defecto
+        initMap(15);
         draw();
-
-        // ---------- Instrucciones extra ----------
-        console.log('Juego cargado. Usa WASD para moverte. Activa el editor para pintar.');
+        updateInventoryDisplay();
     </script>
 </body>
 </html>
