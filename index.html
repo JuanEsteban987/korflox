@@ -2,1264 +2,474 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>ROBLOX 2008 - FINAL ENGINE FIX</title>
+    <title>Mini RTS · Age of Grid</title>
     <style>
-        /* INTERFAZ CLÁSICA ROBLOX 2008 - ESTILO RETRO MEJORADO */
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            font-family: 'Courier New', 'Arial', sans-serif; 
-            background-color: #000; 
-            user-select: none;
-            image-rendering: pixelated;
-        }
-
-        #ui-layer { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            pointer-events: none; 
-            z-index: 10; 
-        }
-        
-        #top-bar { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 40px; 
-            background: #cc0000; 
-            border-bottom: 4px solid #880000; 
-            display: flex; 
-            align-items: center; 
-            padding: 0 10px; 
-            pointer-events: auto; 
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.3);
-            color: white;
-            text-shadow: 2px 2px 0 #880000;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .panel { 
-            pointer-events: auto; 
-            background: #c0c0c0; 
-            border: 5px outset #ffffff; 
-            padding: 15px; 
-            color: #000; 
-            box-shadow: 5px 5px 0px #000000;
-            font-family: 'Courier New', monospace;
-            image-rendering: pixelated;
-        }
-
-        #main-menu { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            width: 480px; 
-            text-align: center; 
-            display: block;
-            background: #c0c0c0;
-            border: 6px ridge #ffffff;
-        }
-
-        h1 { 
-            color: #cc0000; 
-            -webkit-text-stroke: 2px black; 
-            font-size: 56px; 
-            margin: 10px 0; 
-            font-family: 'Arial Black', 'Courier New', sans-serif; 
-            text-shadow: 3px 3px 0 #880000;
-            letter-spacing: -1px;
-        }
-
-        button { 
-            cursor: pointer; 
-            padding: 12px; 
-            margin: 8px; 
-            font-weight: bold; 
-            background: #d4d0c8; 
-            border: 4px outset #ffffff; 
-            width: 90%; 
-            text-transform: uppercase;
-            font-family: 'Courier New', monospace;
-            font-size: 16px;
-            box-shadow: 2px 2px 0 #000;
-        }
-
-        button:active { 
-            border: 4px inset #ffffff; 
-            transform: translate(2px,2px);
-            box-shadow: none;
-        }
-        .btn-play { background: #00bb00; color: white; border-color: #00ff00; font-size: 20px; }
-
-        /* HUD DE SALUD */
-        #hud { 
-            position: absolute; 
-            top: 50px; 
-            right: 20px; 
-            width: 240px; 
-            display: none; 
-            pointer-events: auto; 
-            background: #c0c0c0;
-            border: 4px ridge #ffffff;
-            padding: 8px;
-        }
-
-        .health-bg { 
-            width: 100%; 
-            height: 24px; 
-            background: #555; 
-            border: 2px solid #000; 
-        }
-
-        #health-bar { 
-            width: 100%; 
-            height: 100%; 
-            background: #00ff00; 
-            transition: width 0.2s; 
-        }
-
-        #username-display { 
-            color: white; 
-            font-weight: bold; 
-            text-shadow: 2px 2px 0 #000; 
-            margin-bottom: 5px; 
-            text-align: right; 
-            font-size: 16px;
-            background: #000;
-            padding: 3px;
-            border: 2px inset #fff;
-        }
-
-        /* INVENTARIO */
-        #inventory { 
-            position: absolute; 
-            bottom: 20px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            display: none; 
-            pointer-events: auto; 
-            gap: 10px; 
-            background: #c0c0c0;
-            border: 4px ridge #ffffff;
-            padding: 10px;
-        }
-
-        .slot { 
-            width: 80px; 
-            height: 80px; 
-            background: #808080; 
-            border: 4px inset #ffffff; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            color: white; 
-            font-size: 12px; 
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        .slot.active { 
-            border-color: #ffff00; 
-            background: #a0a0a0; 
-        }
-
-        #room-info { 
-            position: absolute; 
-            top: 55px; 
-            left: 10px; 
-            font-size: 12px; 
-            background: #c0c0c0; 
-            padding: 8px; 
-            border: 4px ridge #ffffff; 
-            pointer-events: auto; 
-            color: #000;
-        }
-
-        #my-id {
-            color: #00f; 
-            font-family: monospace; 
-            font-weight: bold; 
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        #crosshair { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            width: 20px; 
-            height: 20px; 
-            border: 2px solid white; 
-            border-radius: 0; 
-            transform: translate(-50%, -50%); 
-            display: none; 
-            mix-blend-mode: difference; 
-            z-index: 5;
-            background: rgba(255,255,255,0.3);
-            clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%);
-        }
-
-        input, select { 
-            pointer-events: auto; 
-            padding: 10px; 
-            margin: 8px; 
-            border: 4px inset #eee; 
-            width: 85%; 
-            font-family: 'Courier New', monospace;
-            background: #fff;
-        }
-        
-        #editor-ui { 
-            position: absolute; 
-            bottom: 20px; 
-            right: 20px; 
-            display: none; 
-            width: 320px; 
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        #copy-toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #00ff00;
-            color: black;
-            padding: 10px 20px;
-            border: 4px ridge #fff;
-            display: none;
-            z-index: 1000;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-
-        /* Estilos para toggles y selects */
-        .tool-row, .pvp-toggle, .zombie-mode, .spawner-mode, .item-mode {
+        body {
+            margin: 0;
             display: flex;
+            justify-content: center;
             align-items: center;
+            height: 100vh;
+            background: #1a2a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #gameContainer {
+            background: #2a3a2a;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 3px solid #6b4e3a;
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+        #infoPanel {
+            margin-top: 12px;
+            color: #e0d8b0;
+            display: flex;
             justify-content: space-between;
-            margin: 8px 0;
-            padding: 5px;
-            background: #a0a0a0;
-            border: 4px inset #fff;
+            align-items: center;
+            background: #3b4a3b;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #8b7a5a;
         }
-        .tool-row label, .pvp-toggle label, .zombie-mode label, .spawner-mode label, .item-mode label {
+        #resources {
+            font-size: 1.3rem;
             font-weight: bold;
-            font-size: 14px;
-            color: #000;
+            text-shadow: 2px 2px 0 #2a3a2a;
         }
-        .zombie-mode { background: #b88; }
-        .spawner-mode { background: #8b8; }
-        .item-mode { background: #88b; }
-        .btn-new-map { background: #ffaa00; border-color: #cc8800; }
+        #selectedInfo {
+            background: #4a5a4a;
+            padding: 4px 16px;
+            border-radius: 30px;
+            border: 1px solid #b0a880;
+        }
+        button {
+            background: #6b8c5c;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 6px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            border-bottom: 3px solid #3a5a3a;
+            transition: 0.1s ease;
+            font-size: 1rem;
+        }
+        button:hover {
+            background: #7b9c6c;
+            border-bottom-width: 1px;
+            transform: translateY(2px);
+        }
+        button:active {
+            transform: translateY(4px);
+            border-bottom-width: 0;
+        }
     </style>
 </head>
 <body>
-
-    <div id="copy-toast">ID Copiada al Portapapeles!</div>
-    <div id="crosshair"></div>
-
-    <div id="ui-layer">
-        <div id="top-bar">
-            <span style="color: white; font-weight: bold; letter-spacing: 2px;">ROBLOX v2008.3 - CLASSIC EDITION</span>
-        </div>
-        
-        <div id="hud">
-            <div id="username-display">Guest Player</div>
-            <div class="health-bg"><div id="health-bar"></div></div>
-            <div style="margin-top:5px; background:#000; color:#fff; padding:2px; text-align:center; border:2px inset #fff;">HP</div>
-        </div>
-
-        <div id="room-info" class="panel">
-            <b>Server ID (Click para copiar):</b> <br>
-            <span id="my-id" title="Click para copiar">Conectando...</span>
-        </div>
-
-        <div id="main-menu" class="panel">
-            <h1>ROBLOX</h1>
-            <input type="text" id="username-input" placeholder="Nombre de tu Avatar..." maxlength="12">
-            
-            <button class="btn-play" onclick="startPlay()">ENTRAR AL MUNDO</button>
-            
-            <div style="margin: 15px; padding: 10px; border: 4px inset #fff; background: #aaa;">
-                <p style="font-size: 12px; margin: 0 0 5px 0; font-weight: bold;">UNIRSE A UN AMIGO:</p>
-                <input type="text" id="peer-input" placeholder="Pega la ID aquí...">
-                <button style="width: auto; padding: 10px 20px;" onclick="connectToPeer()">JOIN GAME</button>
-            </div>
-
-            <button onclick="startEditor()">BUILD MODE (EDITOR)</button>
-            <button onclick="document.getElementById('file-input').click()" style="background: #ffcc00; border-color: #ccaa00;">LOAD PLACE (.JSON)</button>
-            <input type="file" id="file-input" style="display:none" onchange="loadMap(event)">
-        </div>
-
-        <div id="inventory">
-            <div class="slot active" id="slot-1"><span>1</span><br><b>ESPADA</b></div>
-            <div class="slot" id="slot-2"><span>2</span><br>VACÍO</div>
-            <div class="slot" id="slot-3"><span>3</span><br>VACÍO</div>
-            <div class="slot" id="slot-4"><span>4</span><br>VACÍO</div>
-        </div>
-
-        <div id="editor-ui" class="panel">
-            <h3 style="margin:0; text-align:center;">STAMPER TOOL</h3>
-            <hr style="border: 2px inset #fff;">
-            <p style="font-size: 11px; text-align: left; background:#000; color:#0f0; padding:5px; border:2px inset #fff;">
-                • <b>Click Izq:</b> Colocar según modo<br>
-                • <b>Click Der:</b> Girar Cámara<br>
-                • <b>Shift + Click:</b> Borrar<br>
-                • <b>WASD:</b> Volar Cámara<br>
-                • <b>Q / E:</b> Bajar / Subir
-            </p>
-            <!-- Selector de equipo (color torso/piernas) -->
-            <div class="tool-row">
-                <label for="team-select">Equipo:</label>
-                <select id="team-select">
-                    <option value="#ff4444" selected>Rojo</option>
-                    <option value="#4444ff">Azul</option>
-                    <option value="#44ff44">Verde</option>
-                    <option value="#ffff44">Amarillo</option>
-                </select>
-            </div>
-            <!-- Selector de color de piel -->
-            <div class="tool-row">
-                <label for="skin-color">Color Piel:</label>
-                <input type="color" id="skin-color" value="#ffff00">
-            </div>
-            <!-- Selector de color para bloques -->
-            <div class="tool-row">
-                <label for="block-color">Color Bloque:</label>
-                <input type="color" id="block-color" value="#999999">
-            </div>
-            <!-- Modo Zombie -->
-            <div class="zombie-mode">
-                <label for="zombie-mode">🧟 Modo Zombie</label>
-                <input type="checkbox" id="zombie-mode">
-            </div>
-            <!-- Modo Spawner -->
-            <div class="spawner-mode">
-                <label for="spawner-mode">⚙️ Modo Spawner</label>
-                <input type="checkbox" id="spawner-mode">
-            </div>
-            <!-- NUEVO: Modo Items (Armas, Bebidas, Comida) -->
-            <div class="item-mode">
-                <label for="item-mode">🎒 Modo Item</label>
-                <input type="checkbox" id="item-mode">
-            </div>
-            <!-- Selector de tipo de item (solo visible en modo item) -->
-            <div class="tool-row" id="item-type-row" style="display:none;">
-                <label for="item-type">Tipo:</label>
-                <select id="item-type">
-                    <option value="sword">Espada (rango 3)</option>
-                    <option value="longsword">Espada Larga (rango 5)</option>
-                    <option value="dagger">Daga (rango 2, rápido)</option>
-                    <option value="potion">Poción de vida</option>
-                    <option value="food">Comida</option>
-                </select>
-            </div>
-            <!-- Botón nuevo mapa -->
-            <button class="btn-new-map" onclick="newMap()">NUEVO MAPA</button>
-            <!-- Toggle PVP -->
-            <div class="pvp-toggle">
-                <label for="pvp-checkbox">⚔️ PVP Activado</label>
-                <input type="checkbox" id="pvp-checkbox" checked>
-            </div>
-            <button class="btn-play" onclick="exportMap()">SAVE PLACE</button>
-            <button onclick="location.reload()" style="background: #888; color: white;">SALIR</button>
-        </div>
+<div id="gameContainer">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="infoPanel">
+        <div id="resources">🌲 0  🍖 0</div>
+        <div id="selectedInfo">👤 Ninguna unidad</div>
+        <button id="buildBtn">🏠 Construir (50🌲)</button>
     </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+<script>
+    // --------------------------------------------------------------
+    // CONSTANTES Y CONFIGURACIÓN
+    // --------------------------------------------------------------
+    const CELDA = 40;                // píxeles por celda
+    const COLUMNAS = 20;             // 800/40
+    const FILAS = 15;                // 600/40
 
-    <script>
-        // ==================== CONSTANTES GLOBALES ====================
-        const BLOCK_SIZE = 2;
-        const PLAYER_HEIGHT = 5.0;
-        const PLAYER_CENTER_Y_OFFSET = PLAYER_HEIGHT / 2;
+    // Tipos de terreno
+    const TERRENO = {
+        TIERRA: 0,
+        AGUA: 1,
+        BOSQUE: 2,
+        MONTAÑA: 3
+    };
 
-        // ==================== VARIABLES GLOBALES ====================
-        let scene, camera, renderer, player, otherPlayers = {}, conn;
-        let blocks = [], mapData = [], keys = {};
-        let isPlaying = false, isEditor = false, isAttacking = false;
-        let yaw = 0, pitch = 0, vy = 0, onGround = false, health = 100;
-        let peer, myID, swordEquipped = true;
-        let rightClickDown = false;
-        let raycaster = new THREE.Raycaster();
-        let mouse = new THREE.Vector2();
-        let pvpEnabled = true;
-        let teamColor = '#ff4444';
-        let skinColor = '#ffff00';
-        let blockColor = '#999999';
-        let zombieMode = false;
-        let spawnerMode = false;
-        let itemMode = false; // NUEVO
-        let currentItemType = 'sword'; // NUEVO
+    // Colores para visualización
+    const COLOR_TERRENO = [
+        "#6b8e4c", // tierra
+        "#3a6ea5", // agua
+        "#2d5a2d", // bosque (árboles)
+        "#7a6a5a"  // montaña
+    ];
 
-        // Zombies estáticos
-        let zombies = [];
-        let mapZombies = [];
+    // --------------------------------------------------------------
+    // RECURSOS DEL JUGADOR
+    // --------------------------------------------------------------
+    let recursos = { madera: 100, comida: 50 };
 
-        // Spawners
-        let spawners = [];
-        let mapSpawners = [];
-        const SPAWNER_INTERVAL = 5000;
-        let lastSpawnCheck = 0;
+    // --------------------------------------------------------------
+    // MAPA (matriz de celdas)
+    // --------------------------------------------------------------
+    let mapa = [];
+    for (let f = 0; f < FILAS; f++) {
+        let fila = [];
+        for (let c = 0; c < COLUMNAS; c++) {
+            // Generar terreno aleatorio ponderado
+            let r = Math.random();
+            let tipo;
+            if (r < 0.6) tipo = TERRENO.TIERRA;
+            else if (r < 0.75) tipo = TERRENO.BOSQUE;
+            else if (r < 0.9) tipo = TERRENO.AGUA;
+            else tipo = TERRENO.MONTAÑA;
 
-        // NUEVO: Items (armas, consumibles)
-        let items = []; // meshes de items
-        let mapItems = []; // datos de items { x, y, z, type, range? }
+            fila.push({
+                tipo: tipo,
+                recurso: (tipo === TERRENO.BOSQUE) ? { tipo: "madera", cantidad: 100 } : null,
+                edificio: null,
+                unidad: null
+            });
+        }
+        mapa.push(fila);
+    }
 
-        // NUEVO: Sonidos simples (usando Web Audio API)
-        let audioCtx = null;
-        function playSound(type) {
-            if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } catch(e) { return; }
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.value = (type === 'attack') ? 440 : (type === 'pickup') ? 660 : 330;
-            gain.gain.value = 0.1;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
+    // Asegurar que la posición inicial del jugador sea tierra
+    mapa[7][5].tipo = TERRENO.TIERRA;
+    mapa[7][5].recurso = null;
+
+    // --------------------------------------------------------------
+    // CLASES ENTIDADES
+    // --------------------------------------------------------------
+    class Unidad {
+        constructor(x, y, tipo, hp, ataque, velocidad) {
+            this.x = x;             // celda columna
+            this.y = y;             // celda fila
+            this.tipo = tipo;       // "aldeano" o "soldado"
+            this.hp = hp;
+            this.ataque = ataque;
+            this.velocidad = velocidad; // celdas por segundo (aprox)
+            this.destino = null;     // {x, y}
+            this.camino = [];         // puntos intermedios
+            this.recursoCargando = null; // para aldeano: "madera" o null
+            this.carga = 0;           // cantidad que lleva
+            this.capacidadCarga = 10;  // máxima carga
+            this.estado = "idle";      // idle, moviendo, recolectando, construyendo
+            this.objetivoRecurso = null; // celda del árbol
         }
 
-        // ==================== FUNCIONES DE INTERFAZ ====================
-        document.getElementById('my-id').onclick = function() {
-            const text = this.innerText;
-            if(text === "Conectando...") return;
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('copy-toast');
-                toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 2000);
-            });
-        };
+        // Asignar nuevo destino (clic derecho)
+        irA(destX, destY) {
+            if (destX < 0 || destX >= COLUMNAS || destY < 0 || destY >= FILAS) return false;
+            // Por simplicidad, movimiento directo (sin pathfinding complejo)
+            this.destino = { x: destX, y: destY };
+            this.camino = []; // reset camino (podríamos implementar A* después)
+            this.estado = "moviendo";
+            return true;
+        }
 
-        // Mostrar/ocultar selector de tipo de item según modo item
-        document.getElementById('item-mode').addEventListener('change', (e) => {
-            itemMode = e.target.checked;
-            document.getElementById('item-type-row').style.display = itemMode ? 'flex' : 'none';
+        // Actualizar movimiento (llamado por frame)
+        actualizarMovimiento(dt) {
+            if (this.estado !== "moviendo" || !this.destino) return;
+
+            let dx = this.destino.x - this.x;
+            let dy = this.destino.y - this.y;
+            let distancia = Math.sqrt(dx*dx + dy*dy);
+
+            if (distancia < 0.1) {
+                // Llegó
+                this.x = this.destino.x;
+                this.y = this.destino.y;
+                this.destino = null;
+                this.estado = "idle";
+                // Si estaba yendo a recolectar, empezar recolección
+                if (this.objetivoRecurso) {
+                    this.recolectar(this.objetivoRecurso);
+                }
+                return;
+            }
+
+            // Movimiento proporcional a velocidad (dt en segundos, asumimos 60fps => dt≈0.016)
+            // Normalizamos y multiplicamos por velocidad * dt (convertimos a celdas/frame)
+            let step = this.velocidad * dt; // celdas a mover este frame
+            if (step > distancia) step = distancia;
+
+            this.x += (dx / distancia) * step;
+            this.y += (dy / distancia) * step;
+        }
+
+        // Recolectar un recurso (arbol) cercano
+        recolectar(recursoCelda) {
+            if (this.tipo !== "aldeano") return;
+            // Verificar adyacencia (8 direcciones)
+            let adyacente = false;
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    let nx = recursoCelda.x + dx;
+                    let ny = recursoCelda.y + dy;
+                    if (nx === Math.round(this.x) && ny === Math.round(this.y)) {
+                        adyacente = true;
+                        break;
+                    }
+                }
+            }
+            if (!adyacente) {
+                // Si no está adyacente, moverse hacia él
+                this.irA(recursoCelda.x, recursoCelda.y);
+                this.objetivoRecurso = recursoCelda;
+                return;
+            }
+
+            // Adyacente: empezar recolección
+            this.estado = "recolectando";
+            this.objetivoRecurso = recursoCelda;
+        }
+
+        // Llamado cada frame para proceso de recolección
+        actualizarRecoleccion(dt) {
+            if (this.estado !== "recolectando" || !this.objetivoRecurso) return;
+
+            let celda = mapa[this.objetivoRecurso.y][this.objetivoRecurso.x];
+            if (!celda.recurso || celda.recurso.cantidad <= 0) {
+                this.estado = "idle";
+                this.objetivoRecurso = null;
+                return;
+            }
+
+            // Recolectar cada 0.5 segundos (simulamos con acumulador)
+            if (!this.recoleccionTimer) this.recoleccionTimer = 0;
+            this.recoleccionTimer += dt;
+            while (this.recoleccionTimer >= 0.5 && celda.recurso.cantidad > 0 && this.carga < this.capacidadCarga) {
+                this.recoleccionTimer -= 0.5;
+                let recolectado = Math.min(10, celda.recurso.cantidad, this.capacidadCarga - this.carga);
+                celda.recurso.cantidad -= recolectado;
+                this.carga += recolectado;
+                recursos.madera += recolectado; // directamente al jugador (simplificado)
+            }
+
+            if (celda.recurso.cantidad <= 0) {
+                celda.recurso = null;
+                this.estado = "idle";
+                this.objetivoRecurso = null;
+            }
+
+            if (this.carga >= this.capacidadCarga) {
+                // Llevar al centro urbano (hardcodeado en 5,7)
+                this.irA(5, 7); // centro urbano
+                this.estado = "moviendo";
+                // Al llegar depositará (lo haríamos en llegada)
+            }
+        }
+    }
+
+    // --------------------------------------------------------------
+    // UNIDADES DEL JUGADOR
+    // --------------------------------------------------------------
+    let unidades = [];
+
+    // Crear aldeano inicial en (5,7) - centro urbano
+    unidades.push(new Unidad(5, 7, "aldeano", 25, 3, 4.0));
+
+    // --------------------------------------------------------------
+    // SELECCIÓN
+    // --------------------------------------------------------------
+    let unidadSeleccionada = null;
+
+    // --------------------------------------------------------------
+    // CANVAS Y CONTEXTO
+    // --------------------------------------------------------------
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // --------------------------------------------------------------
+    // INTERFAZ
+    // --------------------------------------------------------------
+    const resourcesSpan = document.getElementById('resources');
+    const selectedInfoSpan = document.getElementById('selectedInfo');
+    const buildBtn = document.getElementById('buildBtn');
+
+    function actualizarUI() {
+        resourcesSpan.innerHTML = `🌲 ${recursos.madera}  🍖 ${recursos.comida}`;
+        if (unidadSeleccionada) {
+            selectedInfoSpan.innerHTML = `👤 ${unidadSeleccionada.tipo} (${Math.round(unidadSeleccionada.x)},${Math.round(unidadSeleccionada.y)}) ${unidadSeleccionada.estado}`;
+        } else {
+            selectedInfoSpan.innerHTML = `👤 Ninguna unidad`;
+        }
+    }
+
+    // --------------------------------------------------------------
+    // DIBUJADO
+    // --------------------------------------------------------------
+    function dibujarMapa() {
+        for (let fila = 0; fila < FILAS; fila++) {
+            for (let col = 0; col < COLUMNAS; col++) {
+                let celda = mapa[fila][col];
+                // Color base por terreno
+                ctx.fillStyle = COLOR_TERRENO[celda.tipo];
+                ctx.fillRect(col * CELDA, fila * CELDA, CELDA-1, CELDA-1);
+
+                // Dibujar recursos (árboles)
+                if (celda.recurso) {
+                    if (celda.recurso.tipo === "madera") {
+                        ctx.fillStyle = "#3c8c3c";
+                        ctx.beginPath();
+                        ctx.arc(col * CELDA + CELDA/2, fila * CELDA + CELDA/2, 12, 0, 2*Math.PI);
+                        ctx.fill();
+                        ctx.fillStyle = "#5a3e1a";
+                        ctx.fillRect(col * CELDA + 15, fila * CELDA + 25, 10, 10);
+                    }
+                }
+
+                // Dibujar edificio si hay (solo centro por ahora)
+                if (celda.edificio) {
+                    ctx.fillStyle = "#a52a2a";
+                    ctx.fillRect(col * CELDA + 4, fila * CELDA + 4, CELDA-8, CELDA-8);
+                }
+
+                // Dibujar unidad si hay
+                if (celda.unidad) {
+                    // No dibujamos aquí porque las unidades tienen posición float
+                }
+            }
+        }
+
+        // Dibujar unidades (para que estén sobre el mapa)
+        unidades.forEach(u => {
+            let x = u.x * CELDA;
+            let y = u.y * CELDA;
+            ctx.fillStyle = (u.tipo === "aldeano") ? "#f0d880" : "#c04040";
+            ctx.beginPath();
+            ctx.arc(x + CELDA/2, y + CELDA/2, 12, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // Indicador de selección
+            if (unidadSeleccionada === u) {
+                ctx.strokeStyle = "#ffd700";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x + CELDA/2, y + CELDA/2, 16, 0, 2*Math.PI);
+                ctx.stroke();
+            }
+            // Barra de carga si lleva recursos
+            if (u.carga > 0) {
+                ctx.fillStyle = "#8b4513";
+                ctx.fillRect(x + 5, y - 8, 30 * (u.carga / u.capacidadCarga), 4);
+            }
         });
-        document.getElementById('item-type').addEventListener('change', (e) => {
-            currentItemType = e.target.value;
+
+        // Dibujar rejilla
+        ctx.strokeStyle = "#4a6a4a";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= COLUMNAS; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * CELDA, 0);
+            ctx.lineTo(i * CELDA, canvas.height);
+            ctx.strokeStyle = "#6a8a6a";
+            ctx.stroke();
+        }
+        for (let i = 0; i <= FILAS; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, i * CELDA);
+            ctx.lineTo(canvas.width, i * CELDA);
+            ctx.stroke();
+        }
+    }
+
+    // --------------------------------------------------------------
+    // ACTUALIZACIÓN POR FRAME (loop)
+    // --------------------------------------------------------------
+    let ultimoTiempo = performance.now() / 1000;
+
+    function gameLoop(now) {
+        now /= 1000; // convertir a segundos
+        let dt = Math.min(0.1, now - ultimoTiempo); // limitar dt máximo
+        ultimoTiempo = now;
+
+        // Actualizar unidades
+        unidades.forEach(u => {
+            u.actualizarMovimiento(dt);
+            u.actualizarRecoleccion(dt);
+
+            // Actualizar ocupación en mapa (solo para referencia visual)
+            // Limpiar asignaciones previas
+            for (let f = 0; f < FILAS; f++) {
+                for (let c = 0; c < COLUMNAS; c++) {
+                    if (mapa[f][c].unidad === u) mapa[f][c].unidad = null;
+                }
+            }
+            // Asignar a la celda redondeada
+            let cx = Math.round(u.x);
+            let cy = Math.round(u.y);
+            if (cx >= 0 && cx < COLUMNAS && cy >= 0 && cy < FILAS) {
+                mapa[cy][cx].unidad = u;
+            }
         });
 
-        // ==================== RED ====================
-        function initNetwork() {
-            peer = new Peer();
-            peer.on('open', id => { 
-                myID = id; 
-                document.getElementById('my-id').innerText = id; 
-            });
-            
-            peer.on('connection', c => {
-                conn = c;
-                conn.on('open', () => {
-                    conn.send({ type: 'map', data: mapData });
-                    conn.send({ type: 'zombies', data: mapZombies });
-                    conn.send({ type: 'spawners', data: mapSpawners });
-                    conn.send({ type: 'items', data: mapItems }); // NUEVO
-                });
-                setupNetworkEvents();
-            });
-        }
+        dibujarMapa();
+        actualizarUI();
 
-        function connectToPeer() {
-            const targetID = document.getElementById('peer-input').value;
-            if(!targetID) return alert("Pega una ID válida");
-            conn = peer.connect(targetID);
-            setupNetworkEvents();
-            startPlay();
-        }
+        requestAnimationFrame(gameLoop);
+    }
 
-        function setupNetworkEvents() {
-            conn.on('data', data => {
-                if(data.type === 'map') { 
-                    mapData = data.data; 
-                    syncBlocksInScene(); 
-                }
-                if(data.type === 'zombies') {
-                    mapZombies = data.data;
-                    syncZombiesInScene();
-                }
-                if(data.type === 'spawners') {
-                    mapSpawners = data.data;
-                    syncSpawnersInScene();
-                }
-                if(data.type === 'items') { // NUEVO
-                    mapItems = data.data;
-                    syncItemsInScene();
-                }
-                if(data.type === 'move') handleRemotePlayerMove(data);
-                if(data.type === 'damage' && data.target === myID) takeDamage(20);
-            });
-        }
+    // --------------------------------------------------------------
+    // EVENTOS DE RATÓN
+    // --------------------------------------------------------------
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
 
-        // ==================== MOTOR GRÁFICO ====================
-        function initEngine() {
-            if(renderer) return;
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87ceeb);
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            document.body.appendChild(renderer.domElement);
+        const mouseX = (e.clientX - rect.left) * scaleX;
+        const mouseY = (e.clientY - rect.top) * scaleY;
 
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-            sun.position.set(100, 200, 100);
-            sun.castShadow = true;
-            scene.add(sun);
+        const col = Math.floor(mouseX / CELDA);
+        const fila = Math.floor(mouseY / CELDA);
 
-            const baseGeo = new THREE.PlaneGeometry(1000, 1000);
-            const baseMat = new THREE.MeshStandardMaterial({ color: 0x248232 });
-            const baseplate = new THREE.Mesh(baseGeo, baseMat);
-            baseplate.rotation.x = -Math.PI / 2;
-            baseplate.name = "ground";
-            baseplate.receiveShadow = true;
-            scene.add(baseplate);
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
-
-        // ==================== PERSONAJE ====================
-        function createCharacter(name, teamColorHex, skinColorHex) {
-            const group = new THREE.Group();
-            const teamColor = new THREE.Color(teamColorHex || '#ff4444');
-            const skin = new THREE.MeshStandardMaterial({ color: new THREE.Color(skinColorHex || '#ffff00') });
-            const torsoMat = new THREE.MeshStandardMaterial({ color: teamColor });
-            const legMat = new THREE.MeshStandardMaterial({ color: teamColor.clone().multiplyScalar(0.7) });
-
-            const scale = 0.9;
-            const head = new THREE.Mesh(new THREE.BoxGeometry(1.2*scale, 1.2*scale, 1.2*scale), skin);
-            head.position.y = 4.2*scale;
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(2*scale, 2*scale, 1*scale), torsoMat);
-            torso.position.y = 2.6*scale;
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), skin);
-            armL.position.set(-1.5*scale, 2.6*scale, 0);
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), skin);
-            armR.position.set(1.5*scale, 2.6*scale, 0);
-            const legL = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), legMat);
-            legL.position.set(-0.5*scale, 0.6*scale, 0);
-            const legR = new THREE.Mesh(new THREE.BoxGeometry(1*scale, 2*scale, 1*scale), legMat);
-            legR.position.set(0.5*scale, 0.6*scale, 0);
-
-            const swordGroup = new THREE.Group();
-            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.4*scale, 3*scale, 0.15*scale), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
-            blade.position.y = 1.5*scale;
-            const hilt = new THREE.Mesh(new THREE.BoxGeometry(1.2*scale, 0.2*scale, 0.4*scale), new THREE.MeshStandardMaterial({ color: 0x886600 }));
-            hilt.position.y = 0.4*scale;
-            swordGroup.add(blade, hilt);
-            swordGroup.position.set(1.5*scale, 2.5*scale, -1*scale);
-            swordGroup.rotation.x = -Math.PI / 2;
-
-            group.add(head, torso, armL, armR, legL, legR, swordGroup);
-            
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 256; canvas.height = 64;
-            ctx.fillStyle = 'rgba(0,0,0,0.4)';
-            ctx.fillRect(0, 0, 256, 64);
-            ctx.font = 'bold 32px Arial'; ctx.fillStyle = 'white'; ctx.textAlign = 'center';
-            ctx.fillText(name || "Guest", 128, 45);
-            
-            const txtMap = new THREE.CanvasTexture(canvas);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: txtMap }));
-            sprite.position.y = 6.5*scale; sprite.scale.set(4*scale, 1*scale, 1);
-            group.add(sprite);
-
-            group.userData = { armL, armR, legL, legR, sword: swordGroup, name, teamColor: teamColorHex, skinColor: skinColorHex };
-            return group;
-        }
-
-        function takeDamage(amount) {
-            health -= amount;
-            if (health < 0) health = 0;
-            document.getElementById('health-bar').style.width = health + "%";
-            if (health <= 0) handleDeath();
-            playSound('damage');
-        }
-
-        function handleDeath() {
-            health = 100;
-            document.getElementById('health-bar').style.width = "100%";
-            player.position.set(0, 30, 0);
-            vy = 0;
-        }
-
-        // ==================== ATAQUE (CON RANGO VARIABLE) ====================
-        let weaponRange = 10; // por defecto (espada normal)
-        function performAttack() {
-            if (!swordEquipped || isAttacking) return;
-            isAttacking = true;
-            player.userData.sword.rotation.x = 0.5;
-            
-            const attackRay = new THREE.Raycaster();
-            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-            attackRay.set(player.position.clone().add(new THREE.Vector3(0, 2, 0)), forward);
-            
-            // Daño a otros jugadores (solo si PVP activado)
-            if (pvpEnabled) {
-                Object.keys(otherPlayers).forEach(id => {
-                    const intersect = attackRay.intersectObject(otherPlayers[id], true);
-                    if (intersect.length > 0 && intersect[0].distance < weaponRange) {
-                        if (conn && conn.open) conn.send({ type: 'damage', target: id });
-                        playSound('attack');
-                    }
-                });
-            }
-
-            // Daño a zombies
-            const zombieIntersects = attackRay.intersectObjects(zombies, true);
-            if (zombieIntersects.length > 0) {
-                const hitZombie = zombieIntersects[0].object.parent;
-                if (hitZombie && hitZombie.isZombie) {
-                    scene.remove(hitZombie);
-                    zombies = zombies.filter(z => z !== hitZombie);
-                    // No lo quitamos de mapZombies si es estático (se regenerará con spawners)
-                    playSound('attack');
-                }
-            }
-
-            setTimeout(() => {
-                player.userData.sword.rotation.x = -Math.PI / 2;
-                isAttacking = false;
-            }, 300);
-        }
-
-        // ==================== FÍSICAS ====================
-        function checkHorizontalCollisions() {
-            let pBox = new THREE.Box3().setFromCenterAndSize(
-                player.position.clone().add(new THREE.Vector3(0, PLAYER_CENTER_Y_OFFSET, 0)), 
-                new THREE.Vector3(2.1, PLAYER_HEIGHT, 2.1)
-            );
-            for (let b of blocks) {
-                if (pBox.intersectsBox(new THREE.Box3().setFromObject(b))) return true;
-            }
-            return false;
-        }
-
-        function handleVerticalPhysics(oldPos) {
-            let pBox = new THREE.Box3().setFromCenterAndSize(
-                player.position.clone().add(new THREE.Vector3(0, PLAYER_CENTER_Y_OFFSET, 0)), 
-                new THREE.Vector3(1.8, PLAYER_HEIGHT, 1.8)
-            );
-
-            onGround = false;
-
-            if (player.position.y <= 0.05) {
-                player.position.y = 0;
-                vy = 0;
-                onGround = true;
-            }
-
-            for (let b of blocks) {
-                let bBox = new THREE.Box3().setFromObject(b);
-                if (pBox.intersectsBox(bBox)) {
-                    
-                    const playerBottom = oldPos.y;
-                    const blockTop = b.position.y + BLOCK_SIZE/2;
-                    
-                    if (playerBottom >= blockTop - 0.3) {
-                        player.position.y = blockTop + PLAYER_CENTER_Y_OFFSET;
-                        vy = 0;
-                        onGround = true;
-                    } 
-                    else if (oldPos.y + PLAYER_HEIGHT <= b.position.y - BLOCK_SIZE/2) {
-                        player.position.y = b.position.y - BLOCK_SIZE/2 - PLAYER_CENTER_Y_OFFSET;
-                        vy = -0.1;
-                    }
-                }
-            }
-        }
-
-        function stabilizeWithRaycast() {
-            if (!player) return;
-            const origin = player.position.clone();
-            origin.y += 0.1;
-            const direction = new THREE.Vector3(0, -1, 0);
-            const rayLength = PLAYER_CENTER_Y_OFFSET + 0.5;
-            raycaster.set(origin, direction);
-            const intersects = raycaster.intersectObjects(blocks);
-            let groundDist = null;
-            for (let hit of intersects) {
-                const dist = hit.distance;
-                if (dist < rayLength) {
-                    groundDist = dist;
-                    break;
-                }
-            }
-            if (groundDist !== null) {
-                const targetY = intersects[0].point.y + PLAYER_CENTER_Y_OFFSET;
-                if (Math.abs(player.position.y - targetY) > 0.05) {
-                    player.position.y = targetY;
-                    vy = 0;
-                    onGround = true;
-                } else {
-                    onGround = true;
-                }
+        if (e.button === 0) { // Izquierdo: seleccionar
+            // Buscar unidad en esa celda (redondeo)
+            let unidadEnCelda = unidades.find(u => Math.round(u.x) === col && Math.round(u.y) === fila);
+            if (unidadEnCelda) {
+                unidadSeleccionada = unidadEnCelda;
             } else {
-                if (player.position.y <= PLAYER_CENTER_Y_OFFSET + 0.1) {
-                    player.position.y = PLAYER_CENTER_Y_OFFSET;
-                    vy = 0;
-                    onGround = true;
+                // Si no hay unidad, desseleccionar
+                unidadSeleccionada = null;
+            }
+        } else if (e.button === 2) { // Derecho: ordenar movimiento
+            e.preventDefault();
+            if (unidadSeleccionada) {
+                unidadSeleccionada.irA(col, fila);
+                // Si es aldeano y hay un recurso, asignar recolección al llegar (por simplicidad, comprobamos si hay recurso)
+                if (unidadSeleccionada.tipo === "aldeano" && mapa[fila][col].recurso) {
+                    unidadSeleccionada.objetivoRecurso = { x: col, y: fila };
                 }
             }
         }
+    });
 
-        function animateWalking(char, isWalking) {
-            const time = Date.now() * 0.01;
-            const ud = char.userData;
-            if (isWalking) {
-                ud.legL.rotation.x = Math.sin(time) * 0.8;
-                ud.legR.rotation.x = -Math.sin(time) * 0.8;
-                ud.armL.rotation.x = -Math.sin(time) * 0.8;
-                ud.armR.rotation.x = Math.sin(time) * 0.8;
-            } else {
-                ud.legL.rotation.x = ud.legR.rotation.x = ud.armL.rotation.x = ud.armR.rotation.x = 0;
+    // Prevenir menú contextual en el canvas
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Botón construir (simple: gasta madera, crea un edificio si hay selección)
+    buildBtn.addEventListener('click', () => {
+        if (recursos.madera >= 50 && unidadSeleccionada) {
+            // Colocar edificio en la celda de la unidad seleccionada (simplificado)
+            let x = Math.round(unidadSeleccionada.x);
+            let y = Math.round(unidadSeleccionada.y);
+            if (mapa[y][x].tipo === TERRENO.TIERRA && !mapa[y][x].edificio) {
+                mapa[y][x].edificio = { tipo: "casa", hp: 100 };
+                recursos.madera -= 50;
             }
         }
+    });
 
-        // ==================== ZOMBIES Y SPAWNERS ====================
-        function createZombie(pos) {
-            const group = new THREE.Group();
-            group.isZombie = true;
-            const bodyGeo = new THREE.CylinderGeometry(1, 1, 2.5, 8);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 1.25;
-            body.castShadow = true;
-            body.receiveShadow = true;
-            group.add(body);
-            const headGeo = new THREE.SphereGeometry(0.8, 8);
-            const headMat = new THREE.MeshStandardMaterial({ color: 0x228b22 });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 2.5 + 0.4;
-            head.castShadow = true;
-            head.receiveShadow = true;
-            group.add(head);
-            const eyeGeo = new THREE.SphereGeometry(0.2, 6);
-            const eyeMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeL.position.set(-0.4, 2.9, 0.6);
-            group.add(eyeL);
-            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeR.position.set(0.4, 2.9, 0.6);
-            group.add(eyeR);
-            
-            group.position.set(pos.x, pos.y, pos.z);
-            return group;
-        }
-
-        function spawnZombie(pos) {
-            const z = createZombie(pos);
-            scene.add(z);
-            zombies.push(z);
-        }
-
-        function syncZombiesInScene() {
-            zombies.forEach(z => scene.remove(z));
-            zombies = [];
-            mapZombies.forEach(p => {
-                const z = createZombie(new THREE.Vector3(p.x, p.y, p.z));
-                scene.add(z);
-                zombies.push(z);
-            });
-        }
-
-        function createSpawner(pos) {
-            const group = new THREE.Group();
-            group.isSpawner = true;
-            const baseGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.5, 8);
-            const baseMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
-            const base = new THREE.Mesh(baseGeo, baseMat);
-            base.position.y = 0.25;
-            base.castShadow = true;
-            base.receiveShadow = true;
-            group.add(base);
-            const sphereGeo = new THREE.SphereGeometry(0.8, 8);
-            const sphereMat = new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x330000 });
-            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-            sphere.position.y = 1.2;
-            sphere.castShadow = true;
-            group.add(sphere);
-            
-            group.position.set(pos.x, pos.y, pos.z);
-            return group;
-        }
-
-        function spawnSpawner(pos) {
-            const s = createSpawner(pos);
-            scene.add(s);
-            spawners.push(s);
-            mapSpawners.push({ x: pos.x, y: pos.y, z: pos.z, lastSpawn: 0 });
-        }
-
-        function syncSpawnersInScene() {
-            spawners.forEach(s => scene.remove(s));
-            spawners = [];
-            mapSpawners.forEach(p => {
-                const s = createSpawner(new THREE.Vector3(p.x, p.y, p.z));
-                scene.add(s);
-                spawners.push(s);
-            });
-        }
-
-        function updateSpawners(now) {
-            if (!isPlaying) return;
-            if (now - lastSpawnCheck < 1000) return;
-            lastSpawnCheck = now;
-            for (let i = 0; i < mapSpawners.length; i++) {
-                const sp = mapSpawners[i];
-                if (!sp.lastSpawn) sp.lastSpawn = 0;
-                if (now - sp.lastSpawn > SPAWNER_INTERVAL) {
-                    sp.lastSpawn = now;
-                    const pos = new THREE.Vector3(sp.x, sp.y + 1, sp.z);
-                    const zombie = createZombie(pos);
-                    scene.add(zombie);
-                    zombies.push(zombie);
-                }
-            }
-        }
-
-        // ==================== ITEMS (ARMAS, COMIDA, BEBIDAS) ====================
-        function createItem(pos, type) {
-            const group = new THREE.Group();
-            group.isItem = true;
-            group.itemType = type;
-            
-            let color, shape;
-            switch(type) {
-                case 'sword': color = 0xcccccc; shape = 'box'; group.range = 3; break;
-                case 'longsword': color = 0xaaaaaa; shape = 'box'; group.range = 5; break;
-                case 'dagger': color = 0x888888; shape = 'box'; group.range = 2; break;
-                case 'potion': color = 0xff00ff; shape = 'sphere'; group.heal = 30; break;
-                case 'food': color = 0x8b4513; shape = 'sphere'; group.heal = 15; break;
-                default: color = 0xffffff; shape = 'box';
-            }
-            
-            if (shape === 'box') {
-                const geo = new THREE.BoxGeometry(1, 1, 1);
-                const mat = new THREE.MeshStandardMaterial({ color: color, emissive: 0x222222 });
-                const mesh = new THREE.Mesh(geo, mat);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                group.add(mesh);
-            } else {
-                const geo = new THREE.SphereGeometry(0.8, 8);
-                const mat = new THREE.MeshStandardMaterial({ color: color, emissive: 0x222222 });
-                const mesh = new THREE.Mesh(geo, mat);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                group.add(mesh);
-            }
-            
-            group.position.set(pos.x, pos.y, pos.z);
-            return group;
-        }
-
-        function spawnItem(pos, type) {
-            const item = createItem(pos, type);
-            scene.add(item);
-            items.push(item);
-            mapItems.push({ x: pos.x, y: pos.y, z: pos.z, type: type });
-        }
-
-        function syncItemsInScene() {
-            items.forEach(i => scene.remove(i));
-            items = [];
-            mapItems.forEach(p => {
-                const item = createItem(new THREE.Vector3(p.x, p.y, p.z), p.type);
-                scene.add(item);
-                items.push(item);
-            });
-        }
-
-        // NUEVO: Detección de recogida de items
-        function checkItemPickup() {
-            if (!player || !isPlaying) return;
-            const playerBox = new THREE.Box3().setFromObject(player);
-            for (let i = items.length - 1; i >= 0; i--) {
-                const item = items[i];
-                const itemBox = new THREE.Box3().setFromObject(item);
-                if (playerBox.intersectsBox(itemBox)) {
-                    // Recoger item
-                    const type = item.itemType;
-                    if (type === 'potion' || type === 'food') {
-                        health = Math.min(100, health + (item.heal || 20));
-                        document.getElementById('health-bar').style.width = health + "%";
-                        playSound('pickup');
-                    } else {
-                        // Arma: equipar y cambiar rango
-                        swordEquipped = true;
-                        weaponRange = item.range || 10;
-                        playSound('pickup');
-                        // Actualizar UI del inventario (opcional)
-                    }
-                    // Eliminar item
-                    scene.remove(item);
-                    items.splice(i, 1);
-                    // También eliminarlo de mapItems (para que no reaparezca al recargar)
-                    mapItems = mapItems.filter(m => !(m.x === item.position.x && m.y === item.position.y && m.z === item.position.z));
-                }
-            }
-        }
-
-        // ==================== DAÑO DE ZOMBIES ====================
-        let lastZombieDamageTime = 0;
-        function checkZombieDamage() {
-            if (!player || !isPlaying) return;
-            const now = Date.now();
-            if (now - lastZombieDamageTime < 200) return;
-            const playerBox = new THREE.Box3().setFromObject(player);
-            for (let z of zombies) {
-                const zombieBox = new THREE.Box3().setFromObject(z);
-                if (playerBox.intersectsBox(zombieBox)) {
-                    takeDamage(5);
-                    lastZombieDamageTime = now;
-                    break;
-                }
-            }
-        }
-
-        // ==================== MODO JUEGO ====================
-        function startPlay() {
-            isPlaying = true; isEditor = false;
-            const name = document.getElementById('username-input').value || "Guest";
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('hud').style.display = 'block';
-            document.getElementById('inventory').style.display = 'flex';
-            document.getElementById('crosshair').style.display = 'block';
-            document.getElementById('username-display').innerText = name;
-            
-            initEngine();
-            syncBlocksInScene();
-            syncZombiesInScene();
-            syncSpawnersInScene();
-            syncItemsInScene(); // NUEVO
-
-            teamColor = document.getElementById('team-select').value;
-            skinColor = document.getElementById('skin-color').value;
-            player = createCharacter(name, teamColor, skinColor);
-            player.position.set(0, 15, 50);
-            scene.add(player);
-
-            window.addEventListener('keydown', e => keys[e.code] = true);
-            window.addEventListener('keyup', e => keys[e.code] = false);
-            
-            window.addEventListener('mousedown', e => {
-                if (e.button === 2) { rightClickDown = true; document.body.requestPointerLock(); }
-                if (e.button === 0 && isPlaying) performAttack();
-            });
-
-            window.addEventListener('mouseup', e => {
-                if (e.button === 2) { rightClickDown = false; document.exitPointerLock(); }
-            });
-
-            window.addEventListener('contextmenu', e => e.preventDefault());
-
-            document.addEventListener('mousemove', e => {
-                if (document.pointerLockElement === document.body && rightClickDown) {
-                    yaw -= e.movementX * 0.003;
-                    pitch += e.movementY * 0.003;
-                    pitch = Math.max(-1.3, Math.min(1.3, pitch));
-                }
-            });
-
-            loop();
-        }
-
-        function loop() {
-            requestAnimationFrame(loop);
-            const now = Date.now();
-            
-            if (isPlaying && player) {
-                const oldPos = player.position.clone();
-                const moveSpeed = 0.45;
-                let walking = false;
-
-                vy -= 0.025; 
-                player.position.y += vy;
-                
-                handleVerticalPhysics(oldPos);
-                stabilizeWithRaycast();
-
-                let dx = 0, dz = 0;
-                if (keys['KeyW']) { dx -= Math.sin(yaw); dz -= Math.cos(yaw); walking = true; }
-                if (keys['KeyS']) { dx += Math.sin(yaw); dz += Math.cos(yaw); walking = true; }
-                if (keys['KeyA']) { dx -= Math.cos(yaw); dz += Math.sin(yaw); walking = true; }
-                if (keys['KeyD']) { dx += Math.cos(yaw); dz -= Math.sin(yaw); walking = true; }
-                
-                if (keys['Space'] && onGround) { 
-                    vy = 0.6; 
-                    onGround = false; 
-                }
-
-                player.position.x += dx * moveSpeed;
-                if (checkHorizontalCollisions()) player.position.x = oldPos.x;
-                player.position.z += dz * moveSpeed;
-                if (checkHorizontalCollisions()) player.position.z = oldPos.z;
-
-                player.rotation.y = yaw;
-                animateWalking(player, walking);
-
-                checkZombieDamage();
-                checkItemPickup(); // NUEVO
-                updateSpawners(now);
-
-                if (conn && conn.open) {
-                    conn.send({
-                        type: 'move', id: myID, x: player.position.x, y: player.position.y, z: player.position.z,
-                        ry: player.rotation.y, walking: walking, name: player.userData.name,
-                        team: teamColor, skin: skinColor
-                    });
-                }
-
-                const dist = 30;
-                camera.position.set(
-                    player.position.x + Math.sin(yaw) * Math.cos(pitch) * dist,
-                    player.position.y + 12 + (pitch * 12),
-                    player.position.z + Math.cos(yaw) * Math.cos(pitch) * dist
-                );
-                camera.lookAt(player.position.x, player.position.y + 4, player.position.z);
-            }
-
-            if (isEditor) handleEditorCamera();
-            if (renderer) renderer.render(scene, camera);
-        }
-
-        function handleRemotePlayerMove(data) {
-            if (!otherPlayers[data.id]) {
-                otherPlayers[data.id] = createCharacter(data.name, data.team || '#ff4444', data.skin || '#ffff00');
-                scene.add(otherPlayers[data.id]);
-            }
-            const op = otherPlayers[data.id];
-            op.position.set(data.x, data.y, data.z);
-            op.rotation.y = data.ry;
-            animateWalking(op, data.walking);
-        }
-
-        // ==================== MODO EDITOR ====================
-        function startEditor() {
-            isEditor = true; isPlaying = false;
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('editor-ui').style.display = 'block';
-            initEngine();
-            syncBlocksInScene();
-            syncZombiesInScene();
-            syncSpawnersInScene();
-            syncItemsInScene();
-            camera.position.set(60, 60, 60); camera.lookAt(0, 0, 0);
-
-            const pvpCheck = document.getElementById('pvp-checkbox');
-            pvpEnabled = pvpCheck.checked;
-            pvpCheck.addEventListener('change', (e) => { pvpEnabled = e.target.checked; });
-
-            const teamSelect = document.getElementById('team-select');
-            teamColor = teamSelect.value;
-            teamSelect.addEventListener('change', (e) => { teamColor = e.target.value; });
-
-            const skinInput = document.getElementById('skin-color');
-            skinColor = skinInput.value;
-            skinInput.addEventListener('input', (e) => { skinColor = e.target.value; });
-
-            const blockColorInput = document.getElementById('block-color');
-            blockColor = blockColorInput.value;
-            blockColorInput.addEventListener('input', (e) => { blockColor = e.target.value; });
-
-            const zombieCheck = document.getElementById('zombie-mode');
-            zombieMode = zombieCheck.checked;
-            zombieCheck.addEventListener('change', (e) => { zombieMode = e.target.checked; });
-
-            const spawnerCheck = document.getElementById('spawner-mode');
-            spawnerMode = spawnerCheck.checked;
-            spawnerCheck.addEventListener('change', (e) => { spawnerMode = e.target.checked; });
-
-            const itemCheck = document.getElementById('item-mode');
-            itemMode = itemCheck.checked;
-            itemCheck.addEventListener('change', (e) => {
-                itemMode = e.target.checked;
-                document.getElementById('item-type-row').style.display = itemMode ? 'flex' : 'none';
-            });
-
-            const itemTypeSelect = document.getElementById('item-type');
-            currentItemType = itemTypeSelect.value;
-            itemTypeSelect.addEventListener('change', (e) => { currentItemType = e.target.value; });
-
-            window.addEventListener('keydown', e => keys[e.code] = true);
-            window.addEventListener('keyup', e => keys[e.code] = false);
-
-            renderer.domElement.onmousedown = (e) => {
-                if (!isEditor) return;
-                if (e.button === 2) { rightClickDown = true; document.body.requestPointerLock(); }
-                if (e.button === 0) {
-                    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-                    raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects(scene.children);
-                    if (intersects.length > 0) {
-                        const hit = intersects[0];
-                        if (e.shiftKey) {
-                            // Borrar según el tipo
-                            if (hit.object.isBlock) {
-                                scene.remove(hit.object);
-                                blocks = blocks.filter(b => b !== hit.object);
-                                mapData = mapData.filter(p => !(p.x === hit.object.position.x && p.y === hit.object.position.y && p.z === hit.object.position.z));
-                            } else if (hit.object.parent && hit.object.parent.isZombie) {
-                                const zombieGroup = hit.object.parent;
-                                scene.remove(zombieGroup);
-                                zombies = zombies.filter(z => z !== zombieGroup);
-                                mapZombies = mapZombies.filter(p => !(p.x === zombieGroup.position.x && p.y === zombieGroup.position.y && p.z === zombieGroup.position.z));
-                            } else if (hit.object.parent && hit.object.parent.isSpawner) {
-                                const spawnerGroup = hit.object.parent;
-                                scene.remove(spawnerGroup);
-                                spawners = spawners.filter(s => s !== spawnerGroup);
-                                mapSpawners = mapSpawners.filter(p => !(p.x === spawnerGroup.position.x && p.y === spawnerGroup.position.y && p.z === spawnerGroup.position.z));
-                            } else if (hit.object.parent && hit.object.parent.isItem) {
-                                const itemGroup = hit.object.parent;
-                                scene.remove(itemGroup);
-                                items = items.filter(i => i !== itemGroup);
-                                mapItems = mapItems.filter(p => !(p.x === itemGroup.position.x && p.y === itemGroup.position.y && p.z === itemGroup.position.z));
-                            }
-                        } else {
-                            let pos;
-                            if (hit.object.name === "ground") {
-                                pos = new THREE.Vector3(
-                                    Math.round(hit.point.x / BLOCK_SIZE) * BLOCK_SIZE,
-                                    BLOCK_SIZE/2,
-                                    Math.round(hit.point.z / BLOCK_SIZE) * BLOCK_SIZE
-                                );
-                            } else {
-                                const normal = hit.face.normal.clone();
-                                normal.applyQuaternion(hit.object.quaternion);
-                                pos = hit.object.position.clone().add(normal.multiplyScalar(BLOCK_SIZE));
-                                pos.x = Math.round(pos.x / BLOCK_SIZE) * BLOCK_SIZE;
-                                pos.y = Math.round(pos.y / BLOCK_SIZE) * BLOCK_SIZE;
-                                pos.z = Math.round(pos.z / BLOCK_SIZE) * BLOCK_SIZE;
-                            }
-                            // Determinar modo
-                            if (spawnerMode) {
-                                spawnSpawner(pos);
-                            } else if (zombieMode) {
-                                spawnZombie(pos);
-                                mapZombies.push({ x: pos.x, y: pos.y, z: pos.z });
-                            } else if (itemMode) {
-                                spawnItem(pos, currentItemType);
-                            } else {
-                                spawnBlock(pos, blockColor);
-                                mapData.push({ x: pos.x, y: pos.y, z: pos.z, color: blockColor });
-                            }
-                        }
-                    }
-                }
-            };
-
-            renderer.domElement.onmouseup = (e) => { if (e.button === 2) { rightClickDown = false; document.exitPointerLock(); } };
-            document.addEventListener('mousemove', e => {
-                if (document.pointerLockElement === renderer.domElement && rightClickDown) {
-                    camera.rotation.y -= e.movementX * 0.003;
-                    camera.rotation.x -= e.movementY * 0.003;
-                }
-            });
-            loop();
-        }
-
-        function handleEditorCamera() {
-            const es = 1.5;
-            if (keys['KeyW']) camera.translateZ(-es);
-            if (keys['KeyS']) camera.translateZ(es);
-            if (keys['KeyA']) camera.translateX(-es);
-            if (keys['KeyD']) camera.translateX(es);
-            if (keys['KeyE']) camera.position.y += es;
-            if (keys['KeyQ']) camera.position.y -= es;
-        }
-
-        function spawnBlock(pos, colorHex) {
-            const color = new THREE.Color(colorHex || '#999999');
-            const b = new THREE.Mesh(new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), new THREE.MeshStandardMaterial({ color: color, metalness: 0.2, roughness: 0.7 }));
-            b.position.set(pos.x, pos.y, pos.z);
-            b.castShadow = b.receiveShadow = b.isBlock = true;
-            scene.add(b); blocks.push(b);
-        }
-
-        function syncBlocksInScene() {
-            blocks.forEach(b => scene.remove(b));
-            blocks = []; 
-            mapData.forEach(p => {
-                const col = p.color || '#999999';
-                spawnBlock(new THREE.Vector3(p.x, p.y, p.z), col);
-            });
-        }
-
-        function exportMap() {
-            const dataToSave = {
-                blocks: mapData.map(b => ({ x: b.x, y: b.y, z: b.z, color: b.color || '#999999' })),
-                zombies: mapZombies.map(z => ({ x: z.x, y: z.y, z: z.z })),
-                spawners: mapSpawners.map(s => ({ x: s.x, y: s.y, z: s.z })),
-                items: mapItems.map(i => ({ x: i.x, y: i.y, z: i.z, type: i.type }))
-            };
-            const blob = new Blob([JSON.stringify(dataToSave)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = "roblox_place.json"; a.click();
-        }
-
-        function loadMap(e) {
-            const reader = new FileReader();
-            reader.onload = ev => {
-                const data = JSON.parse(ev.target.result);
-                if (Array.isArray(data)) {
-                    mapData = data;
-                    mapZombies = [];
-                    mapSpawners = [];
-                    mapItems = [];
-                } else {
-                    mapData = data.blocks || [];
-                    mapZombies = data.zombies || [];
-                    mapSpawners = data.spawners || [];
-                    mapItems = data.items || [];
-                }
-                alert("Mapa cargado con éxito!");
-                if (renderer) {
-                    syncBlocksInScene();
-                    syncZombiesInScene();
-                    syncSpawnersInScene();
-                    syncItemsInScene();
-                }
-            };
-            reader.readAsText(e.target.files[0]);
-        }
-
-        function newMap() {
-            if (confirm("¿Crear un nuevo mapa? Se perderán los cambios no guardados.")) {
-                mapData = [];
-                mapZombies = [];
-                mapSpawners = [];
-                mapItems = [];
-                syncBlocksInScene();
-                syncZombiesInScene();
-                syncSpawnersInScene();
-                syncItemsInScene();
-            }
-        }
-
-        initNetwork();
-    </script>
+    // --------------------------------------------------------------
+    // INICIO
+    // --------------------------------------------------------------
+    requestAnimationFrame(gameLoop);
+</script>
 </body>
 </html>
