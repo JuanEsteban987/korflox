@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RPG 2D Retro - Minecraft Inventory + NPC Editor</title>
+    <title>RPG 2D Retro - Roblox Skins, Zombies, Guardado</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         * {
@@ -82,7 +82,6 @@
             width: 280px;
             font-size: 14px;
         }
-        /* Editor de skin en menú */
         .skin-editor {
             margin: 20px 0;
             display: flex;
@@ -121,7 +120,7 @@
         #gameArea {
             display: flex;
             justify-content: center;
-            margin-bottom: 70px; /* espacio para hotbar */
+            margin-bottom: 70px;
         }
         #canvasContainer {
             border: 6px solid #7a5b3b;
@@ -136,7 +135,6 @@
             image-rendering: crisp-edges;
             background: #2d3a4a;
         }
-        /* Botones flotantes sobre el canvas (para acciones rápidas) */
         #canvasOverlay {
             position: absolute;
             top: 10px;
@@ -144,6 +142,8 @@
             display: flex;
             gap: 10px;
             z-index: 100;
+            flex-wrap: wrap;
+            max-width: 300px;
         }
         .overlay-btn {
             font-family: 'Press Start 2P', cursive;
@@ -209,8 +209,8 @@
             font-size: 14px;
             gap: 20px;
         }
-        /* NPC editor modal */
-        #npcEditor, #npcDialog {
+        /* Modales */
+        #npcEditor, #npcDialog, #colorPickerModal {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -226,12 +226,12 @@
             max-height: 80vh;
             overflow-y: auto;
         }
-        #npcEditor h2, #npcDialog h2 {
+        #npcEditor h2, #npcDialog h2, #colorPickerModal h2 {
             margin-top: 0;
             color: #ffbb77;
             border-bottom: 2px solid #aa8b5c;
         }
-        #npcEditor input, #npcEditor textarea, #npcEditor select, #npcDialog input {
+        #npcEditor input, #npcEditor textarea, #npcEditor select, #npcDialog input, #colorPickerModal input {
             font-family: 'Press Start 2P', cursive;
             background: #1e1c2a;
             border: 3px inset #9a8b6e;
@@ -262,6 +262,14 @@
             margin: 5px 0;
             cursor: pointer;
         }
+        /* Estilo para el selector de color de bloque */
+        #blockColorPicker {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #b88b4a;
+            margin: 10px auto;
+            cursor: pointer;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
@@ -269,7 +277,7 @@
     <div id="gameWrapper">
         <!-- MENÚ INICIAL -->
         <div id="menuScreen">
-            <h1>⚔️ PIXEL RPG 2008 ⚔️<br>MULTIPLAYER + NPCs + TIENDAS</h1>
+            <h1>⚔️ PIXEL RPG 2008 ⚔️<br>ROBLOX SKINS + ZOMBIES</h1>
             <div class="skin-editor">
                 <label>👤 Nombre:</label>
                 <input class="menu-input" type="text" id="playerNameInput" value="Aventurero" maxlength="20">
@@ -282,8 +290,8 @@
                 <input class="menu-input" type="text" id="peerIdInput" placeholder="ID del HOST" value="">
                 <button class="menu-btn" id="connectToHostBtn">CONECTAR</button>
             </div>
-            <div style="margin-top: 40px; font-size: 10px; color: #9f8f70;">
-                ⚡ Creador de armas, NPCs y tiendas disponibles en partida ⚡
+            <div style="margin-top: 20px; font-size: 10px; color: #9f8f70;">
+                ⚡ Tus datos se guardan automáticamente ⚡
             </div>
         </div>
 
@@ -302,10 +310,19 @@
                         <button class="overlay-btn" id="editorBtn">✏️ EDITOR OFF</button>
                         <button class="overlay-btn" id="setSpawnBtn">📍 SPAWN</button>
                         <button class="overlay-btn" id="setNpcBtn">👤 NPC</button>
-                        <button class="overlay-btn" id="createWeaponBtn2">⚒️ ARMA</button>
+                        <button class="overlay-btn" id="setZombieBtn">🧟 ZOMBIE</button>
+                        <button class="overlay-btn" id="colorBlockBtn">🎨 COLOR BLOQUE</button>
+                        <button class="overlay-btn" id="saveMapBtn">💾 GUARDAR MAPA</button>
+                        <button class="overlay-btn" id="loadMapBtn">📂 CARGAR MAPA</button>
                     </div>
                     <div id="npcDialog"></div>
                     <div id="npcEditor"></div>
+                    <div id="colorPickerModal">
+                        <h2>🎨 Color del bloque</h2>
+                        <p>Selecciona el color para el bloque actual</p>
+                        <input type="color" id="blockColorPicker" value="#4caf50">
+                        <div class="close-btn" id="applyBlockColor">Aplicar</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -327,10 +344,21 @@
         const TILE_SIZE = 40; // fijo
         let MAP_SIZE = 20;
 
-        // Map data: 0=suelo, 1=pared, 2=rojo, 3=azul, 4=arcoiris
-        let map = [];
+        // Los bloques ahora son objetos con tipo y color
+        // tipo: 0=suelo, 1=pared, 2=rojo, 3=azul, 4=arcoiris (especial), pero el color se puede personalizar
+        // Para simplificar, usaremos un array 2D de objetos { type, color }
+        let map = []; // cada celda: { type: number, color: string }
+
+        // Items (estrellas)
         let items = [];
-        let npcs = [];          // {x, y, name, skin, dialog, textColor, shop: [{name, price, sprite, damage}]}
+
+        // NPCs amigables
+        let npcs = []; // {x, y, name, skin, dialog, textColor, shop}
+
+        // Zombies
+        let zombies = []; // {x, y, health, direction, lastMove, skinColor}
+
+        // Spawn point
         let spawnPoint = { x: 10, y: 10 };
 
         // Jugador local
@@ -338,7 +366,7 @@
             x: 10,
             y: 10,
             name: "Aventurero",
-            skin: "#e94560",    // color
+            skin: "#e94560",
             gold: 100
         };
 
@@ -355,9 +383,9 @@
         let hotbar = new Array(9).fill(null).map(() => ({ item: null, quantity: 0 }));
         let selectedHotbarSlot = 0; // 0-8
 
-        // Editor
+        // Editor y modos
         let editorMode = false;
-        let placementMode = null; // 'spawn', 'npc', null para edición normal
+        let placementMode = null; // 'spawn', 'npc', 'zombie', null para edición normal
 
         // Cámara
         let camera = { x: 0, y: 0 };
@@ -384,9 +412,15 @@
         const editorBtn = document.getElementById('editorBtn');
         const setSpawnBtn = document.getElementById('setSpawnBtn');
         const setNpcBtn = document.getElementById('setNpcBtn');
-        const createWeaponBtn2 = document.getElementById('createWeaponBtn2');
+        const setZombieBtn = document.getElementById('setZombieBtn');
+        const colorBlockBtn = document.getElementById('colorBlockBtn');
+        const saveMapBtn = document.getElementById('saveMapBtn');
+        const loadMapBtn = document.getElementById('loadMapBtn');
         const npcDialog = document.getElementById('npcDialog');
         const npcEditor = document.getElementById('npcEditor');
+        const colorPickerModal = document.getElementById('colorPickerModal');
+        const blockColorPicker = document.getElementById('blockColorPicker');
+        const applyBlockColor = document.getElementById('applyBlockColor');
         const hotbarSlotsDiv = document.getElementById('hotbar-slots');
         const selectedBlockName = document.getElementById('selectedBlockName');
         const playerNameInput = document.getElementById('playerNameInput');
@@ -399,22 +433,68 @@
             for (let i = 0; i < MAP_SIZE; i++) {
                 map[i] = [];
                 for (let j = 0; j < MAP_SIZE; j++) {
-                    map[i][j] = 0; // todo suelo
+                    map[i][j] = { type: 0, color: '#4caf50' }; // suelo por defecto
                 }
             }
-            // Bordes pared (opcional, se pueden dejar como suelo si se quiere)
+            // Bordes pared (gris)
             for (let i = 0; i < MAP_SIZE; i++) {
-                map[0][i] = 1;
-                map[MAP_SIZE-1][i] = 1;
-                map[i][0] = 1;
-                map[i][MAP_SIZE-1] = 1;
+                map[0][i] = { type: 1, color: '#9e9e9e' };
+                map[MAP_SIZE-1][i] = { type: 1, color: '#9e9e9e' };
+                map[i][0] = { type: 1, color: '#9e9e9e' };
+                map[i][MAP_SIZE-1] = { type: 1, color: '#9e9e9e' };
             }
-            // Sin objetos ni NPCs por defecto
             items = [];
             npcs = [];
+            zombies = [];
             spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
             player.x = spawnPoint.x;
             player.y = spawnPoint.y;
+        }
+
+        // Cargar datos guardados
+        function loadSavedData() {
+            let savedName = localStorage.getItem('playerName');
+            let savedSkin = localStorage.getItem('playerSkin');
+            if (savedName) player.name = savedName;
+            if (savedSkin) player.skin = savedSkin;
+            playerNameInput.value = player.name;
+            playerSkinInput.value = player.skin;
+            playerNameDisplay.textContent = player.name;
+
+            let savedMap = localStorage.getItem('savedMap');
+            if (savedMap) {
+                try {
+                    let data = JSON.parse(savedMap);
+                    if (data.map) {
+                        map = data.map;
+                        MAP_SIZE = map.length;
+                        items = data.items || [];
+                        npcs = data.npcs || [];
+                        zombies = data.zombies || [];
+                        spawnPoint = data.spawnPoint || { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // Guardar mapa
+        function saveMap() {
+            let data = {
+                map: map,
+                items: items,
+                npcs: npcs,
+                zombies: zombies,
+                spawnPoint: spawnPoint
+            };
+            localStorage.setItem('savedMap', JSON.stringify(data));
+            alert('Mapa guardado');
+        }
+
+        // Cargar mapa
+        function loadMap() {
+            loadSavedData(); // ya carga del localStorage
+            draw();
+            alert('Mapa cargado');
         }
 
         // Actualizar cámara
@@ -425,6 +505,61 @@
             let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
             camera.x = Math.max(0, Math.min(targetX, maxX));
             camera.y = Math.max(0, Math.min(targetY, maxY));
+        }
+
+        // Dibujar jugador estilo Roblox (cabeza cuadrada, torso, piernas)
+        function drawRobloxPlayer(px, py, color, name) {
+            // Cabeza (cuadrado 20x20)
+            ctx.fillStyle = color;
+            ctx.fillRect(px - 10, py - 25, 20, 20);
+            // Ojos (puntos blancos)
+            ctx.fillStyle = 'white';
+            ctx.fillRect(px - 6, py - 20, 4, 4);
+            ctx.fillRect(px + 2, py - 20, 4, 4);
+            // Torso (rectángulo 16x24)
+            ctx.fillStyle = color;
+            ctx.fillRect(px - 8, py - 5, 16, 24);
+            // Piernas (dos rectángulos)
+            ctx.fillRect(px - 8, py + 19, 6, 16);
+            ctx.fillRect(px + 2, py + 19, 6, 16);
+            // Brazos
+            ctx.fillRect(px - 14, py - 5, 6, 20);
+            ctx.fillRect(px + 8, py - 5, 6, 20);
+            // Nametag
+            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.textAlign = 'center';
+            ctx.strokeText(name, px, py - 35);
+            ctx.fillText(name, px, py - 35);
+        }
+
+        // Dibujar zombie (versión verde)
+        function drawZombie(z) {
+            let px = z.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+            let py = z.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+            ctx.fillStyle = z.skinColor || '#2e7d32';
+            // Cabeza
+            ctx.fillRect(px - 10, py - 25, 20, 20);
+            // Ojos rojos
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(px - 6, py - 20, 4, 4);
+            ctx.fillRect(px + 2, py - 20, 4, 4);
+            // Torso
+            ctx.fillStyle = z.skinColor || '#2e7d32';
+            ctx.fillRect(px - 8, py - 5, 16, 24);
+            // Piernas
+            ctx.fillRect(px - 8, py + 19, 6, 16);
+            ctx.fillRect(px + 2, py + 19, 6, 16);
+            // Brazos
+            ctx.fillRect(px - 14, py - 5, 6, 20);
+            ctx.fillRect(px + 8, py - 5, 6, 20);
+            // Barra de vida
+            ctx.fillStyle = 'red';
+            ctx.fillRect(px - 20, py - 40, 40, 5);
+            ctx.fillStyle = 'green';
+            ctx.fillRect(px - 20, py - 40, 40 * (z.health / 100), 5);
         }
 
         // Dibujar todo
@@ -441,20 +576,18 @@
             startRow = Math.max(0, startRow);
             endRow = Math.min(MAP_SIZE, endRow);
 
-            // Tiles con colores según valor
+            // Dibujar tiles
             for (let row = startRow; row < endRow; row++) {
                 for (let col = startCol; col < endCol; col++) {
                     let x = col * TILE_SIZE - camera.x;
                     let y = row * TILE_SIZE - camera.y;
-                    let val = map[row][col];
-                    if (val === 0) ctx.fillStyle = '#4caf50'; // suelo
-                    else if (val === 1) ctx.fillStyle = '#9e9e9e'; // pared
-                    else if (val === 2) ctx.fillStyle = '#e63946'; // rojo
-                    else if (val === 3) ctx.fillStyle = '#1e90ff'; // azul
-                    else if (val === 4) { // arcoíris (cambia con el tiempo)
+                    let cell = map[row][col];
+                    let color = cell.color;
+                    if (cell.type === 4) { // arcoiris especial
                         let hue = (Date.now() / 20 + col * 10 + row * 10) % 360;
-                        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                        color = `hsl(${hue}, 100%, 50%)`;
                     }
+                    ctx.fillStyle = color;
                     ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
                     ctx.strokeStyle = '#555';
                     ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
@@ -487,7 +620,7 @@
                 }
             });
 
-            // NPCs
+            // NPCs amigables
             npcs.forEach(npc => {
                 if (npc.x >= startCol && npc.x < endCol && npc.y >= startRow && npc.y < endRow) {
                     let x = npc.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
@@ -501,45 +634,26 @@
                 }
             });
 
+            // Zombies
+            zombies.forEach(z => {
+                if (z.x >= startCol && z.x < endCol && z.y >= startRow && z.y < endRow) {
+                    drawZombie(z);
+                }
+            });
+
             // Jugador remoto
             if (remotePlayer.connected) {
                 if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
                     let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    ctx.beginPath();
-                    ctx.arc(rx, ry, TILE_SIZE/3, 0, 2*Math.PI);
-                    ctx.fillStyle = remotePlayer.skin;
-                    ctx.fill();
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                    ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
-                    ctx.fillStyle = 'white';
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 3;
-                    ctx.textAlign = 'center';
-                    ctx.strokeText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
-                    ctx.fillText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
+                    drawRobloxPlayer(rx, ry, remotePlayer.skin, remotePlayer.name);
                 }
             }
 
             // Jugador local
             let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
             let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-            ctx.beginPath();
-            ctx.arc(px, py, TILE_SIZE/3, 0, 2*Math.PI);
-            ctx.fillStyle = player.skin;
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
-            ctx.fillStyle = 'white';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 3;
-            ctx.textAlign = 'center';
-            ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 5);
-            ctx.fillText(player.name, px, py - TILE_SIZE/2 - 5);
+            drawRobloxPlayer(px, py, player.skin, player.name);
 
             // Actualizar displays
             goldDisplay.textContent = player.gold;
@@ -584,7 +698,6 @@
 
         // Añadir item al inventario (hotbar)
         function addItemToInventory(item) {
-            // Buscar si ya existe un slot con el mismo item (para apilar)
             for (let i = 0; i < 9; i++) {
                 if (hotbar[i].item !== null && JSON.stringify(hotbar[i].item) === JSON.stringify(item)) {
                     hotbar[i].quantity++;
@@ -592,7 +705,6 @@
                     return;
                 }
             }
-            // Si no, buscar primer slot vacío
             for (let i = 0; i < 9; i++) {
                 if (hotbar[i].item === null) {
                     hotbar[i].item = item;
@@ -601,15 +713,13 @@
                     return;
                 }
             }
-            // Si todo lleno, no se añade (podría soltar en el suelo)
         }
 
         // Recoger item
         function pickupItemAt(x, y) {
             for (let i = items.length - 1; i >= 0; i--) {
                 if (items[i].x === x && items[i].y === y) {
-                    let item = items[i].type; // '★'
-                    addItemToInventory(item);
+                    addItemToInventory(items[i].type);
                     items.splice(i, 1);
                     sendItemPickup(i);
                     draw();
@@ -622,10 +732,8 @@
             let newX = player.x + dx;
             let newY = player.y + dy;
             if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
-            if (map[newY][newX] === 1 || map[newY][newX] === 2 || map[newY][newX] === 3 || map[newY][newX] === 4) {
-                // Si es cualquier bloque sólido (no suelo), no se puede pasar. Definimos suelo como 0.
-                return;
-            }
+            let cell = map[newY][newX];
+            if (cell.type !== 0) return; // Solo se puede caminar sobre suelo (type 0)
             player.x = newX;
             player.y = newY;
             pickupItemAt(newX, newY);
@@ -633,7 +741,46 @@
             draw();
         }
 
-        // ---------- PEERJS COMUNICACIÓN ----------
+        // IA de zombies
+        function moveZombies() {
+            if (!isHost) return; // Solo el host mueve zombies
+            zombies.forEach(z => {
+                // Movimiento aleatorio simple hacia el jugador
+                let dx = player.x - z.x;
+                let dy = player.y - z.y;
+                if (Math.abs(dx) + Math.abs(dy) < 10) { // si está cerca, moverse hacia jugador
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        if (dx > 0 && map[z.y][z.x+1].type === 0) z.x++;
+                        else if (dx < 0 && map[z.y][z.x-1].type === 0) z.x--;
+                    } else {
+                        if (dy > 0 && map[z.y+1][z.x].type === 0) z.y++;
+                        else if (dy < 0 && map[z.y-1][z.x].type === 0) z.y--;
+                    }
+                } else {
+                    // Movimiento aleatorio
+                    if (Math.random() < 0.02) {
+                        let dir = Math.floor(Math.random() * 4);
+                        let nx = z.x, ny = z.y;
+                        if (dir === 0) nx++;
+                        else if (dir === 1) nx--;
+                        else if (dir === 2) ny++;
+                        else ny--;
+                        if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx].type === 0) {
+                            z.x = nx;
+                            z.y = ny;
+                        }
+                    }
+                }
+                // Comprobar ataque al jugador
+                if (Math.abs(z.x - player.x) + Math.abs(z.y - player.y) === 1) {
+                    player.gold -= 5; // daño simple
+                    if (player.gold < 0) player.gold = 0;
+                }
+            });
+            draw();
+        }
+
+        // ---------- PEERJS COMUNICACIÓN (simplificada) ----------
         function setupConnection(connection, isHostConnection) {
             conn = connection;
             connectionStatus.textContent = 'Conectado a: ' + connection.peer;
@@ -661,6 +808,7 @@
                     if (data.map) map = data.map;
                     if (data.items) items = data.items;
                     if (data.npcs) npcs = data.npcs;
+                    if (data.zombies) zombies = data.zombies;
                     if (data.spawnPoint) spawnPoint = data.spawnPoint;
                     if (data.player) {
                         remotePlayer.x = data.player.x;
@@ -704,6 +852,12 @@
                         draw();
                     }
                     break;
+                case 'zombieUpdate':
+                    if (data.zombies) {
+                        zombies = data.zombies;
+                        draw();
+                    }
+                    break;
             }
         }
 
@@ -714,6 +868,7 @@
                     map: map,
                     items: items,
                     npcs: npcs,
+                    zombies: zombies,
                     spawnPoint: spawnPoint,
                     player: { x: player.x, y: player.y, name: player.name, skin: player.skin }
                 });
@@ -738,6 +893,10 @@
 
         function sendNpcUpdate() {
             if (conn && conn.open && isHost) conn.send({ type: 'npcUpdate', npcs });
+        }
+
+        function sendZombieUpdate() {
+            if (conn && conn.open && isHost) conn.send({ type: 'zombieUpdate', zombies });
         }
 
         // ---------- INTERACCIÓN CON NPC ----------
@@ -788,7 +947,6 @@
             npcEditor.innerHTML = editorHtml;
             npcEditor.style.display = 'block';
 
-            // Rellenar items existentes
             let shopDiv = document.getElementById('shopItems');
             npc.shop.forEach((item, idx) => {
                 let itemDiv = document.createElement('div');
@@ -803,7 +961,6 @@
                 shopDiv.appendChild(itemDiv);
             });
 
-            // Añadir nuevo item
             document.getElementById('addShopItem').addEventListener('click', () => {
                 let newDiv = document.createElement('div');
                 newDiv.className = 'shop-item-edit';
@@ -817,14 +974,12 @@
                 shopDiv.appendChild(newDiv);
             });
 
-            // Eliminar items
             document.querySelectorAll('.remove-shop-item').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.target.closest('.shop-item-edit').remove();
                 });
             });
 
-            // Guardar
             document.querySelector('.close-btn').addEventListener('click', () => {
                 let newName = document.getElementById('npcName').value;
                 let newSkin = document.getElementById('npcSkin').value;
@@ -853,14 +1008,12 @@
 
         // ---------- EVENTOS DE TECLADO ----------
         document.addEventListener('keydown', (e) => {
-            // Teclas numéricas para seleccionar hotbar
             if (e.key >= '1' && e.key <= '9') {
                 selectedHotbarSlot = parseInt(e.key) - 1;
                 updateHotbarDisplay();
                 draw();
                 e.preventDefault();
             }
-            // Movimiento WASD (si no hay input activo)
             if (!e.target.matches('input, textarea, select')) {
                 const key = e.key.toLowerCase();
                 if (key === 'w' || key === 'a' || key === 's' || key === 'd') {
@@ -910,24 +1063,27 @@
                     sendNpcUpdate();
                     draw();
                 }
+            } else if (placementMode === 'zombie' && isHost) {
+                zombies.push({ x: col, y: row, health: 100, skinColor: '#2e7d32' });
+                sendZombieUpdate();
+                draw();
             } else {
                 // Edición normal: izquierdo quita (pone suelo), derecho coloca bloque seleccionado
-                let value;
                 if (e.button === 0) { // izquierdo
-                    value = 0; // suelo
+                    map[row][col] = { type: 0, color: '#4caf50' };
+                    sendMapEdit(row, col, map[row][col]);
                 } else if (e.button === 2) { // derecho
                     let selectedItem = hotbar[selectedHotbarSlot].item;
                     if (selectedItem === null) return;
                     if (typeof selectedItem === 'number') {
-                        value = selectedItem;
+                        // Bloque con color por defecto según tipo
+                        let defaultColors = ['#4caf50', '#9e9e9e', '#e63946', '#1e90ff', '#ffaa00'];
+                        map[row][col] = { type: selectedItem, color: defaultColors[selectedItem] || '#ffffff' };
                     } else {
-                        // No se puede colocar un item que no sea número (como armas)
-                        return;
+                        return; // no colocar armas
                     }
                 } else return;
-
-                map[row][col] = value;
-                sendMapEdit(row, col, value);
+                sendMapEdit(row, col, map[row][col]);
                 draw();
             }
         });
@@ -955,8 +1111,35 @@
             editorBtn.textContent = "✏️ EDITOR ON";
         });
 
-        createWeaponBtn2.addEventListener('click', () => {
-            // Abrir un prompt simple para crear arma (podría ser un modal, pero simplificamos)
+        setZombieBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host puede colocar zombies"); return; }
+            placementMode = 'zombie';
+            editorMode = true;
+            editorBtn.textContent = "✏️ EDITOR ON";
+        });
+
+        colorBlockBtn.addEventListener('click', () => {
+            let selectedItem = hotbar[selectedHotbarSlot].item;
+            if (typeof selectedItem !== 'number') {
+                alert("Selecciona un bloque en la hotbar (números 1-9)");
+                return;
+            }
+            colorPickerModal.style.display = 'block';
+            applyBlockColor.onclick = () => {
+                let newColor = blockColorPicker.value;
+                // Cambiar el color del bloque seleccionado en la hotbar (no afecta a los ya colocados)
+                // Aquí podríamos guardar el color preferido para futuras colocaciones, pero por ahora solo avisamos.
+                alert("Color guardado. Ahora al colocar bloques de este tipo usarán el color por defecto. Para cambiar el color de un bloque ya colocado, edítalo individualmente.");
+                // Podríamos almacenar el color en una variable global para el tipo, pero lo dejamos así.
+                colorPickerModal.style.display = 'none';
+            };
+        });
+
+        saveMapBtn.addEventListener('click', saveMap);
+        loadMapBtn.addEventListener('click', loadMap);
+
+        // Creador de armas rápido (desde overlay)
+        document.getElementById('createWeaponBtn2')?.addEventListener('click', () => {
             let name = prompt("Nombre del arma:", "Espada básica");
             if (!name) return;
             let damage = prompt("Daño:", "5");
@@ -965,9 +1148,6 @@
             let newWeapon = { name, damage, sprite };
             addItemToInventory(newWeapon);
         });
-
-        // Slider tamaño (opcional, lo dejamos fuera por simplicidad, se puede añadir después)
-        // Por ahora no hay control de tamaño, pero se puede añadir fácilmente.
 
         // ---------- FLUJO DEL MENÚ ----------
         createGameBtn.addEventListener('click', () => {
@@ -983,14 +1163,16 @@
                 connectionStatus.textContent = 'Esperando jugadores...';
                 menuScreen.style.display = 'none';
                 gameScreen.style.display = 'flex';
-                initMap(20);
-                // Añadir algunos bloques de construcción a la hotbar para probar
+                loadSavedData(); // Cargar datos guardados al iniciar partida
+                // Inicializar hotbar con bloques por defecto
                 hotbar[0] = { item: 0, quantity: 1 };
                 hotbar[1] = { item: 1, quantity: 1 };
                 hotbar[2] = { item: 2, quantity: 1 };
                 hotbar[3] = { item: 3, quantity: 1 };
                 hotbar[4] = { item: 4, quantity: 1 };
                 draw();
+                // Iniciar movimiento de zombies (solo host)
+                setInterval(moveZombies, 500);
             });
             peer.on('connection', (connection) => {
                 conn = connection;
@@ -1020,6 +1202,7 @@
                     setupConnection(conn, false);
                     menuScreen.style.display = 'none';
                     gameScreen.style.display = 'flex';
+                    loadSavedData(); // Cargar datos locales (nombre, skin)
                 });
                 conn.on('error', (err) => {
                     connectionStatus.textContent = 'Error: ' + err;
@@ -1027,9 +1210,17 @@
             });
         });
 
-        // Inicialización por defecto (para que la hotbar se muestre)
+        // Guardar datos al cerrar o recargar
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('playerName', player.name);
+            localStorage.setItem('playerSkin', player.skin);
+        });
+
+        // Inicialización
+        loadSavedData();
+        initMap(20);
         updateHotbarDisplay();
-        draw(); // por si acaso
+        draw();
     </script>
 </body>
 </html>
