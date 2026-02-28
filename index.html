@@ -2,1901 +2,450 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>KorFlox - Pixel RPG</title>
+    <title>Juego tipo Roblox P2P con editor</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        * {
-            box-sizing: border-box;
-            image-rendering: pixelated;
-        }
         body {
             margin: 0;
-            background: #0c0b1b;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Press Start 2P', cursive;
-            color: #cfc6f0;
-            padding: 10px;
-        }
-        #gameWrapper {
-            max-width: 1400px;
-            width: 100%;
-            background: #1a1e2b;
-            border: 6px solid #7a5b3b;
-            box-shadow: 0 0 0 4px #4a3729, 10px 10px 0 #00000080;
             padding: 20px;
-            border-radius: 20px 20px 0 0;
-        }
-        #menuScreen {
+            font-family: Arial, sans-serif;
+            background: #2b2b2b;
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 600px;
-            background: #2d2a3a;
-            border: 4px solid #b88b4a;
-            padding: 30px;
-            text-align: center;
-        }
-        #menuScreen h1 {
-            font-size: 28px;
-            color: #ffd966;
-            text-shadow: 4px 4px 0 #aa6f3c;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        .menu-btn {
-            font-family: 'Press Start 2P', cursive;
-            background: #4e3b2c;
-            border: 4px outset #b88b4a;
-            color: #f0e6a0;
-            padding: 15px 30px;
-            margin: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            width: 300px;
-            transition: 0.1s;
-            box-shadow: 5px 5px 0 #2a1e14;
-        }
-        .menu-btn:hover {
-            background: #6b4f38;
-            border: 4px inset #ffcc66;
-            transform: translate(2px, 2px);
-            box-shadow: 3px 3px 0 #2a1e14;
-        }
-        .menu-btn.secondary {
-            background: #2a4a5a;
-            border-color: #6fa3c4;
-        }
-        .menu-input {
-            font-family: 'Press Start 2P', cursive;
-            background: #1e1c2a;
-            border: 3px inset #9a8b6e;
-            color: #d4c7a0;
-            padding: 10px;
-            margin: 10px;
-            width: 280px;
-            font-size: 14px;
-        }
-        .skin-editor {
-            background: #1e1c2a;
-            border: 4px inset #9a8b6e;
-            padding: 15px;
-            margin: 20px 0;
-            width: 300px;
-        }
-        .skin-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 10px 0;
-        }
-        .skin-color {
-            width: 40px;
-            height: 40px;
-            border: 3px outset #9a8b6e;
-            cursor: pointer;
-        }
-        .skin-preview {
-            width: 100px;
-            height: 100px;
-            background: #2a2540;
-            border: 4px inset #b88b4a;
-            margin: 10px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .prefab-skins {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 15px 0;
-        }
-        .prefab-skin {
-            width: 50px;
-            height: 50px;
-            background: #2a2540;
-            border: 3px outset #9a8b6e;
-            cursor: pointer;
-        }
-        #gameScreen {
-            display: none;
-            flex-direction: column;
-        }
-        #gameHeader {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #322b3f;
-            border: 4px solid #b88b4a;
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            color: #f0d48c;
-            font-size: 12px;
-            text-shadow: 2px 2px 0 #4f3d2b;
-            flex-wrap: wrap;
-        }
-        #healthBar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        #healthBarFill {
-            width: 200px;
-            height: 20px;
-            background: #4a2a2a;
-            border: 3px inset #6f5e45;
-        }
-        #healthBarCurrent {
-            height: 100%;
-            width: 100%;
-            background: #e34a4a;
-        }
-        #gameArea {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        #canvasContainer {
-            border: 6px solid #7a5b3b;
-            background: #1f2635;
-            box-shadow: inset 0 0 0 3px #3c2f23;
-            position: relative;
         }
         canvas {
-            display: block;
-            width: 800px;
-            height: 800px;
-            image-rendering: crisp-edges;
-            background: #2d3a4a;
+            border: 2px solid #555;
+            background: #1a1a1a;
+            cursor: crosshair;
         }
-        .panel {
-            background: #322b3f;
-            border: 5px solid #b88b4a;
-            padding: 15px;
-            width: 280px;
-            color: #eedbaa;
-            font-size: 12px;
-            line-height: 1.8;
-            box-shadow: 8px 8px 0 #1f1a28;
-            margin-bottom: 15px;
-        }
-        .panel h3 {
-            color: #ffc857;
-            border-bottom: 3px dotted #9a7b4f;
-            padding-bottom: 8px;
-            margin-top: 0;
-            font-size: 16px;
-        }
-        .panel button, .panel input, .panel select {
-            font-family: 'Press Start 2P', cursive;
-            background: #1e1c2a;
-            border: 3px inset #9a8b6e;
-            color: #e3d394;
-            padding: 8px;
-            margin: 5px 0;
-            width: 100%;
-            font-size: 10px;
-        }
-        .panel button {
-            background: #4e3b2c;
-            border: 4px outset #b88b4a;
-            cursor: pointer;
-        }
-        .panel button:hover {
-            background: #6b4f38;
-        }
-        .panel button.active {
-            background: #aa5533;
-            border: 4px inset #ffaa66;
-        }
-        #bottomInventory {
-            width: 100%;
-            background: #322b3f;
-            border: 5px solid #b88b4a;
-            padding: 10px;
-            margin-top: 15px;
+        #panel {
+            margin-top: 10px;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 10px;
-            box-shadow: 8px 8px 0 #1f1a28;
+            align-items: center;
+            justify-content: center;
+            background: #3a3a3a;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 600px;
         }
-        #bottomInventory h3 {
-            color: #ffc857;
-            margin: 0;
+        input, button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
             font-size: 14px;
         }
-        .inventory-row {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-            justify-content: center;
+        input {
+            background: #555;
+            color: #fff;
+            width: 150px;
         }
-        .slot {
-            width: 48px;
-            height: 48px;
-            background: #2a2540;
-            border: 3px outset #9a8b6e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+        button {
+            background: #4CAF50;
+            color: white;
             cursor: pointer;
+            font-weight: bold;
         }
-        .slot.selected {
-            border: 3px inset #ffcc66;
-            background: #4a3f60;
+        button:hover {
+            background: #45a049;
         }
-        .object-slot {
-            width: 48px;
-            height: 48px;
-            background: #2a2540;
-            border: 3px outset #9a8b6e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            position: relative;
-        }
-        .object-slot.selected {
-            border: 3px inset #ffcc66;
-            background: #4a3f60;
-        }
-        #npcDialog {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #2a2540;
-            border: 6px ridge #b88b4a;
-            padding: 20px;
-            min-width: 300px;
-            color: #ffdba0;
-            z-index: 100;
-            box-shadow: 10px 10px 0 #00000080;
-            display: none;
-        }
-        #npcDialog h2 {
-            margin-top: 0;
-            color: #ffbb77;
-            border-bottom: 2px solid #aa8b5c;
-        }
-        .shop-item {
-            background: #1f1b30;
-            border: 2px solid #7a5b3b;
-            padding: 8px;
-            margin: 5px 0;
-            cursor: pointer;
-        }
-        .shop-item:hover {
-            background: #3a3150;
-        }
-        .close-btn {
-            margin-top: 15px;
-            background: #4e3b2c;
-            border: 3px outset #b88b4a;
-            padding: 8px;
-            text-align: center;
-            cursor: pointer;
-        }
-        #npcEditor {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #2a2540;
-            border: 6px ridge #b88b4a;
-            padding: 20px;
-            z-index: 200;
-            color: #ffdba0;
-            min-width: 400px;
-            display: none;
-            font-family: 'Press Start 2P', cursive;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        #npcEditor input, #npcEditor textarea, #npcEditor select {
-            font-family: 'Press Start 2P', cursive;
-            background: #1e1c2a;
-            border: 3px inset #9a8b6e;
-            color: #e3d394;
-            padding: 8px;
-            margin: 5px 0;
-            width: 100%;
-            font-size: 10px;
-        }
-        #npcEditor button {
-            font-family: 'Press Start 2P', cursive;
-            background: #4e3b2c;
-            border: 4px outset #b88b4a;
-            color: #f0e6a0;
-            padding: 10px;
-            margin: 10px 5px 0 0;
-            cursor: pointer;
-        }
-        #shopItemsList {
-            margin: 10px 0;
-            max-height: 200px;
-            overflow-y: auto;
-            background: #1a1a2a;
-            padding: 5px;
-        }
-        .shop-editor-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #2a2540;
-            border: 2px solid #7a5b3b;
-            padding: 5px;
-            margin: 5px 0;
-            font-size: 10px;
-        }
-        .shop-editor-item button {
-            width: auto;
-            margin: 0;
-            padding: 5px;
-            font-size: 8px;
-        }
-        #addShopItemForm {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        #estado {
             margin-top: 10px;
-            background: #1e1c2a;
-            padding: 10px;
+            font-size: 14px;
+            color: #ffd700;
         }
-        #pixelEditor {
-            width: 280px;
+        .info {
+            background: #444;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
-        #pixelCanvas {
-            width: 160px;
-            height: 160px;
-            image-rendering: crisp-edges;
-            border: 3px inset #9a8b6e;
-            margin: 10px auto;
-            display: block;
-        }
-        .color-palette {
+        label {
             display: flex;
-            flex-wrap: wrap;
+            align-items: center;
             gap: 5px;
-            margin: 10px 0;
-            justify-content: center;
         }
-        .color-swatch {
-            width: 30px;
-            height: 30px;
-            border: 3px outset #9a8b6e;
-            cursor: pointer;
-        }
-        .color-swatch.selected {
-            border: 3px inset #ffcc66;
+        #modo-editor {
+            accent-color: #4CAF50;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 </head>
 <body>
-    <div id="gameWrapper">
-        <!-- MENÚ PRINCIPAL CON EDITOR DE SKIN -->
-        <div id="menuScreen">
-            <h1>⚔️ KORFLOX ⚔️<br>PIXEL ADVENTURE</h1>
-            <div style="margin-bottom: 20px;">
-                <label>Nombre:</label>
-                <input class="menu-input" type="text" id="playerNameInput" placeholder="Tu nombre" value="Aventurero">
-            </div>
-            <div class="skin-editor">
-                <h3 style="color:#ffc857;">EDITOR DE SKIN</h3>
-                <div class="skin-preview" id="skinPreview">
-                    <canvas id="previewCanvas" width="50" height="70" style="width:50px;height:70px;"></canvas>
-                </div>
-                <div class="skin-row">
-                    <span>Cabeza</span>
-                    <input type="color" id="skinHead" value="#d2b48c">
-                </div>
-                <div class="skin-row">
-                    <span>Torso</span>
-                    <input type="color" id="skinTorso" value="#4a90e2">
-                </div>
-                <div class="skin-row">
-                    <span>Brazos</span>
-                    <input type="color" id="skinArms" value="#e34a4a">
-                </div>
-                <div class="skin-row">
-                    <span>Piernas</span>
-                    <input type="color" id="skinLegs" value="#4caf50">
-                </div>
-                <div class="prefab-skins">
-                    <div class="prefab-skin" style="background:#d2b48c;" data-head="#d2b48c" data-torso="#4a90e2" data-arms="#e34a4a" data-legs="#4caf50"></div>
-                    <div class="prefab-skin" style="background:#f5f5dc;" data-head="#f5f5dc" data-torso="#ff69b4" data-arms="#ff1493" data-legs="#32cd32"></div>
-                    <div class="prefab-skin" style="background:#8b4513;" data-head="#8b4513" data-torso="#ff8c00" data-arms="#ff4500" data-legs="#228b22"></div>
-                </div>
-            </div>
-            <button class="menu-btn" id="createGameBtn">🎮 CREAR PARTIDA (HOST)</button>
-            <button class="menu-btn secondary" id="joinGameBtn">🔌 UNIRSE A PARTIDA</button>
-            <div id="joinOptions" style="display: none; margin-top: 20px;">
-                <input class="menu-input" type="text" id="peerIdInput" placeholder="ID del HOST" value="">
-                <button class="menu-btn" id="connectToHostBtn">CONECTAR</button>
-            </div>
-            <div style="margin-top: 40px; font-size: 10px; color: #9f8f70;">
-                ⚡ Click izquierdo: atacar / matar zombie | Click derecho: colocar bloque (solo host) ⚡<br>
-                Host: Shift+clic derecho en NPC para editarlo
-            </div>
-        </div>
+    <h1>🏗️ Juego tipo Roblox - P2P con Nametags y Editor</h1>
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
 
-        <!-- PANTALLA DE JUEGO -->
-        <div id="gameScreen">
-            <div id="gameHeader">
-                <span>👤 <span id="playerNameDisplay">Aventurero</span></span>
-                <div id="healthBar">
-                    <span>❤️</span>
-                    <div id="healthBarFill">
-                        <div id="healthBarCurrent" style="width:100%"></div>
-                    </div>
-                </div>
-                <span>💰 Oro: <span id="goldDisplay">0</span></span>
-                <span>🆔 <span id="peerIdDisplay">-</span></span>
-                <span>📡 <span id="connectionStatus">Desconectado</span></span>
-            </div>
-            <div id="gameArea">
-                <div id="canvasContainer">
-                    <canvas id="gameCanvas" width="800" height="800"></canvas>
-                    <div id="npcDialog"></div>
-                    <div id="npcEditor">
-                        <h2>Editar NPC</h2>
-                        <label>Nombre:</label>
-                        <input type="text" id="npcEditName" class="menu-input"><br>
-                        <label>Skin (emoji):</label>
-                        <input type="text" id="npcEditSkin" class="menu-input" value="👤"><br>
-                        <label>Diálogo:</label>
-                        <input type="text" id="npcEditDialog" class="menu-input"><br>
-                        <label>Color de texto:</label>
-                        <input type="color" id="npcEditColor" value="#ffdba0"><br>
-                        
-                        <label>Tienda:</label>
-                        <div id="shopItemsList"></div>
-                        
-                        <div id="addShopItemForm">
-                            <h4>Añadir item</h4>
-                            <input type="text" id="newShopItemName" placeholder="Nombre" value="Espada">
-                            <input type="number" id="newShopItemPrice" placeholder="Precio" value="50">
-                            <input type="number" id="newShopItemDamage" placeholder="Daño" value="5">
-                            <select id="newShopItemSprite">
-                                <option value="🗡️">🗡️ Espada</option>
-                                <option value="🏹">🏹 Arco</option>
-                                <option value="🔫">🔫 Pistola</option>
-                                <option value="🪓">🪓 Hacha</option>
-                                <option value="⚡">⚡ Varita</option>
-                            </select>
-                            <button id="addShopItemBtn">Añadir</button>
-                        </div>
-                        
-                        <textarea id="npcEditShop" class="menu-input" rows="3" placeholder="(Auto-generado)"></textarea><br>
-                        <button id="npcEditSave">Guardar</button>
-                        <button id="npcEditCancel">Cancelar</button>
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <!-- Panel de construcción (solo host) -->
-                    <div class="panel" id="constructionPanel">
-                        <h3>🎮 CONSTRUCCIÓN (HOST)</h3>
-                        <div>WASD: mover</div>
-                        <div>E: hablar con NPC</div>
-                        <div>Números 1-9: seleccionar bloque</div>
-                        <button id="buildModeBtn">🔨 MODO CONSTRUCCIÓN: OFF</button>
-                        <div style="margin-top: 10px;" id="hostOnlyButtons">
-                            <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN</button>
-                            <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC</button>
-                            <button id="setZombieSpawnerBtn" class="secondary">🧟 COLOCAR SPAWNER</button>
-                        </div>
-                        <label>🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="200" value="20" step="1"> <span id="mapSizeValue">20</span></label>
-                        <button id="resizeBtn">🔄 REINICIAR MAPA</button>
-                    </div>
-
-                    <!-- Editor de píxeles (solo host) -->
-                    <div class="panel" id="pixelEditor">
-                        <h3>🎨 CREADOR DE BLOQUES</h3>
-                        <canvas id="pixelCanvas" width="160" height="160"></canvas>
-                        <div class="color-palette" id="colorPalette"></div>
-                        <button id="savePixelBlock">GUARDAR BLOQUE</button>
-                        <select id="blockSlotSelect">
-                            <option value="5">Bloque 5</option>
-                            <option value="6">Bloque 6</option>
-                            <option value="7">Bloque 7</option>
-                            <option value="8">Bloque 8</option>
-                            <option value="9">Bloque 9</option>
-                        </select>
-                    </div>
-
-                    <!-- Panel de dinero (visible para todos) -->
-                    <div class="panel">
-                        <h3>💰 DINERO: <span id="goldPanel">0</span> 🪙</h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Barra de inventario inferior -->
-            <div id="bottomInventory">
-                <h3>🎒 INVENTARIO DE OBJETOS</h3>
-                <div class="inventory-row" id="objectInventoryBar"></div>
-                <h3>🔨 BLOQUES DISPONIBLES (solo host)</h3>
-                <div class="inventory-row" id="blockInventoryBar"></div>
-            </div>
-        </div>
+    <div id="panel">
+        <input type="text" id="nombre" placeholder="Tu nombre" value="Jugador" maxlength="15">
+        <button id="crearSala">🎮 Crear Sala</button>
+        <input type="text" id="idSala" placeholder="ID de sala a unir">
+        <button id="unirSala">🔗 Unirse a Sala</button>
+        <div class="info" id="miId">ID local: -</div>
+        <label>
+            <input type="checkbox" id="modo-editor"> ✏️ Modo editor (clic en mapa)
+        </label>
     </div>
 
+    <div id="estado">Esperando conexión...</div>
+
     <script>
-        // ---------- CONFIGURACIÓN ----------
+        // ---------- Configuración ----------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const TILE_SIZE = 40;
-        let MAP_SIZE = 20;
+        const CELL_SIZE = 25;            // 20x20 celdas
+        const GRID_SIZE = 20;
 
-        const BLOCK_TYPES = [
-            { name: 'Aire', color: '#4caf50', solid: false }, // 0
-            { name: 'Piedra', color: '#9e9e9e', solid: true }, // 1
-            { name: 'Tierra', color: '#8B5A2B', solid: true }, // 2
-            { name: 'Hierba', color: '#2e8b57', solid: true }, // 3
-            { name: 'Arcoíris', color: 'rainbow', solid: true } // 4
-        ];
-
-        // Bloques personalizados (id: { sprite: ImageData, name })
-        let customBlocks = {};
-
-        let map = [];
-        let items = [];
-        let npcs = [];
-        let spawners = [];
-        let zombies = [];
-        let spawnPoint = { x: 10, y: 10 };
-
-        // Jugador local
-        let player = {
-            x: 10,
-            y: 10,
-            name: "Aventurero",
-            headColor: '#d2b48c',
-            torsoColor: '#4a90e2',
-            armsColor: '#e34a4a',
-            legsColor: '#4caf50',
-            gold: 100,
-            health: 100,
-            maxHealth: 100,
-            facing: 'down'
+        // Estado del juego
+        let map = [];                     // 0 = suelo, 1 = muro
+        let localPlayer = {
+            id: null,
+            name: 'Jugador',
+            x: 5,                          // posición inicial por defecto
+            y: 5,
+            color: '#4287f5'
         };
-
-        // Jugador remoto
-        let remotePlayer = {
-            x: 0,
-            y: 0,
-            name: "Remoto",
-            headColor: '#d2b48c',
-            torsoColor: '#4a90e2',
-            armsColor: '#e34a4a',
-            legsColor: '#4caf50',
-            connected: false,
-            health: 100
-        };
-
-        // Inventarios
-        let blockInventory = [1, 2, 3, 4, 0, 0, 0, 0, 0]; // slots 0-8
-        let selectedSlot = 0;
-        let inventory = []; // objetos { name, damage, sprite }
-        let selectedObjectIndex = -1;
-
-        // Modos
-        let buildMode = false;
-        let camera = { x: 0, y: 0 };
-
-        // Editor de píxeles
-        let pixelCtx = document.getElementById('pixelCanvas').getContext('2d');
-        let pixelData = Array(16).fill().map(() => Array(16).fill('#000000'));
-        let currentColor = '#ff0000';
-        let drawing = false;
-
-        // PeerJS
+        let remotePlayers = [];            // jugadores remotos
         let peer = null;
-        let conn = null;
-        let myPeerId = null;
-        let isHost = false;
-        let players = {}; // solo host
+        let conn = null;                   // conexión activa (solo para el que se une)
+        let isHost = false;                 // ¿soy el host?
 
-        // Movimiento fluido
-        let keyState = { w: false, s: false, a: false, d: false };
-        let moveInterval = null;
-        const MOVE_DELAY = 150;
+        // Interfaz
+        const nombreInput = document.getElementById('nombre');
+        const crearBtn = document.getElementById('crearSala');
+        const unirBtn = document.getElementById('unirSala');
+        const idSalaInput = document.getElementById('idSala');
+        const miIdDiv = document.getElementById('miId');
+        const estadoDiv = document.getElementById('estado');
+        const modoEditorCheck = document.getElementById('modo-editor');
 
-        // Ataque
-        let attackCooldown = false;
-        let attackAnimation = 0;
-        const ATTACK_COOLDOWN_TIME = 500;
-
-        // Elementos DOM
-        const menuScreen = document.getElementById('menuScreen');
-        const gameScreen = document.getElementById('gameScreen');
-        const playerNameInput = document.getElementById('playerNameInput');
-        const createGameBtn = document.getElementById('createGameBtn');
-        const joinGameBtn = document.getElementById('joinGameBtn');
-        const joinOptions = document.getElementById('joinOptions');
-        const peerIdInput = document.getElementById('peerIdInput');
-        const connectToHostBtn = document.getElementById('connectToHostBtn');
-        const peerIdDisplay = document.getElementById('peerIdDisplay');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const playerNameDisplay = document.getElementById('playerNameDisplay');
-        const goldDisplay = document.getElementById('goldDisplay');
-        const goldPanel = document.getElementById('goldPanel');
-        const healthBarCurrent = document.getElementById('healthBarCurrent');
-        const buildModeBtn = document.getElementById('buildModeBtn');
-        const mapSizeSlider = document.getElementById('mapSizeSlider');
-        const mapSizeValue = document.getElementById('mapSizeValue');
-        const resizeBtn = document.getElementById('resizeBtn');
-        const setSpawnBtn = document.getElementById('setSpawnBtn');
-        const setNpcBtn = document.getElementById('setNpcBtn');
-        const setZombieSpawnerBtn = document.getElementById('setZombieSpawnerBtn');
-        const hostOnlyButtons = document.getElementById('hostOnlyButtons');
-        const constructionPanel = document.getElementById('constructionPanel');
-        const npcDialog = document.getElementById('npcDialog');
-        const npcEditor = document.getElementById('npcEditor');
-        const npcEditName = document.getElementById('npcEditName');
-        const npcEditSkin = document.getElementById('npcEditSkin');
-        const npcEditDialog = document.getElementById('npcEditDialog');
-        const npcEditColor = document.getElementById('npcEditColor');
-        const npcEditShop = document.getElementById('npcEditShop');
-        const npcEditSave = document.getElementById('npcEditSave');
-        const npcEditCancel = document.getElementById('npcEditCancel');
-        const shopItemsList = document.getElementById('shopItemsList');
-        const addShopItemBtn = document.getElementById('addShopItemBtn');
-        const newShopItemName = document.getElementById('newShopItemName');
-        const newShopItemPrice = document.getElementById('newShopItemPrice');
-        const newShopItemDamage = document.getElementById('newShopItemDamage');
-        const newShopItemSprite = document.getElementById('newShopItemSprite');
-        const objectInventoryBar = document.getElementById('objectInventoryBar');
-        const blockInventoryBar = document.getElementById('blockInventoryBar');
-        const pixelCanvas = document.getElementById('pixelCanvas');
-        const savePixelBlock = document.getElementById('savePixelBlock');
-        const blockSlotSelect = document.getElementById('blockSlotSelect');
-
-        // Elementos del editor de skin
-        const skinHead = document.getElementById('skinHead');
-        const skinTorso = document.getElementById('skinTorso');
-        const skinArms = document.getElementById('skinArms');
-        const skinLegs = document.getElementById('skinLegs');
-        const previewCanvas = document.getElementById('previewCanvas');
-        const previewCtx = previewCanvas.getContext('2d');
-
-        function updateSkinPreview() {
-            previewCtx.clearRect(0, 0, 50, 70);
-            // Cabeza
-            previewCtx.fillStyle = skinHead.value;
-            previewCtx.fillRect(15, 0, 20, 15);
-            // Torso
-            previewCtx.fillStyle = skinTorso.value;
-            previewCtx.fillRect(15, 15, 20, 20);
-            // Brazos
-            previewCtx.fillStyle = skinArms.value;
-            previewCtx.fillRect(5, 15, 10, 15);
-            previewCtx.fillRect(35, 15, 10, 15);
-            // Piernas
-            previewCtx.fillStyle = skinLegs.value;
-            previewCtx.fillRect(15, 35, 10, 15);
-            previewCtx.fillRect(25, 35, 10, 15);
-        }
-
-        skinHead.addEventListener('input', updateSkinPreview);
-        skinTorso.addEventListener('input', updateSkinPreview);
-        skinArms.addEventListener('input', updateSkinPreview);
-        skinLegs.addEventListener('input', updateSkinPreview);
-        updateSkinPreview();
-
-        // Skins predefinidas
-        document.querySelectorAll('.prefab-skin').forEach(el => {
-            el.addEventListener('click', () => {
-                skinHead.value = el.dataset.head;
-                skinTorso.value = el.dataset.torso;
-                skinArms.value = el.dataset.arms;
-                skinLegs.value = el.dataset.legs;
-                updateSkinPreview();
-            });
-        });
-
-        // ---------- FUNCIONES DE INICIALIZACIÓN ----------
-        function initMap(size) {
-            MAP_SIZE = size;
-            map = [];
-            for (let i = 0; i < MAP_SIZE; i++) {
+        // Inicializar mapa con algunos muros de ejemplo
+        function initMap() {
+            for (let i = 0; i < GRID_SIZE; i++) {
                 map[i] = [];
-                for (let j = 0; j < MAP_SIZE; j++) {
-                    if (i === 0 || i === MAP_SIZE-1 || j === 0 || j === MAP_SIZE-1) {
-                        map[i][j] = 1;
-                    } else {
-                        map[i][j] = 0;
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    map[i][j] = 0; // vacío
+                }
+            }
+            // Paredes alrededor
+            for (let i = 0; i < GRID_SIZE; i++) {
+                map[0][i] = 1;
+                map[GRID_SIZE-1][i] = 1;
+                map[i][0] = 1;
+                map[i][GRID_SIZE-1] = 1;
+            }
+            // Algunos obstáculos internos
+            map[5][5] = 1; map[5][6] = 1; map[6][5] = 1;
+            map[10][10] = 1; map[10][11] = 1; map[11][10] = 1;
+            map[15][3] = 1; map[15][4] = 1; map[16][3] = 1;
+        }
+        initMap();
+
+        // ---------- Utilidades ----------
+        function buscarPosicionLibre() {
+            for (let y = 1; y < GRID_SIZE-1; y++) {
+                for (let x = 1; x < GRID_SIZE-1; x++) {
+                    if (map[y][x] === 0 && !hayJugadorEn(x, y)) {
+                        return { x, y };
                     }
                 }
             }
-            items = [];
-            npcs = [];
-            spawners = [];
-            zombies = [];
-            spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
-            player.x = spawnPoint.x;
-            player.y = spawnPoint.y;
+            return { x: 5, y: 5 }; // fallback
         }
 
-        function updateHealthBar() {
-            const percent = (player.health / player.maxHealth) * 100;
-            healthBarCurrent.style.width = percent + '%';
-        }
-
-        function updateCamera() {
-            let targetX = player.x * TILE_SIZE + TILE_SIZE/2 - canvas.width/2;
-            let targetY = player.y * TILE_SIZE + TILE_SIZE/2 - canvas.height/2;
-            let maxX = MAP_SIZE * TILE_SIZE - canvas.width;
-            let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
-            camera.x = Math.max(0, Math.min(targetX, maxX));
-            camera.y = Math.max(0, Math.min(targetY, maxY));
-        }
-
-        // Dibujar jugador estilo Roblox con colores personalizados
-        function drawPlayer(px, py, name, head, torso, arms, legs, isLocal, health, maxHealth, equippedWeapon) {
-            // Torso
-            ctx.fillStyle = torso;
-            ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2);
-            // Brazos
-            ctx.fillStyle = arms;
-            ctx.fillRect(px - TILE_SIZE/2, py - TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
-            ctx.fillRect(px + TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
-            // Piernas
-            ctx.fillStyle = legs;
-            ctx.fillRect(px - TILE_SIZE/4, py + TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
-            ctx.fillRect(px, py + TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
-            // Cabeza
-            ctx.fillStyle = head;
-            ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/4);
-            // Ojos
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(px - TILE_SIZE/8, py - TILE_SIZE/2.5, TILE_SIZE/16, TILE_SIZE/16);
-            ctx.fillRect(px + TILE_SIZE/16, py - TILE_SIZE/2.5, TILE_SIZE/16, TILE_SIZE/16);
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(px - TILE_SIZE/12, py - TILE_SIZE/2.4, TILE_SIZE/24, TILE_SIZE/24);
-            ctx.fillRect(px + TILE_SIZE/12, py - TILE_SIZE/2.4, TILE_SIZE/24, TILE_SIZE/24);
-            
-            if (isLocal && equippedWeapon && equippedWeapon.sprite) {
-                ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#000';
-                let weaponX = px + (player.facing === 'right' ? TILE_SIZE/4 : (player.facing === 'left' ? -TILE_SIZE/4 : 0));
-                let weaponY = py - TILE_SIZE/4;
-                ctx.fillText(equippedWeapon.sprite, weaponX, weaponY);
+        function hayJugadorEn(x, y, ignorarId = null) {
+            if (localPlayer.x === x && localPlayer.y === y && localPlayer.id !== ignorarId) return true;
+            for (let p of remotePlayers) {
+                if (p.x === x && p.y === y && p.id !== ignorarId) return true;
             }
-            
-            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
-            ctx.fillStyle = 'white';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 3;
-            ctx.textAlign = 'center';
-            ctx.strokeText(name, px, py - TILE_SIZE/1.5);
-            ctx.fillText(name, px, py - TILE_SIZE/1.5);
+            return false;
+        }
 
-            if (!isLocal) {
-                let barWidth = TILE_SIZE/1.5;
-                let barX = px - barWidth/2;
-                let barY = py - TILE_SIZE/1.2;
-                ctx.fillStyle = '#4a2a2a';
-                ctx.fillRect(barX, barY, barWidth, 5);
-                ctx.fillStyle = '#e34a4a';
-                let healthPercent = health / maxHealth;
-                ctx.fillRect(barX, barY, barWidth * healthPercent, 5);
+        // Enviar mensaje a todos los peers (solo hay uno en este ejemplo)
+        function enviarMensaje(tipo, datos) {
+            if (conn && conn.open) {
+                conn.send({ tipo, datos });
+            } else if (peer && isHost) {
+                // El host puede tener múltiples conexiones, pero aquí solo una
+                if (peer.connections && Object.values(peer.connections).length > 0) {
+                    const firstConn = Object.values(peer.connections)[0][0];
+                    if (firstConn.open) {
+                        firstConn.send({ tipo, datos });
+                    }
+                }
             }
         }
 
-        function drawTile(x, y, blockType) {
-            if (blockType === 0) {
-                ctx.fillStyle = '#4caf50';
-                ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
-            } else if (blockType === 4) {
-                let hue = (Date.now() / 20) % 360;
-                ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-                ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
-            } else if (blockType >= 5 && customBlocks[blockType]) {
-                ctx.putImageData(customBlocks[blockType].sprite, x, y);
-            } else if (blockType > 0 && blockType < BLOCK_TYPES.length) {
-                ctx.fillStyle = BLOCK_TYPES[blockType].color;
-                ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
-            } else {
-                ctx.fillStyle = '#000';
-                ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
+        // ---------- Actualizar mapa desde mensaje ----------
+        function aplicarMapaCompleto(nuevoMapa) {
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    map[y][x] = nuevoMapa[y][x];
+                }
             }
-            ctx.strokeStyle = '#555';
-            ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
         }
 
-        function draw() {
+        // ---------- Dibujado ----------
+        function dibujar() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            updateCamera();
-            updateHealthBar();
 
-            let startCol = Math.floor(camera.x / TILE_SIZE);
-            let endCol = Math.ceil((camera.x + canvas.width) / TILE_SIZE);
-            let startRow = Math.floor(camera.y / TILE_SIZE);
-            let endRow = Math.ceil((camera.y + canvas.height) / TILE_SIZE);
-            startCol = Math.max(0, startCol);
-            endCol = Math.min(MAP_SIZE, endCol);
-            startRow = Math.max(0, startRow);
-            endRow = Math.min(MAP_SIZE, endRow);
-
-            for (let row = startRow; row < endRow; row++) {
-                for (let col = startCol; col < endCol; col++) {
-                    let x = col * TILE_SIZE - camera.x;
-                    let y = row * TILE_SIZE - camera.y;
-                    drawTile(x, y, map[row][col]);
+            // Dibujar mapa
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    if (map[row][col] === 1) {
+                        ctx.fillStyle = '#8B5A2B'; // marrón para muros
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE-1, CELL_SIZE-1);
+                    } else {
+                        ctx.fillStyle = '#3d3d3d';
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE-1, CELL_SIZE-1);
+                        ctx.strokeStyle = '#555';
+                        ctx.strokeRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE-1, CELL_SIZE-1);
+                    }
                 }
             }
 
-            // Spawners
-            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
+            // Dibujar jugadores remotos
+            remotePlayers.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x * CELL_SIZE, p.y * CELL_SIZE, CELL_SIZE-2, CELL_SIZE-2);
+                // Nametag
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(p.name, p.x * CELL_SIZE + CELL_SIZE/2, p.y * CELL_SIZE - 5);
+            });
+
+            // Dibujar jugador local
+            ctx.fillStyle = localPlayer.color;
+            ctx.fillRect(localPlayer.x * CELL_SIZE, localPlayer.y * CELL_SIZE, CELL_SIZE-2, CELL_SIZE-2);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            spawners.forEach(sp => {
-                if (sp.x >= startCol && sp.x < endCol && sp.y >= startRow && sp.y < endRow) {
-                    let x = sp.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                    let y = sp.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    ctx.fillStyle = '#993333';
-                    ctx.fillText('🧟', x, y-10);
-                    ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
-                    ctx.fillStyle = '#ffaa00';
-                    ctx.fillText('SPAWNER', x, y + TILE_SIZE/2);
-                }
-            });
-
-            // Zombies
-            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
-            zombies.forEach(z => {
-                if (z.x >= startCol && z.x < endCol && z.y >= startRow && z.y < endRow) {
-                    let x = z.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                    let y = z.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    ctx.fillStyle = '#33aa33';
-                    ctx.fillText('🧟', x, y);
-                }
-            });
-
-            // Items
-            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
-            ctx.fillStyle = 'gold';
-            items.forEach(item => {
-                if (item.x >= startCol && item.x < endCol && item.y >= startRow && item.y < endRow) {
-                    let x = item.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                    let y = item.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    ctx.fillText(item.type.sprite, x, y);
-                }
-            });
-
-            // NPCs
-            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
-            npcs.forEach(npc => {
-                if (npc.x >= startCol && npc.x < endCol && npc.y >= startRow && npc.y < endRow) {
-                    let x = npc.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                    let y = npc.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    ctx.fillStyle = '#44aaff';
-                    ctx.fillText(npc.skin || '👤', x, y-10);
-                    ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
-                    ctx.fillStyle = npc.textColor || '#ffffff';
-                    ctx.fillText(npc.name, x, y + TILE_SIZE/2);
-                }
-            });
-
-            // Animación de ataque
-            if (attackAnimation > 0) {
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                let centerX = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                let centerY = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                if (player.facing === 'right') {
-                    ctx.arc(centerX + TILE_SIZE/2, centerY, TILE_SIZE/2, -0.5, 0.5);
-                } else if (player.facing === 'left') {
-                    ctx.arc(centerX - TILE_SIZE/2, centerY, TILE_SIZE/2, 2.5, 3.5);
-                } else if (player.facing === 'up') {
-                    ctx.arc(centerX, centerY - TILE_SIZE/2, TILE_SIZE/2, 0, Math.PI);
-                } else if (player.facing === 'down') {
-                    ctx.arc(centerX, centerY + TILE_SIZE/2, TILE_SIZE/2, Math.PI, 2*Math.PI);
-                }
-                ctx.stroke();
-                attackAnimation -= 1;
-            }
-
-            // Jugador remoto
-            if (remotePlayer.connected) {
-                if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
-                    let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                    let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    drawPlayer(rx, ry, remotePlayer.name, remotePlayer.headColor, remotePlayer.torsoColor, remotePlayer.armsColor, remotePlayer.legsColor, false, remotePlayer.health, 100, null);
-                }
-            }
-
-            // Jugador local
-            let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-            let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-            let equippedWeapon = (selectedObjectIndex >= 0 && selectedObjectIndex < inventory.length) ? inventory[selectedObjectIndex] : null;
-            drawPlayer(px, py, player.name, player.headColor, player.torsoColor, player.armsColor, player.legsColor, true, player.health, player.maxHealth, equippedWeapon);
-
-            goldDisplay.textContent = player.gold;
-            goldPanel.textContent = player.gold;
+            ctx.fillText(localPlayer.name, localPlayer.x * CELL_SIZE + CELL_SIZE/2, localPlayer.y * CELL_SIZE - 5);
         }
 
-        // Actualizar inventarios inferiores
-        function updateBottomInventory() {
-            objectInventoryBar.innerHTML = '';
-            inventory.forEach((item, index) => {
-                let slot = document.createElement('div');
-                slot.className = 'object-slot';
-                if (index === selectedObjectIndex) slot.classList.add('selected');
-                slot.textContent = item.sprite;
-                slot.addEventListener('click', () => {
-                    if (selectedObjectIndex === index) {
-                        selectedObjectIndex = -1;
-                    } else {
-                        selectedObjectIndex = index;
-                    }
-                    updateBottomInventory();
-                });
-                objectInventoryBar.appendChild(slot);
-            });
+        // ---------- Movimiento local ----------
+        function moverLocal(dx, dy) {
+            let nx = localPlayer.x + dx;
+            let ny = localPlayer.y + dy;
+            if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) return;
+            if (map[ny][nx] === 1) return; // muro
+            if (hayJugadorEn(nx, ny, localPlayer.id)) return; // otro jugador
 
-            blockInventoryBar.innerHTML = '';
-            if (isHost) {
-                for (let i = 0; i < blockInventory.length; i++) {
-                    let slot = document.createElement('div');
-                    slot.className = 'slot';
-                    if (i === selectedSlot) slot.classList.add('selected');
-                    let blockType = blockInventory[i];
-                    if (blockType > 0) {
-                        if (blockType <= 4) {
-                            slot.textContent = ['', '🪨', '🌱', '🌿', '🌈'][blockType] || '?';
-                        } else if (customBlocks[blockType]) {
-                            slot.textContent = '🧱';
-                        } else {
-                            slot.textContent = '?';
-                        }
-                    } else {
-                        slot.textContent = '';
-                    }
-                    slot.dataset.index = i;
-                    slot.addEventListener('click', () => {
-                        selectedSlot = i;
-                        updateBottomInventory();
-                    });
-                    blockInventoryBar.appendChild(slot);
-                }
-            } else {
-                blockInventoryBar.innerHTML = '<div style="color: #888; padding: 10px;">Solo host</div>';
-            }
+            localPlayer.x = nx;
+            localPlayer.y = ny;
+            enviarMensaje('move', { x: nx, y: ny });
+            dibujar();
         }
 
-        function getSelectedBlock() {
-            return blockInventory[selectedSlot];
-        }
-
-        // Movimiento fluido
-        function tryMove(dx, dy) {
-            let newX = player.x + dx;
-            let newY = player.y + dy;
-            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
-            if (map[newY][newX] !== 0) return;
-            player.x = newX;
-            player.y = newY;
-
-            for (let i = items.length - 1; i >= 0; i--) {
-                if (items[i].x === player.x && items[i].y === player.y) {
-                    inventory.push(items[i].type);
-                    items.splice(i, 1);
-                    updateBottomInventory();
-                    sendItemPickup(i);
-                }
-            }
-            sendMove();
-            draw();
-        }
-
-        function startMove() {
-            if (moveInterval) clearInterval(moveInterval);
-            moveInterval = setInterval(() => {
-                let dx = 0, dy = 0;
-                if (keyState.w) dy = -1;
-                if (keyState.s) dy = 1;
-                if (keyState.a) dx = -1;
-                if (keyState.d) dx = 1;
-
-                if (dx !== 0 || dy !== 0) {
-                    if (dx > 0) player.facing = 'right';
-                    else if (dx < 0) player.facing = 'left';
-                    else if (dy < 0) player.facing = 'up';
-                    else if (dy > 0) player.facing = 'down';
-
-                    if (dx !== 0) {
-                        let newX = player.x + dx;
-                        if (newX >= 0 && newX < MAP_SIZE && map[player.y][newX] === 0) player.x = newX;
-                    }
-                    if (dy !== 0) {
-                        let newY = player.y + dy;
-                        if (newY >= 0 && newY < MAP_SIZE && map[newY][player.x] === 0) player.y = newY;
-                    }
-
-                    for (let i = items.length - 1; i >= 0; i--) {
-                        if (items[i].x === player.x && items[i].y === player.y) {
-                            inventory.push(items[i].type);
-                            items.splice(i, 1);
-                            updateBottomInventory();
-                            sendItemPickup(i);
-                        }
-                    }
-                    sendMove();
-                    draw();
-                }
-            }, MOVE_DELAY);
-        }
-
-        function stopMove() {
-            if (moveInterval) {
-                clearInterval(moveInterval);
-                moveInterval = null;
-            }
-        }
-
-        // Ataque
-        function attack() {
-            if (attackCooldown) return;
-            if (selectedObjectIndex < 0 || selectedObjectIndex >= inventory.length) return;
-
-            attackCooldown = true;
-            attackAnimation = 10;
-
-            let targetX = player.x;
-            let targetY = player.y;
-            if (player.facing === 'right') targetX++;
-            else if (player.facing === 'left') targetX--;
-            else if (player.facing === 'up') targetY--;
-            else if (player.facing === 'down') targetY++;
-
-            const zombieIndex = zombies.findIndex(z => z.x === targetX && z.y === targetY);
-            if (zombieIndex !== -1) {
-                if (isHost) {
-                    zombies.splice(zombieIndex, 1);
-                    player.gold += 5;
-                    sendZombieUpdate();
-                } else {
-                    if (conn) {
-                        conn.send({ type: 'killZombie', x: targetX, y: targetY, peerId: myPeerId });
-                    }
-                }
-            }
-
-            setTimeout(() => {
-                attackCooldown = false;
-            }, ATTACK_COOLDOWN_TIME);
-
-            draw();
-        }
-
-        // Interacción con NPC
-        function interactWithNPC() {
-            let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1);
-            if (!npc) return;
-            let dialogHtml = `<h2 style="color: ${npc.textColor || '#ffdba0'}">${npc.name}</h2><p style="color: ${npc.textColor || '#ffdba0'}">${npc.dialog || "¿Qué deseas?"}</p>`;
-            if (npc.shop && npc.shop.length > 0) {
-                dialogHtml += '<h3>Tienda:</h3>';
-                npc.shop.forEach((item, idx) => {
-                    dialogHtml += `<div class="shop-item" data-index="${idx}">${item.sprite} ${item.name} - ${item.price} 🪙 (Daño ${item.damage})</div>`;
-                });
-            }
-            dialogHtml += '<div class="close-btn">Cerrar</div>';
-            npcDialog.innerHTML = dialogHtml;
-            npcDialog.style.display = 'block';
-
-            document.querySelectorAll('.shop-item').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    let idx = e.target.dataset.index;
-                    let item = npc.shop[idx];
-                    if (player.gold >= item.price) {
-                        player.gold -= item.price;
-                        inventory.push({ name: item.name, sprite: item.sprite, damage: item.damage });
-                        updateBottomInventory();
-                        draw();
-                        if (!isHost && conn) {
-                            conn.send({ type: 'buyItem', price: item.price, peerId: myPeerId });
-                        }
-                        alert(`Has comprado ${item.name}`);
-                    } else {
-                        alert('No tienes suficiente oro.');
-                    }
-                });
-            });
-            document.querySelector('.close-btn').addEventListener('click', () => {
-                npcDialog.style.display = 'none';
-            });
-        }
-
-        // Editor de NPC
-        function openNpcEditor(index) {
-            const npc = npcs[index];
-            npcEditName.value = npc.name || '';
-            npcEditSkin.value = npc.skin || '👤';
-            npcEditDialog.value = npc.dialog || '';
-            npcEditColor.value = npc.textColor || '#ffdba0';
-            updateShopItemsList(npc.shop || []);
-            npcEditor.style.display = 'block';
-            npcEditor.dataset.index = index;
-        }
-
-        function updateShopItemsList(shop) {
-            shopItemsList.innerHTML = '';
-            shop.forEach((item, idx) => {
-                let div = document.createElement('div');
-                div.className = 'shop-editor-item';
-                div.innerHTML = `<span>${item.sprite} ${item.name} (${item.price}🪙, daño ${item.damage})</span>
-                                 <button class="remove-shop-item" data-index="${idx}">X</button>`;
-                shopItemsList.appendChild(div);
-            });
-            document.querySelectorAll('.remove-shop-item').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const idx = btn.dataset.index;
-                    const npcIndex = npcEditor.dataset.index;
-                    if (npcIndex !== undefined) {
-                        npcs[npcIndex].shop.splice(idx, 1);
-                        updateShopItemsList(npcs[npcIndex].shop);
-                        updateNpcShopText(npcIndex);
-                    }
-                });
-            });
-        }
-
-        function updateNpcShopText(index) {
-            const npc = npcs[index];
-            let shopStr = npc.shop.map(item => `${item.name},${item.price},${item.damage},${item.sprite}`).join(';');
-            npcEditShop.value = shopStr;
-        }
-
-        addShopItemBtn.addEventListener('click', () => {
-            const npcIndex = npcEditor.dataset.index;
-            if (npcIndex === undefined) return;
-            const name = newShopItemName.value.trim();
-            const price = parseInt(newShopItemPrice.value);
-            const damage = parseInt(newShopItemDamage.value);
-            const sprite = newShopItemSprite.value;
-            if (name && !isNaN(price) && !isNaN(damage)) {
-                npcs[npcIndex].shop.push({ name, price, damage, sprite });
-                updateShopItemsList(npcs[npcIndex].shop);
-                updateNpcShopText(npcIndex);
-                newShopItemName.value = '';
-                newShopItemPrice.value = 50;
-                newShopItemDamage.value = 5;
-            }
-        });
-
-        function closeNpcEditor() {
-            npcEditor.style.display = 'none';
-            delete npcEditor.dataset.index;
-        }
-
-        function saveNpcEditor() {
-            const index = npcEditor.dataset.index;
-            if (index === undefined) return;
-            const npc = npcs[index];
-            npc.name = npcEditName.value.trim() || 'NPC';
-            npc.skin = npcEditSkin.value.trim() || '👤';
-            npc.dialog = npcEditDialog.value.trim() || '...';
-            npc.textColor = npcEditColor.value;
-            updateNpcShopText(index);
-            sendNpcUpdate();
-            draw();
-            closeNpcEditor();
-        }
-
-        // Zombies (solo host)
-        function spawnZombieFromSpawner(spawner) {
-            if (!isHost) return;
-            const maxZombies = 5;
-            const current = zombies.filter(z => Math.abs(z.x - spawner.x) + Math.abs(z.y - spawner.y) < 10).length;
-            if (current >= maxZombies) return;
-
-            for (let attempts = 0; attempts < 10; attempts++) {
-                let dx = Math.floor(Math.random() * 5) - 2;
-                let dy = Math.floor(Math.random() * 5) - 2;
-                let nx = spawner.x + dx;
-                let ny = spawner.y + dy;
-                if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z => z.x === nx && z.y === ny)) {
-                    zombies.push({ x: nx, y: ny, health: 1 });
-                    break;
-                }
-            }
-            sendZombieUpdate();
-        }
-
-        function moveZombies() {
-            if (!isHost) return;
-            for (let i = zombies.length - 1; i >= 0; i--) {
-                let z = zombies[i];
-                let attacked = false;
-
-                if (Math.abs(z.x - player.x) + Math.abs(z.y - player.y) <= 1) {
-                    player.health = Math.max(0, player.health - 20);
-                    zombies.splice(i, 1);
-                    attacked = true;
-                    if (player.health <= 0) {
-                        player.x = spawnPoint.x;
-                        player.y = spawnPoint.y;
-                        player.health = player.maxHealth;
-                    }
-                }
-
-                if (!attacked) {
-                    for (let peerId in players) {
-                        let p = players[peerId];
-                        if (Math.abs(z.x - p.x) + Math.abs(z.y - p.y) <= 1) {
-                            p.health = Math.max(0, p.health - 20);
-                            zombies.splice(i, 1);
-                            if (p.conn) {
-                                p.conn.send({ type: 'updateHealth', health: p.health, maxHealth: p.maxHealth, x: p.x, y: p.y });
-                                if (p.health <= 0) {
-                                    p.x = spawnPoint.x;
-                                    p.y = spawnPoint.y;
-                                    p.health = p.maxHealth;
-                                    p.conn.send({ type: 'respawn', x: p.x, y: p.y, health: p.health });
-                                }
-                            }
-                            attacked = true;
-                            break;
-                        }
-                    }
-                }
-                if (attacked) continue;
-
-                let closest = null;
-                let minDist = Infinity;
-                let distLocal = Math.abs(z.x - player.x) + Math.abs(z.y - player.y);
-                if (distLocal < minDist) {
-                    minDist = distLocal;
-                    closest = player;
-                }
-                for (let pid in players) {
-                    let p = players[pid];
-                    let dist = Math.abs(z.x - p.x) + Math.abs(z.y - p.y);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        closest = p;
-                    }
-                }
-                if (closest) {
-                    let dx = closest.x > z.x ? 1 : (closest.x < z.x ? -1 : 0);
-                    let dy = closest.y > z.y ? 1 : (closest.y < z.y ? -1 : 0);
-                    let moved = false;
-                    if (dx !== 0) {
-                        let nx = z.x + dx;
-                        if (nx >= 0 && nx < MAP_SIZE && map[z.y][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === z.y)) {
-                            z.x = nx;
-                            moved = true;
-                        }
-                    }
-                    if (!moved && dy !== 0) {
-                        let ny = z.y + dy;
-                        if (ny >= 0 && ny < MAP_SIZE && map[ny][z.x] === 0 && !zombies.some(z2 => z2.x === z.x && z2.y === ny)) {
-                            z.y = ny;
-                            moved = true;
-                        }
-                    }
-                    if (!moved) {
-                        let dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-                        for (let d of dirs) {
-                            let nx = z.x + d[0];
-                            let ny = z.y + d[1];
-                            if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === ny)) {
-                                z.x = nx;
-                                z.y = ny;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            sendZombieUpdate();
-            draw();
-        }
-
-        function sendZombieUpdate() {
-            if (isHost) {
-                for (let pid in players) {
-                    if (players[pid].conn) {
-                        players[pid].conn.send({ type: 'zombieUpdate', spawners, zombies });
-                    }
-                }
-            }
-        }
-
-        let zombieInterval = setInterval(() => {
-            if (isHost) {
-                spawners.forEach(sp => {
-                    if (Math.random() < 0.3) spawnZombieFromSpawner(sp);
-                });
-                moveZombies();
-            }
-        }, 1000);
-
-        // Eventos de teclado
+        // ---------- Eventos de teclado ----------
         window.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
+            if (e.key.startsWith('Arrow') || ['w','a','s','d'].includes(e.key.toLowerCase())) {
                 e.preventDefault();
-                if (!keyState[key]) {
-                    keyState[key] = true;
-                    if (!moveInterval) {
-                        // movimiento inmediato
-                        let dx = 0, dy = 0;
-                        if (keyState.w) dy = -1;
-                        if (keyState.s) dy = 1;
-                        if (keyState.a) dx = -1;
-                        if (keyState.d) dx = 1;
-                        if (dx !== 0 || dy !== 0) {
-                            if (dx > 0) player.facing = 'right';
-                            else if (dx < 0) player.facing = 'left';
-                            else if (dy < 0) player.facing = 'up';
-                            else if (dy > 0) player.facing = 'down';
-
-                            if (dx !== 0) {
-                                let newX = player.x + dx;
-                                if (newX >= 0 && newX < MAP_SIZE && map[player.y][newX] === 0) player.x = newX;
-                            }
-                            if (dy !== 0) {
-                                let newY = player.y + dy;
-                                if (newY >= 0 && newY < MAP_SIZE && map[newY][player.x] === 0) player.y = newY;
-                            }
-                            for (let i = items.length - 1; i >= 0; i--) {
-                                if (items[i].x === player.x && items[i].y === player.y) {
-                                    inventory.push(items[i].type);
-                                    items.splice(i, 1);
-                                    updateBottomInventory();
-                                    sendItemPickup(i);
-                                }
-                            }
-                            sendMove();
-                            draw();
-                        }
-                        startMove();
-                    }
+                if (!conn && !isHost) {
+                    estadoDiv.innerText = 'No hay conexión P2P activa.';
+                    return;
                 }
-            }
-            if (key === 'e') interactWithNPC();
-            let num = parseInt(key);
-            if (num >= 1 && num <= 9 && isHost) {
-                selectedSlot = num - 1;
-                updateBottomInventory();
-                draw();
+                let dx = 0, dy = 0;
+                switch(e.key.toLowerCase()) {
+                    case 'arrowright': case 'd': dx = 1; break;
+                    case 'arrowleft': case 'a': dx = -1; break;
+                    case 'arrowdown': case 's': dy = 1; break;
+                    case 'arrowup': case 'w': dy = -1; break;
+                }
+                moverLocal(dx, dy);
             }
         });
 
-        window.addEventListener('keyup', (e) => {
-            const key = e.key.toLowerCase();
-            if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
-                keyState[key] = false;
-                if (!keyState.w && !keyState.s && !keyState.a && !keyState.d) stopMove();
-            }
-        });
-
-        canvas.addEventListener('mousedown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            let mouseX = (e.clientX - rect.left) * scaleX + camera.x;
-            let mouseY = (e.clientY - rect.top) * scaleY + camera.y;
-            const col = Math.floor(mouseX / TILE_SIZE);
-            const row = Math.floor(mouseY / TILE_SIZE);
-            if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
-
-            if (isHost && e.shiftKey && e.button === 2) {
-                const npcIndex = npcs.findIndex(n => n.x === col && n.y === row);
-                if (npcIndex !== -1) {
-                    e.preventDefault();
-                    openNpcEditor(npcIndex);
-                    return;
-                }
-            }
-
-            if (isHost) {
-                if (setSpawnBtn.classList.contains('active')) {
-                    spawnPoint = { x: col, y: row };
-                    sendSpawnUpdate();
-                    draw();
-                    setSpawnBtn.classList.remove('active');
-                    buildMode = false;
-                    buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: OFF";
-                    return;
-                }
-                if (setNpcBtn.classList.contains('active')) {
-                    let name = prompt("Nombre del NPC:");
-                    if (name) {
-                        npcs.push({ x: col, y: row, name, dialog: "¡Hola!", shop: [], skin: '👤', textColor: '#ffdba0' });
-                        sendNpcUpdate();
-                        draw();
-                    }
-                    setNpcBtn.classList.remove('active');
-                    buildMode = false;
-                    buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: OFF";
-                    return;
-                }
-                if (setZombieSpawnerBtn.classList.contains('active')) {
-                    spawners.push({ x: col, y: row });
-                    sendZombieUpdate();
-                    draw();
-                    setZombieSpawnerBtn.classList.remove('active');
-                    buildMode = false;
-                    buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: OFF";
-                    return;
-                }
-            }
-
-            // Si no es host y no está en modo construcción, atacar
-            if (e.button === 0 && !buildMode) {
-                attack();
+        // ---------- Editor de mapas (clic) ----------
+        canvas.addEventListener('click', (e) => {
+            if (!modoEditorCheck.checked) return;
+            if (!conn && !isHost) {
+                estadoDiv.innerText = 'Conéctate para editar el mapa.';
                 return;
             }
 
-            if (buildMode && isHost) {
-                if (e.button === 0) {
-                    map[row][col] = 0;
-                    sendMapEdit(row, col, 0);
-                    draw();
-                } else if (e.button === 2) {
-                    let block = getSelectedBlock();
-                    if (block > 0) {
-                        map[row][col] = block;
-                        sendMapEdit(row, col, block);
-                        draw();
-                    }
-                }
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+
+            const col = Math.floor(mouseX / CELL_SIZE);
+            const row = Math.floor(mouseY / CELL_SIZE);
+
+            if (col < 0 || col >= GRID_SIZE || row < 0 || row >= GRID_SIZE) return;
+
+            // No permitir colocar muro sobre un jugador
+            if (hayJugadorEn(col, row)) {
+                estadoDiv.innerText = 'No puedes editar sobre un jugador.';
+                return;
             }
+
+            // Cambiar celda
+            map[row][col] = map[row][col] === 0 ? 1 : 0;
+            dibujar();
+
+            // Enviar actualización al peer
+            enviarMensaje('mapUpdate', { x: col, y: row, valor: map[row][col] });
         });
 
-        canvas.addEventListener('contextmenu', e => e.preventDefault());
+        // ---------- Configurar Peer (Host) ----------
+        function crearSala() {
+            if (peer) peer.destroy();
+            peer = new Peer(); // genera ID aleatorio
 
-        buildModeBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host"); return; }
-            buildMode = !buildMode;
-            buildModeBtn.textContent = buildMode ? "🔨 MODO CONSTRUCCIÓN: ON" : "🔨 MODO CONSTRUCCIÓN: OFF";
-            if (!buildMode) {
-                setSpawnBtn.classList.remove('active');
-                setNpcBtn.classList.remove('active');
-                setZombieSpawnerBtn.classList.remove('active');
-            }
-        });
-
-        setSpawnBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host"); return; }
-            setSpawnBtn.classList.toggle('active');
-            setNpcBtn.classList.remove('active');
-            setZombieSpawnerBtn.classList.remove('active');
-            buildMode = true;
-            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
-        });
-        setNpcBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host"); return; }
-            setNpcBtn.classList.toggle('active');
-            setSpawnBtn.classList.remove('active');
-            setZombieSpawnerBtn.classList.remove('active');
-            buildMode = true;
-            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
-        });
-        setZombieSpawnerBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host"); return; }
-            setZombieSpawnerBtn.classList.toggle('active');
-            setSpawnBtn.classList.remove('active');
-            setNpcBtn.classList.remove('active');
-            buildMode = true;
-            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
-        });
-
-        mapSizeSlider.addEventListener('input', (e) => {
-            mapSizeValue.textContent = e.target.value;
-        });
-        resizeBtn.addEventListener('click', () => {
-            if (!isHost) { alert("Solo el host"); return; }
-            let newSize = parseInt(mapSizeSlider.value);
-            initMap(newSize);
-            if (conn) sendFullState();
-            draw();
-        });
-
-        // Creador de armas (simple)
-        document.getElementById('createWeaponBtn')?.addEventListener('click', () => {
-            let name = document.getElementById('weaponName').value.trim() || "Arma";
-            let damage = parseInt(document.getElementById('weaponDamage').value) || 1;
-            let sprite = document.getElementById('weaponSprite').value;
-            inventory.push({ name, damage, sprite });
-            updateBottomInventory();
-            alert(`Arma ${name} creada`);
-        });
-
-        npcEditSave.addEventListener('click', saveNpcEditor);
-        npcEditCancel.addEventListener('click', closeNpcEditor);
-
-        // Editor de píxeles
-        function initPixelEditor() {
-            const palette = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff', '#000000', '#8b4513', '#d2b48c'];
-            const paletteDiv = document.getElementById('colorPalette');
-            palette.forEach(color => {
-                let swatch = document.createElement('div');
-                swatch.className = 'color-swatch';
-                swatch.style.backgroundColor = color;
-                swatch.addEventListener('click', () => {
-                    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-                    swatch.classList.add('selected');
-                    currentColor = color;
-                });
-                paletteDiv.appendChild(swatch);
-            });
-            paletteDiv.children[0].classList.add('selected');
-
-            pixelCanvas.addEventListener('mousedown', (e) => {
-                drawing = true;
-                paintPixel(e);
-            });
-            pixelCanvas.addEventListener('mousemove', (e) => {
-                if (drawing) paintPixel(e);
-            });
-            pixelCanvas.addEventListener('mouseup', () => drawing = false);
-            pixelCanvas.addEventListener('mouseleave', () => drawing = false);
-
-            function paintPixel(e) {
-                const rect = pixelCanvas.getBoundingClientRect();
-                const scale = 160 / rect.width;
-                let x = Math.floor((e.clientX - rect.left) * scale / 10);
-                let y = Math.floor((e.clientY - rect.top) * scale / 10);
-                if (x >= 0 && x < 16 && y >= 0 && y < 16) {
-                    pixelData[y][x] = currentColor;
-                    drawPixelGrid();
-                }
-            }
-
-            function drawPixelGrid() {
-                for (let i = 0; i < 16; i++) {
-                    for (let j = 0; j < 16; j++) {
-                        pixelCtx.fillStyle = pixelData[i][j];
-                        pixelCtx.fillRect(j*10, i*10, 9, 9);
-                    }
-                }
-            }
-            drawPixelGrid();
-
-            savePixelBlock.addEventListener('click', () => {
-                let slot = parseInt(blockSlotSelect.value);
-                let imgData = ctx.createImageData(TILE_SIZE, TILE_SIZE);
-                for (let y = 0; y < TILE_SIZE; y++) {
-                    for (let x = 0; x < TILE_SIZE; x++) {
-                        let srcX = Math.floor(x / (TILE_SIZE/16));
-                        let srcY = Math.floor(y / (TILE_SIZE/16));
-                        let color = pixelData[srcY][srcX];
-                        let r = parseInt(color.slice(1,3), 16);
-                        let g = parseInt(color.slice(3,5), 16);
-                        let b = parseInt(color.slice(5,7), 16);
-                        let idx = (y * TILE_SIZE + x) * 4;
-                        imgData.data[idx] = r;
-                        imgData.data[idx+1] = g;
-                        imgData.data[idx+2] = b;
-                        imgData.data[idx+3] = 255;
-                    }
-                }
-                customBlocks[slot] = { sprite: imgData, name: `Bloque ${slot}` };
-                if (!blockInventory.includes(slot)) {
-                    for (let i = 0; i < blockInventory.length; i++) {
-                        if (blockInventory[i] === 0) {
-                            blockInventory[i] = slot;
-                            break;
-                        }
-                    }
-                }
-                updateBottomInventory();
-                draw();
-            });
-        }
-
-        // ---------- PEERJS ----------
-        function setupConnection(connection, isHostConnection) {
-            conn = connection;
-            connectionStatus.textContent = 'Conectado a: ' + connection.peer;
-            conn.on('data', (data) => handlePeerData(data, isHostConnection));
-            conn.on('close', () => {
-                connectionStatus.textContent = 'Desconectado';
-                remotePlayer.connected = false;
-                if (isHost) delete players[connection.peer];
-                draw();
-            });
-            if (!isHost) requestFullState();
-        }
-
-        function requestFullState() {
-            if (conn && conn.open) conn.send({ type: 'requestFullState' });
-        }
-
-        function handlePeerData(data, isHostConnection) {
-            switch (data.type) {
-                case 'requestFullState':
-                    if (isHost) sendFullState();
-                    break;
-                case 'fullState':
-                    if (data.map) map = data.map;
-                    if (data.items) items = data.items;
-                    if (data.npcs) npcs = data.npcs;
-                    if (data.spawnPoint) spawnPoint = data.spawnPoint;
-                    if (data.spawners) spawners = data.spawners;
-                    if (data.zombies) zombies = data.zombies;
-                    if (data.player) {
-                        remotePlayer.x = data.player.x;
-                        remotePlayer.y = data.player.y;
-                        remotePlayer.name = data.player.name;
-                        remotePlayer.headColor = data.player.headColor;
-                        remotePlayer.torsoColor = data.player.torsoColor;
-                        remotePlayer.armsColor = data.player.armsColor;
-                        remotePlayer.legsColor = data.player.legsColor;
-                        remotePlayer.connected = true;
-                    }
-                    MAP_SIZE = map.length;
-                    mapSizeSlider.value = MAP_SIZE;
-                    mapSizeValue.textContent = MAP_SIZE;
-                    draw();
-                    break;
-                case 'move':
-                    remotePlayer.x = data.x;
-                    remotePlayer.y = data.y;
-                    remotePlayer.name = data.name;
-                    remotePlayer.headColor = data.headColor;
-                    remotePlayer.torsoColor = data.torsoColor;
-                    remotePlayer.armsColor = data.armsColor;
-                    remotePlayer.legsColor = data.legsColor;
-                    remotePlayer.connected = true;
-                    if (isHost && data.peerId) {
-                        if (players[data.peerId]) {
-                            players[data.peerId].x = data.x;
-                            players[data.peerId].y = data.y;
-                        }
-                    }
-                    draw();
-                    break;
-                case 'mapEdit':
-                    if (isHost && data.row !== undefined && data.col !== undefined) {
-                        map[data.row][data.col] = data.value;
-                        for (let pid in players) {
-                            if (players[pid].conn) players[pid].conn.send({ type: 'mapEdit', row: data.row, col: data.col, value: data.value });
-                        }
-                        draw();
-                    }
-                    break;
-                case 'itemPickup':
-                    if (isHost && data.itemIndex !== undefined) {
-                        items.splice(data.itemIndex, 1);
-                        for (let pid in players) {
-                            if (players[pid].conn) players[pid].conn.send({ type: 'itemPickup', itemIndex: data.itemIndex });
-                        }
-                        draw();
-                    }
-                    break;
-                case 'spawnUpdate':
-                    if (data.spawnPoint) {
-                        spawnPoint = data.spawnPoint;
-                        draw();
-                    }
-                    break;
-                case 'npcUpdate':
-                    if (data.npcs) {
-                        npcs = data.npcs;
-                        draw();
-                    }
-                    break;
-                case 'zombieUpdate':
-                    if (data.spawners) spawners = data.spawners;
-                    if (data.zombies) zombies = data.zombies;
-                    draw();
-                    break;
-                case 'killZombie':
-                    if (isHost && data.x !== undefined && data.y !== undefined) {
-                        const idx = zombies.findIndex(z => z.x === data.x && z.y === data.y);
-                        if (idx !== -1) {
-                            zombies.splice(idx, 1);
-                            if (data.peerId && players[data.peerId]) {
-                                players[data.peerId].gold += 5;
-                                if (players[data.peerId].conn) {
-                                    players[data.peerId].conn.send({ type: 'updateGold', gold: players[data.peerId].gold });
-                                }
-                            }
-                            sendZombieUpdate();
-                        }
-                    }
-                    break;
-                case 'buyItem':
-                    if (isHost && data.peerId && players[data.peerId]) {
-                        players[data.peerId].gold -= data.price;
-                        if (players[data.peerId].conn) {
-                            players[data.peerId].conn.send({ type: 'updateGold', gold: players[data.peerId].gold });
-                        }
-                    }
-                    break;
-                case 'updateGold':
-                    player.gold = data.gold;
-                    draw();
-                    break;
-                case 'updateHealth':
-                    player.health = data.health;
-                    player.maxHealth = data.maxHealth;
-                    draw();
-                    break;
-                case 'respawn':
-                    player.x = data.x;
-                    player.y = data.y;
-                    player.health = data.health;
-                    draw();
-                    break;
-            }
-        }
-
-        function sendFullState() {
-            if (conn && conn.open) {
-                conn.send({
-                    type: 'fullState',
-                    map,
-                    items,
-                    npcs,
-                    spawnPoint,
-                    spawners,
-                    zombies,
-                    player: { x: player.x, y: player.y, name: player.name, headColor: player.headColor, torsoColor: player.torsoColor, armsColor: player.armsColor, legsColor: player.legsColor }
-                });
-            }
-        }
-
-        function sendMove() {
-            if (conn && conn.open) {
-                conn.send({
-                    type: 'move',
-                    x: player.x,
-                    y: player.y,
-                    name: player.name,
-                    headColor: player.headColor,
-                    torsoColor: player.torsoColor,
-                    armsColor: player.armsColor,
-                    legsColor: player.legsColor,
-                    peerId: myPeerId
-                });
-            }
-        }
-
-        function sendMapEdit(row, col, value) {
-            if (conn && conn.open) conn.send({ type: 'mapEdit', row, col, value });
-        }
-
-        function sendItemPickup(index) {
-            if (conn && conn.open) conn.send({ type: 'itemPickup', itemIndex: index });
-        }
-
-        function sendSpawnUpdate() {
-            if (conn && conn.open && isHost) {
-                for (let pid in players) {
-                    if (players[pid].conn) players[pid].conn.send({ type: 'spawnUpdate', spawnPoint });
-                }
-            }
-        }
-
-        function sendNpcUpdate() {
-            if (conn && conn.open && isHost) {
-                for (let pid in players) {
-                    if (players[pid].conn) players[pid].conn.send({ type: 'npcUpdate', npcs });
-                }
-            }
-        }
-
-        // ---------- FLUJO DEL MENÚ ----------
-        createGameBtn.addEventListener('click', () => {
-            isHost = true;
-            player.name = playerNameInput.value.trim() || "Aventurero";
-            player.headColor = skinHead.value;
-            player.torsoColor = skinTorso.value;
-            player.armsColor = skinArms.value;
-            player.legsColor = skinLegs.value;
-            playerNameDisplay.textContent = player.name;
-            peer = new Peer();
             peer.on('open', (id) => {
-                myPeerId = id;
-                peerIdDisplay.textContent = id;
-                connectionStatus.textContent = 'Esperando jugadores...';
-                menuScreen.style.display = 'none';
-                gameScreen.style.display = 'flex';
-                initMap(20);
-                players = {};
-                players['host'] = { x: player.x, y: player.y, gold: player.gold, health: player.health, maxHealth: player.maxHealth, name: player.name, headColor: player.headColor, torsoColor: player.torsoColor, armsColor: player.armsColor, legsColor: player.legsColor, conn: null };
-                constructionPanel.style.display = 'block';
-                document.getElementById('pixelEditor').style.display = 'block';
-                hostOnlyButtons.style.display = 'block';
-                buildModeBtn.disabled = false;
-                mapSizeSlider.disabled = false;
-                resizeBtn.disabled = false;
-                updateBottomInventory();
-                draw();
+                isHost = true;
+                localPlayer.name = nombreInput.value.trim() || 'Anfitrión';
+                localPlayer.id = id;
+                miIdDiv.innerText = `ID local: ${id}`;
+                estadoDiv.innerText = 'Sala creada. Esperando a que alguien se una...';
+                // Buscar posición libre
+                let pos = buscarPosicionLibre();
+                localPlayer.x = pos.x;
+                localPlayer.y = pos.y;
+                dibujar();
             });
+
             peer.on('connection', (connection) => {
                 conn = connection;
-                players[connection.peer] = { x: 10, y: 10, gold: 100, health: 100, maxHealth: 100, name: 'Jugador', headColor: '#d2b48c', torsoColor: '#4a90e2', armsColor: '#e34a4a', legsColor: '#4caf50', conn: connection };
-                setupConnection(conn, true);
-                sendFullState();
-                connection.send({ type: 'updateGold', gold: 100 });
-                connection.send({ type: 'updateHealth', health: 100, maxHealth: 100 });
+                estadoDiv.innerText = '¡Jugador conectado!';
+                conn.on('data', (data) => {
+                    procesarMensaje(data, conn);
+                });
+                conn.on('close', () => {
+                    estadoDiv.innerText = 'El otro jugador se desconectó.';
+                    remotePlayers = [];
+                    dibujar();
+                });
+
+                // Enviar mapa completo al nuevo cliente (para sincronizar)
+                conn.send({ tipo: 'mapFull', datos: map });
+
+                // Enviar también nuestro jugador local para que aparezca
+                conn.send({ tipo: 'playerJoin', datos: { 
+                    id: localPlayer.id, 
+                    name: localPlayer.name, 
+                    x: localPlayer.x, 
+                    y: localPlayer.y,
+                    color: localPlayer.color 
+                }});
             });
-        });
 
-        joinGameBtn.addEventListener('click', () => {
-            joinOptions.style.display = 'block';
-        });
+            peer.on('error', (err) => {
+                console.error(err);
+                estadoDiv.innerText = 'Error en Peer: ' + err.type;
+            });
+        }
 
-        connectToHostBtn.addEventListener('click', () => {
-            let hostId = peerIdInput.value.trim();
-            if (!hostId) return;
-            isHost = false;
-            player.name = playerNameInput.value.trim() || "Aventurero";
-            player.headColor = skinHead.value;
-            player.torsoColor = skinTorso.value;
-            player.armsColor = skinArms.value;
-            player.legsColor = skinLegs.value;
-            playerNameDisplay.textContent = player.name;
-            constructionPanel.style.display = 'none';
-            document.getElementById('pixelEditor').style.display = 'none';
-            hostOnlyButtons.style.display = 'none';
-            buildModeBtn.disabled = true;
-            mapSizeSlider.disabled = true;
-            resizeBtn.disabled = true;
+        // ---------- Unirse a sala (Cliente) ----------
+        function unirseSala() {
+            const hostId = idSalaInput.value.trim();
+            if (!hostId) {
+                estadoDiv.innerText = 'Ingresa un ID de sala válido.';
+                return;
+            }
+            if (peer) peer.destroy();
             peer = new Peer();
-            peer.on('open', (id) => {
-                myPeerId = id;
-                peerIdDisplay.textContent = id;
-                connectionStatus.textContent = 'Conectando...';
-                conn = peer.connect(hostId);
-                conn.on('open', () => {
-                    setupConnection(conn, false);
-                    menuScreen.style.display = 'none';
-                    gameScreen.style.display = 'flex';
-                    updateBottomInventory();
-                    draw();
-                });
-                conn.on('error', (err) => {
-                    connectionStatus.textContent = 'Error: ' + err;
-                });
-            });
-        });
 
-        // Inicialización
-        initMap(20);
-        updateBottomInventory();
-        initPixelEditor();
+            peer.on('open', (id) => {
+                localPlayer.id = id;
+                localPlayer.name = nombreInput.value.trim() || 'Invitado';
+                miIdDiv.innerText = `ID local: ${id}`;
+                estadoDiv.innerText = 'Conectando...';
+            });
+
+            peer.on('error', (err) => {
+                console.error(err);
+                estadoDiv.innerText = 'Error en Peer: ' + err.type;
+            });
+
+            // Conectar al host
+            conn = peer.connect(hostId);
+            conn.on('open', () => {
+                estadoDiv.innerText = 'Conectado al host.';
+                isHost = false;
+                // Enviar nuestros datos al host
+                let pos = buscarPosicionLibre();
+                localPlayer.x = pos.x;
+                localPlayer.y = pos.y;
+                conn.send({ tipo: 'playerJoin', datos: { 
+                    id: localPlayer.id, 
+                    name: localPlayer.name, 
+                    x: localPlayer.x, 
+                    y: localPlayer.y,
+                    color: localPlayer.color 
+                }});
+            });
+
+            conn.on('data', (data) => {
+                procesarMensaje(data, conn);
+            });
+
+            conn.on('close', () => {
+                estadoDiv.innerText = 'Desconectado del host.';
+                remotePlayers = [];
+                dibujar();
+            });
+        }
+
+        // ---------- Procesar mensajes entrantes ----------
+        function procesarMensaje(msg, connection) {
+            if (!msg || !msg.tipo) return;
+
+            switch (msg.tipo) {
+                case 'mapFull':
+                    // Recibir mapa completo (solo ocurre al unirse)
+                    aplicarMapaCompleto(msg.datos);
+                    dibujar();
+                    break;
+                case 'mapUpdate':
+                    // Actualizar una celda
+                    let { x, y, valor } = msg.datos;
+                    if (x >=0 && x<GRID_SIZE && y>=0 && y<GRID_SIZE) {
+                        map[y][x] = valor;
+                        dibujar();
+                    }
+                    break;
+                case 'playerJoin':
+                    // Nuevo jugador remoto
+                    let nuevoJugador = msg.datos;
+                    // Evitar duplicados
+                    let existe = remotePlayers.find(p => p.id === nuevoJugador.id);
+                    if (!existe && nuevoJugador.id !== localPlayer.id) {
+                        remotePlayers.push(nuevoJugador);
+                        dibujar();
+                    }
+                    break;
+                case 'move':
+                    // Movimiento de jugador remoto
+                    let { x: mx, y: my } = msg.datos;
+                    // Buscar por id? En este ejemplo simple, asumimos que solo hay un remoto y actualizamos sus coordenadas.
+                    // Pero podemos mejorar: enviar también id. Para simplificar, actualizamos el primer (y único) remoto.
+                    if (remotePlayers.length > 0) {
+                        remotePlayers[0].x = mx;
+                        remotePlayers[0].y = my;
+                    }
+                    dibujar();
+                    break;
+                default:
+                    console.log('Mensaje no reconocido', msg);
+            }
+        }
+
+        // ---------- Inicializar eventos de UI ----------
+        crearBtn.addEventListener('click', crearSala);
+        unirBtn.addEventListener('click', unirseSala);
+
+        // Primer dibujo
+        dibujar();
+
+        // Prevenir que las teclas de flecha muevan la página
+        window.addEventListener('keydown', (e) => {
+            if (e.key.startsWith('Arrow')) e.preventDefault();
+        }, { passive: false });
     </script>
 </body>
 </html>
