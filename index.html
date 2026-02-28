@@ -289,6 +289,30 @@
             align-items: center;
             gap: 5px;
         }
+        /* Barra de vida */
+        .health-bar {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .health-bar-fill {
+            width: 100px;
+            height: 15px;
+            background: #330000;
+            border: 2px inset #7a5b3b;
+        }
+        .health-bar-fill-inner {
+            height: 100%;
+            background: #ff3333;
+            width: 100%;
+        }
+        /* Ocultar elementos solo para host */
+        .host-only {
+            display: block;
+        }
+        .client .host-only {
+            display: none;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
@@ -328,6 +352,12 @@
         <div id="gameScreen">
             <div id="gameHeader">
                 <span>👤 <span id="playerNameDisplay">Aventurero</span> <span id="playerSkinDisplay"></span></span>
+                <span class="health-bar">
+                    ❤️ <span id="healthDisplay">100</span>
+                    <div class="health-bar-fill">
+                        <div id="healthBarInner" class="health-bar-fill-inner" style="width: 100%;"></div>
+                    </div>
+                </span>
                 <span>💰 Oro: <span id="goldDisplay">0</span></span>
                 <span>🆔 <span id="peerIdDisplay">-</span></span>
                 <span>📡 <span id="connectionStatus">Desconectado</span></span>
@@ -359,16 +389,17 @@
                         <div>E: hablar con NPC</div>
                         <div>Números 1-9: seleccionar bloque</div>
                         <button id="buildModeBtn">🔨 MODO CONSTRUCCIÓN: OFF</button>
-                        <div style="margin-top: 10px;">
+                        <div class="host-only" style="margin-top: 10px;">
                             <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN (host)</button>
                             <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC (host)</button>
                             <button id="setZombieSpawnerBtn" class="secondary">🧟 COLOCAR SPAWNER ZOMBIE (host)</button>
                         </div>
-                        <label>🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="100" value="20" step="1"> <span id="mapSizeValue">20</span></label>
-                        <button id="resizeBtn">🔄 REINICIAR MAPA (host)</button>
+                        <label class="host-only">🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="100" value="20" step="1"> <span id="mapSizeValue">20</span></label>
+                        <button class="host-only" id="resizeBtn">🔄 REINICIAR MAPA (host)</button>
                     </div>
                     <div class="panel">
                         <h3>💰 DINERO: <span id="goldPanel">0</span> 🪙</h3>
+                        <h3>❤️ VIDA: <span id="healthPanel">100</span></h3>
                         <h3>🎒 BLOQUES DISPONIBLES</h3>
                         <div id="blockInventory" class="inventory-bar">
                             <!-- Slots generados por JS -->
@@ -425,7 +456,9 @@
             y: 10,
             name: "Aventurero",
             skin: "🧑",
-            gold: 100
+            gold: 100,
+            health: 100,
+            maxHealth: 100
         };
 
         // Jugador remoto
@@ -457,7 +490,7 @@
         let isHost = false;
 
         // En el host, almacenamos información de todos los jugadores conectados
-        let players = {}; // mapea peerId -> { x, y, gold, name, skin, conn }
+        let players = {}; // mapea peerId -> { x, y, gold, health, name, skin, conn }
 
         // Elementos DOM
         const menuScreen = document.getElementById('menuScreen');
@@ -475,6 +508,9 @@
         const playerSkinDisplay = document.getElementById('playerSkinDisplay');
         const goldDisplay = document.getElementById('goldDisplay');
         const goldPanel = document.getElementById('goldPanel');
+        const healthDisplay = document.getElementById('healthDisplay');
+        const healthPanel = document.getElementById('healthPanel');
+        const healthBarInner = document.getElementById('healthBarInner');
         const buildModeBtn = document.getElementById('buildModeBtn');
         const mapSizeSlider = document.getElementById('mapSizeSlider');
         const mapSizeValue = document.getElementById('mapSizeValue');
@@ -508,6 +544,23 @@
             });
         });
         skinOptions[0].classList.add('selected');
+
+        // Función para actualizar display de vida y barra
+        function updateHealthDisplay() {
+            healthDisplay.textContent = player.health;
+            healthPanel.textContent = player.health;
+            let percent = (player.health / player.maxHealth) * 100;
+            healthBarInner.style.width = percent + '%';
+        }
+
+        // Función para manejar muerte y respawn
+        function respawnPlayer() {
+            player.x = spawnPoint.x;
+            player.y = spawnPoint.y;
+            player.health = player.maxHealth;
+            updateHealthDisplay();
+            draw();
+        }
 
         // ---------- FUNCIONES DE INICIALIZACIÓN ----------
         function initMap(size) {
@@ -662,9 +715,10 @@
             let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
             drawPlayer(px, py, player.name, player.skin, true);
 
-            // Actualizar displays de oro
+            // Actualizar displays
             goldDisplay.textContent = player.gold;
             goldPanel.textContent = player.gold;
+            updateHealthDisplay();
         }
 
         // Actualizar barra de bloques
@@ -842,25 +896,38 @@
                 let z = zombies[i];
                 // Comprobar si está cerca de algún jugador
                 let attacked = false;
-                // Jugador local
+                // Jugador local (host)
                 if (Math.abs(z.x - player.x) + Math.abs(z.y - player.y) <= 1) {
-                    // Ataca al jugador local
-                    player.gold = Math.max(0, player.gold - 10);
+                    // Ataca al jugador host
+                    player.health = Math.max(0, player.health - 10);
                     zombies.splice(i, 1);
                     attacked = true;
-                    // Notificar a todos los jugadores? El host ya actualizará su propio oro, y los clientes recibirán zombieUpdate
+                    // Si el jugador muere, respawn
+                    if (player.health <= 0) {
+                        player.health = player.maxHealth;
+                        player.x = spawnPoint.x;
+                        player.y = spawnPoint.y;
+                    }
+                    // Notificar a los clientes? El host ya actualizará su propia vida, pero debe enviar actualización a los clientes de su vida y de los zombies
                 }
-                // Jugadores remotos (si los hay)
+                // Jugadores remotos
                 if (!attacked) {
                     for (let peerId in players) {
                         let p = players[peerId];
                         if (Math.abs(z.x - p.x) + Math.abs(z.y - p.y) <= 1) {
                             // Ataca a ese jugador
-                            p.gold = Math.max(0, p.gold - 10);
+                            p.health = Math.max(0, p.health - 10);
                             zombies.splice(i, 1);
-                            // Enviar actualización de oro a ese jugador
+                            // Si el jugador muere, respawn
+                            if (p.health <= 0) {
+                                p.health = p.maxHealth;
+                                p.x = spawnPoint.x;
+                                p.y = spawnPoint.y;
+                            }
+                            // Enviar actualización de vida a ese jugador
                             if (p.conn) {
-                                p.conn.send({ type: 'updateGold', gold: p.gold });
+                                p.conn.send({ type: 'updateHealth', health: p.health });
+                                p.conn.send({ type: 'move', x: p.x, y: p.y }); // si respawnea, actualizar posición
                             }
                             attacked = true;
                             break;
@@ -924,7 +991,7 @@
         }
 
         function sendZombieUpdate() {
-            if (isHost && conn) {
+            if (isHost) {
                 // Enviar a todos los clientes
                 for (let peerId in players) {
                     let p = players[peerId];
@@ -1020,7 +1087,7 @@
                     } else {
                         // Cliente: enviar mensaje al host
                         if (conn) {
-                            conn.send({ type: 'killZombie', x: col, y: row });
+                            conn.send({ type: 'killZombie', x: col, y: row, peerId: myPeerId });
                         }
                     }
                     return;
@@ -1194,9 +1261,8 @@
                         const index = zombies.findIndex(z => z.x === data.x && z.y === data.y);
                         if (index !== -1) {
                             zombies.splice(index, 1);
-                            // Incrementar oro del jugador que mató (necesitamos saber quién)
-                            // El mensaje viene de una conexión, podemos usar conn para identificar
-                            const peerId = data.peerId; // lo enviaremos desde el cliente
+                            // Incrementar oro del jugador que mató
+                            const peerId = data.peerId;
                             if (peerId && players[peerId]) {
                                 players[peerId].gold += 5;
                                 // Enviar actualización de oro a ese jugador
@@ -1223,6 +1289,17 @@
                 case 'updateGold':
                     // Cliente recibe actualización de su oro
                     player.gold = data.gold;
+                    draw();
+                    break;
+                case 'updateHealth':
+                    // Cliente recibe actualización de su vida
+                    player.health = data.health;
+                    if (player.health <= 0) {
+                        player.health = player.maxHealth;
+                        player.x = spawnPoint.x;
+                        player.y = spawnPoint.y;
+                    }
+                    updateHealthDisplay();
                     draw();
                     break;
             }
@@ -1286,23 +1363,27 @@
                 connectionStatus.textContent = 'Esperando jugadores...';
                 menuScreen.style.display = 'none';
                 gameScreen.style.display = 'flex';
+                // Quitar clase client para mostrar botones host
+                gameScreen.classList.remove('client');
                 initMap(20);
                 // Inicializar players con el host
                 players = {};
-                players['host'] = { x: player.x, y: player.y, gold: player.gold, name: player.name, skin: player.skin, conn: null };
+                players['host'] = { x: player.x, y: player.y, gold: player.gold, health: player.health, maxHealth: player.maxHealth, name: player.name, skin: player.skin, conn: null };
                 updateBlockInventoryDisplay();
                 updateObjectInventoryDisplay();
+                updateHealthDisplay();
                 draw();
             });
             peer.on('connection', (connection) => {
                 conn = connection;
                 // Almacenar información del nuevo jugador
-                players[connection.peer] = { x: 10, y: 10, gold: 100, name: 'Jugador', skin: '🧑', conn: connection };
+                players[connection.peer] = { x: 10, y: 10, gold: 100, health: 100, maxHealth: 100, name: 'Jugador', skin: '🧑', conn: connection };
                 setupConnection(conn, true);
                 // Enviarle el estado completo (incluyendo spawners y zombies)
                 sendFullState();
-                // Enviarle su oro inicial
+                // Enviarle su oro y vida inicial
                 connection.send({ type: 'updateGold', gold: 100 });
+                connection.send({ type: 'updateHealth', health: 100 });
             });
         });
 
@@ -1328,8 +1409,11 @@
                     setupConnection(conn, false);
                     menuScreen.style.display = 'none';
                     gameScreen.style.display = 'flex';
+                    // Añadir clase client para ocultar botones de host
+                    gameScreen.classList.add('client');
                     updateBlockInventoryDisplay();
                     updateObjectInventoryDisplay();
+                    updateHealthDisplay();
                     draw();
                 });
                 conn.on('error', (err) => {
@@ -1342,6 +1426,7 @@
         initMap(20);
         updateBlockInventoryDisplay();
         updateObjectInventoryDisplay();
+        updateHealthDisplay();
     </script>
 </body>
 </html>
