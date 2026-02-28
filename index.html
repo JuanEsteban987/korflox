@@ -217,6 +217,58 @@
             text-align: center;
             cursor: pointer;
         }
+        /* Editor de NPC */
+        #npcEditor {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2a2540;
+            border: 6px ridge #b88b4a;
+            padding: 20px;
+            z-index: 200;
+            color: #ffdba0;
+            min-width: 300px;
+            display: none;
+            font-family: 'Press Start 2P', cursive;
+        }
+        #npcEditor input, #npcEditor textarea {
+            font-family: 'Press Start 2P', cursive;
+            background: #1e1c2a;
+            border: 3px inset #9a8b6e;
+            color: #e3d394;
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 10px;
+        }
+        #npcEditor button {
+            font-family: 'Press Start 2P', cursive;
+            background: #4e3b2c;
+            border: 4px outset #b88b4a;
+            color: #f0e6a0;
+            padding: 10px;
+            margin: 10px 5px 0 0;
+            cursor: pointer;
+        }
+        #objectInventoryList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            min-height: 50px;
+            background: #1e1c2a;
+            border: 3px inset #6f5e45;
+            padding: 5px;
+        }
+        .object-item {
+            background: #2a2540;
+            border: 2px outset #9a8b6e;
+            padding: 5px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
@@ -246,6 +298,21 @@
                 <div id="canvasContainer">
                     <canvas id="gameCanvas" width="800" height="800"></canvas>
                     <div id="npcDialog"></div>
+                    <div id="npcEditor">
+                        <h2>Editar NPC</h2>
+                        <label>Nombre:</label>
+                        <input type="text" id="npcEditName" class="menu-input"><br>
+                        <label>Skin (emoji):</label>
+                        <input type="text" id="npcEditSkin" class="menu-input" value="👤"><br>
+                        <label>Diálogo:</label>
+                        <input type="text" id="npcEditDialog" class="menu-input"><br>
+                        <label>Color de texto:</label>
+                        <input type="color" id="npcEditColor" value="#ffdba0"><br>
+                        <label>Tienda (formato: nombre,precio,daño,emoji; separados por ;):</label>
+                        <textarea id="npcEditShop" class="menu-input" rows="3" placeholder="Ej: Espada,50,5,🗡️;Poción,30,0,🧪"></textarea><br>
+                        <button id="npcEditSave">Guardar</button>
+                        <button id="npcEditCancel">Cancelar</button>
+                    </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <div class="panel">
@@ -281,6 +348,11 @@
                             <option value="⚡">⚡ Varita</option>
                         </select>
                         <button id="createWeaponBtn">🔨 CREAR Y GUARDAR</button>
+                    </div>
+                    <!-- NUEVO PANEL DE INVENTARIO DE OBJETOS -->
+                    <div class="panel" id="objectInventoryPanel">
+                        <h3>🎒 INVENTARIO DE OBJETOS</h3>
+                        <div id="objectInventoryList"></div>
                     </div>
                 </div>
             </div>
@@ -331,6 +403,9 @@
         let blockInventory = [1, 2, 3, 4, 0, 0, 0, 0, 0]; // Tipos de bloque disponibles, 0 significa vacío
         let selectedSlot = 0; // 0-8
 
+        // Inventario de objetos (armas, estrellas, etc.)
+        let inventory = [];
+
         // Modo construcción
         let buildMode = false;
 
@@ -368,6 +443,15 @@
         const weaponDamage = document.getElementById('weaponDamage');
         const weaponSprite = document.getElementById('weaponSprite');
         const blockInventoryDiv = document.getElementById('blockInventory');
+        const objectInventoryList = document.getElementById('objectInventoryList');
+        const npcEditor = document.getElementById('npcEditor');
+        const npcEditName = document.getElementById('npcEditName');
+        const npcEditSkin = document.getElementById('npcEditSkin');
+        const npcEditDialog = document.getElementById('npcEditDialog');
+        const npcEditColor = document.getElementById('npcEditColor');
+        const npcEditShop = document.getElementById('npcEditShop');
+        const npcEditSave = document.getElementById('npcEditSave');
+        const npcEditCancel = document.getElementById('npcEditCancel');
 
         // ---------- FUNCIONES DE INICIALIZACIÓN ----------
         function initMap(size) {
@@ -384,9 +468,16 @@
                     }
                 }
             }
-            // Sin items ni npcs por defecto
-            items = [];
-            npcs = [];
+            // Añadir algunos ítems de prueba (estrellas)
+            items = [
+                { x: 5, y: 5, type: { sprite: '⭐', name: 'Estrella' } },
+                { x: 7, y: 7, type: { sprite: '⭐', name: 'Estrella' } },
+                { x: 9, y: 9, type: { sprite: '⭐', name: 'Estrella' } }
+            ];
+            // NPC de prueba
+            npcs = [
+                { x: 6, y: 6, name: "Comerciante", dialog: "¡Bienvenido!", shop: [], skin: '👤', textColor: '#ffdba0' }
+            ];
             spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
             player.x = spawnPoint.x;
             player.y = spawnPoint.y;
@@ -481,7 +572,7 @@
                 if (item.x >= startCol && item.x < endCol && item.y >= startRow && item.y < endRow) {
                     let x = item.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let y = item.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    ctx.fillText(item.type, x, y);
+                    ctx.fillText(item.type.sprite, x, y);
                 }
             });
 
@@ -492,9 +583,9 @@
                     let x = npc.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let y = npc.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
                     ctx.fillStyle = '#44aaff';
-                    ctx.fillText('👤', x, y-10);
+                    ctx.fillText(npc.skin || '👤', x, y-10);
                     ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
-                    ctx.fillStyle = 'white';
+                    ctx.fillStyle = npc.textColor || '#ffffff';
                     ctx.fillText(npc.name, x, y + TILE_SIZE/2);
                 }
             });
@@ -540,6 +631,17 @@
             }
         }
 
+        // Actualizar el inventario de objetos (panel inferior)
+        function updateObjectInventoryDisplay() {
+            objectInventoryList.innerHTML = '';
+            inventory.forEach((item, index) => {
+                let div = document.createElement('div');
+                div.className = 'object-item';
+                div.innerHTML = `${item.sprite || '📦'} ${item.name || 'Objeto'}`;
+                objectInventoryList.appendChild(div);
+            });
+        }
+
         // Obtener el bloque seleccionado
         function getSelectedBlock() {
             return blockInventory[selectedSlot];
@@ -556,10 +658,10 @@
             // Recoger items si los hay
             for (let i = items.length - 1; i >= 0; i--) {
                 if (items[i].x === player.x && items[i].y === player.y) {
-                    // Añadir al inventario de objetos (no bloques) - por simplicidad lo dejamos como estrella
+                    // Añadir al inventario de objetos
                     inventory.push(items[i].type);
                     items.splice(i, 1);
-                    updateInventoryDisplay();
+                    updateObjectInventoryDisplay();
                     sendItemPickup(i);
                 }
             }
@@ -567,17 +669,11 @@
             draw();
         }
 
-        // Inventario de objetos (para armas, etc.)
-        let inventory = []; // objetos normales
-        function updateInventoryDisplay() {
-            // Por ahora no mostramos, pero se podría hacer una lista
-        }
-
         // Interacción con NPC
         function interactWithNPC() {
             let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1);
             if (!npc) return;
-            let dialogHtml = `<h2>${npc.name}</h2><p>${npc.dialog || "¿Qué deseas?"}</p>`;
+            let dialogHtml = `<h2 style="color: ${npc.textColor || '#ffdba0'}">${npc.name}</h2><p style="color: ${npc.textColor || '#ffdba0'}">${npc.dialog || "¿Qué deseas?"}</p>`;
             if (npc.shop && npc.shop.length > 0) {
                 dialogHtml += '<h3>Tienda:</h3>';
                 npc.shop.forEach((item, idx) => {
@@ -595,7 +691,7 @@
                     if (player.gold >= item.price) {
                         player.gold -= item.price;
                         inventory.push({ name: item.name, sprite: item.sprite, damage: item.damage });
-                        updateInventoryDisplay();
+                        updateObjectInventoryDisplay();
                         draw();
                         alert(`Has comprado ${item.name}`);
                     } else {
@@ -606,6 +702,60 @@
             document.querySelector('.close-btn').addEventListener('click', () => {
                 npcDialog.style.display = 'none';
             });
+        }
+
+        // Abrir editor de NPC (solo host, Shift+click derecho)
+        function openNpcEditor(index) {
+            const npc = npcs[index];
+            npcEditName.value = npc.name || '';
+            npcEditSkin.value = npc.skin || '👤';
+            npcEditDialog.value = npc.dialog || '';
+            npcEditColor.value = npc.textColor || '#ffdba0';
+            // Convertir shop a string
+            let shopStr = '';
+            if (npc.shop) {
+                shopStr = npc.shop.map(item => `${item.name},${item.price},${item.damage},${item.sprite}`).join(';');
+            }
+            npcEditShop.value = shopStr;
+            npcEditor.style.display = 'block';
+            // Guardar referencia al índice
+            npcEditor.dataset.index = index;
+        }
+
+        // Cerrar editor
+        function closeNpcEditor() {
+            npcEditor.style.display = 'none';
+            delete npcEditor.dataset.index;
+        }
+
+        // Guardar cambios del NPC
+        function saveNpcEditor() {
+            const index = npcEditor.dataset.index;
+            if (index === undefined) return;
+            const npc = npcs[index];
+            npc.name = npcEditName.value.trim() || 'NPC';
+            npc.skin = npcEditSkin.value.trim() || '👤';
+            npc.dialog = npcEditDialog.value.trim() || '...';
+            npc.textColor = npcEditColor.value;
+            // Parsear tienda
+            const shopStr = npcEditShop.value.trim();
+            npc.shop = [];
+            if (shopStr) {
+                shopStr.split(';').forEach(part => {
+                    const [name, price, damage, sprite] = part.split(',');
+                    if (name && price) {
+                        npc.shop.push({
+                            name: name.trim(),
+                            price: parseInt(price) || 0,
+                            damage: parseInt(damage) || 0,
+                            sprite: sprite?.trim() || '📦'
+                        });
+                    }
+                });
+            }
+            sendNpcUpdate();
+            draw();
+            closeNpcEditor();
         }
 
         // ---------- EVENTOS ----------
@@ -629,8 +779,6 @@
 
         // Click en canvas para construir
         canvas.addEventListener('mousedown', (e) => {
-            if (!buildMode) return;
-            e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
@@ -639,6 +787,16 @@
             const col = Math.floor(mouseX / TILE_SIZE);
             const row = Math.floor(mouseY / TILE_SIZE);
             if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
+
+            // Shift + clic derecho para editar NPC (solo host)
+            if (isHost && e.shiftKey && e.button === 2) {
+                const npcIndex = npcs.findIndex(n => n.x === col && n.y === row);
+                if (npcIndex !== -1) {
+                    e.preventDefault();
+                    openNpcEditor(npcIndex);
+                    return;
+                }
+            }
 
             // Si estamos en modo colocación de spawn o NPC
             if (isHost && document.getElementById('setSpawnBtn').classList.contains('active')) {
@@ -650,7 +808,7 @@
             if (isHost && document.getElementById('setNpcBtn').classList.contains('active')) {
                 let name = prompt("Nombre del NPC:");
                 if (name) {
-                    npcs.push({ x: col, y: row, name, dialog: "¡Hola!", shop: [] });
+                    npcs.push({ x: col, y: row, name, dialog: "¡Hola!", shop: [], skin: '👤', textColor: '#ffdba0' });
                     sendNpcUpdate();
                     draw();
                 }
@@ -658,16 +816,18 @@
             }
 
             // Construcción normal
-            if (e.button === 0) { // Izquierdo: eliminar bloque (poner aire)
-                map[row][col] = 0;
-                sendMapEdit(row, col, 0);
-                draw();
-            } else if (e.button === 2) { // Derecho: colocar bloque seleccionado
-                let block = getSelectedBlock();
-                if (block > 0) {
-                    map[row][col] = block;
-                    sendMapEdit(row, col, block);
+            if (buildMode) {
+                if (e.button === 0) { // Izquierdo: eliminar bloque (poner aire)
+                    map[row][col] = 0;
+                    sendMapEdit(row, col, 0);
                     draw();
+                } else if (e.button === 2) { // Derecho: colocar bloque seleccionado
+                    let block = getSelectedBlock();
+                    if (block > 0) {
+                        map[row][col] = block;
+                        sendMapEdit(row, col, block);
+                        draw();
+                    }
                 }
             }
         });
@@ -714,9 +874,13 @@
             let damage = parseInt(weaponDamage.value) || 1;
             let sprite = weaponSprite.value;
             inventory.push({ name, damage, sprite });
-            // No mostramos inventario de objetos en UI, pero se puede agregar después
+            updateObjectInventoryDisplay();
             alert(`Arma ${name} creada`);
         });
+
+        // Editor NPC - guardar/cancelar
+        npcEditSave.addEventListener('click', saveNpcEditor);
+        npcEditCancel.addEventListener('click', closeNpcEditor);
 
         // ---------- PEERJS (similar al original) ----------
         function setupConnection(connection, isHostConnection) {
@@ -837,6 +1001,7 @@
                 playerNameDisplay.textContent = player.name;
                 initMap(20);
                 updateBlockInventoryDisplay();
+                updateObjectInventoryDisplay();
                 draw();
             });
             peer.on('connection', (connection) => {
@@ -866,6 +1031,7 @@
                     player.name = "Cliente";
                     playerNameDisplay.textContent = player.name;
                     updateBlockInventoryDisplay();
+                    updateObjectInventoryDisplay();
                     draw();
                 });
                 conn.on('error', (err) => {
@@ -877,6 +1043,7 @@
         // Inicialización
         initMap(20);
         updateBlockInventoryDisplay();
+        updateObjectInventoryDisplay();
     </script>
 </body>
 </html>
