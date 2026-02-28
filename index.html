@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -415,8 +415,8 @@
         let map = [];
         let items = [];
         let npcs = [];
-        let spawners = []; // { x, y, spawnInterval, lastSpawn, maxZombies, zombieCount }
-        let zombies = []; // { x, y, health, targetPlayer }
+        let spawners = []; // { x, y }
+        let zombies = []; // { x, y, health }
         let spawnPoint = { x: 10, y: 10 };
 
         // Jugador local
@@ -455,6 +455,9 @@
         let conn = null;
         let myPeerId = null;
         let isHost = false;
+
+        // En el host, almacenamos información de todos los jugadores conectados
+        let players = {}; // mapea peerId -> { x, y, gold, name, skin, conn }
 
         // Elementos DOM
         const menuScreen = document.getElementById('menuScreen');
@@ -504,7 +507,6 @@
                 selectedSkin = opt.dataset.skin;
             });
         });
-        // Seleccionar primera por defecto
         skinOptions[0].classList.add('selected');
 
         // ---------- FUNCIONES DE INICIALIZACIÓN ----------
@@ -748,6 +750,10 @@
                         inventory.push({ name: item.name, sprite: item.sprite, damage: item.damage });
                         updateObjectInventoryDisplay();
                         draw();
+                        // Si no es host, enviar compra al host para sincronizar oro
+                        if (!isHost && conn) {
+                            conn.send({ type: 'buyItem', price: item.price });
+                        }
                         alert(`Has comprado ${item.name}`);
                     } else {
                         alert('No tienes suficiente oro.');
@@ -808,15 +814,14 @@
             closeNpcEditor();
         }
 
-        // Lógica de zombies (solo host)
+        // ---------- LÓGICA DE ZOMBIES (solo host) ----------
         function spawnZombieFromSpawner(spawner) {
             if (!isHost) return;
-            // Limitar número de zombies por spawner (opcional)
+            // Limitar número de zombies cerca
             const maxZombies = 5;
             const currentZombies = zombies.filter(z => Math.abs(z.x - spawner.x) + Math.abs(z.y - spawner.y) < 10).length;
             if (currentZombies >= maxZombies) return;
 
-            // Buscar una posición libre cerca del spawner
             for (let attempts = 0; attempts < 10; attempts++) {
                 let dx = Math.floor(Math.random() * 5) - 2;
                 let dy = Math.floor(Math.random() * 5) - 2;
@@ -827,57 +832,107 @@
                     break;
                 }
             }
+            sendZombieUpdate();
         }
 
         function moveZombies() {
             if (!isHost) return;
-            // Mover cada zombie hacia el jugador (si está cerca)
+            // Mover cada zombie y comprobar ataques
             for (let i = zombies.length - 1; i >= 0; i--) {
                 let z = zombies[i];
-                // Distancia Manhattan
-                let dist = Math.abs(z.x - player.x) + Math.abs(z.y - player.y);
-                if (dist <= 1) {
-                    // Ataca al jugador
+                // Comprobar si está cerca de algún jugador
+                let attacked = false;
+                // Jugador local
+                if (Math.abs(z.x - player.x) + Math.abs(z.y - player.y) <= 1) {
+                    // Ataca al jugador local
                     player.gold = Math.max(0, player.gold - 10);
                     zombies.splice(i, 1);
-                    continue;
+                    attacked = true;
+                    // Notificar a todos los jugadores? El host ya actualizará su propio oro, y los clientes recibirán zombieUpdate
                 }
-                // Dirección hacia el jugador (simple)
-                let dx = player.x > z.x ? 1 : (player.x < z.x ? -1 : 0);
-                let dy = player.y > z.y ? 1 : (player.y < z.y ? -1 : 0);
-                // Intentar moverse primero en una dirección, luego en la otra
-                let moved = false;
-                if (dx !== 0) {
-                    let nx = z.x + dx;
-                    if (nx >= 0 && nx < MAP_SIZE && map[z.y][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === z.y) && !(player.x === nx && player.y === z.y)) {
-                        z.x = nx;
-                        moved = true;
-                    }
-                }
-                if (!moved && dy !== 0) {
-                    let ny = z.y + dy;
-                    if (ny >= 0 && ny < MAP_SIZE && map[ny][z.x] === 0 && !zombies.some(z2 => z2.x === z.x && z2.y === ny) && !(player.x === z.x && player.y === ny)) {
-                        z.y = ny;
-                        moved = true;
-                    }
-                }
-                if (!moved) {
-                    // Movimiento aleatorio
-                    let dirs = [
-                        [1,0],[-1,0],[0,1],[0,-1]
-                    ];
-                    for (let d of dirs) {
-                        let nx = z.x + d[0];
-                        let ny = z.y + d[1];
-                        if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === ny) && !(player.x === nx && player.y === ny)) {
-                            z.x = nx;
-                            z.y = ny;
+                // Jugadores remotos (si los hay)
+                if (!attacked) {
+                    for (let peerId in players) {
+                        let p = players[peerId];
+                        if (Math.abs(z.x - p.x) + Math.abs(z.y - p.y) <= 1) {
+                            // Ataca a ese jugador
+                            p.gold = Math.max(0, p.gold - 10);
+                            zombies.splice(i, 1);
+                            // Enviar actualización de oro a ese jugador
+                            if (p.conn) {
+                                p.conn.send({ type: 'updateGold', gold: p.gold });
+                            }
+                            attacked = true;
                             break;
                         }
                     }
                 }
+                if (attacked) continue;
+
+                // Movimiento hacia el jugador más cercano (simple)
+                let closestPlayer = null;
+                let minDist = Infinity;
+                // Jugador local
+                let distLocal = Math.abs(z.x - player.x) + Math.abs(z.y - player.y);
+                if (distLocal < minDist) {
+                    minDist = distLocal;
+                    closestPlayer = player;
+                }
+                for (let peerId in players) {
+                    let p = players[peerId];
+                    let dist = Math.abs(z.x - p.x) + Math.abs(z.y - p.y);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closestPlayer = p;
+                    }
+                }
+                if (closestPlayer) {
+                    let dx = closestPlayer.x > z.x ? 1 : (closestPlayer.x < z.x ? -1 : 0);
+                    let dy = closestPlayer.y > z.y ? 1 : (closestPlayer.y < z.y ? -1 : 0);
+                    let moved = false;
+                    if (dx !== 0) {
+                        let nx = z.x + dx;
+                        if (nx >= 0 && nx < MAP_SIZE && map[z.y][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === z.y) && !(player.x === nx && player.y === z.y)) {
+                            z.x = nx;
+                            moved = true;
+                        }
+                    }
+                    if (!moved && dy !== 0) {
+                        let ny = z.y + dy;
+                        if (ny >= 0 && ny < MAP_SIZE && map[ny][z.x] === 0 && !zombies.some(z2 => z2.x === z.x && z2.y === ny) && !(player.x === z.x && player.y === ny)) {
+                            z.y = ny;
+                            moved = true;
+                        }
+                    }
+                    if (!moved) {
+                        // Movimiento aleatorio
+                        let dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+                        for (let d of dirs) {
+                            let nx = z.x + d[0];
+                            let ny = z.y + d[1];
+                            if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === ny) && !(player.x === nx && player.y === ny)) {
+                                z.x = nx;
+                                z.y = ny;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
+            sendZombieUpdate();
             draw();
+        }
+
+        function sendZombieUpdate() {
+            if (isHost && conn) {
+                // Enviar a todos los clientes
+                for (let peerId in players) {
+                    let p = players[peerId];
+                    if (p.conn) {
+                        p.conn.send({ type: 'zombieUpdate', spawners: spawners, zombies: zombies });
+                    }
+                }
+            }
         }
 
         // Bucle de zombies (cada 1 segundo)
@@ -885,7 +940,7 @@
             if (isHost) {
                 // Spawnear de cada spawner
                 spawners.forEach(sp => {
-                    if (Math.random() < 0.3) { // 30% de probabilidad cada segundo
+                    if (Math.random() < 0.3) {
                         spawnZombieFromSpawner(sp);
                     }
                 });
@@ -947,6 +1002,7 @@
             }
             if (isHost && document.getElementById('setZombieSpawnerBtn').classList.contains('active')) {
                 spawners.push({ x: col, y: row });
+                sendZombieUpdate();
                 draw();
                 return;
             }
@@ -955,9 +1011,18 @@
             if (e.button === 0) {
                 const zombieIndex = zombies.findIndex(z => z.x === col && z.y === row);
                 if (zombieIndex !== -1) {
-                    zombies.splice(zombieIndex, 1);
-                    player.gold += 5;
-                    draw();
+                    if (isHost) {
+                        // El host mata directamente
+                        zombies.splice(zombieIndex, 1);
+                        player.gold += 5;
+                        sendZombieUpdate();
+                        draw();
+                    } else {
+                        // Cliente: enviar mensaje al host
+                        if (conn) {
+                            conn.send({ type: 'killZombie', x: col, y: row });
+                        }
+                    }
                     return;
                 }
             }
@@ -1018,7 +1083,7 @@
             if (!isHost) { alert("Solo el host"); return; }
             let newSize = parseInt(mapSizeSlider.value);
             initMap(newSize);
-            if (conn && conn.open) sendFullState();
+            if (conn) sendFullState();
             draw();
         });
 
@@ -1034,7 +1099,7 @@
         npcEditSave.addEventListener('click', saveNpcEditor);
         npcEditCancel.addEventListener('click', closeNpcEditor);
 
-        // ---------- PEERJS (simplificado, igual que antes) ----------
+        // ---------- PEERJS ----------
         function setupConnection(connection, isHostConnection) {
             conn = connection;
             connectionStatus.textContent = 'Conectado a: ' + connection.peer;
@@ -1042,6 +1107,10 @@
             conn.on('close', () => {
                 connectionStatus.textContent = 'Desconectado';
                 remotePlayer.connected = false;
+                // Si es host, eliminar jugador de players
+                if (isHost) {
+                    delete players[connection.peer];
+                }
                 draw();
             });
             if (!isHost) requestFullState();
@@ -1061,6 +1130,8 @@
                     if (data.items) items = data.items;
                     if (data.npcs) npcs = data.npcs;
                     if (data.spawnPoint) spawnPoint = data.spawnPoint;
+                    if (data.spawners) spawners = data.spawners;
+                    if (data.zombies) zombies = data.zombies;
                     if (data.player) {
                         remotePlayer.x = data.player.x;
                         remotePlayer.y = data.player.y;
@@ -1079,6 +1150,13 @@
                     remotePlayer.name = data.name;
                     remotePlayer.skin = data.skin;
                     remotePlayer.connected = true;
+                    // Si es host, actualizar posición en players
+                    if (isHost && data.peerId) {
+                        if (players[data.peerId]) {
+                            players[data.peerId].x = data.x;
+                            players[data.peerId].y = data.y;
+                        }
+                    }
                     draw();
                     break;
                 case 'mapEdit':
@@ -1105,6 +1183,48 @@
                         draw();
                     }
                     break;
+                case 'zombieUpdate':
+                    if (data.spawners) spawners = data.spawners;
+                    if (data.zombies) zombies = data.zombies;
+                    draw();
+                    break;
+                case 'killZombie':
+                    if (isHost) {
+                        // Buscar zombie en esas coordenadas y eliminarlo
+                        const index = zombies.findIndex(z => z.x === data.x && z.y === data.y);
+                        if (index !== -1) {
+                            zombies.splice(index, 1);
+                            // Incrementar oro del jugador que mató (necesitamos saber quién)
+                            // El mensaje viene de una conexión, podemos usar conn para identificar
+                            const peerId = data.peerId; // lo enviaremos desde el cliente
+                            if (peerId && players[peerId]) {
+                                players[peerId].gold += 5;
+                                // Enviar actualización de oro a ese jugador
+                                if (players[peerId].conn) {
+                                    players[peerId].conn.send({ type: 'updateGold', gold: players[peerId].gold });
+                                }
+                            }
+                            sendZombieUpdate();
+                        }
+                    }
+                    break;
+                case 'buyItem':
+                    if (isHost) {
+                        // Restar oro al jugador que compró
+                        const peerId = data.peerId;
+                        if (peerId && players[peerId]) {
+                            players[peerId].gold -= data.price;
+                            if (players[peerId].conn) {
+                                players[peerId].conn.send({ type: 'updateGold', gold: players[peerId].gold });
+                            }
+                        }
+                    }
+                    break;
+                case 'updateGold':
+                    // Cliente recibe actualización de su oro
+                    player.gold = data.gold;
+                    draw();
+                    break;
             }
         }
 
@@ -1116,13 +1236,24 @@
                     items: items,
                     npcs: npcs,
                     spawnPoint: spawnPoint,
+                    spawners: spawners,
+                    zombies: zombies,
                     player: { x: player.x, y: player.y, name: player.name, skin: player.skin }
                 });
             }
         }
 
         function sendMove() {
-            if (conn && conn.open) conn.send({ type: 'move', x: player.x, y: player.y, name: player.name, skin: player.skin });
+            if (conn && conn.open) {
+                conn.send({ 
+                    type: 'move', 
+                    x: player.x, 
+                    y: player.y, 
+                    name: player.name, 
+                    skin: player.skin,
+                    peerId: myPeerId // para que el host identifique al jugador
+                });
+            }
         }
 
         function sendMapEdit(row, col, value) {
@@ -1156,13 +1287,22 @@
                 menuScreen.style.display = 'none';
                 gameScreen.style.display = 'flex';
                 initMap(20);
+                // Inicializar players con el host
+                players = {};
+                players['host'] = { x: player.x, y: player.y, gold: player.gold, name: player.name, skin: player.skin, conn: null };
                 updateBlockInventoryDisplay();
                 updateObjectInventoryDisplay();
                 draw();
             });
             peer.on('connection', (connection) => {
                 conn = connection;
+                // Almacenar información del nuevo jugador
+                players[connection.peer] = { x: 10, y: 10, gold: 100, name: 'Jugador', skin: '🧑', conn: connection };
                 setupConnection(conn, true);
+                // Enviarle el estado completo (incluyendo spawners y zombies)
+                sendFullState();
+                // Enviarle su oro inicial
+                connection.send({ type: 'updateGold', gold: 100 });
             });
         });
 
