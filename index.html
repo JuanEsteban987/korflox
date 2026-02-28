@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>RPG 2D Retro - Minecraft Style</title>
     <style>
-        /* (mismos estilos, añadimos algunos para el editor de spawners) */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         * {
             box-sizing: border-box;
@@ -288,40 +287,6 @@
             margin: 10px 5px 0 0;
             cursor: pointer;
         }
-        /* Editor de spawners */
-        #spawnerEditor {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #2a2540;
-            border: 6px ridge #b88b4a;
-            padding: 20px;
-            z-index: 200;
-            color: #ffdba0;
-            min-width: 300px;
-            display: none;
-            font-family: 'Press Start 2P', cursive;
-        }
-        #spawnerEditor input, #spawnerEditor select {
-            font-family: 'Press Start 2P', cursive;
-            background: #1e1c2a;
-            border: 3px inset #9a8b6e;
-            color: #e3d394;
-            padding: 8px;
-            margin: 5px 0;
-            width: 100%;
-            font-size: 10px;
-        }
-        #spawnerEditor button {
-            font-family: 'Press Start 2P', cursive;
-            background: #4e3b2c;
-            border: 4px outset #b88b4a;
-            color: #f0e6a0;
-            padding: 10px;
-            margin: 10px 5px 0 0;
-            cursor: pointer;
-        }
         #objectInventoryList {
             display: flex;
             flex-wrap: wrap;
@@ -340,6 +305,10 @@
             align-items: center;
             gap: 5px;
         }
+        /* Botones de guardado/carga */
+        .file-input {
+            display: none;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
@@ -353,7 +322,7 @@
                 <input class="menu-input" type="text" id="playerNameInput" placeholder="Tu nombre" value="Aventurero">
             </div>
             <div>
-                <label>Elige tu skin (Roblox style):</label>
+                <label>Elige tu skin (color de cabeza):</label>
                 <div id="skinSelector">
                     <div class="skin-option" data-skin="🧑">🧑</div>
                     <div class="skin-option" data-skin="👧">👧</div>
@@ -371,7 +340,7 @@
             </div>
             <div style="margin-top: 40px; font-size: 10px; color: #9f8f70;">
                 ⚡ Click izquierdo: eliminar bloque (solo host) / matar zombie | Click derecho: colocar bloque seleccionado (solo host) ⚡<br>
-                Host: Shift+clic derecho en NPC para editarlo | Ctrl+clic derecho en spawner para editarlo
+                Host: Shift+clic derecho en NPC para editarlo
             </div>
         </div>
 
@@ -408,39 +377,27 @@
                         <button id="npcEditSave">Guardar</button>
                         <button id="npcEditCancel">Cancelar</button>
                     </div>
-                    <div id="spawnerEditor">
-                        <h2>Editar Spawner</h2>
-                        <label>Tipo de mob:</label>
-                        <select id="spawnerMobType">
-                            <option value="zombie">🧟 Zombie</option>
-                            <option value="skeleton">💀 Esqueleto</option>
-                            <option value="spider">🕷️ Araña</option>
-                        </select>
-                        <label>Probabilidad de spawn (0-1):</label>
-                        <input type="number" id="spawnerRate" min="0" max="1" step="0.1" value="0.3">
-                        <label>Loot (formato: item,probabilidad,emoji; separados por ;):</label>
-                        <textarea id="spawnerLoot" class="menu-input" rows="3" placeholder="Ej: Hueso,0.5,🦴;Carne podrida,0.8,🥩"></textarea>
-                        <button id="spawnerEditSave">Guardar</button>
-                        <button id="spawnerEditCancel">Cancelar</button>
-                    </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <div class="panel" id="constructionPanel">
                         <h3>🎮 CONTROLES</h3>
                         <div>WASD: mover</div>
                         <div>E: hablar con NPC</div>
-                        <div>Números 1-9: seleccionar bloque</div>
+                        <div>Números 1-9: seleccionar bloque (solo host)</div>
                         <button id="buildModeBtn">🔨 MODO CONSTRUCCIÓN: OFF</button>
                         <div style="margin-top: 10px;" id="hostOnlyButtons">
                             <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN (host)</button>
                             <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC (host)</button>
                             <button id="setZombieSpawnerBtn" class="secondary">🧟 COLOCAR SPAWNER ZOMBIE (host)</button>
                         </div>
+                        <!-- NUEVOS BOTONES DE GUARDADO/CARGA -->
+                        <div style="margin-top: 10px;">
+                            <button id="saveMapBtn" class="secondary">💾 GUARDAR MAPA</button>
+                            <button id="loadMapBtn" class="secondary">📂 CARGAR MAPA</button>
+                            <input type="file" id="loadMapFile" accept=".json" style="display: none;">
+                        </div>
                         <label>🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="100" value="20" step="1"> <span id="mapSizeValue">20</span></label>
                         <button id="resizeBtn">🔄 REINICIAR MAPA (host)</button>
-                        <!-- Botones guardar/cargar mapa -->
-                        <button id="saveMapBtn">💾 GUARDAR MAPA</button>
-                        <button id="loadMapBtn">📂 CARGAR MAPA</button>
                     </div>
                     <div class="panel">
                         <h3>💰 DINERO: <span id="goldPanel">0</span> 🪙</h3>
@@ -490,10 +447,19 @@
         let map = [];
         let items = [];
         let npcs = [];
-        // spawners: ahora cada spawner tiene { x, y, mobType, spawnRate, loot } donde loot es array de { item, chance, sprite }
-        let spawners = [];
-        let zombies = []; // { x, y, health, mobType? }
+        let spawners = []; // { x, y }
+        let zombies = []; // { x, y, health }
         let spawnPoint = { x: 10, y: 10 };
+
+        // Mapeo de skins (emoji) a colores para cabeza estilo Roblox
+        const skinColors = {
+            '🧑': '#d2b48c', // marrón claro (piel)
+            '👧': '#ffb6c1', // rosa
+            '👨‍🦰': '#ff8c00', // naranja
+            '👩‍🦱': '#ffd700', // amarillo
+            '🧔': '#8b4513', // marrón oscuro
+            '👶': '#f5f5dc'  // beige
+        };
 
         // Jugador local
         let player = {
@@ -512,7 +478,8 @@
             y: 0,
             name: "Remoto",
             skin: "🧑",
-            connected: false
+            connected: false,
+            health: 100
         };
 
         // Inventario de bloques
@@ -578,16 +545,10 @@
         const npcEditShop = document.getElementById('npcEditShop');
         const npcEditSave = document.getElementById('npcEditSave');
         const npcEditCancel = document.getElementById('npcEditCancel');
-        // Elementos del editor de spawners
-        const spawnerEditor = document.getElementById('spawnerEditor');
-        const spawnerMobType = document.getElementById('spawnerMobType');
-        const spawnerRate = document.getElementById('spawnerRate');
-        const spawnerLoot = document.getElementById('spawnerLoot');
-        const spawnerEditSave = document.getElementById('spawnerEditSave');
-        const spawnerEditCancel = document.getElementById('spawnerEditCancel');
-        // Botones guardar/cargar
+        // Nuevos elementos
         const saveMapBtn = document.getElementById('saveMapBtn');
         const loadMapBtn = document.getElementById('loadMapBtn');
+        const loadMapFile = document.getElementById('loadMapFile');
 
         // Skin seleccionada
         let selectedSkin = "🧑";
@@ -639,25 +600,37 @@
             camera.y = Math.max(0, Math.min(targetY, maxY));
         }
 
-        // Dibujar jugador con skin
+        // Dibujar jugador estilo Roblox (cubito)
         function drawPlayer(px, py, name, skin, isLocal, health, maxHealth) {
-            // Cuerpo base (camisa)
+            // Color de cabeza según skin
+            const headColor = skinColors[skin] || '#d2b48c';
+            
+            // Cuerpo (camisa)
             ctx.fillStyle = isLocal ? '#e94560' : '#4a90e2';
             ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2);
-            // Cabeza (skin emoji)
-            ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#000';
-            ctx.fillText(skin, px, py - TILE_SIZE/4);
+            
+            // Cabeza (cubo)
+            ctx.fillStyle = headColor;
+            ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/4);
+            
+            // Ojos (dos puntos blancos con pupilas negras)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(px - TILE_SIZE/8, py - TILE_SIZE/2.5, TILE_SIZE/16, TILE_SIZE/16);
+            ctx.fillRect(px + TILE_SIZE/16, py - TILE_SIZE/2.5, TILE_SIZE/16, TILE_SIZE/16);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(px - TILE_SIZE/12, py - TILE_SIZE/2.4, TILE_SIZE/24, TILE_SIZE/24);
+            ctx.fillRect(px + TILE_SIZE/12, py - TILE_SIZE/2.4, TILE_SIZE/24, TILE_SIZE/24);
+            
             // Nametag
             ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
+            ctx.textAlign = 'center';
             ctx.strokeText(name, px, py - TILE_SIZE/1.5);
             ctx.fillText(name, px, py - TILE_SIZE/1.5);
-            // Barra de vida (opcional, solo para otros jugadores o todos)
+
+            // Barra de vida para otros jugadores
             if (!isLocal) {
                 let barWidth = TILE_SIZE/1.5;
                 let barX = px - barWidth/2;
@@ -714,26 +687,21 @@
                     let x = sp.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let y = sp.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
                     ctx.fillStyle = '#993333';
-                    // Mostrar icono según mobType
-                    let icon = '🧟';
-                    if (sp.mobType === 'skeleton') icon = '💀';
-                    if (sp.mobType === 'spider') icon = '🕷️';
-                    ctx.fillText(icon, x, y-10);
+                    ctx.fillText('🧟', x, y-10);
                     ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
                     ctx.fillStyle = '#ffaa00';
                     ctx.fillText('SPAWNER', x, y + TILE_SIZE/2);
                 }
             });
 
-            // Dibujar zombies (usar icono según mobType, pero por ahora todos zombies)
+            // Dibujar zombies
             ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
             zombies.forEach(z => {
                 if (z.x >= startCol && z.x < endCol && z.y >= startRow && z.y < endRow) {
                     let x = z.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let y = z.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
                     ctx.fillStyle = '#33aa33';
-                    let icon = z.mobType === 'skeleton' ? '💀' : (z.mobType === 'spider' ? '🕷️' : '🧟');
-                    ctx.fillText(icon, x, y);
+                    ctx.fillText('🧟', x, y);
                 }
             });
 
@@ -929,62 +897,12 @@
             closeNpcEditor();
         }
 
-        // Editor de spawners
-        let currentSpawnerIndex = null;
-
-        function openSpawnerEditor(index) {
-            const sp = spawners[index];
-            spawnerMobType.value = sp.mobType || 'zombie';
-            spawnerRate.value = sp.spawnRate || 0.3;
-            let lootStr = '';
-            if (sp.loot) {
-                lootStr = sp.loot.map(l => `${l.item},${l.chance},${l.sprite}`).join(';');
-            }
-            spawnerLoot.value = lootStr;
-            spawnerEditor.style.display = 'block';
-            currentSpawnerIndex = index;
-        }
-
-        function closeSpawnerEditor() {
-            spawnerEditor.style.display = 'none';
-            currentSpawnerIndex = null;
-        }
-
-        function saveSpawnerEditor() {
-            if (currentSpawnerIndex === null) return;
-            const sp = spawners[currentSpawnerIndex];
-            sp.mobType = spawnerMobType.value;
-            sp.spawnRate = parseFloat(spawnerRate.value) || 0.3;
-            const lootStr = spawnerLoot.value.trim();
-            sp.loot = [];
-            if (lootStr) {
-                lootStr.split(';').forEach(part => {
-                    const [item, chance, sprite] = part.split(',');
-                    if (item && chance) {
-                        sp.loot.push({
-                            item: item.trim(),
-                            chance: parseFloat(chance) || 0,
-                            sprite: sprite?.trim() || '📦'
-                        });
-                    }
-                });
-            }
-            sendSpawnerUpdate(); // Función que enviará cambios a clientes
-            draw();
-            closeSpawnerEditor();
-        }
-
-        spawnerEditSave.addEventListener('click', saveSpawnerEditor);
-        spawnerEditCancel.addEventListener('click', closeSpawnerEditor);
-
         // ---------- LÓGICA DE ZOMBIES (solo host) ----------
-        function spawnMobFromSpawner(spawner) {
+        function spawnZombieFromSpawner(spawner) {
             if (!isHost) return;
-            // Usar spawnRate para probabilidad
-            if (Math.random() > spawner.spawnRate) return;
-            const maxMobs = 5;
-            const currentMobs = zombies.filter(z => Math.abs(z.x - spawner.x) + Math.abs(z.y - spawner.y) < 10).length;
-            if (currentMobs >= maxMobs) return;
+            const maxZombies = 5;
+            const currentZombies = zombies.filter(z => Math.abs(z.x - spawner.x) + Math.abs(z.y - spawner.y) < 10).length;
+            if (currentZombies >= maxZombies) return;
 
             for (let attempts = 0; attempts < 10; attempts++) {
                 let dx = Math.floor(Math.random() * 5) - 2;
@@ -992,7 +910,7 @@
                 let nx = spawner.x + dx;
                 let ny = spawner.y + dy;
                 if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z => z.x === nx && z.y === ny)) {
-                    zombies.push({ x: nx, y: ny, health: 1, mobType: spawner.mobType, loot: spawner.loot });
+                    zombies.push({ x: nx, y: ny, health: 1 });
                     break;
                 }
             }
@@ -1011,9 +929,11 @@
                     zombies.splice(i, 1);
                     attacked = true;
                     if (player.health <= 0) {
+                        // Respawn
                         player.x = spawnPoint.x;
                         player.y = spawnPoint.y;
                         player.health = player.maxHealth;
+                        // Opcional: perder algo de oro
                     }
                 }
 
@@ -1027,6 +947,7 @@
                             if (p.conn) {
                                 p.conn.send({ type: 'updateHealth', health: p.health, maxHealth: p.maxHealth, x: p.x, y: p.y });
                                 if (p.health <= 0) {
+                                    // Enviar respawn
                                     p.x = spawnPoint.x;
                                     p.y = spawnPoint.y;
                                     p.health = p.maxHealth;
@@ -1040,9 +961,10 @@
                 }
                 if (attacked) continue;
 
-                // Movimiento hacia el jugador más cercano (igual que antes)
+                // Movimiento hacia el jugador más cercano
                 let closestPlayer = null;
                 let minDist = Infinity;
+                // Jugador local
                 let distLocal = Math.abs(z.x - player.x) + Math.abs(z.y - player.y);
                 if (distLocal < minDist) {
                     minDist = distLocal;
@@ -1103,61 +1025,98 @@
             }
         }
 
-        function sendSpawnerUpdate() {
-            // Similar a zombieUpdate, pero solo para spawners? Reutilizamos
-            sendZombieUpdate();
-        }
-
         // Bucle de zombies (cada 1 segundo)
         let zombieInterval = setInterval(() => {
             if (isHost) {
                 spawners.forEach(sp => {
-                    spawnMobFromSpawner(sp);
+                    if (Math.random() < 0.3) {
+                        spawnZombieFromSpawner(sp);
+                    }
                 });
                 moveZombies();
             }
         }, 1000);
 
-        // ---------- GUARDAR/CARGAR MAPA ----------
+        // ---------- FUNCIONES DE GUARDADO Y CARGA ----------
         function saveMap() {
+            if (!isHost) {
+                alert("Solo el host puede guardar el mapa");
+                return;
+            }
             const mapData = {
                 map: map,
                 items: items,
                 npcs: npcs,
                 spawners: spawners,
+                zombies: zombies,
                 spawnPoint: spawnPoint,
-                MAP_SIZE: MAP_SIZE
+                mapSize: MAP_SIZE
             };
-            localStorage.setItem('savedMap', JSON.stringify(mapData));
-            alert('Mapa guardado en localStorage');
+            const json = JSON.stringify(mapData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mapa_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
-        function loadMap() {
-            const saved = localStorage.getItem('savedMap');
-            if (!saved) {
-                alert('No hay mapa guardado');
+        function loadMapFromFile(file) {
+            if (!isHost) {
+                alert("Solo el host puede cargar un mapa");
                 return;
             }
-            const mapData = JSON.parse(saved);
-            map = mapData.map;
-            items = mapData.items;
-            npcs = mapData.npcs;
-            spawners = mapData.spawners;
-            spawnPoint = mapData.spawnPoint;
-            MAP_SIZE = mapData.MAP_SIZE;
-            mapSizeSlider.value = MAP_SIZE;
-            mapSizeValue.textContent = MAP_SIZE;
-            // Reiniciar zombies? mejor mantenerlos vacíos
-            zombies = [];
-            draw();
-            if (isHost && conn) {
-                sendFullState(); // Enviar a todos los clientes
-            }
-            alert('Mapa cargado');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    // Validar datos básicos
+                    if (data.map && Array.isArray(data.map)) {
+                        map = data.map;
+                        MAP_SIZE = map.length;
+                        items = data.items || [];
+                        npcs = data.npcs || [];
+                        spawners = data.spawners || [];
+                        zombies = data.zombies || [];
+                        spawnPoint = data.spawnPoint || { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
+                        player.x = spawnPoint.x;
+                        player.y = spawnPoint.y;
+                        player.health = player.maxHealth; // Restaurar vida al cargar
+                        // Actualizar sliders
+                        mapSizeSlider.value = MAP_SIZE;
+                        mapSizeValue.textContent = MAP_SIZE;
+                        // Enviar a todos los clientes
+                        if (conn) {
+                            for (let peerId in players) {
+                                if (players[peerId].conn) {
+                                    players[peerId].conn.send({ type: 'fullState', map: map, items: items, npcs: npcs, spawners: spawners, zombies: zombies, spawnPoint: spawnPoint, player: { x: player.x, y: player.y, name: player.name, skin: player.skin } });
+                                }
+                            }
+                        }
+                        draw();
+                        alert("Mapa cargado correctamente");
+                    } else {
+                        alert("Archivo de mapa inválido");
+                    }
+                } catch (err) {
+                    alert("Error al cargar el archivo: " + err);
+                }
+            };
+            reader.readAsText(file);
         }
 
+        // Eventos de guardado/carga
         saveMapBtn.addEventListener('click', saveMap);
-        loadMapBtn.addEventListener('click', loadMap);
+        loadMapBtn.addEventListener('click', () => {
+            loadMapFile.click();
+        });
+        loadMapFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                loadMapFromFile(e.target.files[0]);
+            }
+            loadMapFile.value = ''; // Limpiar para permitir cargar el mismo archivo de nuevo
+        });
 
         // ---------- EVENTOS ----------
         window.addEventListener('keydown', (e) => {
@@ -1168,7 +1127,7 @@
             if (key === 'd') tryMove(1, 0);
             if (key === 'e') interactWithNPC();
             let num = parseInt(key);
-            if (num >= 1 && num <= 9 && isHost) {
+            if (num >= 1 && num <= 9 && isHost) { // Solo host puede cambiar bloque seleccionado (para construir)
                 selectedSlot = num - 1;
                 updateBlockInventoryDisplay();
                 draw();
@@ -1195,16 +1154,6 @@
                 }
             }
 
-            // Host: Ctrl+clic derecho en spawner para editar
-            if (isHost && e.ctrlKey && e.button === 2) {
-                const spawnerIndex = spawners.findIndex(s => s.x === col && s.y === row);
-                if (spawnerIndex !== -1) {
-                    e.preventDefault();
-                    openSpawnerEditor(spawnerIndex);
-                    return;
-                }
-            }
-
             // Modos de colocación (solo host)
             if (isHost) {
                 if (document.getElementById('setSpawnBtn').classList.contains('active')) {
@@ -1223,8 +1172,7 @@
                     return;
                 }
                 if (document.getElementById('setZombieSpawnerBtn').classList.contains('active')) {
-                    // Crear spawner con valores por defecto
-                    spawners.push({ x: col, y: row, mobType: 'zombie', spawnRate: 0.3, loot: [] });
+                    spawners.push({ x: col, y: row });
                     sendZombieUpdate();
                     draw();
                     return;
@@ -1236,21 +1184,7 @@
                 const zombieIndex = zombies.findIndex(z => z.x === col && z.y === row);
                 if (zombieIndex !== -1) {
                     if (isHost) {
-                        const zombie = zombies[zombieIndex];
                         zombies.splice(zombieIndex, 1);
-                        // Generar loot según la configuración del spawner (si tiene)
-                        // Aquí simplificado: si tiene loot, lo soltamos
-                        if (zombie.loot) {
-                            zombie.loot.forEach(lootItem => {
-                                if (Math.random() < lootItem.chance) {
-                                    items.push({
-                                        x: col,
-                                        y: row,
-                                        type: { sprite: lootItem.sprite, name: lootItem.item, damage: 0 }
-                                    });
-                                }
-                            });
-                        }
                         player.gold += 5;
                         sendZombieUpdate();
                         draw();
@@ -1339,7 +1273,7 @@
         npcEditSave.addEventListener('click', saveNpcEditor);
         npcEditCancel.addEventListener('click', closeNpcEditor);
 
-        // ---------- PEERJS (con modificaciones para spawners) ----------
+        // ---------- PEERJS ----------
         function setupConnection(connection, isHostConnection) {
             conn = connection;
             connectionStatus.textContent = 'Conectado a: ' + connection.peer;
@@ -1400,6 +1334,7 @@
                 case 'mapEdit':
                     if (isHost && data.row !== undefined && data.col !== undefined) {
                         map[data.row][data.col] = data.value;
+                        // Reenviar a todos los clientes
                         for (let peerId in players) {
                             if (players[peerId].conn) {
                                 players[peerId].conn.send({ type: 'mapEdit', row: data.row, col: data.col, value: data.value });
@@ -1450,20 +1385,7 @@
                     if (isHost && data.x !== undefined && data.y !== undefined) {
                         const index = zombies.findIndex(z => z.x === data.x && z.y === data.y);
                         if (index !== -1) {
-                            const zombie = zombies[index];
                             zombies.splice(index, 1);
-                            // Generar loot
-                            if (zombie.loot) {
-                                zombie.loot.forEach(lootItem => {
-                                    if (Math.random() < lootItem.chance) {
-                                        items.push({
-                                            x: data.x,
-                                            y: data.y,
-                                            type: { sprite: lootItem.sprite, name: lootItem.item, damage: 0 }
-                                        });
-                                    }
-                                });
-                            }
                             const peerId = data.peerId;
                             if (peerId && players[peerId]) {
                                 players[peerId].gold += 5;
@@ -1565,6 +1487,7 @@
                 initMap(20);
                 players = {};
                 players['host'] = { x: player.x, y: player.y, gold: player.gold, health: player.health, maxHealth: player.maxHealth, name: player.name, skin: player.skin, conn: null };
+                // Mostrar botones de host
                 hostOnlyButtons.style.display = 'block';
                 buildModeBtn.disabled = false;
                 mapSizeSlider.disabled = false;
@@ -1595,6 +1518,7 @@
             player.skin = selectedSkin;
             playerNameDisplay.textContent = player.name;
             playerSkinDisplay.textContent = player.skin;
+            // Ocultar botones de host
             hostOnlyButtons.style.display = 'none';
             buildModeBtn.disabled = true;
             mapSizeSlider.disabled = true;
