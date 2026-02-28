@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -79,6 +79,27 @@
             margin: 10px;
             width: 280px;
             font-size: 14px;
+        }
+        #skinSelector {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+        .skin-option {
+            width: 50px;
+            height: 50px;
+            background: #2a2540;
+            border: 3px outset #9a8b6e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        .skin-option.selected {
+            border: 3px inset #ffcc66;
+            background: #4a3f60;
         }
         #gameScreen {
             display: none;
@@ -217,7 +238,6 @@
             text-align: center;
             cursor: pointer;
         }
-        /* Editor de NPC */
         #npcEditor {
             position: absolute;
             top: 50%;
@@ -274,8 +294,24 @@
 </head>
 <body>
     <div id="gameWrapper">
+        <!-- MENÚ PRINCIPAL CON EDITOR DE PERSONAJE -->
         <div id="menuScreen">
             <h1>⚔️ PIXEL RPG 2008 ⚔️<br>MULTIPLAYER + CONSTRUCCIÓN</h1>
+            <div style="margin-bottom: 20px;">
+                <label>Nombre del aventurero:</label>
+                <input class="menu-input" type="text" id="playerNameInput" placeholder="Tu nombre" value="Aventurero">
+            </div>
+            <div>
+                <label>Elige tu skin (Roblox style):</label>
+                <div id="skinSelector">
+                    <div class="skin-option" data-skin="🧑">🧑</div>
+                    <div class="skin-option" data-skin="👧">👧</div>
+                    <div class="skin-option" data-skin="👨‍🦰">👨‍🦰</div>
+                    <div class="skin-option" data-skin="👩‍🦱">👩‍🦱</div>
+                    <div class="skin-option" data-skin="🧔">🧔</div>
+                    <div class="skin-option" data-skin="👶">👶</div>
+                </div>
+            </div>
             <button class="menu-btn" id="createGameBtn">🎮 CREAR PARTIDA (HOST)</button>
             <button class="menu-btn secondary" id="joinGameBtn">🔌 UNIRSE A PARTIDA</button>
             <div id="joinOptions" style="display: none; margin-top: 20px;">
@@ -283,13 +319,15 @@
                 <button class="menu-btn" id="connectToHostBtn">CONECTAR</button>
             </div>
             <div style="margin-top: 40px; font-size: 10px; color: #9f8f70;">
-                ⚡ Click izquierdo: eliminar bloque | Click derecho: colocar bloque seleccionado ⚡
+                ⚡ Click izquierdo: eliminar bloque / matar zombie | Click derecho: colocar bloque seleccionado ⚡<br>
+                Host: Shift+clic derecho en NPC para editarlo
             </div>
         </div>
 
+        <!-- PANTALLA DE JUEGO -->
         <div id="gameScreen">
             <div id="gameHeader">
-                <span>👤 <span id="playerNameDisplay">Aventurero</span></span>
+                <span>👤 <span id="playerNameDisplay">Aventurero</span> <span id="playerSkinDisplay"></span></span>
                 <span>💰 Oro: <span id="goldDisplay">0</span></span>
                 <span>🆔 <span id="peerIdDisplay">-</span></span>
                 <span>📡 <span id="connectionStatus">Desconectado</span></span>
@@ -324,6 +362,7 @@
                         <div style="margin-top: 10px;">
                             <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN (host)</button>
                             <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC (host)</button>
+                            <button id="setZombieSpawnerBtn" class="secondary">🧟 COLOCAR SPAWNER ZOMBIE (host)</button>
                         </div>
                         <label>🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="100" value="20" step="1"> <span id="mapSizeValue">20</span></label>
                         <button id="resizeBtn">🔄 REINICIAR MAPA (host)</button>
@@ -349,7 +388,6 @@
                         </select>
                         <button id="createWeaponBtn">🔨 CREAR Y GUARDAR</button>
                     </div>
-                    <!-- NUEVO PANEL DE INVENTARIO DE OBJETOS -->
                     <div class="panel" id="objectInventoryPanel">
                         <h3>🎒 INVENTARIO DE OBJETOS</h3>
                         <div id="objectInventoryList"></div>
@@ -363,22 +401,22 @@
         // ---------- CONFIGURACIÓN ----------
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const TILE_SIZE = 40; // fijo
+        const TILE_SIZE = 40;
         let MAP_SIZE = 20;
 
-        // Tipos de bloques (colores)
         const BLOCK_TYPES = [
-            { name: 'Aire', color: '#4caf50', solid: false }, // 0: suelo (aire)
-            { name: 'Piedra', color: '#9e9e9e', solid: true }, // 1: pared gris
-            { name: 'Tierra', color: '#8B5A2B', solid: true }, // 2: marrón
-            { name: 'Hierba', color: '#2e8b57', solid: true }, // 3: verde oscuro
-            { name: 'Arcoíris', color: 'rainbow', solid: true } // 4: especial
+            { name: 'Aire', color: '#4caf50', solid: false },
+            { name: 'Piedra', color: '#9e9e9e', solid: true },
+            { name: 'Tierra', color: '#8B5A2B', solid: true },
+            { name: 'Hierba', color: '#2e8b57', solid: true },
+            { name: 'Arcoíris', color: 'rainbow', solid: true }
         ];
 
-        // Mapa: almacena el tipo de bloque (0 = aire, 1..4)
         let map = [];
         let items = [];
         let npcs = [];
+        let spawners = []; // { x, y, spawnInterval, lastSpawn, maxZombies, zombieCount }
+        let zombies = []; // { x, y, health, targetPlayer }
         let spawnPoint = { x: 10, y: 10 };
 
         // Jugador local
@@ -386,7 +424,7 @@
             x: 10,
             y: 10,
             name: "Aventurero",
-            color: "#e94560",
+            skin: "🧑",
             gold: 100
         };
 
@@ -395,18 +433,18 @@
             x: 0,
             y: 0,
             name: "Remoto",
-            color: "#4a90e2",
+            skin: "🧑",
             connected: false
         };
 
-        // Inventario de bloques (simula la barra de Minecraft)
-        let blockInventory = [1, 2, 3, 4, 0, 0, 0, 0, 0]; // Tipos de bloque disponibles, 0 significa vacío
-        let selectedSlot = 0; // 0-8
+        // Inventario de bloques
+        let blockInventory = [1, 2, 3, 4, 0, 0, 0, 0, 0];
+        let selectedSlot = 0;
 
-        // Inventario de objetos (armas, estrellas, etc.)
+        // Inventario de objetos
         let inventory = [];
 
-        // Modo construcción
+        // Modos
         let buildMode = false;
 
         // Cámara
@@ -421,6 +459,8 @@
         // Elementos DOM
         const menuScreen = document.getElementById('menuScreen');
         const gameScreen = document.getElementById('gameScreen');
+        const playerNameInput = document.getElementById('playerNameInput');
+        const skinOptions = document.querySelectorAll('.skin-option');
         const createGameBtn = document.getElementById('createGameBtn');
         const joinGameBtn = document.getElementById('joinGameBtn');
         const joinOptions = document.getElementById('joinOptions');
@@ -429,6 +469,7 @@
         const peerIdDisplay = document.getElementById('peerIdDisplay');
         const connectionStatus = document.getElementById('connectionStatus');
         const playerNameDisplay = document.getElementById('playerNameDisplay');
+        const playerSkinDisplay = document.getElementById('playerSkinDisplay');
         const goldDisplay = document.getElementById('goldDisplay');
         const goldPanel = document.getElementById('goldPanel');
         const buildModeBtn = document.getElementById('buildModeBtn');
@@ -437,6 +478,7 @@
         const resizeBtn = document.getElementById('resizeBtn');
         const setSpawnBtn = document.getElementById('setSpawnBtn');
         const setNpcBtn = document.getElementById('setNpcBtn');
+        const setZombieSpawnerBtn = document.getElementById('setZombieSpawnerBtn');
         const npcDialog = document.getElementById('npcDialog');
         const createWeaponBtn = document.getElementById('createWeaponBtn');
         const weaponName = document.getElementById('weaponName');
@@ -453,6 +495,18 @@
         const npcEditSave = document.getElementById('npcEditSave');
         const npcEditCancel = document.getElementById('npcEditCancel');
 
+        // Skin seleccionada
+        let selectedSkin = "🧑";
+        skinOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                skinOptions.forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                selectedSkin = opt.dataset.skin;
+            });
+        });
+        // Seleccionar primera por defecto
+        skinOptions[0].classList.add('selected');
+
         // ---------- FUNCIONES DE INICIALIZACIÓN ----------
         function initMap(size) {
             MAP_SIZE = size;
@@ -460,7 +514,6 @@
             for (let i = 0; i < MAP_SIZE; i++) {
                 map[i] = [];
                 for (let j = 0; j < MAP_SIZE; j++) {
-                    // Por defecto todo aire (0) excepto bordes que serán piedra (1)
                     if (i === 0 || i === MAP_SIZE-1 || j === 0 || j === MAP_SIZE-1) {
                         map[i][j] = 1; // piedra
                     } else {
@@ -468,16 +521,10 @@
                     }
                 }
             }
-            // Añadir algunos ítems de prueba (estrellas)
-            items = [
-                { x: 5, y: 5, type: { sprite: '⭐', name: 'Estrella' } },
-                { x: 7, y: 7, type: { sprite: '⭐', name: 'Estrella' } },
-                { x: 9, y: 9, type: { sprite: '⭐', name: 'Estrella' } }
-            ];
-            // NPC de prueba
-            npcs = [
-                { x: 6, y: 6, name: "Comerciante", dialog: "¡Bienvenido!", shop: [], skin: '👤', textColor: '#ffdba0' }
-            ];
+            items = [];
+            npcs = [];
+            spawners = [];
+            zombies = [];
             spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
             player.x = spawnPoint.x;
             player.y = spawnPoint.y;
@@ -493,24 +540,22 @@
             camera.y = Math.max(0, Math.min(targetY, maxY));
         }
 
-        // Dibujar el jugador estilo Minecraft (cabeza y cuerpo)
-        function drawPlayer(px, py, name, isLocal) {
-            // Cuerpo (camisa)
+        // Dibujar jugador con skin
+        function drawPlayer(px, py, name, skin, isLocal) {
+            // Cuerpo base (camisa)
             ctx.fillStyle = isLocal ? '#e94560' : '#4a90e2';
             ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2);
-            // Cabeza
-            ctx.fillStyle = '#FFD700'; // color piel
-            ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/4);
-            // Ojos
+            // Cabeza (skin emoji)
+            ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             ctx.fillStyle = '#000';
-            ctx.fillRect(px - TILE_SIZE/8, py - TILE_SIZE/2.5, TILE_SIZE/12, TILE_SIZE/12);
-            ctx.fillRect(px + TILE_SIZE/16, py - TILE_SIZE/2.5, TILE_SIZE/12, TILE_SIZE/12);
+            ctx.fillText(skin, px, py - TILE_SIZE/4);
             // Nametag
             ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
-            ctx.textAlign = 'center';
             ctx.strokeText(name, px, py - TILE_SIZE/1.5);
             ctx.fillText(name, px, py - TILE_SIZE/1.5);
         }
@@ -536,9 +581,8 @@
                     let y = row * TILE_SIZE - camera.y;
                     let blockType = map[row][col];
                     if (blockType === 0) {
-                        ctx.fillStyle = '#4caf50'; // suelo verde
+                        ctx.fillStyle = '#4caf50';
                     } else if (blockType === 4) {
-                        // Arcoíris: cambiar color con el tiempo
                         let hue = (Date.now() / 20 + col * 10 + row * 10) % 360;
                         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
                     } else {
@@ -550,23 +594,35 @@
                 }
             }
 
-            // Dibujar spawn point solo para host si está en modo colocación
-            if (isHost && buildMode && document.getElementById('setSpawnBtn').classList.contains('active')) {
-                let sx = spawnPoint.x * TILE_SIZE - camera.x;
-                let sy = spawnPoint.y * TILE_SIZE - camera.y;
-                ctx.globalAlpha = 0.5;
-                ctx.fillStyle = '#ffaa00';
-                ctx.fillRect(sx, sy, TILE_SIZE, TILE_SIZE);
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = 'white';
-                ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
-                ctx.fillText('🚩', sx + TILE_SIZE/2, sy + TILE_SIZE/2);
-            }
-
-            // Dibujar items (estrellas)
+            // Dibujar spawners de zombies
             ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+            spawners.forEach(sp => {
+                if (sp.x >= startCol && sp.x < endCol && sp.y >= startRow && sp.y < endRow) {
+                    let x = sp.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+                    let y = sp.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+                    ctx.fillStyle = '#993333';
+                    ctx.fillText('🧟', x, y-10);
+                    ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
+                    ctx.fillStyle = '#ffaa00';
+                    ctx.fillText('SPAWNER', x, y + TILE_SIZE/2);
+                }
+            });
+
+            // Dibujar zombies
+            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
+            zombies.forEach(z => {
+                if (z.x >= startCol && z.x < endCol && z.y >= startRow && z.y < endRow) {
+                    let x = z.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+                    let y = z.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+                    ctx.fillStyle = '#33aa33';
+                    ctx.fillText('🧟', x, y);
+                }
+            });
+
+            // Dibujar items
+            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P'`;
             ctx.fillStyle = 'gold';
             items.forEach(item => {
                 if (item.x >= startCol && item.x < endCol && item.y >= startRow && item.y < endRow) {
@@ -595,21 +651,21 @@
                 if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
                     let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    drawPlayer(rx, ry, remotePlayer.name, false);
+                    drawPlayer(rx, ry, remotePlayer.name, remotePlayer.skin, false);
                 }
             }
 
             // Jugador local
             let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
             let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-            drawPlayer(px, py, player.name, true);
+            drawPlayer(px, py, player.name, player.skin, true);
 
             // Actualizar displays de oro
             goldDisplay.textContent = player.gold;
             goldPanel.textContent = player.gold;
         }
 
-        // Actualizar la barra de inventario de bloques
+        // Actualizar barra de bloques
         function updateBlockInventoryDisplay() {
             blockInventoryDiv.innerHTML = '';
             for (let i = 0; i < blockInventory.length; i++) {
@@ -631,7 +687,7 @@
             }
         }
 
-        // Actualizar el inventario de objetos (panel inferior)
+        // Actualizar inventario de objetos
         function updateObjectInventoryDisplay() {
             objectInventoryList.innerHTML = '';
             inventory.forEach((item, index) => {
@@ -642,7 +698,6 @@
             });
         }
 
-        // Obtener el bloque seleccionado
         function getSelectedBlock() {
             return blockInventory[selectedSlot];
         }
@@ -652,13 +707,13 @@
             let newX = player.x + dx;
             let newY = player.y + dy;
             if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
-            if (map[newY][newX] !== 0) return; // solo se puede caminar sobre aire (0)
+            if (map[newY][newX] !== 0) return;
             player.x = newX;
             player.y = newY;
-            // Recoger items si los hay
+
+            // Recoger items
             for (let i = items.length - 1; i >= 0; i--) {
                 if (items[i].x === player.x && items[i].y === player.y) {
-                    // Añadir al inventario de objetos
                     inventory.push(items[i].type);
                     items.splice(i, 1);
                     updateObjectInventoryDisplay();
@@ -704,31 +759,27 @@
             });
         }
 
-        // Abrir editor de NPC (solo host, Shift+click derecho)
+        // Editor NPC
         function openNpcEditor(index) {
             const npc = npcs[index];
             npcEditName.value = npc.name || '';
             npcEditSkin.value = npc.skin || '👤';
             npcEditDialog.value = npc.dialog || '';
             npcEditColor.value = npc.textColor || '#ffdba0';
-            // Convertir shop a string
             let shopStr = '';
             if (npc.shop) {
                 shopStr = npc.shop.map(item => `${item.name},${item.price},${item.damage},${item.sprite}`).join(';');
             }
             npcEditShop.value = shopStr;
             npcEditor.style.display = 'block';
-            // Guardar referencia al índice
             npcEditor.dataset.index = index;
         }
 
-        // Cerrar editor
         function closeNpcEditor() {
             npcEditor.style.display = 'none';
             delete npcEditor.dataset.index;
         }
 
-        // Guardar cambios del NPC
         function saveNpcEditor() {
             const index = npcEditor.dataset.index;
             if (index === undefined) return;
@@ -737,7 +788,6 @@
             npc.skin = npcEditSkin.value.trim() || '👤';
             npc.dialog = npcEditDialog.value.trim() || '...';
             npc.textColor = npcEditColor.value;
-            // Parsear tienda
             const shopStr = npcEditShop.value.trim();
             npc.shop = [];
             if (shopStr) {
@@ -758,17 +808,99 @@
             closeNpcEditor();
         }
 
+        // Lógica de zombies (solo host)
+        function spawnZombieFromSpawner(spawner) {
+            if (!isHost) return;
+            // Limitar número de zombies por spawner (opcional)
+            const maxZombies = 5;
+            const currentZombies = zombies.filter(z => Math.abs(z.x - spawner.x) + Math.abs(z.y - spawner.y) < 10).length;
+            if (currentZombies >= maxZombies) return;
+
+            // Buscar una posición libre cerca del spawner
+            for (let attempts = 0; attempts < 10; attempts++) {
+                let dx = Math.floor(Math.random() * 5) - 2;
+                let dy = Math.floor(Math.random() * 5) - 2;
+                let nx = spawner.x + dx;
+                let ny = spawner.y + dy;
+                if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z => z.x === nx && z.y === ny) && !(player.x === nx && player.y === ny)) {
+                    zombies.push({ x: nx, y: ny, health: 1 });
+                    break;
+                }
+            }
+        }
+
+        function moveZombies() {
+            if (!isHost) return;
+            // Mover cada zombie hacia el jugador (si está cerca)
+            for (let i = zombies.length - 1; i >= 0; i--) {
+                let z = zombies[i];
+                // Distancia Manhattan
+                let dist = Math.abs(z.x - player.x) + Math.abs(z.y - player.y);
+                if (dist <= 1) {
+                    // Ataca al jugador
+                    player.gold = Math.max(0, player.gold - 10);
+                    zombies.splice(i, 1);
+                    continue;
+                }
+                // Dirección hacia el jugador (simple)
+                let dx = player.x > z.x ? 1 : (player.x < z.x ? -1 : 0);
+                let dy = player.y > z.y ? 1 : (player.y < z.y ? -1 : 0);
+                // Intentar moverse primero en una dirección, luego en la otra
+                let moved = false;
+                if (dx !== 0) {
+                    let nx = z.x + dx;
+                    if (nx >= 0 && nx < MAP_SIZE && map[z.y][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === z.y) && !(player.x === nx && player.y === z.y)) {
+                        z.x = nx;
+                        moved = true;
+                    }
+                }
+                if (!moved && dy !== 0) {
+                    let ny = z.y + dy;
+                    if (ny >= 0 && ny < MAP_SIZE && map[ny][z.x] === 0 && !zombies.some(z2 => z2.x === z.x && z2.y === ny) && !(player.x === z.x && player.y === ny)) {
+                        z.y = ny;
+                        moved = true;
+                    }
+                }
+                if (!moved) {
+                    // Movimiento aleatorio
+                    let dirs = [
+                        [1,0],[-1,0],[0,1],[0,-1]
+                    ];
+                    for (let d of dirs) {
+                        let nx = z.x + d[0];
+                        let ny = z.y + d[1];
+                        if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === ny) && !(player.x === nx && player.y === ny)) {
+                            z.x = nx;
+                            z.y = ny;
+                            break;
+                        }
+                    }
+                }
+            }
+            draw();
+        }
+
+        // Bucle de zombies (cada 1 segundo)
+        let zombieInterval = setInterval(() => {
+            if (isHost) {
+                // Spawnear de cada spawner
+                spawners.forEach(sp => {
+                    if (Math.random() < 0.3) { // 30% de probabilidad cada segundo
+                        spawnZombieFromSpawner(sp);
+                    }
+                });
+                moveZombies();
+            }
+        }, 1000);
+
         // ---------- EVENTOS ----------
         window.addEventListener('keydown', (e) => {
-            // Movimiento WASD
             const key = e.key.toLowerCase();
             if (key === 'w') tryMove(0, -1);
             if (key === 's') tryMove(0, 1);
             if (key === 'a') tryMove(-1, 0);
             if (key === 'd') tryMove(1, 0);
-            // Tecla E para interactuar
             if (key === 'e') interactWithNPC();
-            // Números 1-9 para seleccionar slot
             let num = parseInt(key);
             if (num >= 1 && num <= 9) {
                 selectedSlot = num - 1;
@@ -777,7 +909,6 @@
             }
         });
 
-        // Click en canvas para construir
         canvas.addEventListener('mousedown', (e) => {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -788,7 +919,7 @@
             const row = Math.floor(mouseY / TILE_SIZE);
             if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
 
-            // Shift + clic derecho para editar NPC (solo host)
+            // Host: Shift+clic derecho en NPC para editar
             if (isHost && e.shiftKey && e.button === 2) {
                 const npcIndex = npcs.findIndex(n => n.x === col && n.y === row);
                 if (npcIndex !== -1) {
@@ -798,7 +929,7 @@
                 }
             }
 
-            // Si estamos en modo colocación de spawn o NPC
+            // Modos de colocación (host)
             if (isHost && document.getElementById('setSpawnBtn').classList.contains('active')) {
                 spawnPoint = { x: col, y: row };
                 sendSpawnUpdate();
@@ -814,14 +945,30 @@
                 }
                 return;
             }
+            if (isHost && document.getElementById('setZombieSpawnerBtn').classList.contains('active')) {
+                spawners.push({ x: col, y: row });
+                draw();
+                return;
+            }
+
+            // Click izquierdo sobre zombie para matarlo (cualquier jugador)
+            if (e.button === 0) {
+                const zombieIndex = zombies.findIndex(z => z.x === col && z.y === row);
+                if (zombieIndex !== -1) {
+                    zombies.splice(zombieIndex, 1);
+                    player.gold += 5;
+                    draw();
+                    return;
+                }
+            }
 
             // Construcción normal
             if (buildMode) {
-                if (e.button === 0) { // Izquierdo: eliminar bloque (poner aire)
+                if (e.button === 0) {
                     map[row][col] = 0;
                     sendMapEdit(row, col, 0);
                     draw();
-                } else if (e.button === 2) { // Derecho: colocar bloque seleccionado
+                } else if (e.button === 2) {
                     let block = getSelectedBlock();
                     if (block > 0) {
                         map[row][col] = block;
@@ -834,17 +981,16 @@
 
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Botón modo construcción
         buildModeBtn.addEventListener('click', () => {
             buildMode = !buildMode;
             buildModeBtn.textContent = buildMode ? "🔨 MODO CONSTRUCCIÓN: ON" : "🔨 MODO CONSTRUCCIÓN: OFF";
         });
 
-        // Botones de spawn y NPC
         setSpawnBtn.addEventListener('click', () => {
             if (!isHost) { alert("Solo el host"); return; }
             setSpawnBtn.classList.toggle('active');
             setNpcBtn.classList.remove('active');
+            setZombieSpawnerBtn.classList.remove('active');
             buildMode = true;
             buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
         });
@@ -852,11 +998,19 @@
             if (!isHost) { alert("Solo el host"); return; }
             setNpcBtn.classList.toggle('active');
             setSpawnBtn.classList.remove('active');
+            setZombieSpawnerBtn.classList.remove('active');
+            buildMode = true;
+            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
+        });
+        setZombieSpawnerBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            setZombieSpawnerBtn.classList.toggle('active');
+            setSpawnBtn.classList.remove('active');
+            setNpcBtn.classList.remove('active');
             buildMode = true;
             buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
         });
 
-        // Slider tamaño
         mapSizeSlider.addEventListener('input', (e) => {
             mapSizeValue.textContent = e.target.value;
         });
@@ -868,7 +1022,6 @@
             draw();
         });
 
-        // Creador de armas
         createWeaponBtn.addEventListener('click', () => {
             let name = weaponName.value.trim() || "Arma";
             let damage = parseInt(weaponDamage.value) || 1;
@@ -878,11 +1031,10 @@
             alert(`Arma ${name} creada`);
         });
 
-        // Editor NPC - guardar/cancelar
         npcEditSave.addEventListener('click', saveNpcEditor);
         npcEditCancel.addEventListener('click', closeNpcEditor);
 
-        // ---------- PEERJS (similar al original) ----------
+        // ---------- PEERJS (simplificado, igual que antes) ----------
         function setupConnection(connection, isHostConnection) {
             conn = connection;
             connectionStatus.textContent = 'Conectado a: ' + connection.peer;
@@ -913,6 +1065,7 @@
                         remotePlayer.x = data.player.x;
                         remotePlayer.y = data.player.y;
                         remotePlayer.name = data.player.name;
+                        remotePlayer.skin = data.player.skin;
                         remotePlayer.connected = true;
                     }
                     MAP_SIZE = map.length;
@@ -924,6 +1077,7 @@
                     remotePlayer.x = data.x;
                     remotePlayer.y = data.y;
                     remotePlayer.name = data.name;
+                    remotePlayer.skin = data.skin;
                     remotePlayer.connected = true;
                     draw();
                     break;
@@ -962,13 +1116,13 @@
                     items: items,
                     npcs: npcs,
                     spawnPoint: spawnPoint,
-                    player: { x: player.x, y: player.y, name: player.name }
+                    player: { x: player.x, y: player.y, name: player.name, skin: player.skin }
                 });
             }
         }
 
         function sendMove() {
-            if (conn && conn.open) conn.send({ type: 'move', x: player.x, y: player.y, name: player.name });
+            if (conn && conn.open) conn.send({ type: 'move', x: player.x, y: player.y, name: player.name, skin: player.skin });
         }
 
         function sendMapEdit(row, col, value) {
@@ -990,6 +1144,10 @@
         // ---------- FLUJO DEL MENÚ ----------
         createGameBtn.addEventListener('click', () => {
             isHost = true;
+            player.name = playerNameInput.value.trim() || "Aventurero";
+            player.skin = selectedSkin;
+            playerNameDisplay.textContent = player.name;
+            playerSkinDisplay.textContent = player.skin;
             peer = new Peer();
             peer.on('open', (id) => {
                 myPeerId = id;
@@ -997,8 +1155,6 @@
                 connectionStatus.textContent = 'Esperando jugadores...';
                 menuScreen.style.display = 'none';
                 gameScreen.style.display = 'flex';
-                player.name = "Host";
-                playerNameDisplay.textContent = player.name;
                 initMap(20);
                 updateBlockInventoryDisplay();
                 updateObjectInventoryDisplay();
@@ -1018,6 +1174,10 @@
             let hostId = peerIdInput.value.trim();
             if (!hostId) return;
             isHost = false;
+            player.name = playerNameInput.value.trim() || "Aventurero";
+            player.skin = selectedSkin;
+            playerNameDisplay.textContent = player.name;
+            playerSkinDisplay.textContent = player.skin;
             peer = new Peer();
             peer.on('open', (id) => {
                 myPeerId = id;
@@ -1028,8 +1188,6 @@
                     setupConnection(conn, false);
                     menuScreen.style.display = 'none';
                     gameScreen.style.display = 'flex';
-                    player.name = "Cliente";
-                    playerNameDisplay.textContent = player.name;
                     updateBlockInventoryDisplay();
                     updateObjectInventoryDisplay();
                     draw();
