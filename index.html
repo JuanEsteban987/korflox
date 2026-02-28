@@ -44,7 +44,7 @@
             font-size: 28px;
             color: #ffd966;
             text-shadow: 4px 4px 0 #aa6f3c;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             line-height: 1.5;
         }
         .menu-btn {
@@ -80,26 +80,48 @@
             width: 280px;
             font-size: 14px;
         }
-        #skinSelector {
+        .skin-editor {
+            background: #1e1c2a;
+            border: 4px inset #9a8b6e;
+            padding: 15px;
+            margin: 20px 0;
+            width: 300px;
+        }
+        .skin-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .skin-color {
+            width: 40px;
+            height: 40px;
+            border: 3px outset #9a8b6e;
+            cursor: pointer;
+        }
+        .skin-preview {
+            width: 100px;
+            height: 100px;
+            background: #2a2540;
+            border: 4px inset #b88b4a;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .prefab-skins {
             display: flex;
             gap: 10px;
-            margin: 10px 0;
             justify-content: center;
+            margin: 15px 0;
         }
-        .skin-option {
+        .prefab-skin {
             width: 50px;
             height: 50px;
             background: #2a2540;
             border: 3px outset #9a8b6e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
             cursor: pointer;
-        }
-        .skin-option.selected {
-            border: 3px inset #ffcc66;
-            background: #4a3f60;
         }
         #gameScreen {
             display: none;
@@ -193,7 +215,6 @@
             background: #aa5533;
             border: 4px inset #ffaa66;
         }
-        /* Barra de inventario inferior (estilo mapa) */
         #bottomInventory {
             width: 100%;
             background: #322b3f;
@@ -350,7 +371,6 @@
             background: #1e1c2a;
             padding: 10px;
         }
-        /* Editor de píxeles */
         #pixelEditor {
             width: 280px;
         }
@@ -383,22 +403,38 @@
 </head>
 <body>
     <div id="gameWrapper">
-        <!-- MENÚ PRINCIPAL -->
+        <!-- MENÚ PRINCIPAL CON EDITOR DE SKIN -->
         <div id="menuScreen">
             <h1>⚔️ KORFLOX ⚔️<br>PIXEL ADVENTURE</h1>
             <div style="margin-bottom: 20px;">
-                <label>Nombre del aventurero:</label>
+                <label>Nombre:</label>
                 <input class="menu-input" type="text" id="playerNameInput" placeholder="Tu nombre" value="Aventurero">
             </div>
-            <div>
-                <label>Elige tu skin (color de cabeza):</label>
-                <div id="skinSelector">
-                    <div class="skin-option" data-skin="🧑">🧑</div>
-                    <div class="skin-option" data-skin="👧">👧</div>
-                    <div class="skin-option" data-skin="👨‍🦰">👨‍🦰</div>
-                    <div class="skin-option" data-skin="👩‍🦱">👩‍🦱</div>
-                    <div class="skin-option" data-skin="🧔">🧔</div>
-                    <div class="skin-option" data-skin="👶">👶</div>
+            <div class="skin-editor">
+                <h3 style="color:#ffc857;">EDITOR DE SKIN</h3>
+                <div class="skin-preview" id="skinPreview">
+                    <canvas id="previewCanvas" width="50" height="70" style="width:50px;height:70px;"></canvas>
+                </div>
+                <div class="skin-row">
+                    <span>Cabeza</span>
+                    <input type="color" id="skinHead" value="#d2b48c">
+                </div>
+                <div class="skin-row">
+                    <span>Torso</span>
+                    <input type="color" id="skinTorso" value="#4a90e2">
+                </div>
+                <div class="skin-row">
+                    <span>Brazos</span>
+                    <input type="color" id="skinArms" value="#e34a4a">
+                </div>
+                <div class="skin-row">
+                    <span>Piernas</span>
+                    <input type="color" id="skinLegs" value="#4caf50">
+                </div>
+                <div class="prefab-skins">
+                    <div class="prefab-skin" style="background:#d2b48c;" data-head="#d2b48c" data-torso="#4a90e2" data-arms="#e34a4a" data-legs="#4caf50"></div>
+                    <div class="prefab-skin" style="background:#f5f5dc;" data-head="#f5f5dc" data-torso="#ff69b4" data-arms="#ff1493" data-legs="#32cd32"></div>
+                    <div class="prefab-skin" style="background:#8b4513;" data-head="#8b4513" data-torso="#ff8c00" data-arms="#ff4500" data-legs="#228b22"></div>
                 </div>
             </div>
             <button class="menu-btn" id="createGameBtn">🎮 CREAR PARTIDA (HOST)</button>
@@ -416,7 +452,7 @@
         <!-- PANTALLA DE JUEGO -->
         <div id="gameScreen">
             <div id="gameHeader">
-                <span>👤 <span id="playerNameDisplay">Aventurero</span> <span id="playerSkinDisplay"></span></span>
+                <span>👤 <span id="playerNameDisplay">Aventurero</span></span>
                 <div id="healthBar">
                     <span>❤️</span>
                     <div id="healthBarFill">
@@ -486,9 +522,7 @@
                     <div class="panel" id="pixelEditor">
                         <h3>🎨 CREADOR DE BLOQUES</h3>
                         <canvas id="pixelCanvas" width="160" height="160"></canvas>
-                        <div class="color-palette" id="colorPalette">
-                            <!-- Se generará con JS -->
-                        </div>
+                        <div class="color-palette" id="colorPalette"></div>
                         <button id="savePixelBlock">GUARDAR BLOQUE</button>
                         <select id="blockSlotSelect">
                             <option value="5">Bloque 5</option>
@@ -506,7 +540,7 @@
                 </div>
             </div>
 
-            <!-- Barra de inventario inferior (estilo mapa) -->
+            <!-- Barra de inventario inferior -->
             <div id="bottomInventory">
                 <h3>🎒 INVENTARIO DE OBJETOS</h3>
                 <div class="inventory-row" id="objectInventoryBar"></div>
@@ -523,7 +557,6 @@
         const TILE_SIZE = 40;
         let MAP_SIZE = 20;
 
-        // Tipos de bloques (0-4 predefinidos, 5+ personalizados)
         const BLOCK_TYPES = [
             { name: 'Aire', color: '#4caf50', solid: false }, // 0
             { name: 'Piedra', color: '#9e9e9e', solid: true }, // 1
@@ -532,8 +565,8 @@
             { name: 'Arcoíris', color: 'rainbow', solid: true } // 4
         ];
 
-        // Bloques personalizados (guardan sprites de 16x16)
-        let customBlocks = {}; // clave: id, valor: { sprite: ImageData, name: string }
+        // Bloques personalizados (id: { sprite: ImageData, name })
+        let customBlocks = {};
 
         let map = [];
         let items = [];
@@ -542,46 +575,47 @@
         let zombies = [];
         let spawnPoint = { x: 10, y: 10 };
 
-        // Mapeo de skins a colores de cabeza
-        const skinColors = {
-            '🧑': '#d2b48c', // marrón claro
-            '👧': '#ffb6c1', // rosa
-            '👨‍🦰': '#ff8c00', // naranja
-            '👩‍🦱': '#ffd700', // amarillo
-            '🧔': '#8b4513', // marrón oscuro
-            '👶': '#f5f5dc'  // beige
-        };
-
+        // Jugador local
         let player = {
             x: 10,
             y: 10,
             name: "Aventurero",
-            skin: "🧑",
+            headColor: '#d2b48c',
+            torsoColor: '#4a90e2',
+            armsColor: '#e34a4a',
+            legsColor: '#4caf50',
             gold: 100,
             health: 100,
             maxHealth: 100,
             facing: 'down'
         };
 
+        // Jugador remoto
         let remotePlayer = {
             x: 0,
             y: 0,
             name: "Remoto",
-            skin: "🧑",
+            headColor: '#d2b48c',
+            torsoColor: '#4a90e2',
+            armsColor: '#e34a4a',
+            legsColor: '#4caf50',
             connected: false,
             health: 100
         };
 
-        let blockInventory = [1, 2, 3, 4, 0, 0, 0, 0, 0];
+        // Inventarios
+        let blockInventory = [1, 2, 3, 4, 0, 0, 0, 0, 0]; // slots 0-8
         let selectedSlot = 0;
-        let inventory = [];
+        let inventory = []; // objetos { name, damage, sprite }
         let selectedObjectIndex = -1;
+
+        // Modos
         let buildMode = false;
         let camera = { x: 0, y: 0 };
 
         // Editor de píxeles
         let pixelCtx = document.getElementById('pixelCanvas').getContext('2d');
-        let pixelData = new Array(16).fill().map(() => new Array(16).fill('#000000'));
+        let pixelData = Array(16).fill().map(() => Array(16).fill('#000000'));
         let currentColor = '#ff0000';
         let drawing = false;
 
@@ -590,7 +624,7 @@
         let conn = null;
         let myPeerId = null;
         let isHost = false;
-        let players = {};
+        let players = {}; // solo host
 
         // Movimiento fluido
         let keyState = { w: false, s: false, a: false, d: false };
@@ -606,7 +640,6 @@
         const menuScreen = document.getElementById('menuScreen');
         const gameScreen = document.getElementById('gameScreen');
         const playerNameInput = document.getElementById('playerNameInput');
-        const skinOptions = document.querySelectorAll('.skin-option');
         const createGameBtn = document.getElementById('createGameBtn');
         const joinGameBtn = document.getElementById('joinGameBtn');
         const joinOptions = document.getElementById('joinOptions');
@@ -615,7 +648,6 @@
         const peerIdDisplay = document.getElementById('peerIdDisplay');
         const connectionStatus = document.getElementById('connectionStatus');
         const playerNameDisplay = document.getElementById('playerNameDisplay');
-        const playerSkinDisplay = document.getElementById('playerSkinDisplay');
         const goldDisplay = document.getElementById('goldDisplay');
         const goldPanel = document.getElementById('goldPanel');
         const healthBarCurrent = document.getElementById('healthBarCurrent');
@@ -649,16 +681,48 @@
         const savePixelBlock = document.getElementById('savePixelBlock');
         const blockSlotSelect = document.getElementById('blockSlotSelect');
 
-        // Skin seleccionada
-        let selectedSkin = "🧑";
-        skinOptions.forEach(opt => {
-            opt.addEventListener('click', () => {
-                skinOptions.forEach(o => o.classList.remove('selected'));
-                opt.classList.add('selected');
-                selectedSkin = opt.dataset.skin;
+        // Elementos del editor de skin
+        const skinHead = document.getElementById('skinHead');
+        const skinTorso = document.getElementById('skinTorso');
+        const skinArms = document.getElementById('skinArms');
+        const skinLegs = document.getElementById('skinLegs');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const previewCtx = previewCanvas.getContext('2d');
+
+        function updateSkinPreview() {
+            previewCtx.clearRect(0, 0, 50, 70);
+            // Cabeza
+            previewCtx.fillStyle = skinHead.value;
+            previewCtx.fillRect(15, 0, 20, 15);
+            // Torso
+            previewCtx.fillStyle = skinTorso.value;
+            previewCtx.fillRect(15, 15, 20, 20);
+            // Brazos
+            previewCtx.fillStyle = skinArms.value;
+            previewCtx.fillRect(5, 15, 10, 15);
+            previewCtx.fillRect(35, 15, 10, 15);
+            // Piernas
+            previewCtx.fillStyle = skinLegs.value;
+            previewCtx.fillRect(15, 35, 10, 15);
+            previewCtx.fillRect(25, 35, 10, 15);
+        }
+
+        skinHead.addEventListener('input', updateSkinPreview);
+        skinTorso.addEventListener('input', updateSkinPreview);
+        skinArms.addEventListener('input', updateSkinPreview);
+        skinLegs.addEventListener('input', updateSkinPreview);
+        updateSkinPreview();
+
+        // Skins predefinidas
+        document.querySelectorAll('.prefab-skin').forEach(el => {
+            el.addEventListener('click', () => {
+                skinHead.value = el.dataset.head;
+                skinTorso.value = el.dataset.torso;
+                skinArms.value = el.dataset.arms;
+                skinLegs.value = el.dataset.legs;
+                updateSkinPreview();
             });
         });
-        skinOptions[0].classList.add('selected');
 
         // ---------- FUNCIONES DE INICIALIZACIÓN ----------
         function initMap(size) {
@@ -683,31 +747,36 @@
             player.y = spawnPoint.y;
         }
 
-        // Dibujar jugador estilo Roblox Noob
-        function drawPlayer(px, py, name, skin, isLocal, health, maxHealth, equippedWeapon) {
-            const headColor = skinColors[skin] || '#d2b48c';
-            const bodyColor = '#4a90e2'; // azul
-            const armColor = '#e34a4a';   // rojo
-            const legColor = '#4caf50';    // verde
+        function updateHealthBar() {
+            const percent = (player.health / player.maxHealth) * 100;
+            healthBarCurrent.style.width = percent + '%';
+        }
 
-            // Cuerpo (torso)
-            ctx.fillStyle = bodyColor;
+        function updateCamera() {
+            let targetX = player.x * TILE_SIZE + TILE_SIZE/2 - canvas.width/2;
+            let targetY = player.y * TILE_SIZE + TILE_SIZE/2 - canvas.height/2;
+            let maxX = MAP_SIZE * TILE_SIZE - canvas.width;
+            let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
+            camera.x = Math.max(0, Math.min(targetX, maxX));
+            camera.y = Math.max(0, Math.min(targetY, maxY));
+        }
+
+        // Dibujar jugador estilo Roblox con colores personalizados
+        function drawPlayer(px, py, name, head, torso, arms, legs, isLocal, health, maxHealth, equippedWeapon) {
+            // Torso
+            ctx.fillStyle = torso;
             ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2);
-            
             // Brazos
-            ctx.fillStyle = armColor;
-            ctx.fillRect(px - TILE_SIZE/2, py - TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3); // izquierdo
-            ctx.fillRect(px + TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3); // derecho
-            
+            ctx.fillStyle = arms;
+            ctx.fillRect(px - TILE_SIZE/2, py - TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
+            ctx.fillRect(px + TILE_SIZE/4, py - TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
             // Piernas
-            ctx.fillStyle = legColor;
-            ctx.fillRect(px - TILE_SIZE/4, py + TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3); // izquierda
-            ctx.fillRect(px, py + TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3); // derecha
-            
+            ctx.fillStyle = legs;
+            ctx.fillRect(px - TILE_SIZE/4, py + TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
+            ctx.fillRect(px, py + TILE_SIZE/4, TILE_SIZE/4, TILE_SIZE/3);
             // Cabeza
-            ctx.fillStyle = headColor;
+            ctx.fillStyle = head;
             ctx.fillRect(px - TILE_SIZE/4, py - TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/4);
-            
             // Ojos
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(px - TILE_SIZE/8, py - TILE_SIZE/2.5, TILE_SIZE/16, TILE_SIZE/16);
@@ -716,7 +785,6 @@
             ctx.fillRect(px - TILE_SIZE/12, py - TILE_SIZE/2.4, TILE_SIZE/24, TILE_SIZE/24);
             ctx.fillRect(px + TILE_SIZE/12, py - TILE_SIZE/2.4, TILE_SIZE/24, TILE_SIZE/24);
             
-            // Arma equipada
             if (isLocal && equippedWeapon && equippedWeapon.sprite) {
                 ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
                 ctx.textAlign = 'center';
@@ -727,7 +795,6 @@
                 ctx.fillText(equippedWeapon.sprite, weaponX, weaponY);
             }
             
-            // Nametag
             ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
@@ -736,7 +803,6 @@
             ctx.strokeText(name, px, py - TILE_SIZE/1.5);
             ctx.fillText(name, px, py - TILE_SIZE/1.5);
 
-            // Barra de vida para otros jugadores
             if (!isLocal) {
                 let barWidth = TILE_SIZE/1.5;
                 let barX = px - barWidth/2;
@@ -749,7 +815,6 @@
             }
         }
 
-        // Dibujar un tile (soporta bloques personalizados)
         function drawTile(x, y, blockType) {
             if (blockType === 0) {
                 ctx.fillStyle = '#4caf50';
@@ -759,9 +824,7 @@
                 ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
                 ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
             } else if (blockType >= 5 && customBlocks[blockType]) {
-                // Dibujar sprite personalizado escalado
-                let sprite = customBlocks[blockType].sprite;
-                ctx.putImageData(sprite, x, y);
+                ctx.putImageData(customBlocks[blockType].sprite, x, y);
             } else if (blockType > 0 && blockType < BLOCK_TYPES.length) {
                 ctx.fillStyle = BLOCK_TYPES[blockType].color;
                 ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
@@ -773,7 +836,6 @@
             ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
         }
 
-        // Dibujar todo
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             updateCamera();
@@ -788,7 +850,6 @@
             startRow = Math.max(0, startRow);
             endRow = Math.min(MAP_SIZE, endRow);
 
-            // Dibujar tiles
             for (let row = startRow; row < endRow; row++) {
                 for (let col = startCol; col < endCol; col++) {
                     let x = col * TILE_SIZE - camera.x;
@@ -874,7 +935,7 @@
                 if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
                     let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
                     let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                    drawPlayer(rx, ry, remotePlayer.name, remotePlayer.skin, false, remotePlayer.health || 100, 100, null);
+                    drawPlayer(rx, ry, remotePlayer.name, remotePlayer.headColor, remotePlayer.torsoColor, remotePlayer.armsColor, remotePlayer.legsColor, false, remotePlayer.health, 100, null);
                 }
             }
 
@@ -882,30 +943,14 @@
             let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
             let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
             let equippedWeapon = (selectedObjectIndex >= 0 && selectedObjectIndex < inventory.length) ? inventory[selectedObjectIndex] : null;
-            drawPlayer(px, py, player.name, player.skin, true, player.health, player.maxHealth, equippedWeapon);
+            drawPlayer(px, py, player.name, player.headColor, player.torsoColor, player.armsColor, player.legsColor, true, player.health, player.maxHealth, equippedWeapon);
 
             goldDisplay.textContent = player.gold;
             goldPanel.textContent = player.gold;
         }
 
-        // Actualizar barra de vida
-        function updateHealthBar() {
-            const percent = (player.health / player.maxHealth) * 100;
-            healthBarCurrent.style.width = percent + '%';
-        }
-
-        function updateCamera() {
-            let targetX = player.x * TILE_SIZE + TILE_SIZE/2 - canvas.width/2;
-            let targetY = player.y * TILE_SIZE + TILE_SIZE/2 - canvas.height/2;
-            let maxX = MAP_SIZE * TILE_SIZE - canvas.width;
-            let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
-            camera.x = Math.max(0, Math.min(targetX, maxX));
-            camera.y = Math.max(0, Math.min(targetY, maxY));
-        }
-
         // Actualizar inventarios inferiores
         function updateBottomInventory() {
-            // Objetos
             objectInventoryBar.innerHTML = '';
             inventory.forEach((item, index) => {
                 let slot = document.createElement('div');
@@ -923,7 +968,6 @@
                 objectInventoryBar.appendChild(slot);
             });
 
-            // Bloques (solo host)
             blockInventoryBar.innerHTML = '';
             if (isHost) {
                 for (let i = 0; i < blockInventory.length; i++) {
@@ -935,7 +979,7 @@
                         if (blockType <= 4) {
                             slot.textContent = ['', '🪨', '🌱', '🌿', '🌈'][blockType] || '?';
                         } else if (customBlocks[blockType]) {
-                            slot.textContent = '🧱'; // placeholder
+                            slot.textContent = '🧱';
                         } else {
                             slot.textContent = '?';
                         }
@@ -958,21 +1002,550 @@
             return blockInventory[selectedSlot];
         }
 
-        // Movimiento fluido (igual que antes)
-        function startMove() { /* ... */ }
-        function stopMove() { /* ... */ }
-        // (omitido por brevedad, pero en el código completo está)
+        // Movimiento fluido
+        function tryMove(dx, dy) {
+            let newX = player.x + dx;
+            let newY = player.y + dy;
+            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
+            if (map[newY][newX] !== 0) return;
+            player.x = newX;
+            player.y = newY;
+
+            for (let i = items.length - 1; i >= 0; i--) {
+                if (items[i].x === player.x && items[i].y === player.y) {
+                    inventory.push(items[i].type);
+                    items.splice(i, 1);
+                    updateBottomInventory();
+                    sendItemPickup(i);
+                }
+            }
+            sendMove();
+            draw();
+        }
+
+        function startMove() {
+            if (moveInterval) clearInterval(moveInterval);
+            moveInterval = setInterval(() => {
+                let dx = 0, dy = 0;
+                if (keyState.w) dy = -1;
+                if (keyState.s) dy = 1;
+                if (keyState.a) dx = -1;
+                if (keyState.d) dx = 1;
+
+                if (dx !== 0 || dy !== 0) {
+                    if (dx > 0) player.facing = 'right';
+                    else if (dx < 0) player.facing = 'left';
+                    else if (dy < 0) player.facing = 'up';
+                    else if (dy > 0) player.facing = 'down';
+
+                    if (dx !== 0) {
+                        let newX = player.x + dx;
+                        if (newX >= 0 && newX < MAP_SIZE && map[player.y][newX] === 0) player.x = newX;
+                    }
+                    if (dy !== 0) {
+                        let newY = player.y + dy;
+                        if (newY >= 0 && newY < MAP_SIZE && map[newY][player.x] === 0) player.y = newY;
+                    }
+
+                    for (let i = items.length - 1; i >= 0; i--) {
+                        if (items[i].x === player.x && items[i].y === player.y) {
+                            inventory.push(items[i].type);
+                            items.splice(i, 1);
+                            updateBottomInventory();
+                            sendItemPickup(i);
+                        }
+                    }
+                    sendMove();
+                    draw();
+                }
+            }, MOVE_DELAY);
+        }
+
+        function stopMove() {
+            if (moveInterval) {
+                clearInterval(moveInterval);
+                moveInterval = null;
+            }
+        }
 
         // Ataque
-        function attack() { /* ... */ }
+        function attack() {
+            if (attackCooldown) return;
+            if (selectedObjectIndex < 0 || selectedObjectIndex >= inventory.length) return;
+
+            attackCooldown = true;
+            attackAnimation = 10;
+
+            let targetX = player.x;
+            let targetY = player.y;
+            if (player.facing === 'right') targetX++;
+            else if (player.facing === 'left') targetX--;
+            else if (player.facing === 'up') targetY--;
+            else if (player.facing === 'down') targetY++;
+
+            const zombieIndex = zombies.findIndex(z => z.x === targetX && z.y === targetY);
+            if (zombieIndex !== -1) {
+                if (isHost) {
+                    zombies.splice(zombieIndex, 1);
+                    player.gold += 5;
+                    sendZombieUpdate();
+                } else {
+                    if (conn) {
+                        conn.send({ type: 'killZombie', x: targetX, y: targetY, peerId: myPeerId });
+                    }
+                }
+            }
+
+            setTimeout(() => {
+                attackCooldown = false;
+            }, ATTACK_COOLDOWN_TIME);
+
+            draw();
+        }
 
         // Interacción con NPC
-        function interactWithNPC() { /* ... */ }
+        function interactWithNPC() {
+            let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1);
+            if (!npc) return;
+            let dialogHtml = `<h2 style="color: ${npc.textColor || '#ffdba0'}">${npc.name}</h2><p style="color: ${npc.textColor || '#ffdba0'}">${npc.dialog || "¿Qué deseas?"}</p>`;
+            if (npc.shop && npc.shop.length > 0) {
+                dialogHtml += '<h3>Tienda:</h3>';
+                npc.shop.forEach((item, idx) => {
+                    dialogHtml += `<div class="shop-item" data-index="${idx}">${item.sprite} ${item.name} - ${item.price} 🪙 (Daño ${item.damage})</div>`;
+                });
+            }
+            dialogHtml += '<div class="close-btn">Cerrar</div>';
+            npcDialog.innerHTML = dialogHtml;
+            npcDialog.style.display = 'block';
+
+            document.querySelectorAll('.shop-item').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    let idx = e.target.dataset.index;
+                    let item = npc.shop[idx];
+                    if (player.gold >= item.price) {
+                        player.gold -= item.price;
+                        inventory.push({ name: item.name, sprite: item.sprite, damage: item.damage });
+                        updateBottomInventory();
+                        draw();
+                        if (!isHost && conn) {
+                            conn.send({ type: 'buyItem', price: item.price, peerId: myPeerId });
+                        }
+                        alert(`Has comprado ${item.name}`);
+                    } else {
+                        alert('No tienes suficiente oro.');
+                    }
+                });
+            });
+            document.querySelector('.close-btn').addEventListener('click', () => {
+                npcDialog.style.display = 'none';
+            });
+        }
+
+        // Editor de NPC
+        function openNpcEditor(index) {
+            const npc = npcs[index];
+            npcEditName.value = npc.name || '';
+            npcEditSkin.value = npc.skin || '👤';
+            npcEditDialog.value = npc.dialog || '';
+            npcEditColor.value = npc.textColor || '#ffdba0';
+            updateShopItemsList(npc.shop || []);
+            npcEditor.style.display = 'block';
+            npcEditor.dataset.index = index;
+        }
+
+        function updateShopItemsList(shop) {
+            shopItemsList.innerHTML = '';
+            shop.forEach((item, idx) => {
+                let div = document.createElement('div');
+                div.className = 'shop-editor-item';
+                div.innerHTML = `<span>${item.sprite} ${item.name} (${item.price}🪙, daño ${item.damage})</span>
+                                 <button class="remove-shop-item" data-index="${idx}">X</button>`;
+                shopItemsList.appendChild(div);
+            });
+            document.querySelectorAll('.remove-shop-item').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = btn.dataset.index;
+                    const npcIndex = npcEditor.dataset.index;
+                    if (npcIndex !== undefined) {
+                        npcs[npcIndex].shop.splice(idx, 1);
+                        updateShopItemsList(npcs[npcIndex].shop);
+                        updateNpcShopText(npcIndex);
+                    }
+                });
+            });
+        }
+
+        function updateNpcShopText(index) {
+            const npc = npcs[index];
+            let shopStr = npc.shop.map(item => `${item.name},${item.price},${item.damage},${item.sprite}`).join(';');
+            npcEditShop.value = shopStr;
+        }
+
+        addShopItemBtn.addEventListener('click', () => {
+            const npcIndex = npcEditor.dataset.index;
+            if (npcIndex === undefined) return;
+            const name = newShopItemName.value.trim();
+            const price = parseInt(newShopItemPrice.value);
+            const damage = parseInt(newShopItemDamage.value);
+            const sprite = newShopItemSprite.value;
+            if (name && !isNaN(price) && !isNaN(damage)) {
+                npcs[npcIndex].shop.push({ name, price, damage, sprite });
+                updateShopItemsList(npcs[npcIndex].shop);
+                updateNpcShopText(npcIndex);
+                newShopItemName.value = '';
+                newShopItemPrice.value = 50;
+                newShopItemDamage.value = 5;
+            }
+        });
+
+        function closeNpcEditor() {
+            npcEditor.style.display = 'none';
+            delete npcEditor.dataset.index;
+        }
+
+        function saveNpcEditor() {
+            const index = npcEditor.dataset.index;
+            if (index === undefined) return;
+            const npc = npcs[index];
+            npc.name = npcEditName.value.trim() || 'NPC';
+            npc.skin = npcEditSkin.value.trim() || '👤';
+            npc.dialog = npcEditDialog.value.trim() || '...';
+            npc.textColor = npcEditColor.value;
+            updateNpcShopText(index);
+            sendNpcUpdate();
+            draw();
+            closeNpcEditor();
+        }
+
+        // Zombies (solo host)
+        function spawnZombieFromSpawner(spawner) {
+            if (!isHost) return;
+            const maxZombies = 5;
+            const current = zombies.filter(z => Math.abs(z.x - spawner.x) + Math.abs(z.y - spawner.y) < 10).length;
+            if (current >= maxZombies) return;
+
+            for (let attempts = 0; attempts < 10; attempts++) {
+                let dx = Math.floor(Math.random() * 5) - 2;
+                let dy = Math.floor(Math.random() * 5) - 2;
+                let nx = spawner.x + dx;
+                let ny = spawner.y + dy;
+                if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z => z.x === nx && z.y === ny)) {
+                    zombies.push({ x: nx, y: ny, health: 1 });
+                    break;
+                }
+            }
+            sendZombieUpdate();
+        }
+
+        function moveZombies() {
+            if (!isHost) return;
+            for (let i = zombies.length - 1; i >= 0; i--) {
+                let z = zombies[i];
+                let attacked = false;
+
+                if (Math.abs(z.x - player.x) + Math.abs(z.y - player.y) <= 1) {
+                    player.health = Math.max(0, player.health - 20);
+                    zombies.splice(i, 1);
+                    attacked = true;
+                    if (player.health <= 0) {
+                        player.x = spawnPoint.x;
+                        player.y = spawnPoint.y;
+                        player.health = player.maxHealth;
+                    }
+                }
+
+                if (!attacked) {
+                    for (let peerId in players) {
+                        let p = players[peerId];
+                        if (Math.abs(z.x - p.x) + Math.abs(z.y - p.y) <= 1) {
+                            p.health = Math.max(0, p.health - 20);
+                            zombies.splice(i, 1);
+                            if (p.conn) {
+                                p.conn.send({ type: 'updateHealth', health: p.health, maxHealth: p.maxHealth, x: p.x, y: p.y });
+                                if (p.health <= 0) {
+                                    p.x = spawnPoint.x;
+                                    p.y = spawnPoint.y;
+                                    p.health = p.maxHealth;
+                                    p.conn.send({ type: 'respawn', x: p.x, y: p.y, health: p.health });
+                                }
+                            }
+                            attacked = true;
+                            break;
+                        }
+                    }
+                }
+                if (attacked) continue;
+
+                let closest = null;
+                let minDist = Infinity;
+                let distLocal = Math.abs(z.x - player.x) + Math.abs(z.y - player.y);
+                if (distLocal < minDist) {
+                    minDist = distLocal;
+                    closest = player;
+                }
+                for (let pid in players) {
+                    let p = players[pid];
+                    let dist = Math.abs(z.x - p.x) + Math.abs(z.y - p.y);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = p;
+                    }
+                }
+                if (closest) {
+                    let dx = closest.x > z.x ? 1 : (closest.x < z.x ? -1 : 0);
+                    let dy = closest.y > z.y ? 1 : (closest.y < z.y ? -1 : 0);
+                    let moved = false;
+                    if (dx !== 0) {
+                        let nx = z.x + dx;
+                        if (nx >= 0 && nx < MAP_SIZE && map[z.y][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === z.y)) {
+                            z.x = nx;
+                            moved = true;
+                        }
+                    }
+                    if (!moved && dy !== 0) {
+                        let ny = z.y + dy;
+                        if (ny >= 0 && ny < MAP_SIZE && map[ny][z.x] === 0 && !zombies.some(z2 => z2.x === z.x && z2.y === ny)) {
+                            z.y = ny;
+                            moved = true;
+                        }
+                    }
+                    if (!moved) {
+                        let dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+                        for (let d of dirs) {
+                            let nx = z.x + d[0];
+                            let ny = z.y + d[1];
+                            if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE && map[ny][nx] === 0 && !zombies.some(z2 => z2.x === nx && z2.y === ny)) {
+                                z.x = nx;
+                                z.y = ny;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            sendZombieUpdate();
+            draw();
+        }
+
+        function sendZombieUpdate() {
+            if (isHost) {
+                for (let pid in players) {
+                    if (players[pid].conn) {
+                        players[pid].conn.send({ type: 'zombieUpdate', spawners, zombies });
+                    }
+                }
+            }
+        }
+
+        let zombieInterval = setInterval(() => {
+            if (isHost) {
+                spawners.forEach(sp => {
+                    if (Math.random() < 0.3) spawnZombieFromSpawner(sp);
+                });
+                moveZombies();
+            }
+        }, 1000);
+
+        // Eventos de teclado
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
+                e.preventDefault();
+                if (!keyState[key]) {
+                    keyState[key] = true;
+                    if (!moveInterval) {
+                        // movimiento inmediato
+                        let dx = 0, dy = 0;
+                        if (keyState.w) dy = -1;
+                        if (keyState.s) dy = 1;
+                        if (keyState.a) dx = -1;
+                        if (keyState.d) dx = 1;
+                        if (dx !== 0 || dy !== 0) {
+                            if (dx > 0) player.facing = 'right';
+                            else if (dx < 0) player.facing = 'left';
+                            else if (dy < 0) player.facing = 'up';
+                            else if (dy > 0) player.facing = 'down';
+
+                            if (dx !== 0) {
+                                let newX = player.x + dx;
+                                if (newX >= 0 && newX < MAP_SIZE && map[player.y][newX] === 0) player.x = newX;
+                            }
+                            if (dy !== 0) {
+                                let newY = player.y + dy;
+                                if (newY >= 0 && newY < MAP_SIZE && map[newY][player.x] === 0) player.y = newY;
+                            }
+                            for (let i = items.length - 1; i >= 0; i--) {
+                                if (items[i].x === player.x && items[i].y === player.y) {
+                                    inventory.push(items[i].type);
+                                    items.splice(i, 1);
+                                    updateBottomInventory();
+                                    sendItemPickup(i);
+                                }
+                            }
+                            sendMove();
+                            draw();
+                        }
+                        startMove();
+                    }
+                }
+            }
+            if (key === 'e') interactWithNPC();
+            let num = parseInt(key);
+            if (num >= 1 && num <= 9 && isHost) {
+                selectedSlot = num - 1;
+                updateBottomInventory();
+                draw();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'w' || key === 's' || key === 'a' || key === 'd') {
+                keyState[key] = false;
+                if (!keyState.w && !keyState.s && !keyState.a && !keyState.d) stopMove();
+            }
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let mouseX = (e.clientX - rect.left) * scaleX + camera.x;
+            let mouseY = (e.clientY - rect.top) * scaleY + camera.y;
+            const col = Math.floor(mouseX / TILE_SIZE);
+            const row = Math.floor(mouseY / TILE_SIZE);
+            if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
+
+            if (isHost && e.shiftKey && e.button === 2) {
+                const npcIndex = npcs.findIndex(n => n.x === col && n.y === row);
+                if (npcIndex !== -1) {
+                    e.preventDefault();
+                    openNpcEditor(npcIndex);
+                    return;
+                }
+            }
+
+            if (isHost) {
+                if (setSpawnBtn.classList.contains('active')) {
+                    spawnPoint = { x: col, y: row };
+                    sendSpawnUpdate();
+                    draw();
+                    setSpawnBtn.classList.remove('active');
+                    buildMode = false;
+                    buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: OFF";
+                    return;
+                }
+                if (setNpcBtn.classList.contains('active')) {
+                    let name = prompt("Nombre del NPC:");
+                    if (name) {
+                        npcs.push({ x: col, y: row, name, dialog: "¡Hola!", shop: [], skin: '👤', textColor: '#ffdba0' });
+                        sendNpcUpdate();
+                        draw();
+                    }
+                    setNpcBtn.classList.remove('active');
+                    buildMode = false;
+                    buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: OFF";
+                    return;
+                }
+                if (setZombieSpawnerBtn.classList.contains('active')) {
+                    spawners.push({ x: col, y: row });
+                    sendZombieUpdate();
+                    draw();
+                    setZombieSpawnerBtn.classList.remove('active');
+                    buildMode = false;
+                    buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: OFF";
+                    return;
+                }
+            }
+
+            // Si no es host y no está en modo construcción, atacar
+            if (e.button === 0 && !buildMode) {
+                attack();
+                return;
+            }
+
+            if (buildMode && isHost) {
+                if (e.button === 0) {
+                    map[row][col] = 0;
+                    sendMapEdit(row, col, 0);
+                    draw();
+                } else if (e.button === 2) {
+                    let block = getSelectedBlock();
+                    if (block > 0) {
+                        map[row][col] = block;
+                        sendMapEdit(row, col, block);
+                        draw();
+                    }
+                }
+            }
+        });
+
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        buildModeBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            buildMode = !buildMode;
+            buildModeBtn.textContent = buildMode ? "🔨 MODO CONSTRUCCIÓN: ON" : "🔨 MODO CONSTRUCCIÓN: OFF";
+            if (!buildMode) {
+                setSpawnBtn.classList.remove('active');
+                setNpcBtn.classList.remove('active');
+                setZombieSpawnerBtn.classList.remove('active');
+            }
+        });
+
+        setSpawnBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            setSpawnBtn.classList.toggle('active');
+            setNpcBtn.classList.remove('active');
+            setZombieSpawnerBtn.classList.remove('active');
+            buildMode = true;
+            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
+        });
+        setNpcBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            setNpcBtn.classList.toggle('active');
+            setSpawnBtn.classList.remove('active');
+            setZombieSpawnerBtn.classList.remove('active');
+            buildMode = true;
+            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
+        });
+        setZombieSpawnerBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            setZombieSpawnerBtn.classList.toggle('active');
+            setSpawnBtn.classList.remove('active');
+            setNpcBtn.classList.remove('active');
+            buildMode = true;
+            buildModeBtn.textContent = "🔨 MODO CONSTRUCCIÓN: ON";
+        });
+
+        mapSizeSlider.addEventListener('input', (e) => {
+            mapSizeValue.textContent = e.target.value;
+        });
+        resizeBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host"); return; }
+            let newSize = parseInt(mapSizeSlider.value);
+            initMap(newSize);
+            if (conn) sendFullState();
+            draw();
+        });
+
+        // Creador de armas (simple)
+        document.getElementById('createWeaponBtn')?.addEventListener('click', () => {
+            let name = document.getElementById('weaponName').value.trim() || "Arma";
+            let damage = parseInt(document.getElementById('weaponDamage').value) || 1;
+            let sprite = document.getElementById('weaponSprite').value;
+            inventory.push({ name, damage, sprite });
+            updateBottomInventory();
+            alert(`Arma ${name} creada`);
+        });
+
+        npcEditSave.addEventListener('click', saveNpcEditor);
+        npcEditCancel.addEventListener('click', closeNpcEditor);
 
         // Editor de píxeles
         function initPixelEditor() {
-            // Paleta de colores
-            const palette = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff', '#000000'];
+            const palette = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff', '#000000', '#8b4513', '#d2b48c'];
             const paletteDiv = document.getElementById('colorPalette');
             palette.forEach(color => {
                 let swatch = document.createElement('div');
@@ -987,7 +1560,6 @@
             });
             paletteDiv.children[0].classList.add('selected');
 
-            // Dibujar en el canvas de píxeles
             pixelCanvas.addEventListener('mousedown', (e) => {
                 drawing = true;
                 paintPixel(e);
@@ -1001,7 +1573,7 @@
             function paintPixel(e) {
                 const rect = pixelCanvas.getBoundingClientRect();
                 const scale = 160 / rect.width;
-                let x = Math.floor((e.clientX - rect.left) * scale / 10); // 16x16 grid
+                let x = Math.floor((e.clientX - rect.left) * scale / 10);
                 let y = Math.floor((e.clientY - rect.top) * scale / 10);
                 if (x >= 0 && x < 16 && y >= 0 && y < 16) {
                     pixelData[y][x] = currentColor;
@@ -1019,10 +1591,8 @@
             }
             drawPixelGrid();
 
-            // Guardar bloque personalizado
             savePixelBlock.addEventListener('click', () => {
                 let slot = parseInt(blockSlotSelect.value);
-                // Crear ImageData de 40x40 escalando el pixel art
                 let imgData = ctx.createImageData(TILE_SIZE, TILE_SIZE);
                 for (let y = 0; y < TILE_SIZE; y++) {
                     for (let x = 0; x < TILE_SIZE; x++) {
@@ -1040,7 +1610,6 @@
                     }
                 }
                 customBlocks[slot] = { sprite: imgData, name: `Bloque ${slot}` };
-                // Añadir al inventario de bloques si no está
                 if (!blockInventory.includes(slot)) {
                     for (let i = 0; i < blockInventory.length; i++) {
                         if (blockInventory[i] === 0) {
@@ -1054,13 +1623,208 @@
             });
         }
 
-        // ---------- FLUJO DEL MENÚ (igual que antes, con ajustes) ----------
+        // ---------- PEERJS ----------
+        function setupConnection(connection, isHostConnection) {
+            conn = connection;
+            connectionStatus.textContent = 'Conectado a: ' + connection.peer;
+            conn.on('data', (data) => handlePeerData(data, isHostConnection));
+            conn.on('close', () => {
+                connectionStatus.textContent = 'Desconectado';
+                remotePlayer.connected = false;
+                if (isHost) delete players[connection.peer];
+                draw();
+            });
+            if (!isHost) requestFullState();
+        }
+
+        function requestFullState() {
+            if (conn && conn.open) conn.send({ type: 'requestFullState' });
+        }
+
+        function handlePeerData(data, isHostConnection) {
+            switch (data.type) {
+                case 'requestFullState':
+                    if (isHost) sendFullState();
+                    break;
+                case 'fullState':
+                    if (data.map) map = data.map;
+                    if (data.items) items = data.items;
+                    if (data.npcs) npcs = data.npcs;
+                    if (data.spawnPoint) spawnPoint = data.spawnPoint;
+                    if (data.spawners) spawners = data.spawners;
+                    if (data.zombies) zombies = data.zombies;
+                    if (data.player) {
+                        remotePlayer.x = data.player.x;
+                        remotePlayer.y = data.player.y;
+                        remotePlayer.name = data.player.name;
+                        remotePlayer.headColor = data.player.headColor;
+                        remotePlayer.torsoColor = data.player.torsoColor;
+                        remotePlayer.armsColor = data.player.armsColor;
+                        remotePlayer.legsColor = data.player.legsColor;
+                        remotePlayer.connected = true;
+                    }
+                    MAP_SIZE = map.length;
+                    mapSizeSlider.value = MAP_SIZE;
+                    mapSizeValue.textContent = MAP_SIZE;
+                    draw();
+                    break;
+                case 'move':
+                    remotePlayer.x = data.x;
+                    remotePlayer.y = data.y;
+                    remotePlayer.name = data.name;
+                    remotePlayer.headColor = data.headColor;
+                    remotePlayer.torsoColor = data.torsoColor;
+                    remotePlayer.armsColor = data.armsColor;
+                    remotePlayer.legsColor = data.legsColor;
+                    remotePlayer.connected = true;
+                    if (isHost && data.peerId) {
+                        if (players[data.peerId]) {
+                            players[data.peerId].x = data.x;
+                            players[data.peerId].y = data.y;
+                        }
+                    }
+                    draw();
+                    break;
+                case 'mapEdit':
+                    if (isHost && data.row !== undefined && data.col !== undefined) {
+                        map[data.row][data.col] = data.value;
+                        for (let pid in players) {
+                            if (players[pid].conn) players[pid].conn.send({ type: 'mapEdit', row: data.row, col: data.col, value: data.value });
+                        }
+                        draw();
+                    }
+                    break;
+                case 'itemPickup':
+                    if (isHost && data.itemIndex !== undefined) {
+                        items.splice(data.itemIndex, 1);
+                        for (let pid in players) {
+                            if (players[pid].conn) players[pid].conn.send({ type: 'itemPickup', itemIndex: data.itemIndex });
+                        }
+                        draw();
+                    }
+                    break;
+                case 'spawnUpdate':
+                    if (data.spawnPoint) {
+                        spawnPoint = data.spawnPoint;
+                        draw();
+                    }
+                    break;
+                case 'npcUpdate':
+                    if (data.npcs) {
+                        npcs = data.npcs;
+                        draw();
+                    }
+                    break;
+                case 'zombieUpdate':
+                    if (data.spawners) spawners = data.spawners;
+                    if (data.zombies) zombies = data.zombies;
+                    draw();
+                    break;
+                case 'killZombie':
+                    if (isHost && data.x !== undefined && data.y !== undefined) {
+                        const idx = zombies.findIndex(z => z.x === data.x && z.y === data.y);
+                        if (idx !== -1) {
+                            zombies.splice(idx, 1);
+                            if (data.peerId && players[data.peerId]) {
+                                players[data.peerId].gold += 5;
+                                if (players[data.peerId].conn) {
+                                    players[data.peerId].conn.send({ type: 'updateGold', gold: players[data.peerId].gold });
+                                }
+                            }
+                            sendZombieUpdate();
+                        }
+                    }
+                    break;
+                case 'buyItem':
+                    if (isHost && data.peerId && players[data.peerId]) {
+                        players[data.peerId].gold -= data.price;
+                        if (players[data.peerId].conn) {
+                            players[data.peerId].conn.send({ type: 'updateGold', gold: players[data.peerId].gold });
+                        }
+                    }
+                    break;
+                case 'updateGold':
+                    player.gold = data.gold;
+                    draw();
+                    break;
+                case 'updateHealth':
+                    player.health = data.health;
+                    player.maxHealth = data.maxHealth;
+                    draw();
+                    break;
+                case 'respawn':
+                    player.x = data.x;
+                    player.y = data.y;
+                    player.health = data.health;
+                    draw();
+                    break;
+            }
+        }
+
+        function sendFullState() {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'fullState',
+                    map,
+                    items,
+                    npcs,
+                    spawnPoint,
+                    spawners,
+                    zombies,
+                    player: { x: player.x, y: player.y, name: player.name, headColor: player.headColor, torsoColor: player.torsoColor, armsColor: player.armsColor, legsColor: player.legsColor }
+                });
+            }
+        }
+
+        function sendMove() {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'move',
+                    x: player.x,
+                    y: player.y,
+                    name: player.name,
+                    headColor: player.headColor,
+                    torsoColor: player.torsoColor,
+                    armsColor: player.armsColor,
+                    legsColor: player.legsColor,
+                    peerId: myPeerId
+                });
+            }
+        }
+
+        function sendMapEdit(row, col, value) {
+            if (conn && conn.open) conn.send({ type: 'mapEdit', row, col, value });
+        }
+
+        function sendItemPickup(index) {
+            if (conn && conn.open) conn.send({ type: 'itemPickup', itemIndex: index });
+        }
+
+        function sendSpawnUpdate() {
+            if (conn && conn.open && isHost) {
+                for (let pid in players) {
+                    if (players[pid].conn) players[pid].conn.send({ type: 'spawnUpdate', spawnPoint });
+                }
+            }
+        }
+
+        function sendNpcUpdate() {
+            if (conn && conn.open && isHost) {
+                for (let pid in players) {
+                    if (players[pid].conn) players[pid].conn.send({ type: 'npcUpdate', npcs });
+                }
+            }
+        }
+
+        // ---------- FLUJO DEL MENÚ ----------
         createGameBtn.addEventListener('click', () => {
             isHost = true;
             player.name = playerNameInput.value.trim() || "Aventurero";
-            player.skin = selectedSkin;
+            player.headColor = skinHead.value;
+            player.torsoColor = skinTorso.value;
+            player.armsColor = skinArms.value;
+            player.legsColor = skinLegs.value;
             playerNameDisplay.textContent = player.name;
-            playerSkinDisplay.textContent = player.skin;
             peer = new Peer();
             peer.on('open', (id) => {
                 myPeerId = id;
@@ -1070,8 +1834,7 @@
                 gameScreen.style.display = 'flex';
                 initMap(20);
                 players = {};
-                players['host'] = { x: player.x, y: player.y, gold: player.gold, health: player.health, maxHealth: player.maxHealth, name: player.name, skin: player.skin, conn: null };
-                // Mostrar paneles de host
+                players['host'] = { x: player.x, y: player.y, gold: player.gold, health: player.health, maxHealth: player.maxHealth, name: player.name, headColor: player.headColor, torsoColor: player.torsoColor, armsColor: player.armsColor, legsColor: player.legsColor, conn: null };
                 constructionPanel.style.display = 'block';
                 document.getElementById('pixelEditor').style.display = 'block';
                 hostOnlyButtons.style.display = 'block';
@@ -1083,7 +1846,7 @@
             });
             peer.on('connection', (connection) => {
                 conn = connection;
-                players[connection.peer] = { x: 10, y: 10, gold: 100, health: 100, maxHealth: 100, name: 'Jugador', skin: '🧑', conn: connection };
+                players[connection.peer] = { x: 10, y: 10, gold: 100, health: 100, maxHealth: 100, name: 'Jugador', headColor: '#d2b48c', torsoColor: '#4a90e2', armsColor: '#e34a4a', legsColor: '#4caf50', conn: connection };
                 setupConnection(conn, true);
                 sendFullState();
                 connection.send({ type: 'updateGold', gold: 100 });
@@ -1100,10 +1863,11 @@
             if (!hostId) return;
             isHost = false;
             player.name = playerNameInput.value.trim() || "Aventurero";
-            player.skin = selectedSkin;
+            player.headColor = skinHead.value;
+            player.torsoColor = skinTorso.value;
+            player.armsColor = skinArms.value;
+            player.legsColor = skinLegs.value;
             playerNameDisplay.textContent = player.name;
-            playerSkinDisplay.textContent = player.skin;
-            // Ocultar paneles de host
             constructionPanel.style.display = 'none';
             document.getElementById('pixelEditor').style.display = 'none';
             hostOnlyButtons.style.display = 'none';
@@ -1133,8 +1897,6 @@
         initMap(20);
         updateBottomInventory();
         initPixelEditor();
-
-        // (Aquí irían todas las funciones de movimiento, ataque, peer, etc., que por brevedad no repito pero están en el código completo)
     </script>
 </body>
 </html>
