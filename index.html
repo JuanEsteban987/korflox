@@ -312,6 +312,7 @@
                         <button class="overlay-btn" id="setNpcBtn">👤 NPC</button>
                         <button class="overlay-btn" id="setZombieBtn">🧟 ZOMBIE</button>
                         <button class="overlay-btn" id="colorBlockBtn">🎨 COLOR BLOQUE</button>
+                        <button class="overlay-btn" id="createWeaponBtn2">⚒️ CREAR ARMA</button>
                         <button class="overlay-btn" id="saveMapBtn">💾 GUARDAR MAPA</button>
                         <button class="overlay-btn" id="loadMapBtn">📂 CARGAR MAPA</button>
                     </div>
@@ -345,18 +346,16 @@
         let MAP_SIZE = 20;
 
         // Los bloques ahora son objetos con tipo y color
-        // tipo: 0=suelo, 1=pared, 2=rojo, 3=azul, 4=arcoiris (especial), pero el color se puede personalizar
-        // Para simplificar, usaremos un array 2D de objetos { type, color }
         let map = []; // cada celda: { type: number, color: string }
 
         // Items (estrellas)
         let items = [];
 
         // NPCs amigables
-        let npcs = []; // {x, y, name, skin, dialog, textColor, shop}
+        let npcs = [];
 
         // Zombies
-        let zombies = []; // {x, y, health, direction, lastMove, skinColor}
+        let zombies = [];
 
         // Spawn point
         let spawnPoint = { x: 10, y: 10 };
@@ -381,7 +380,16 @@
 
         // Inventario estilo Minecraft: array de 9 slots, cada slot { item: objeto o número (para bloques), quantity: n }
         let hotbar = new Array(9).fill(null).map(() => ({ item: null, quantity: 0 }));
-        let selectedHotbarSlot = 0; // 0-8
+        let selectedHotbarSlot = 0;
+
+        // Colores personalizados para cada tipo de bloque (por defecto)
+        let blockColors = {
+            0: '#4caf50', // suelo
+            1: '#9e9e9e', // pared
+            2: '#e63946', // rojo
+            3: '#1e90ff', // azul
+            4: '#ffaa00'  // arcoíris (se sobreescribe con el efecto)
+        };
 
         // Editor y modos
         let editorMode = false;
@@ -395,6 +403,9 @@
         let conn = null;
         let myPeerId = null;
         let isHost = false;
+
+        // Intervalo para mover zombies
+        let zombieInterval = null;
 
         // Elementos DOM
         const menuScreen = document.getElementById('menuScreen');
@@ -414,6 +425,7 @@
         const setNpcBtn = document.getElementById('setNpcBtn');
         const setZombieBtn = document.getElementById('setZombieBtn');
         const colorBlockBtn = document.getElementById('colorBlockBtn');
+        const createWeaponBtn2 = document.getElementById('createWeaponBtn2');
         const saveMapBtn = document.getElementById('saveMapBtn');
         const loadMapBtn = document.getElementById('loadMapBtn');
         const npcDialog = document.getElementById('npcDialog');
@@ -433,15 +445,15 @@
             for (let i = 0; i < MAP_SIZE; i++) {
                 map[i] = [];
                 for (let j = 0; j < MAP_SIZE; j++) {
-                    map[i][j] = { type: 0, color: '#4caf50' }; // suelo por defecto
+                    map[i][j] = { type: 0, color: blockColors[0] };
                 }
             }
             // Bordes pared (gris)
             for (let i = 0; i < MAP_SIZE; i++) {
-                map[0][i] = { type: 1, color: '#9e9e9e' };
-                map[MAP_SIZE-1][i] = { type: 1, color: '#9e9e9e' };
-                map[i][0] = { type: 1, color: '#9e9e9e' };
-                map[i][MAP_SIZE-1] = { type: 1, color: '#9e9e9e' };
+                map[0][i] = { type: 1, color: blockColors[1] };
+                map[MAP_SIZE-1][i] = { type: 1, color: blockColors[1] };
+                map[i][0] = { type: 1, color: blockColors[1] };
+                map[i][MAP_SIZE-1] = { type: 1, color: blockColors[1] };
             }
             items = [];
             npcs = [];
@@ -507,19 +519,19 @@
             camera.y = Math.max(0, Math.min(targetY, maxY));
         }
 
-        // Dibujar jugador estilo Roblox (cabeza cuadrada, torso, piernas)
+        // Dibujar jugador estilo Roblox
         function drawRobloxPlayer(px, py, color, name) {
-            // Cabeza (cuadrado 20x20)
+            // Cabeza
             ctx.fillStyle = color;
             ctx.fillRect(px - 10, py - 25, 20, 20);
-            // Ojos (puntos blancos)
+            // Ojos
             ctx.fillStyle = 'white';
             ctx.fillRect(px - 6, py - 20, 4, 4);
             ctx.fillRect(px + 2, py - 20, 4, 4);
-            // Torso (rectángulo 16x24)
+            // Torso
             ctx.fillStyle = color;
             ctx.fillRect(px - 8, py - 5, 16, 24);
-            // Piernas (dos rectángulos)
+            // Piernas
             ctx.fillRect(px - 8, py + 19, 6, 16);
             ctx.fillRect(px + 2, py + 19, 6, 16);
             // Brazos
@@ -535,7 +547,7 @@
             ctx.fillText(name, px, py - 35);
         }
 
-        // Dibujar zombie (versión verde)
+        // Dibujar zombie
         function drawZombie(z) {
             let px = z.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
             let py = z.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
@@ -741,9 +753,9 @@
             draw();
         }
 
-        // IA de zombies
+        // IA de zombies (solo host)
         function moveZombies() {
-            if (!isHost) return; // Solo el host mueve zombies
+            if (!isHost) return;
             zombies.forEach(z => {
                 // Movimiento aleatorio simple hacia el jugador
                 let dx = player.x - z.x;
@@ -773,14 +785,14 @@
                 }
                 // Comprobar ataque al jugador
                 if (Math.abs(z.x - player.x) + Math.abs(z.y - player.y) === 1) {
-                    player.gold -= 5; // daño simple
-                    if (player.gold < 0) player.gold = 0;
+                    player.gold = Math.max(0, player.gold - 5);
                 }
             });
+            sendZombieUpdate();
             draw();
         }
 
-        // ---------- PEERJS COMUNICACIÓN (simplificada) ----------
+        // ---------- PEERJS COMUNICACIÓN ----------
         function setupConnection(connection, isHostConnection) {
             conn = connection;
             connectionStatus.textContent = 'Conectado a: ' + connection.peer;
@@ -1070,15 +1082,14 @@
             } else {
                 // Edición normal: izquierdo quita (pone suelo), derecho coloca bloque seleccionado
                 if (e.button === 0) { // izquierdo
-                    map[row][col] = { type: 0, color: '#4caf50' };
+                    map[row][col] = { type: 0, color: blockColors[0] };
                     sendMapEdit(row, col, map[row][col]);
                 } else if (e.button === 2) { // derecho
                     let selectedItem = hotbar[selectedHotbarSlot].item;
                     if (selectedItem === null) return;
                     if (typeof selectedItem === 'number') {
-                        // Bloque con color por defecto según tipo
-                        let defaultColors = ['#4caf50', '#9e9e9e', '#e63946', '#1e90ff', '#ffaa00'];
-                        map[row][col] = { type: selectedItem, color: defaultColors[selectedItem] || '#ffffff' };
+                        // Usar el color personalizado para ese tipo
+                        map[row][col] = { type: selectedItem, color: blockColors[selectedItem] };
                     } else {
                         return; // no colocar armas
                     }
@@ -1090,7 +1101,7 @@
 
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Botones de overlay
+        // ---------- BOTONES DEL OVERLAY ----------
         editorBtn.addEventListener('click', () => {
             editorMode = !editorMode;
             editorBtn.textContent = editorMode ? "✏️ EDITOR ON" : "✏️ EDITOR OFF";
@@ -1124,22 +1135,22 @@
                 alert("Selecciona un bloque en la hotbar (números 1-9)");
                 return;
             }
+            // Mostrar el color actual del tipo seleccionado
+            blockColorPicker.value = blockColors[selectedItem] || '#4caf50';
             colorPickerModal.style.display = 'block';
-            applyBlockColor.onclick = () => {
-                let newColor = blockColorPicker.value;
-                // Cambiar el color del bloque seleccionado en la hotbar (no afecta a los ya colocados)
-                // Aquí podríamos guardar el color preferido para futuras colocaciones, pero por ahora solo avisamos.
-                alert("Color guardado. Ahora al colocar bloques de este tipo usarán el color por defecto. Para cambiar el color de un bloque ya colocado, edítalo individualmente.");
-                // Podríamos almacenar el color en una variable global para el tipo, pero lo dejamos así.
-                colorPickerModal.style.display = 'none';
-            };
         });
 
-        saveMapBtn.addEventListener('click', saveMap);
-        loadMapBtn.addEventListener('click', loadMap);
+        applyBlockColor.addEventListener('click', () => {
+            let selectedItem = hotbar[selectedHotbarSlot].item;
+            if (typeof selectedItem === 'number') {
+                let newColor = blockColorPicker.value;
+                blockColors[selectedItem] = newColor;
+                alert(`Color para el bloque ${selectedBlockName.textContent} actualizado. Los nuevos bloques de este tipo usarán este color.`);
+            }
+            colorPickerModal.style.display = 'none';
+        });
 
-        // Creador de armas rápido (desde overlay)
-        document.getElementById('createWeaponBtn2')?.addEventListener('click', () => {
+        createWeaponBtn2.addEventListener('click', () => {
             let name = prompt("Nombre del arma:", "Espada básica");
             if (!name) return;
             let damage = prompt("Daño:", "5");
@@ -1148,6 +1159,9 @@
             let newWeapon = { name, damage, sprite };
             addItemToInventory(newWeapon);
         });
+
+        saveMapBtn.addEventListener('click', saveMap);
+        loadMapBtn.addEventListener('click', loadMap);
 
         // ---------- FLUJO DEL MENÚ ----------
         createGameBtn.addEventListener('click', () => {
@@ -1172,7 +1186,8 @@
                 hotbar[4] = { item: 4, quantity: 1 };
                 draw();
                 // Iniciar movimiento de zombies (solo host)
-                setInterval(moveZombies, 500);
+                if (zombieInterval) clearInterval(zombieInterval);
+                zombieInterval = setInterval(moveZombies, 500);
             });
             peer.on('connection', (connection) => {
                 conn = connection;
