@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RPG 2D Retro - Minecraft Inventory + NPC Editor (FUNCIONAL)</title>
+    <title>RPG 2D Retro - Minecraft Inventory + NPC Editor</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         * {
@@ -30,6 +30,7 @@
             padding: 20px;
             border-radius: 20px 20px 0 0;
         }
+        /* Menú inicial */
         #menuScreen {
             display: flex;
             flex-direction: column;
@@ -81,6 +82,25 @@
             width: 280px;
             font-size: 14px;
         }
+        /* Editor de skin en menú */
+        .skin-editor {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .skin-editor label {
+            color: #ffd966;
+            font-size: 16px;
+        }
+        .skin-editor input[type="color"] {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #b88b4a;
+            cursor: pointer;
+        }
+        /* Pantalla de juego */
         #gameScreen {
             display: none;
             flex-direction: column;
@@ -100,10 +120,8 @@
         }
         #gameArea {
             display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
             justify-content: center;
-            margin-bottom: 60px;
+            margin-bottom: 70px; /* espacio para hotbar */
         }
         #canvasContainer {
             border: 6px solid #7a5b3b;
@@ -118,46 +136,33 @@
             image-rendering: crisp-edges;
             background: #2d3a4a;
         }
-        .panel {
-            background: #322b3f;
-            border: 5px solid #b88b4a;
-            padding: 15px;
-            width: 280px;
-            color: #eedbaa;
-            font-size: 12px;
-            line-height: 1.8;
-            box-shadow: 8px 8px 0 #1f1a28;
-            margin-bottom: 15px;
+        /* Botones flotantes sobre el canvas (para acciones rápidas) */
+        #canvasOverlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
         }
-        .panel h3 {
-            color: #ffc857;
-            border-bottom: 3px dotted #9a7b4f;
-            padding-bottom: 8px;
-            margin-top: 0;
-            font-size: 16px;
-        }
-        .panel button, .panel input, .panel select {
+        .overlay-btn {
             font-family: 'Press Start 2P', cursive;
-            background: #1e1c2a;
-            border: 3px inset #9a8b6e;
-            color: #e3d394;
-            padding: 8px;
-            margin: 5px 0;
-            width: 100%;
-            font-size: 10px;
-        }
-        .panel button {
             background: #4e3b2c;
             border: 4px outset #b88b4a;
+            color: #f0e6a0;
+            padding: 8px 12px;
+            font-size: 10px;
             cursor: pointer;
+            box-shadow: 3px 3px 0 #2a1e14;
         }
-        .panel button:hover {
+        .overlay-btn:hover {
             background: #6b4f38;
         }
-        .panel button.active {
+        .overlay-btn.active {
             background: #aa5533;
             border: 4px inset #ffaa66;
         }
+        /* Hotbar estilo Minecraft */
         #hotbar {
             position: fixed;
             bottom: 10px;
@@ -204,6 +209,7 @@
             font-size: 14px;
             gap: 20px;
         }
+        /* NPC editor modal */
         #npcEditor, #npcDialog {
             position: absolute;
             top: 50%;
@@ -235,14 +241,11 @@
             width: 100%;
             font-size: 10px;
         }
-        .shop-item-edit, .shop-item {
+        .shop-item-edit {
             background: #1f1b30;
             border: 2px solid #7a5b3b;
             padding: 8px;
             margin: 5px 0;
-        }
-        .shop-item {
-            cursor: pointer;
         }
         .close-btn {
             margin-top: 15px;
@@ -252,13 +255,27 @@
             text-align: center;
             cursor: pointer;
         }
+        .shop-item {
+            background: #1f1b30;
+            border: 2px solid #7a5b3b;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
     <div id="gameWrapper">
+        <!-- MENÚ INICIAL -->
         <div id="menuScreen">
             <h1>⚔️ PIXEL RPG 2008 ⚔️<br>MULTIPLAYER + NPCs + TIENDAS</h1>
+            <div class="skin-editor">
+                <label>👤 Nombre:</label>
+                <input class="menu-input" type="text" id="playerNameInput" value="Aventurero" maxlength="20">
+                <label>🎨 Color de skin:</label>
+                <input type="color" id="playerSkinInput" value="#e94560">
+            </div>
             <button class="menu-btn" id="createGameBtn">🎮 CREAR PARTIDA (HOST)</button>
             <button class="menu-btn secondary" id="joinGameBtn">🔌 UNIRSE A PARTIDA</button>
             <div id="joinOptions" style="display: none; margin-top: 20px;">
@@ -270,6 +287,7 @@
             </div>
         </div>
 
+        <!-- PANTALLA DE JUEGO -->
         <div id="gameScreen">
             <div id="gameHeader">
                 <span>👤 <span id="playerNameDisplay">Aventurero</span></span>
@@ -280,41 +298,19 @@
             <div id="gameArea">
                 <div id="canvasContainer">
                     <canvas id="gameCanvas" width="800" height="800"></canvas>
+                    <div id="canvasOverlay">
+                        <button class="overlay-btn" id="editorBtn">✏️ EDITOR OFF</button>
+                        <button class="overlay-btn" id="setSpawnBtn">📍 SPAWN</button>
+                        <button class="overlay-btn" id="setNpcBtn">👤 NPC</button>
+                        <button class="overlay-btn" id="createWeaponBtn2">⚒️ ARMA</button>
+                    </div>
                     <div id="npcDialog"></div>
                     <div id="npcEditor"></div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div class="panel">
-                        <h3>🎮 CONTROLES</h3>
-                        <div>WASD: mover</div>
-                        <div>E: hablar con NPC cercano</div>
-                        <div>1-9: seleccionar bloque/item</div>
-                        <div>Editor: Click izq quitar, Click der colocar</div>
-                        <button id="editorBtn">✏️ EDITOR: OFF</button>
-                        <div style="margin-top: 10px;">
-                            <button id="setSpawnBtn" class="secondary">📍 COLOCAR SPAWN (host)</button>
-                            <button id="setNpcBtn" class="secondary">👤 COLOCAR NPC (host)</button>
-                        </div>
-                        <label>🔧 Tamaño mapa: <input type="range" id="mapSizeSlider" min="10" max="100" value="20" step="1"> <span id="mapSizeValue">20</span></label>
-                        <button id="resizeBtn">🔄 REINICIAR MAPA (host)</button>
-                    </div>
-                    <div class="panel weapon-creator">
-                        <h3>⚒️ CREADOR DE ARMAS</h3>
-                        <input type="text" id="weaponName" placeholder="Nombre" value="Espada básica">
-                        <input type="number" id="weaponDamage" placeholder="Daño" value="5" min="1" max="99">
-                        <select id="weaponSprite">
-                            <option value="🗡️">🗡️ Espada</option>
-                            <option value="🏹">🏹 Arco</option>
-                            <option value="🔫">🔫 Pistola</option>
-                            <option value="🪓">🪓 Hacha</option>
-                            <option value="⚡">⚡ Varita</option>
-                        </select>
-                        <button id="createWeaponBtn">🔨 CREAR Y GUARDAR</button>
-                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Hotbar inferior (Minecraft style) -->
         <div id="hotbar">
             <div id="hotbar-slots"></div>
             <div id="hotbar-info">
@@ -325,724 +321,715 @@
     </div>
 
     <script>
-        (function() {
-            // ---------- CONFIGURACIÓN GLOBAL ----------
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const TILE_SIZE = 40;
-            let MAP_SIZE = 20;
+        // ---------- CONFIGURACIÓN GLOBAL ----------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const TILE_SIZE = 40; // fijo
+        let MAP_SIZE = 20;
 
-            // Map data: 0=suelo, 1=pared, 2=rojo, 3=azul, 4=arcoiris
-            let map = [];
-            let items = [];
-            let npcs = [];
-            let spawnPoint = { x: 10, y: 10 };
+        // Map data: 0=suelo, 1=pared, 2=rojo, 3=azul, 4=arcoiris
+        let map = [];
+        let items = [];
+        let npcs = [];          // {x, y, name, skin, dialog, textColor, shop: [{name, price, sprite, damage}]}
+        let spawnPoint = { x: 10, y: 10 };
 
-            // Jugador local
-            let player = {
-                x: 10,
-                y: 10,
-                name: "Aventurero",
-                skin: "#e94560",
-                gold: 100
-            };
+        // Jugador local
+        let player = {
+            x: 10,
+            y: 10,
+            name: "Aventurero",
+            skin: "#e94560",    // color
+            gold: 100
+        };
+
+        // Jugador remoto
+        let remotePlayer = {
+            x: 0,
+            y: 0,
+            name: "Remoto",
+            skin: "#4a90e2",
+            connected: false
+        };
+
+        // Inventario estilo Minecraft: array de 9 slots, cada slot { item: objeto o número (para bloques), quantity: n }
+        let hotbar = new Array(9).fill(null).map(() => ({ item: null, quantity: 0 }));
+        let selectedHotbarSlot = 0; // 0-8
+
+        // Editor
+        let editorMode = false;
+        let placementMode = null; // 'spawn', 'npc', null para edición normal
+
+        // Cámara
+        let camera = { x: 0, y: 0 };
+
+        // PeerJS
+        let peer = null;
+        let conn = null;
+        let myPeerId = null;
+        let isHost = false;
+
+        // Elementos DOM
+        const menuScreen = document.getElementById('menuScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const createGameBtn = document.getElementById('createGameBtn');
+        const joinGameBtn = document.getElementById('joinGameBtn');
+        const joinOptions = document.getElementById('joinOptions');
+        const peerIdInput = document.getElementById('peerIdInput');
+        const connectToHostBtn = document.getElementById('connectToHostBtn');
+        const peerIdDisplay = document.getElementById('peerIdDisplay');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const playerNameDisplay = document.getElementById('playerNameDisplay');
+        const goldDisplay = document.getElementById('goldDisplay');
+        const hotbarGold = document.getElementById('hotbarGold');
+        const editorBtn = document.getElementById('editorBtn');
+        const setSpawnBtn = document.getElementById('setSpawnBtn');
+        const setNpcBtn = document.getElementById('setNpcBtn');
+        const createWeaponBtn2 = document.getElementById('createWeaponBtn2');
+        const npcDialog = document.getElementById('npcDialog');
+        const npcEditor = document.getElementById('npcEditor');
+        const hotbarSlotsDiv = document.getElementById('hotbar-slots');
+        const selectedBlockName = document.getElementById('selectedBlockName');
+        const playerNameInput = document.getElementById('playerNameInput');
+        const playerSkinInput = document.getElementById('playerSkinInput');
+
+        // ---------- FUNCIONES DE INICIALIZACIÓN ----------
+        function initMap(size) {
+            MAP_SIZE = size;
+            map = [];
+            for (let i = 0; i < MAP_SIZE; i++) {
+                map[i] = [];
+                for (let j = 0; j < MAP_SIZE; j++) {
+                    map[i][j] = 0; // todo suelo
+                }
+            }
+            // Bordes pared (opcional, se pueden dejar como suelo si se quiere)
+            for (let i = 0; i < MAP_SIZE; i++) {
+                map[0][i] = 1;
+                map[MAP_SIZE-1][i] = 1;
+                map[i][0] = 1;
+                map[i][MAP_SIZE-1] = 1;
+            }
+            // Sin objetos ni NPCs por defecto
+            items = [];
+            npcs = [];
+            spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
+            player.x = spawnPoint.x;
+            player.y = spawnPoint.y;
+        }
+
+        // Actualizar cámara
+        function updateCamera() {
+            let targetX = player.x * TILE_SIZE + TILE_SIZE/2 - canvas.width/2;
+            let targetY = player.y * TILE_SIZE + TILE_SIZE/2 - canvas.height/2;
+            let maxX = MAP_SIZE * TILE_SIZE - canvas.width;
+            let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
+            camera.x = Math.max(0, Math.min(targetX, maxX));
+            camera.y = Math.max(0, Math.min(targetY, maxY));
+        }
+
+        // Dibujar todo
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            updateCamera();
+
+            let startCol = Math.floor(camera.x / TILE_SIZE);
+            let endCol = Math.ceil((camera.x + canvas.width) / TILE_SIZE);
+            let startRow = Math.floor(camera.y / TILE_SIZE);
+            let endRow = Math.ceil((camera.y + canvas.height) / TILE_SIZE);
+            startCol = Math.max(0, startCol);
+            endCol = Math.min(MAP_SIZE, endCol);
+            startRow = Math.max(0, startRow);
+            endRow = Math.min(MAP_SIZE, endRow);
+
+            // Tiles con colores según valor
+            for (let row = startRow; row < endRow; row++) {
+                for (let col = startCol; col < endCol; col++) {
+                    let x = col * TILE_SIZE - camera.x;
+                    let y = row * TILE_SIZE - camera.y;
+                    let val = map[row][col];
+                    if (val === 0) ctx.fillStyle = '#4caf50'; // suelo
+                    else if (val === 1) ctx.fillStyle = '#9e9e9e'; // pared
+                    else if (val === 2) ctx.fillStyle = '#e63946'; // rojo
+                    else if (val === 3) ctx.fillStyle = '#1e90ff'; // azul
+                    else if (val === 4) { // arcoíris (cambia con el tiempo)
+                        let hue = (Date.now() / 20 + col * 10 + row * 10) % 360;
+                        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                    }
+                    ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
+                    ctx.strokeStyle = '#555';
+                    ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+                }
+            }
+
+            // Spawn point (solo host en modo spawn)
+            if (isHost && placementMode === 'spawn') {
+                let sx = spawnPoint.x * TILE_SIZE - camera.x;
+                let sy = spawnPoint.y * TILE_SIZE - camera.y;
+                ctx.fillStyle = '#ffaa00';
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(sx, sy, TILE_SIZE, TILE_SIZE);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = 'white';
+                ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
+                ctx.fillText('🚩', sx + TILE_SIZE/2, sy + TILE_SIZE/2);
+            }
+
+            // Items
+            ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P', monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'gold';
+            items.forEach(item => {
+                if (item.x >= startCol && item.x < endCol && item.y >= startRow && item.y < endRow) {
+                    let x = item.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+                    let y = item.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+                    ctx.fillText(item.type, x, y);
+                }
+            });
+
+            // NPCs
+            npcs.forEach(npc => {
+                if (npc.x >= startCol && npc.x < endCol && npc.y >= startRow && npc.y < endRow) {
+                    let x = npc.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+                    let y = npc.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+                    ctx.fillStyle = npc.skin || '#44aaff';
+                    ctx.font = `${TILE_SIZE*0.8}px 'Press Start 2P'`;
+                    ctx.fillText(npc.skin || '👤', x, y-15);
+                    ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
+                    ctx.fillStyle = npc.textColor || 'white';
+                    ctx.fillText(npc.name, x, y + TILE_SIZE/2);
+                }
+            });
 
             // Jugador remoto
-            let remotePlayer = {
-                x: 0,
-                y: 0,
-                name: "Remoto",
-                skin: "#4a90e2",
-                connected: false
-            };
-
-            // Hotbar: 9 slots, cada uno { item, quantity }
-            let hotbar = new Array(9).fill(null).map(() => ({ item: null, quantity: 0 }));
-            let selectedHotbarSlot = 0;
-
-            // Editor
-            let editorMode = false;
-            let placementMode = null; // 'spawn', 'npc', null
-
-            // Cámara
-            let camera = { x: 0, y: 0 };
-
-            // PeerJS
-            let peer = null;
-            let conn = null;
-            let myPeerId = null;
-            let isHost = false;
-
-            // Elementos DOM
-            const menuScreen = document.getElementById('menuScreen');
-            const gameScreen = document.getElementById('gameScreen');
-            const createGameBtn = document.getElementById('createGameBtn');
-            const joinGameBtn = document.getElementById('joinGameBtn');
-            const joinOptions = document.getElementById('joinOptions');
-            const peerIdInput = document.getElementById('peerIdInput');
-            const connectToHostBtn = document.getElementById('connectToHostBtn');
-            const peerIdDisplay = document.getElementById('peerIdDisplay');
-            const connectionStatus = document.getElementById('connectionStatus');
-            const playerNameDisplay = document.getElementById('playerNameDisplay');
-            const goldDisplay = document.getElementById('goldDisplay');
-            const hotbarGold = document.getElementById('hotbarGold');
-            const editorBtn = document.getElementById('editorBtn');
-            const mapSizeSlider = document.getElementById('mapSizeSlider');
-            const mapSizeValue = document.getElementById('mapSizeValue');
-            const resizeBtn = document.getElementById('resizeBtn');
-            const createWeaponBtn = document.getElementById('createWeaponBtn');
-            const weaponName = document.getElementById('weaponName');
-            const weaponDamage = document.getElementById('weaponDamage');
-            const weaponSprite = document.getElementById('weaponSprite');
-            const setSpawnBtn = document.getElementById('setSpawnBtn');
-            const setNpcBtn = document.getElementById('setNpcBtn');
-            const npcDialog = document.getElementById('npcDialog');
-            const npcEditor = document.getElementById('npcEditor');
-            const hotbarSlotsDiv = document.getElementById('hotbar-slots');
-            const selectedBlockName = document.getElementById('selectedBlockName');
-
-            // ---------- FUNCIONES DE INICIALIZACIÓN ----------
-            function initMap(size) {
-                MAP_SIZE = size;
-                map = [];
-                for (let i = 0; i < MAP_SIZE; i++) {
-                    map[i] = [];
-                    for (let j = 0; j < MAP_SIZE; j++) {
-                        map[i][j] = 0;
-                    }
-                }
-                // Bordes pared
-                for (let i = 0; i < MAP_SIZE; i++) {
-                    map[0][i] = 1;
-                    map[MAP_SIZE-1][i] = 1;
-                    map[i][0] = 1;
-                    map[i][MAP_SIZE-1] = 1;
-                }
-                items = [];
-                npcs = [];
-                spawnPoint = { x: Math.floor(MAP_SIZE/2), y: Math.floor(MAP_SIZE/2) };
-                player.x = spawnPoint.x;
-                player.y = spawnPoint.y;
-            }
-
-            // Actualizar cámara
-            function updateCamera() {
-                let targetX = player.x * TILE_SIZE + TILE_SIZE/2 - canvas.width/2;
-                let targetY = player.y * TILE_SIZE + TILE_SIZE/2 - canvas.height/2;
-                let maxX = MAP_SIZE * TILE_SIZE - canvas.width;
-                let maxY = MAP_SIZE * TILE_SIZE - canvas.height;
-                camera.x = Math.max(0, Math.min(targetX, maxX));
-                camera.y = Math.max(0, Math.min(targetY, maxY));
-            }
-
-            // Dibujar todo
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                updateCamera();
-
-                let startCol = Math.floor(camera.x / TILE_SIZE);
-                let endCol = Math.ceil((camera.x + canvas.width) / TILE_SIZE);
-                let startRow = Math.floor(camera.y / TILE_SIZE);
-                let endRow = Math.ceil((camera.y + canvas.height) / TILE_SIZE);
-                startCol = Math.max(0, startCol);
-                endCol = Math.min(MAP_SIZE, endCol);
-                startRow = Math.max(0, startRow);
-                endRow = Math.min(MAP_SIZE, endRow);
-
-                // Tiles
-                for (let row = startRow; row < endRow; row++) {
-                    for (let col = startCol; col < endCol; col++) {
-                        let x = col * TILE_SIZE - camera.x;
-                        let y = row * TILE_SIZE - camera.y;
-                        let val = map[row][col];
-                        if (val === 0) ctx.fillStyle = '#4caf50';
-                        else if (val === 1) ctx.fillStyle = '#9e9e9e';
-                        else if (val === 2) ctx.fillStyle = '#e63946';
-                        else if (val === 3) ctx.fillStyle = '#1e90ff';
-                        else if (val === 4) {
-                            let hue = (Date.now() / 20 + col * 10 + row * 10) % 360;
-                            ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-                        }
-                        ctx.fillRect(x, y, TILE_SIZE-1, TILE_SIZE-1);
-                        ctx.strokeStyle = '#555';
-                        ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
-                    }
-                }
-
-                // Spawn point (solo host en modo spawn)
-                if (isHost && placementMode === 'spawn') {
-                    let sx = spawnPoint.x * TILE_SIZE - camera.x;
-                    let sy = spawnPoint.y * TILE_SIZE - camera.y;
-                    ctx.fillStyle = '#ffaa00';
-                    ctx.globalAlpha = 0.5;
-                    ctx.fillRect(sx, sy, TILE_SIZE, TILE_SIZE);
-                    ctx.globalAlpha = 1;
+            if (remotePlayer.connected) {
+                if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
+                    let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+                    let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+                    ctx.beginPath();
+                    ctx.arc(rx, ry, TILE_SIZE/3, 0, 2*Math.PI);
+                    ctx.fillStyle = remotePlayer.skin;
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
                     ctx.fillStyle = 'white';
-                    ctx.font = `${TILE_SIZE/2}px 'Press Start 2P'`;
-                    ctx.fillText('🚩', sx + TILE_SIZE/2, sy + TILE_SIZE/2);
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 3;
+                    ctx.textAlign = 'center';
+                    ctx.strokeText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
+                    ctx.fillText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
                 }
+            }
 
-                // Items
-                ctx.font = `${TILE_SIZE*0.6}px 'Press Start 2P', monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'gold';
-                items.forEach(item => {
-                    if (item.x >= startCol && item.x < endCol && item.y >= startRow && item.y < endRow) {
-                        let x = item.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                        let y = item.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                        ctx.fillText(item.type, x, y);
-                    }
-                });
+            // Jugador local
+            let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
+            let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
+            ctx.beginPath();
+            ctx.arc(px, py, TILE_SIZE/3, 0, 2*Math.PI);
+            ctx.fillStyle = player.skin;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.textAlign = 'center';
+            ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 5);
+            ctx.fillText(player.name, px, py - TILE_SIZE/2 - 5);
 
-                // NPCs
-                npcs.forEach(npc => {
-                    if (npc.x >= startCol && npc.x < endCol && npc.y >= startRow && npc.y < endRow) {
-                        let x = npc.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                        let y = npc.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                        ctx.fillStyle = npc.skin || '#44aaff';
-                        ctx.fillText(npc.skin || '👤', x, y-10);
-                        ctx.font = `${TILE_SIZE/3}px 'Press Start 2P'`;
-                        ctx.fillStyle = npc.textColor || 'white';
-                        ctx.fillText(npc.name, x, y + TILE_SIZE/2);
-                    }
-                });
+            // Actualizar displays
+            goldDisplay.textContent = player.gold;
+            hotbarGold.textContent = player.gold;
+            updateHotbarDisplay();
+        }
 
-                // Jugador remoto
-                if (remotePlayer.connected) {
-                    if (remotePlayer.x >= startCol && remotePlayer.x < endCol && remotePlayer.y >= startRow && remotePlayer.y < endRow) {
-                        let rx = remotePlayer.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                        let ry = remotePlayer.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                        ctx.beginPath();
-                        ctx.arc(rx, ry, TILE_SIZE/3, 0, 2*Math.PI);
-                        ctx.fillStyle = remotePlayer.skin;
-                        ctx.fill();
-                        ctx.strokeStyle = '#fff';
-                        ctx.lineWidth = 2;
-                        ctx.stroke();
-                        ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
-                        ctx.fillStyle = 'white';
-                        ctx.strokeStyle = 'black';
-                        ctx.lineWidth = 3;
-                        ctx.textAlign = 'center';
-                        ctx.strokeText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
-                        ctx.fillText(remotePlayer.name, rx, ry - TILE_SIZE/2 - 5);
+        // Hotbar: dibujar slots en HTML
+        function updateHotbarDisplay() {
+            let html = '';
+            for (let i = 0; i < 9; i++) {
+                let slot = hotbar[i];
+                let selectedClass = (i === selectedHotbarSlot) ? 'selected' : '';
+                let itemDisplay = '';
+                if (slot.item !== null) {
+                    if (typeof slot.item === 'object') {
+                        itemDisplay = slot.item.sprite || '?';
+                    } else if (typeof slot.item === 'number') {
+                        const blockSymbols = ['🌱', '🧱', '🟥', '🟦', '🌈'];
+                        itemDisplay = blockSymbols[slot.item] || '⬛';
+                    } else {
+                        itemDisplay = slot.item;
                     }
                 }
-
-                // Jugador local
-                let px = player.x * TILE_SIZE + TILE_SIZE/2 - camera.x;
-                let py = player.y * TILE_SIZE + TILE_SIZE/2 - camera.y;
-                ctx.beginPath();
-                ctx.arc(px, py, TILE_SIZE/3, 0, 2*Math.PI);
-                ctx.fillStyle = player.skin;
-                ctx.fill();
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.font = `bold ${TILE_SIZE/4}px 'Press Start 2P'`;
-                ctx.fillStyle = 'white';
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 3;
-                ctx.textAlign = 'center';
-                ctx.strokeText(player.name, px, py - TILE_SIZE/2 - 5);
-                ctx.fillText(player.name, px, py - TILE_SIZE/2 - 5);
-
-                // Actualizar displays
-                goldDisplay.textContent = player.gold;
-                hotbarGold.textContent = player.gold;
-                updateHotbarDisplay();
+                let qty = slot.quantity > 1 ? `<span class="quantity">${slot.quantity}</span>` : '';
+                html += `<div class="hotbar-slot ${selectedClass}" data-slot="${i}">${itemDisplay}${qty}</div>`;
             }
-
-            // Hotbar: dibujar slots en HTML
-            function updateHotbarDisplay() {
-                let html = '';
-                for (let i = 0; i < 9; i++) {
-                    let slot = hotbar[i];
-                    let selectedClass = (i === selectedHotbarSlot) ? 'selected' : '';
-                    let itemDisplay = '';
-                    if (slot.item) {
-                        if (typeof slot.item === 'object') itemDisplay = slot.item.sprite || '?';
-                        else if (typeof slot.item === 'number') {
-                            const blockSymbols = ['🌱', '🧱', '🔴', '🔵', '🌈'];
-                            itemDisplay = blockSymbols[slot.item] || '⬛';
-                        } else itemDisplay = slot.item;
-                    }
-                    let qty = slot.quantity > 1 ? `<span class="quantity">${slot.quantity}</span>` : '';
-                    html += `<div class="hotbar-slot ${selectedClass}" data-slot="${i}">${itemDisplay}${qty}</div>`;
-                }
-                hotbarSlotsDiv.innerHTML = html;
-
-                // Actualizar nombre del bloque seleccionado
-                let selectedItem = hotbar[selectedHotbarSlot].item;
-                if (selectedItem === null) {
-                    selectedBlockName.textContent = 'ninguno';
-                } else if (typeof selectedItem === 'object') {
-                    selectedBlockName.textContent = selectedItem.name || 'arma';
-                } else if (typeof selectedItem === 'number') {
-                    const blockNames = ['suelo', 'pared', 'rojo', 'azul', 'arcoíris'];
-                    selectedBlockName.textContent = blockNames[selectedItem] || 'desconocido';
-                } else {
-                    selectedBlockName.textContent = selectedItem;
-                }
+            hotbarSlotsDiv.innerHTML = html;
+            // Actualizar nombre del bloque seleccionado
+            let selectedItem = hotbar[selectedHotbarSlot].item;
+            if (selectedItem === null) {
+                selectedBlockName.textContent = 'ninguno';
+            } else if (typeof selectedItem === 'object') {
+                selectedBlockName.textContent = selectedItem.name || 'arma';
+            } else if (typeof selectedItem === 'number') {
+                let blockNames = ['suelo', 'pared', 'rojo', 'azul', 'arcoíris'];
+                selectedBlockName.textContent = blockNames[selectedItem] || '?';
+            } else {
+                selectedBlockName.textContent = selectedItem;
             }
+        }
 
-            // Añadir item al inventario (hotbar)
-            function addItemToInventory(item) {
-                // Si es objeto y tiene nombre, comparar por nombre; si es string, comparar directamente
-                for (let i = 0; i < 9; i++) {
-                    if (hotbar[i].item === null) continue;
-                    if (typeof item === 'object' && hotbar[i].item && typeof hotbar[i].item === 'object' && hotbar[i].item.name === item.name) {
-                        hotbar[i].quantity++;
-                        updateHotbarDisplay();
-                        return;
-                    } else if (hotbar[i].item === item) {
-                        hotbar[i].quantity++;
-                        updateHotbarDisplay();
-                        return;
-                    }
-                }
-                // Slot vacío
-                for (let i = 0; i < 9; i++) {
-                    if (hotbar[i].item === null) {
-                        hotbar[i].item = item;
-                        hotbar[i].quantity = 1;
-                        updateHotbarDisplay();
-                        return;
-                    }
-                }
-                // Si no hay espacio, no se añade
-            }
-
-            // Recoger item
-            function pickupItemAt(x, y) {
-                for (let i = items.length - 1; i >= 0; i--) {
-                    if (items[i].x === x && items[i].y === y) {
-                        let item = items[i].type;
-                        addItemToInventory(item);
-                        items.splice(i, 1);
-                        if (conn && conn.open) conn.send({ type: 'itemPickup', itemIndex: i });
-                        draw();
-                        break;
-                    }
-                }
-            }
-
-            // Movimiento
-            function tryMove(dx, dy) {
-                let newX = player.x + dx;
-                let newY = player.y + dy;
-                if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
-                if (map[newY][newX] !== 0) return; // Solo se puede pisar suelo (0)
-                player.x = newX;
-                player.y = newY;
-                pickupItemAt(newX, newY);
-                if (conn && conn.open) conn.send({ type: 'move', x: player.x, y: player.y, name: player.name, skin: player.skin });
-                draw();
-            }
-
-            // ---------- PEERJS COMUNICACIÓN ----------
-            function setupConnection(connection, isHostConnection) {
-                conn = connection;
-                connectionStatus.textContent = 'Conectado a: ' + connection.peer;
-                conn.on('data', (data) => handlePeerData(data));
-                conn.on('close', () => {
-                    connectionStatus.textContent = 'Desconectado';
-                    remotePlayer.connected = false;
-                    draw();
-                });
-                if (!isHostConnection) {
-                    // Cliente pide estado
-                    conn.send({ type: 'requestFullState' });
-                }
-            }
-
-            function handlePeerData(data) {
-                switch (data.type) {
-                    case 'requestFullState':
-                        if (isHost) sendFullState();
-                        break;
-                    case 'fullState':
-                        if (data.map) map = data.map;
-                        if (data.items) items = data.items;
-                        if (data.npcs) npcs = data.npcs;
-                        if (data.spawnPoint) spawnPoint = data.spawnPoint;
-                        if (data.player) {
-                            remotePlayer.x = data.player.x;
-                            remotePlayer.y = data.player.y;
-                            remotePlayer.name = data.player.name;
-                            remotePlayer.skin = data.player.skin;
-                            remotePlayer.connected = true;
-                        }
-                        MAP_SIZE = map.length;
-                        mapSizeSlider.value = MAP_SIZE;
-                        mapSizeValue.textContent = MAP_SIZE;
-                        draw();
-                        break;
-                    case 'move':
-                        remotePlayer.x = data.x;
-                        remotePlayer.y = data.y;
-                        remotePlayer.name = data.name;
-                        remotePlayer.skin = data.skin;
-                        remotePlayer.connected = true;
-                        draw();
-                        break;
-                    case 'mapEdit':
-                        if (data.row !== undefined && data.col !== undefined) {
-                            map[data.row][data.col] = data.value;
-                            draw();
-                        }
-                        break;
-                    case 'itemPickup':
-                        if (data.itemIndex !== undefined) {
-                            items.splice(data.itemIndex, 1);
-                            draw();
-                        }
-                        break;
-                    case 'spawnUpdate':
-                        if (data.spawnPoint) {
-                            spawnPoint = data.spawnPoint;
-                            draw();
-                        }
-                        break;
-                    case 'npcUpdate':
-                        if (data.npcs) {
-                            npcs = data.npcs;
-                            draw();
-                        }
-                        break;
-                }
-            }
-
-            function sendFullState() {
-                if (conn && conn.open) {
-                    conn.send({
-                        type: 'fullState',
-                        map: map,
-                        items: items,
-                        npcs: npcs,
-                        spawnPoint: spawnPoint,
-                        player: { x: player.x, y: player.y, name: player.name, skin: player.skin }
-                    });
-                }
-            }
-
-            // ---------- INTERACCIÓN CON NPC ----------
-            function interactWithNPC() {
-                let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1);
-                if (!npc) return;
-                let dialogHtml = `<h2>${npc.name}</h2><p>${npc.dialog || "¿Qué deseas?"}</p>`;
-                if (npc.shop && npc.shop.length > 0) {
-                    dialogHtml += '<h3>Tienda:</h3>';
-                    npc.shop.forEach((item, idx) => {
-                        dialogHtml += `<div class="shop-item" data-index="${idx}">${item.sprite} ${item.name} - ${item.price} 🪙 (Daño ${item.damage})</div>`;
-                    });
-                }
-                dialogHtml += '<div class="close-btn">Cerrar</div>';
-                npcDialog.innerHTML = dialogHtml;
-                npcDialog.style.display = 'block';
-
-                // Asignar eventos a los items de la tienda
-                document.querySelectorAll('#npcDialog .shop-item').forEach(el => {
-                    el.addEventListener('click', (e) => {
-                        let idx = e.currentTarget.dataset.index;
-                        let item = npc.shop[idx];
-                        if (player.gold >= item.price) {
-                            player.gold -= item.price;
-                            let newItem = { name: item.name, sprite: item.sprite, damage: item.damage };
-                            addItemToInventory(newItem);
-                            draw();
-                            alert(`Has comprado ${item.name}`);
-                        } else {
-                            alert('No tienes suficiente oro.');
-                        }
-                    });
-                });
-                document.querySelector('#npcDialog .close-btn').addEventListener('click', () => {
-                    npcDialog.style.display = 'none';
-                });
-            }
-
-            // ---------- EDITOR DE NPC (solo host) ----------
-            function openNpcEditor(npc) {
-                let editorHtml = `<h2>Editar NPC</h2>`;
-                editorHtml += `<label>Nombre: <input type="text" id="npcName" value="${npc.name}"></label>`;
-                editorHtml += `<label>Skin (emoji o color): <input type="text" id="npcSkin" value="${npc.skin || '👤'}"></label>`;
-                editorHtml += `<label>Color de texto: <input type="color" id="npcTextColor" value="${npc.textColor || '#ffffff'}"></label>`;
-                editorHtml += `<label>Diálogo: <textarea id="npcDialogText">${npc.dialog || ''}</textarea></label>`;
-                editorHtml += `<h3>Tienda</h3><div id="shopItems"></div>`;
-                editorHtml += `<button id="addShopItem">➕ Añadir item</button>`;
-                editorHtml += `<div class="close-btn">Guardar y cerrar</div>`;
-                npcEditor.innerHTML = editorHtml;
-                npcEditor.style.display = 'block';
-
-                let shopDiv = document.getElementById('shopItems');
-                if (npc.shop) {
-                    npc.shop.forEach((item, idx) => {
-                        let itemDiv = document.createElement('div');
-                        itemDiv.className = 'shop-item-edit';
-                        itemDiv.innerHTML = `
-                            <input type="text" placeholder="Nombre" value="${item.name}" class="shop-name" data-index="${idx}">
-                            <input type="number" placeholder="Precio" value="${item.price}" class="shop-price">
-                            <input type="text" placeholder="Sprite" value="${item.sprite}" class="shop-sprite">
-                            <input type="number" placeholder="Daño" value="${item.damage}" class="shop-damage">
-                            <button class="remove-shop-item">❌</button>
-                        `;
-                        shopDiv.appendChild(itemDiv);
-                    });
-                }
-
-                document.getElementById('addShopItem').addEventListener('click', () => {
-                    let newDiv = document.createElement('div');
-                    newDiv.className = 'shop-item-edit';
-                    newDiv.innerHTML = `
-                        <input type="text" placeholder="Nombre" value="Nuevo" class="shop-name">
-                        <input type="number" placeholder="Precio" value="10" class="shop-price">
-                        <input type="text" placeholder="Sprite" value="📦" class="shop-sprite">
-                        <input type="number" placeholder="Daño" value="1" class="shop-damage">
-                        <button class="remove-shop-item">❌</button>
-                    `;
-                    shopDiv.appendChild(newDiv);
-                });
-
-                // Eliminar items
-                document.addEventListener('click', function removeItem(e) {
-                    if (e.target.classList.contains('remove-shop-item')) {
-                        e.target.closest('.shop-item-edit').remove();
-                    }
-                });
-
-                // Guardar
-                document.querySelector('#npcEditor .close-btn').addEventListener('click', () => {
-                    let newName = document.getElementById('npcName').value;
-                    let newSkin = document.getElementById('npcSkin').value;
-                    let newTextColor = document.getElementById('npcTextColor').value;
-                    let newDialog = document.getElementById('npcDialogText').value;
-                    let shop = [];
-                    document.querySelectorAll('#shopItems .shop-item-edit').forEach(div => {
-                        let name = div.querySelector('.shop-name')?.value;
-                        let price = parseInt(div.querySelector('.shop-price')?.value);
-                        let sprite = div.querySelector('.shop-sprite')?.value;
-                        let damage = parseInt(div.querySelector('.shop-damage')?.value);
-                        if (name && !isNaN(price)) {
-                            shop.push({ name, price, sprite, damage });
-                        }
-                    });
-                    npc.name = newName;
-                    npc.skin = newSkin;
-                    npc.textColor = newTextColor;
-                    npc.dialog = newDialog;
-                    npc.shop = shop;
-                    if (conn && conn.open && isHost) conn.send({ type: 'npcUpdate', npcs });
-                    draw();
-                    npcEditor.style.display = 'none';
-                });
-            }
-
-            // ---------- EVENTOS DE TECLADO ----------
-            document.addEventListener('keydown', (e) => {
-                // Teclas numéricas para seleccionar hotbar
-                if (e.key >= '1' && e.key <= '9') {
-                    selectedHotbarSlot = parseInt(e.key) - 1;
+        // Añadir item al inventario (hotbar)
+        function addItemToInventory(item) {
+            // Buscar si ya existe un slot con el mismo item (para apilar)
+            for (let i = 0; i < 9; i++) {
+                if (hotbar[i].item !== null && JSON.stringify(hotbar[i].item) === JSON.stringify(item)) {
+                    hotbar[i].quantity++;
                     updateHotbarDisplay();
-                    e.preventDefault();
-                }
-                // Movimiento WASD si no hay input activo
-                if (!e.target.matches('input, textarea, select')) {
-                    const key = e.key.toLowerCase();
-                    if (key === 'w' || key === 'a' || key === 's' || key === 'd') {
-                        e.preventDefault();
-                        if (key === 'w') tryMove(0, -1);
-                        if (key === 's') tryMove(0, 1);
-                        if (key === 'a') tryMove(-1, 0);
-                        if (key === 'd') tryMove(1, 0);
-                    }
-                    if (key === 'e') {
-                        interactWithNPC();
-                    }
-                }
-            });
-
-            // ---------- EVENTOS DE RATÓN ----------
-            canvas.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                if (!editorMode) return;
-
-                const rect = canvas.getBoundingClientRect();
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-                let mouseX = (e.clientX - rect.left) * scaleX + camera.x;
-                let mouseY = (e.clientY - rect.top) * scaleY + camera.y;
-                const col = Math.floor(mouseX / TILE_SIZE);
-                const row = Math.floor(mouseY / TILE_SIZE);
-                if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
-
-                // Shift + clic derecho para editar NPC (solo host)
-                if (e.shiftKey && e.button === 2 && isHost) {
-                    let npc = npcs.find(n => n.x === col && n.y === row);
-                    if (npc) {
-                        openNpcEditor(npc);
-                    }
                     return;
                 }
-
-                if (placementMode === 'spawn' && isHost) {
-                    spawnPoint = { x: col, y: row };
-                    if (conn && conn.open) conn.send({ type: 'spawnUpdate', spawnPoint });
-                    draw();
-                } else if (placementMode === 'npc' && isHost) {
-                    let name = prompt("Nombre del NPC:", "Comerciante");
-                    if (name) {
-                        npcs.push({ x: col, y: row, name: name, skin: '👤', dialog: "", shop: [], textColor: '#ffffff' });
-                        if (conn && conn.open) conn.send({ type: 'npcUpdate', npcs });
-                        draw();
-                    }
-                } else {
-                    // Edición normal: izquierdo quita (pone suelo), derecho coloca bloque seleccionado
-                    if (e.button === 0) { // izquierdo
-                        map[row][col] = 0;
-                        if (conn && conn.open) conn.send({ type: 'mapEdit', row, col, value: 0 });
-                        draw();
-                    } else if (e.button === 2) { // derecho
-                        let selectedItem = hotbar[selectedHotbarSlot].item;
-                        if (selectedItem === null) return;
-                        // Solo colocar si es número (bloque)
-                        if (typeof selectedItem === 'number') {
-                            map[row][col] = selectedItem;
-                            if (conn && conn.open) conn.send({ type: 'mapEdit', row, col, value: selectedItem });
-                            draw();
-                        }
-                    }
-                }
-            });
-
-            canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-            // Hotbar clicks para seleccionar
-            hotbarSlotsDiv.addEventListener('click', (e) => {
-                const slotDiv = e.target.closest('.hotbar-slot');
-                if (!slotDiv) return;
-                const slotIndex = slotDiv.dataset.slot;
-                if (slotIndex !== undefined) {
-                    selectedHotbarSlot = parseInt(slotIndex);
+            }
+            // Si no, buscar primer slot vacío
+            for (let i = 0; i < 9; i++) {
+                if (hotbar[i].item === null) {
+                    hotbar[i].item = item;
+                    hotbar[i].quantity = 1;
                     updateHotbarDisplay();
+                    return;
                 }
-            });
+            }
+            // Si todo lleno, no se añade (podría soltar en el suelo)
+        }
 
-            // Botones de modo
-            editorBtn.addEventListener('click', () => {
-                editorMode = !editorMode;
-                editorBtn.textContent = editorMode ? "✏️ EDITOR: ON" : "✏️ EDITOR: OFF";
-                if (!editorMode) placementMode = null;
-            });
+        // Recoger item
+        function pickupItemAt(x, y) {
+            for (let i = items.length - 1; i >= 0; i--) {
+                if (items[i].x === x && items[i].y === y) {
+                    let item = items[i].type; // '★'
+                    addItemToInventory(item);
+                    items.splice(i, 1);
+                    sendItemPickup(i);
+                    draw();
+                    break;
+            }
+        }
 
-            setSpawnBtn.addEventListener('click', () => {
-                if (!isHost) { alert("Solo el host puede colocar spawn"); return; }
-                placementMode = 'spawn';
-                editorMode = true;
-                editorBtn.textContent = "✏️ EDITOR: ON";
-            });
+        // Movimiento
+        function tryMove(dx, dy) {
+            let newX = player.x + dx;
+            let newY = player.y + dy;
+            if (newX < 0 || newX >= MAP_SIZE || newY < 0 || newY >= MAP_SIZE) return;
+            if (map[newY][newX] === 1 || map[newY][newX] === 2 || map[newY][newX] === 3 || map[newY][newX] === 4) {
+                // Si es cualquier bloque sólido (no suelo), no se puede pasar. Definimos suelo como 0.
+                return;
+            }
+            player.x = newX;
+            player.y = newY;
+            pickupItemAt(newX, newY);
+            sendMove();
+            draw();
+        }
 
-            setNpcBtn.addEventListener('click', () => {
-                if (!isHost) { alert("Solo el host puede colocar NPCs"); return; }
-                placementMode = 'npc';
-                editorMode = true;
-                editorBtn.textContent = "✏️ EDITOR: ON";
-            });
-
-            // Slider tamaño
-            mapSizeSlider.addEventListener('input', (e) => {
-                mapSizeValue.textContent = e.target.value;
-            });
-            resizeBtn.addEventListener('click', () => {
-                if (!isHost) { alert("Solo el host puede redimensionar"); return; }
-                let newSize = parseInt(mapSizeSlider.value);
-                initMap(newSize);
-                hotbar = new Array(9).fill(null).map(() => ({ item: null, quantity: 0 }));
-                // Añadir bloques por defecto para probar
-                hotbar[0].item = 0; hotbar[0].quantity = 1;
-                hotbar[1].item = 1; hotbar[1].quantity = 1;
-                hotbar[2].item = 2; hotbar[2].quantity = 1;
-                hotbar[3].item = 3; hotbar[3].quantity = 1;
-                hotbar[4].item = 4; hotbar[4].quantity = 1;
-                if (conn && conn.open) sendFullState();
+        // ---------- PEERJS COMUNICACIÓN ----------
+        function setupConnection(connection, isHostConnection) {
+            conn = connection;
+            connectionStatus.textContent = 'Conectado a: ' + connection.peer;
+            conn.on('data', (data) => handlePeerData(data, isHostConnection));
+            conn.on('close', () => {
+                connectionStatus.textContent = 'Desconectado';
+                remotePlayer.connected = false;
                 draw();
             });
+            if (!isHost) {
+                requestFullState();
+            }
+        }
 
-            // Creador de armas
-            createWeaponBtn.addEventListener('click', () => {
-                let name = weaponName.value.trim() || "Arma";
-                let damage = parseInt(weaponDamage.value) || 1;
-                let sprite = weaponSprite.value;
-                let newWeapon = { name, damage, sprite };
-                addItemToInventory(newWeapon);
+        function requestFullState() {
+            if (conn && conn.open) conn.send({ type: 'requestFullState' });
+        }
+
+        function handlePeerData(data, isHostConnection) {
+            switch (data.type) {
+                case 'requestFullState':
+                    if (isHost) sendFullState();
+                    break;
+                case 'fullState':
+                    if (data.map) map = data.map;
+                    if (data.items) items = data.items;
+                    if (data.npcs) npcs = data.npcs;
+                    if (data.spawnPoint) spawnPoint = data.spawnPoint;
+                    if (data.player) {
+                        remotePlayer.x = data.player.x;
+                        remotePlayer.y = data.player.y;
+                        remotePlayer.name = data.player.name;
+                        remotePlayer.skin = data.player.skin;
+                        remotePlayer.connected = true;
+                    }
+                    MAP_SIZE = map.length;
+                    draw();
+                    break;
+                case 'move':
+                    remotePlayer.x = data.x;
+                    remotePlayer.y = data.y;
+                    remotePlayer.name = data.name;
+                    remotePlayer.skin = data.skin;
+                    remotePlayer.connected = true;
+                    draw();
+                    break;
+                case 'mapEdit':
+                    if (data.row !== undefined && data.col !== undefined) {
+                        map[data.row][data.col] = data.value;
+                        draw();
+                    }
+                    break;
+                case 'itemPickup':
+                    if (data.itemIndex !== undefined) {
+                        items.splice(data.itemIndex, 1);
+                        draw();
+                    }
+                    break;
+                case 'spawnUpdate':
+                    if (data.spawnPoint) {
+                        spawnPoint = data.spawnPoint;
+                        draw();
+                    }
+                    break;
+                case 'npcUpdate':
+                    if (data.npcs) {
+                        npcs = data.npcs;
+                        draw();
+                    }
+                    break;
+            }
+        }
+
+        function sendFullState() {
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'fullState',
+                    map: map,
+                    items: items,
+                    npcs: npcs,
+                    spawnPoint: spawnPoint,
+                    player: { x: player.x, y: player.y, name: player.name, skin: player.skin }
+                });
+            }
+        }
+
+        function sendMove() {
+            if (conn && conn.open) conn.send({ type: 'move', x: player.x, y: player.y, name: player.name, skin: player.skin });
+        }
+
+        function sendMapEdit(row, col, value) {
+            if (conn && conn.open) conn.send({ type: 'mapEdit', row, col, value });
+        }
+
+        function sendItemPickup(index) {
+            if (conn && conn.open) conn.send({ type: 'itemPickup', itemIndex: index });
+        }
+
+        function sendSpawnUpdate() {
+            if (conn && conn.open && isHost) conn.send({ type: 'spawnUpdate', spawnPoint });
+        }
+
+        function sendNpcUpdate() {
+            if (conn && conn.open && isHost) conn.send({ type: 'npcUpdate', npcs });
+        }
+
+        // ---------- INTERACCIÓN CON NPC ----------
+        function interactWithNPC() {
+            let npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1);
+            if (!npc) return;
+            let dialogHtml = `<h2>${npc.name}</h2><p>${npc.dialog || "¿Qué deseas?"}</p>`;
+            if (npc.shop && npc.shop.length > 0) {
+                dialogHtml += '<h3>Tienda:</h3>';
+                npc.shop.forEach((item, idx) => {
+                    dialogHtml += `<div class="shop-item" data-index="${idx}">${item.sprite} ${item.name} - ${item.price} 🪙 (Daño ${item.damage})</div>`;
+                });
+            }
+            dialogHtml += '<div class="close-btn">Cerrar</div>';
+            npcDialog.innerHTML = dialogHtml;
+            npcDialog.style.display = 'block';
+
+            document.querySelectorAll('.shop-item').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    let idx = e.target.dataset.index;
+                    let item = npc.shop[idx];
+                    if (player.gold >= item.price) {
+                        player.gold -= item.price;
+                        let newItem = { name: item.name, sprite: item.sprite, damage: item.damage };
+                        addItemToInventory(newItem);
+                        draw();
+                        alert(`Has comprado ${item.name}`);
+                    } else {
+                        alert('No tienes suficiente oro.');
+                    }
+                });
+            });
+            document.querySelector('.close-btn').addEventListener('click', () => {
+                npcDialog.style.display = 'none';
+            });
+        }
+
+        // ---------- EDITOR DE NPC (solo host) ----------
+        function openNpcEditor(npc) {
+            let editorHtml = `<h2>Editar NPC</h2>`;
+            editorHtml += `<label>Nombre: <input type="text" id="npcName" value="${npc.name}"></label>`;
+            editorHtml += `<label>Skin (emoji o color): <input type="text" id="npcSkin" value="${npc.skin || '👤'}"></label>`;
+            editorHtml += `<label>Color de texto: <input type="color" id="npcTextColor" value="${npc.textColor || '#ffffff'}"></label>`;
+            editorHtml += `<label>Diálogo: <textarea id="npcDialogText">${npc.dialog || ''}</textarea></label>`;
+            editorHtml += `<h3>Tienda</h3><div id="shopItems"></div>`;
+            editorHtml += `<button id="addShopItem">➕ Añadir item</button>`;
+            editorHtml += `<div class="close-btn">Guardar y cerrar</div>`;
+            npcEditor.innerHTML = editorHtml;
+            npcEditor.style.display = 'block';
+
+            // Rellenar items existentes
+            let shopDiv = document.getElementById('shopItems');
+            npc.shop.forEach((item, idx) => {
+                let itemDiv = document.createElement('div');
+                itemDiv.className = 'shop-item-edit';
+                itemDiv.innerHTML = `
+                    <input type="text" placeholder="Nombre" value="${item.name}" class="shop-name">
+                    <input type="number" placeholder="Precio" value="${item.price}" class="shop-price">
+                    <input type="text" placeholder="Sprite" value="${item.sprite}" class="shop-sprite">
+                    <input type="number" placeholder="Daño" value="${item.damage}" class="shop-damage">
+                    <button class="remove-shop-item">❌</button>
+                `;
+                shopDiv.appendChild(itemDiv);
             });
 
-            // ---------- FLUJO DEL MENÚ ----------
-            createGameBtn.addEventListener('click', () => {
-                isHost = true;
-                peer = new Peer();
-                peer.on('open', (id) => {
-                    myPeerId = id;
-                    peerIdDisplay.textContent = id;
-                    connectionStatus.textContent = 'Esperando jugadores...';
+            // Añadir nuevo item
+            document.getElementById('addShopItem').addEventListener('click', () => {
+                let newDiv = document.createElement('div');
+                newDiv.className = 'shop-item-edit';
+                newDiv.innerHTML = `
+                    <input type="text" placeholder="Nombre" value="Nuevo" class="shop-name">
+                    <input type="number" placeholder="Precio" value="10" class="shop-price">
+                    <input type="text" placeholder="Sprite" value="📦" class="shop-sprite">
+                    <input type="number" placeholder="Daño" value="1" class="shop-damage">
+                    <button class="remove-shop-item">❌</button>
+                `;
+                shopDiv.appendChild(newDiv);
+            });
+
+            // Eliminar items
+            document.querySelectorAll('.remove-shop-item').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.target.closest('.shop-item-edit').remove();
+                });
+            });
+
+            // Guardar
+            document.querySelector('.close-btn').addEventListener('click', () => {
+                let newName = document.getElementById('npcName').value;
+                let newSkin = document.getElementById('npcSkin').value;
+                let newTextColor = document.getElementById('npcTextColor').value;
+                let newDialog = document.getElementById('npcDialogText').value;
+                let shop = [];
+                document.querySelectorAll('.shop-item-edit').forEach(div => {
+                    let name = div.querySelector('.shop-name')?.value;
+                    let price = parseInt(div.querySelector('.shop-price')?.value);
+                    let sprite = div.querySelector('.shop-sprite')?.value;
+                    let damage = parseInt(div.querySelector('.shop-damage')?.value);
+                    if (name && price) {
+                        shop.push({ name, price, sprite, damage });
+                    }
+                });
+                npc.name = newName;
+                npc.skin = newSkin;
+                npc.textColor = newTextColor;
+                npc.dialog = newDialog;
+                npc.shop = shop;
+                sendNpcUpdate();
+                draw();
+                npcEditor.style.display = 'none';
+            });
+        }
+
+        // ---------- EVENTOS DE TECLADO ----------
+        document.addEventListener('keydown', (e) => {
+            // Teclas numéricas para seleccionar hotbar
+            if (e.key >= '1' && e.key <= '9') {
+                selectedHotbarSlot = parseInt(e.key) - 1;
+                updateHotbarDisplay();
+                draw();
+                e.preventDefault();
+            }
+            // Movimiento WASD (si no hay input activo)
+            if (!e.target.matches('input, textarea, select')) {
+                const key = e.key.toLowerCase();
+                if (key === 'w' || key === 'a' || key === 's' || key === 'd') {
+                    e.preventDefault();
+                    if (key === 'w') tryMove(0, -1);
+                    if (key === 's') tryMove(0, 1);
+                    if (key === 'a') tryMove(-1, 0);
+                    if (key === 'd') tryMove(1, 0);
+                }
+                if (key === 'e') {
+                    interactWithNPC();
+                }
+            }
+        });
+
+        // ---------- EVENTOS DE RATÓN ----------
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            if (!editorMode) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let mouseX = (e.clientX - rect.left) * scaleX + camera.x;
+            let mouseY = (e.clientY - rect.top) * scaleY + camera.y;
+            const col = Math.floor(mouseX / TILE_SIZE);
+            const row = Math.floor(mouseY / TILE_SIZE);
+            if (row < 0 || row >= MAP_SIZE || col < 0 || col >= MAP_SIZE) return;
+
+            // Shift + clic derecho para editar NPC (solo host)
+            if (e.shiftKey && e.button === 2 && isHost) {
+                let npc = npcs.find(n => n.x === col && n.y === row);
+                if (npc) {
+                    openNpcEditor(npc);
+                }
+                return;
+            }
+
+            if (placementMode === 'spawn' && isHost) {
+                spawnPoint = { x: col, y: row };
+                sendSpawnUpdate();
+                draw();
+            } else if (placementMode === 'npc' && isHost) {
+                let name = prompt("Nombre del NPC:", "Comerciante");
+                if (name) {
+                    npcs.push({ x: col, y: row, name: name, skin: '👤', dialog: "", shop: [], textColor: '#ffffff' });
+                    sendNpcUpdate();
+                    draw();
+                }
+            } else {
+                // Edición normal: izquierdo quita (pone suelo), derecho coloca bloque seleccionado
+                let value;
+                if (e.button === 0) { // izquierdo
+                    value = 0; // suelo
+                } else if (e.button === 2) { // derecho
+                    let selectedItem = hotbar[selectedHotbarSlot].item;
+                    if (selectedItem === null) return;
+                    if (typeof selectedItem === 'number') {
+                        value = selectedItem;
+                    } else {
+                        // No se puede colocar un item que no sea número (como armas)
+                        return;
+                    }
+                } else return;
+
+                map[row][col] = value;
+                sendMapEdit(row, col, value);
+                draw();
+            }
+        });
+
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Botones de overlay
+        editorBtn.addEventListener('click', () => {
+            editorMode = !editorMode;
+            editorBtn.textContent = editorMode ? "✏️ EDITOR ON" : "✏️ EDITOR OFF";
+            if (!editorMode) placementMode = null;
+        });
+
+        setSpawnBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host puede colocar spawn"); return; }
+            placementMode = 'spawn';
+            editorMode = true;
+            editorBtn.textContent = "✏️ EDITOR ON";
+        });
+
+        setNpcBtn.addEventListener('click', () => {
+            if (!isHost) { alert("Solo el host puede colocar NPCs"); return; }
+            placementMode = 'npc';
+            editorMode = true;
+            editorBtn.textContent = "✏️ EDITOR ON";
+        });
+
+        createWeaponBtn2.addEventListener('click', () => {
+            // Abrir un prompt simple para crear arma (podría ser un modal, pero simplificamos)
+            let name = prompt("Nombre del arma:", "Espada básica");
+            if (!name) return;
+            let damage = prompt("Daño:", "5");
+            damage = parseInt(damage) || 1;
+            let sprite = prompt("Sprite (emoji):", "🗡️");
+            let newWeapon = { name, damage, sprite };
+            addItemToInventory(newWeapon);
+        });
+
+        // Slider tamaño (opcional, lo dejamos fuera por simplicidad, se puede añadir después)
+        // Por ahora no hay control de tamaño, pero se puede añadir fácilmente.
+
+        // ---------- FLUJO DEL MENÚ ----------
+        createGameBtn.addEventListener('click', () => {
+            isHost = true;
+            player.name = playerNameInput.value || "Aventurero";
+            player.skin = playerSkinInput.value;
+            playerNameDisplay.textContent = player.name;
+
+            peer = new Peer();
+            peer.on('open', (id) => {
+                myPeerId = id;
+                peerIdDisplay.textContent = id;
+                connectionStatus.textContent = 'Esperando jugadores...';
+                menuScreen.style.display = 'none';
+                gameScreen.style.display = 'flex';
+                initMap(20);
+                // Añadir algunos bloques de construcción a la hotbar para probar
+                hotbar[0] = { item: 0, quantity: 1 };
+                hotbar[1] = { item: 1, quantity: 1 };
+                hotbar[2] = { item: 2, quantity: 1 };
+                hotbar[3] = { item: 3, quantity: 1 };
+                hotbar[4] = { item: 4, quantity: 1 };
+                draw();
+            });
+            peer.on('connection', (connection) => {
+                conn = connection;
+                setupConnection(conn, true);
+            });
+        });
+
+        joinGameBtn.addEventListener('click', () => {
+            joinOptions.style.display = 'block';
+        });
+
+        connectToHostBtn.addEventListener('click', () => {
+            let hostId = peerIdInput.value.trim();
+            if (!hostId) return;
+            isHost = false;
+            player.name = playerNameInput.value || "Aventurero";
+            player.skin = playerSkinInput.value;
+            playerNameDisplay.textContent = player.name;
+
+            peer = new Peer();
+            peer.on('open', (id) => {
+                myPeerId = id;
+                peerIdDisplay.textContent = id;
+                connectionStatus.textContent = 'Conectando...';
+                conn = peer.connect(hostId);
+                conn.on('open', () => {
+                    setupConnection(conn, false);
                     menuScreen.style.display = 'none';
                     gameScreen.style.display = 'flex';
-                    player.name = "Host";
-                    playerNameDisplay.textContent = player.name;
-                    initMap(20);
-                    // Poner algunos bloques por defecto en hotbar
-                    hotbar[0].item = 0; hotbar[0].quantity = 1;
-                    hotbar[1].item = 1; hotbar[1].quantity = 1;
-                    hotbar[2].item = 2; hotbar[2].quantity = 1;
-                    hotbar[3].item = 3; hotbar[3].quantity = 1;
-                    hotbar[4].item = 4; hotbar[4].quantity = 1;
-                    draw();
                 });
-                peer.on('connection', (connection) => {
-                    conn = connection;
-                    setupConnection(conn, true);
+                conn.on('error', (err) => {
+                    connectionStatus.textContent = 'Error: ' + err;
                 });
             });
+        });
 
-            joinGameBtn.addEventListener('click', () => {
-                joinOptions.style.display = 'block';
-            });
-
-            connectToHostBtn.addEventListener('click', () => {
-                let hostId = peerIdInput.value.trim();
-                if (!hostId) return;
-                isHost = false;
-                peer = new Peer();
-                peer.on('open', (id) => {
-                    myPeerId = id;
-                    peerIdDisplay.textContent = id;
-                    connectionStatus.textContent = 'Conectando...';
-                    conn = peer.connect(hostId);
-                    conn.on('open', () => {
-                        setupConnection(conn, false);
-                        menuScreen.style.display = 'none';
-                        gameScreen.style.display = 'flex';
-                        player.name = "Cliente";
-                        playerNameDisplay.textContent = player.name;
-                        // Hotbar vacía al inicio, se llenará con items si se reciben
-                    });
-                    conn.on('error', (err) => {
-                        connectionStatus.textContent = 'Error: ' + err;
-                    });
-                });
-            });
-
-            // Inicialización por defecto (para que la hotbar tenga algo si se prueba solo)
-            initMap(20);
-            hotbar[0].item = 0; hotbar[0].quantity = 1;
-            hotbar[1].item = 1; hotbar[1].quantity = 1;
-            hotbar[2].item = 2; hotbar[2].quantity = 1;
-            hotbar[3].item = 3; hotbar[3].quantity = 1;
-            hotbar[4].item = 4; hotbar[4].quantity = 1;
-            updateHotbarDisplay();
-            draw();
-        })();
+        // Inicialización por defecto (para que la hotbar se muestre)
+        updateHotbarDisplay();
+        draw(); // por si acaso
     </script>
 </body>
 </html>
