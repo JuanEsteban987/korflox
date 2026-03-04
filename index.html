@@ -3,518 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon · Combate clásico</title>
+    <title>Crea juegos con VS Code y HTML</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            font-family: 'Courier New', Courier, monospace;
-            user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #1a2f3f 0%, #0b1a26 100%);
+            background: linear-gradient(135deg, #1e1e2f, #252538);
+            color: #f0f0f0;
+            line-height: 1.6;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            margin: 0;
-            padding: 16px;
         }
 
-        .gameboy {
-            max-width: 700px;
-            width: 100%;
-            background: #9bbc7f;
-            background: #8bac7f;
-            border-radius: 30px 30px 20px 20px;
-            box-shadow: 0 20px 0 #4a5c3f, 0 30px 20px rgba(0,0,0,0.5);
-            padding: 25px 20px 35px;
-            border-bottom: 6px solid #6a7c5f;
-        }
-
-        .screen {
-            background: #9bb87f;
-            background: #a0c080;
-            border-radius: 20px 20px 15px 15px;
-            padding: 20px 15px 15px;
-            border: 5px solid #5e6f4e;
-            box-shadow: inset 0 -5px 0 #4a5a3a, inset 0 5px 5px #d0e0a0;
-            margin-bottom: 25px;
-        }
-
-        .battle-panel {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            gap: 15px;
-        }
-
-        .pokemon-card {
-            background: #f0f8e0;
-            border-radius: 18px 18px 12px 12px;
-            padding: 15px 10px 10px;
-            flex: 1;
-            box-shadow: inset -2px -2px 0 #6d7f5a, inset 2px 2px 0 #ffffe0, 0 5px 0 #4f6140;
-            border: 2px solid #3f5130;
-            position: relative;
-        }
-
-        .pokemon-card.opponent {
-            background: #f0d8b0;
-        }
-
-        .pokemon-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            color: #1f2f1f;
-            text-shadow: 2px 2px 0 #b0c090;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .hp-bar-container {
-            background: #59423b;
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
             border-radius: 30px;
-            padding: 3px;
-            border: 2px solid #3a2a23;
-            box-shadow: inset 0 1px 3px #2d1e19;
-            margin-bottom: 6px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .hp-bar {
-            background: #2e9c4b;
-            height: 18px;
-            border-radius: 20px;
-            width: 100%;
-            transition: width 0.2s ease;
-            box-shadow: inset 0 2px 5px #8fec8f, 0 2px 0 #1a6b2a;
-        }
-
-        .hp-text {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #202820;
-            background: #b8d098;
-            padding: 2px 8px;
-            border-radius: 20px;
-            display: inline-block;
-            border: 2px solid #4e6b3e;
-        }
-
-        .sprite {
-            font-size: 4rem;
-            line-height: 1;
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #8a7cf0, #e0aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
             text-align: center;
-            margin: 5px 0;
-            filter: drop-shadow(4px 4px 0 #3f5130);
         }
 
-        .message-box {
-            background: #284030;
-            border-radius: 30px;
-            padding: 18px 20px;
-            border: 4px solid #4f6940;
-            box-shadow: inset 0 0 0 3px #1f2f1f, inset 0 0 0 5px #3b553b;
-            color: #c0f0b0;
-            font-size: 1.2rem;
-            font-weight: bold;
-            min-height: 100px;
-            margin-bottom: 20px;
-            overflow-y: auto;
-            max-height: 120px;
-            line-height: 1.4;
-            text-shadow: 2px 2px 0 #0f1f0f;
+        .subtitle {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #b8b8d0;
+            margin-bottom: 3rem;
+            border-bottom: 1px dashed #3f3f5e;
+            padding-bottom: 1.5rem;
         }
 
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .card {
+            background: #2a2a3c;
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #3f3f5e;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 16px 32px rgba(138, 124, 240, 0.3);
+            border-color: #8a7cf0;
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #c0b0ff;
+        }
+
+        .card p {
+            color: #c5c5e0;
+            font-size: 1rem;
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            color: #8a7cf0;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .code-block {
+            background: #1a1a2a;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-left: 6px solid #8a7cf0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #d0d0ff;
+        }
+
+        .canvas-container {
+            background: #1e1e2e;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+            border: 2px solid #3f3f5e;
+        }
+
+        canvas {
+            background: #0f0f1a;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(138, 124, 240, 0.3);
+            max-width: 100%;
+            height: auto;
+            cursor: pointer;
         }
 
         .btn {
-            background: #284030;
+            background: linear-gradient(45deg, #8a7cf0, #b38cff);
             border: none;
-            border-radius: 60px;
-            padding: 15px 25px;
-            font-size: 1.5rem;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            color: white;
             font-weight: bold;
-            color: #e0f0c0;
-            box-shadow: 0 6px 0 #0f2a0f, 0 8px 8px rgba(0,0,0,0.6);
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.07s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex: 1 0 140px;
-            border: 2px solid #6f9f4f;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(138, 124, 240, 0.4);
         }
 
-        .btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 2px 0 #0f2a0f, 0 5px 8px rgba(0,0,0,0.5);
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(138, 124, 240, 0.7);
         }
 
-        .btn:disabled {
-            opacity: 0.5;
-            transform: translateY(3px);
-            box-shadow: 0 3px 0 #1f3a1f;
-            pointer-events: none;
-            filter: grayscale(0.7);
-        }
-
-        .btn.run {
-            background: #5a4030;
-            box-shadow: 0 6px 0 #3a2a1a;
-            border-color: #b08060;
-        }
-
-        .btn.reset {
-            background: #306080;
-            box-shadow: 0 6px 0 #103050;
-            border-color: #70a0d0;
-            flex: 0.4;
-        }
-
-        .divider {
-            font-size: 2.5rem;
-            align-self: center;
-            color: #2f3f1f;
-            text-shadow: 2px 2px 0 #a0b880;
-        }
-
-        .vs {
-            font-size: 2rem;
-            font-weight: bold;
-            background: #c02828;
-            color: #f8d878;
-            padding: 5px 15px;
-            border-radius: 40px;
-            border: 3px solid #f0c060;
-            transform: rotate(-5deg);
-            box-shadow: 0 5px 0 #701818;
-        }
-
-        footer {
+        .footer {
             text-align: center;
-            margin-top: 15px;
-            color: #2c3a1c;
-            font-weight: bold;
-            font-size: 1.2rem;
-            text-shadow: 1px 1px 0 #b0d090;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #3f3f5e;
+            color: #9a9ac0;
+            font-size: 0.95rem;
+        }
+
+        .footer a {
+            color: #b38cff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="gameboy">
-    <div class="screen">
-        <!-- Área de combate -->
-        <div class="battle-panel">
-            <!-- Pokémon del jugador (izquierda) -->
-            <div class="pokemon-card" id="playerCard">
-                <div class="pokemon-name">
-                    <span>⚡</span> PIKACHU
-                </div>
-                <div class="sprite" id="playerSprite">⚡⚡<br> (ᵔᴥᵔ)</div>
-                <div class="hp-bar-container">
-                    <div class="hp-bar" id="playerHpBar" style="width: 100%;"></div>
-                </div>
-                <div class="hp-text" id="playerHpText">100/100</div>
+    <div class="container">
+        <h1>🎮 Crear Juegos con VS Code y HTML</h1>
+        <div class="subtitle">Domina el desarrollo de videojuegos web con herramientas profesionales</div>
+
+        <!-- Cards de características -->
+        <div class="grid">
+            <div class="card">
+                <i>⚡</i>
+                <h3>Visual Studio Code</h3>
+                <p>El editor más potente y personalizable para desarrollo web. Extensiones, depuración integrada y terminal para tu flujo de trabajo.</p>
             </div>
-
-            <div class="vs">VS</div>
-
-            <!-- Pokémon rival (derecha) -->
-            <div class="pokemon-card opponent" id="opponentCard">
-                <div class="pokemon-name">
-                    <span>🔥</span> CHARMANDER
-                </div>
-                <div class="sprite" id="opponentSprite">🔥🔥<br> (ㆁωㆁ)</div>
-                <div class="hp-bar-container">
-                    <div class="hp-bar" id="opponentHpBar" style="width: 100%;"></div>
-                </div>
-                <div class="hp-text" id="opponentHpText">80/80</div>
+            <div class="card">
+                <i>🕹️</i>
+                <h3>HTML5 + Canvas</h3>
+                <p>Dibuja gráficos en tiempo real, controla sprites y crea animaciones suaves con la potencia del elemento canvas.</p>
+            </div>
+            <div class="card">
+                <i>🚀</i>
+                <h3>JavaScript moderno</h3>
+                <p>Lógica de juego, detección de colisiones, físicas simples y control de eventos con el lenguaje de la web.</p>
+            </div>
+            <div class="card">
+                <i>📦</i>
+                <h3>Extensiones clave</h3>
+                <p>Live Server, Prettier, ESLint, Debugger for Chrome, y packs para game dev como Phaser o PixiJS.</p>
             </div>
         </div>
 
-        <!-- Caja de mensajes (como en los juegos Game Boy) -->
-        <div class="message-box" id="messageBox">
-            > ¡Un Charmander salvaje apareció!
+        <!-- Configuración inicial -->
+        <h2 style="margin-top: 2rem; color:#c0b0ff;">🔧 Configuración rápida en VS Code</h2>
+        <div class="code-block">
+            1. Instala Visual Studio Code desde code.visualstudio.com<br>
+            2. Abre la terminal (Ctrl + ñ) y crea una carpeta para tu juego.<br>
+            3. Crea un archivo index.html y otro script.js.<br>
+            4. Instala la extensión "Live Server" para ver los cambios en tiempo real.<br>
+            5. ¡Empieza a codificar tu juego!
         </div>
 
-        <!-- Botones de acción -->
-        <div class="controls">
-            <button class="btn" id="attack1" data-move="0">⚡ THUNDERBOLT</button>
-            <button class="btn" id="attack2" data-move="1">💨 QUICK ATTACK</button>
-            <button class="btn run" id="runBtn">🏃 RUN</button>
-            <button class="btn" id="itemBtn">🎒 ITEM</button>
-            <button class="btn reset" id="resetBtn">↻ RESET</button>
+        <!-- Ejemplo interactivo: Bola que rebota -->
+        <h2 style="color:#c0b0ff; margin-top: 3rem;">🎯 Ejemplo en vivo: Bola que rebota</h2>
+        <p style="margin-bottom: 1rem;">Haz clic dentro del canvas para cambiar la dirección de la bola. Así de sencillo es empezar con canvas.</p>
+        
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="600" height="300"></canvas>
+            <br>
+            <button class="btn" id="resetBtn">🔄 Reiniciar bola</button>
+        </div>
+
+        <!-- Código fuente del ejemplo -->
+        <h3 style="color:#c0b0ff;">📄 Código HTML + JavaScript del ejemplo</h3>
+        <div class="code-block">
+            &lt;canvas id="gameCanvas" width="600" height="300"&gt;&lt;/canvas&gt;<br>
+            &lt;script&gt;<br>
+            const canvas = document.getElementById('gameCanvas');<br>
+            const ctx = canvas.getContext('2d');<br>
+            let x = 100, y = 150, dx = 3, dy = 3, radio = 15;<br>
+            function dibujar() { ... } // actualiza y pinta el canvas<br>
+            // requestAnimationFrame crea el bucle del juego<br>
+            &lt;/script&gt;
+        </div>
+
+        <!-- Recursos y siguientes pasos -->
+        <div style="background: #232336; border-radius: 20px; padding: 2rem; margin: 3rem 0;">
+            <h2 style="color:#e0aaff;">📚 Próximos pasos para tu juego</h2>
+            <ul style="list-style-type: none; margin-top: 1.5rem;">
+                <li style="margin: 1rem 0;">✅ Añade múltiples objetos y detección de colisiones</li>
+                <li style="margin: 1rem 0;">✅ Control por teclado (eventListener para mover un paddle o personaje)</li>
+                <li style="margin: 1rem 0;">✅ Sprites e imágenes para darle vida</li>
+                <li style="margin: 1rem 0;">✅ Sonidos con la Web Audio API</li>
+                <li style="margin: 1rem 0;">✅ Usa librerías como Phaser o Kaboom.js para juegos más complejos</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Creado con ❤️ para desarrolladores · #VS Code · #HTML5 · #GameDev</p>
+            <p>Recursos: <a href="#">Documentación MDN</a> · <a href="#">VS Code Game Dev</a> · <a href="#">Canvas API</a></p>
         </div>
     </div>
-    <footer>✦ COMBATE POR TURNOS ✦</footer>
-</div>
 
-<script>
-    (function() {
-        // ----- estado del juego -----
-        const player = {
-            name: 'Pikachu',
-            maxHp: 100,
-            currentHp: 100,
-            attacks: [
-                { name: 'Thunderbolt', minDmg: 20, maxDmg: 30 },
-                { name: 'Quick Attack', minDmg: 10, maxDmg: 20 }
-            ]
-        };
-
-        const opponent = {
-            name: 'Charmander',
-            maxHp: 80,
-            currentHp: 80,
-            attacks: [
-                { name: 'Ember', minDmg: 15, maxDmg: 25 },
-                { name: 'Scratch', minDmg: 8, maxDmg: 18 }
-            ]
-        };
-
-        // control de turnos: true = puede atacar el jugador, false = turno del rival (o fin)
-        let playerTurn = true;
-        let gameActive = true; // false si alguien ya debilitó
-        let actionInProgress = false; // bloquea doble click
-
-        // elementos DOM
-        const playerHpBar = document.getElementById('playerHpBar');
-        const opponentHpBar = document.getElementById('opponentHpBar');
-        const playerHpText = document.getElementById('playerHpText');
-        const opponentHpText = document.getElementById('opponentHpText');
-        const messageBox = document.getElementById('messageBox');
-        const attack1 = document.getElementById('attack1');
-        const attack2 = document.getElementById('attack2');
-        const runBtn = document.getElementById('runBtn');
-        const itemBtn = document.getElementById('itemBtn');
+    <script>
+        // ----- EJEMPLO DE BOLA QUE REBOTA -----
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
         const resetBtn = document.getElementById('resetBtn');
-        const playerSprite = document.getElementById('playerSprite');
-        const opponentSprite = document.getElementById('opponentSprite');
 
-        // ----- funciones auxiliares -----
-        function logMessage(msg) {
-            // mantener últimas 3 líneas aprox
-            let html = messageBox.innerHTML;
-            let newEntry = '> ' + msg;
-            // simple: añadir al principio o reemplazar? lo haremos tipo feed
-            // dividimos por <br> o saltos
-            let lines = html.split('<br>');
-            if (lines.length > 4) lines.pop(); // limitar a 4 líneas
-            lines.unshift(newEntry);
-            messageBox.innerHTML = lines.join('<br>');
+        // Parámetros de la bola
+        let x = 150, y = 150;
+        let dx = 4, dy = 3;
+        const radio = 15;
+
+        // Redimensionar lógica si canvas cambia de tamaño (opcional)
+        function resizeCanvas() {
+            // Mantener proporción pero no redimensionamos, solo aseguramos que se vea bien
         }
 
-        function updateHpBars() {
-            // jugador
-            let playerPercent = (player.currentHp / player.maxHp) * 100;
-            playerHpBar.style.width = Math.max(0, playerPercent) + '%';
-            playerHpText.innerText = `${player.currentHp}/${player.maxHp}`;
+        // Dibuja el frame actual
+        function drawBall() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // rival
-            let opponentPercent = (opponent.currentHp / opponent.maxHp) * 100;
-            opponentHpBar.style.width = Math.max(0, opponentPercent) + '%';
-            opponentHpText.innerText = `${opponent.currentHp}/${opponent.maxHp}`;
+            // Dibujar sombra y bola
+            ctx.shadowColor = '#8a7cf0';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(x, y, radio, 0, Math.PI * 2);
+            ctx.fillStyle = '#f0c0ff';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
 
-            // cambiar color de barras si bajo (opcional)
-            if (player.currentHp < player.maxHp * 0.2) {
-                playerHpBar.style.background = '#d43f3f';
+            // Dibujar un pequeño destello
+            ctx.beginPath();
+            ctx.arc(x-4, y-4, 4, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.fill();
+        }
+
+        function updatePosition() {
+            // Rebote en bordes
+            if (x + radio > canvas.width || x - radio < 0) {
+                dx = -dx;
+            }
+            if (y + radio > canvas.height || y - radio < 0) {
+                dy = -dy;
+            }
+
+            x += dx;
+            y += dy;
+        }
+
+        function gameLoop() {
+            updatePosition();
+            drawBall();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Iniciar animación
+        gameLoop();
+
+        // Interacción: clic en canvas invierte dirección (como si golpearas la bola)
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+
+            // Si el clic está cerca de la bola (radio + margen)
+            const dist = Math.hypot(mouseX - x, mouseY - y);
+            if (dist < radio + 20) {
+                dx = -dx * 1.1; // cambia dirección y acelera un poco
+                dy = -dy * 1.1;
             } else {
-                playerHpBar.style.background = '#2e9c4b';
+                // si no, la bola se dirige hacia el clic (efecto divertido)
+                const angle = Math.atan2(mouseY - y, mouseX - x);
+                dx = Math.cos(angle) * 5;
+                dy = Math.sin(angle) * 5;
             }
-            if (opponent.currentHp < opponent.maxHp * 0.2) {
-                opponentHpBar.style.background = '#d43f3f';
-            } else {
-                opponentHpBar.style.background = '#2e9c4b';
-            }
+        });
 
-            // sprites animicos (opcional)
-            if (player.currentHp <= 0) {
-                playerSprite.innerHTML = '✖✖<br> (x_x)';
-            } else {
-                playerSprite.innerHTML = '⚡⚡<br> (ᵔᴥᵔ)';
-            }
-            if (opponent.currentHp <= 0) {
-                opponentSprite.innerHTML = '❌❌<br> (；一_一)';
-            } else {
-                opponentSprite.innerHTML = '🔥🔥<br> (ㆁωㆁ)';
-            }
-        }
+        // Botón reiniciar
+        resetBtn.addEventListener('click', () => {
+            x = 150;
+            y = 150;
+            dx = 4;
+            dy = 3;
+        });
 
-        function disableAllActions(disabled = true) {
-            attack1.disabled = disabled;
-            attack2.disabled = disabled;
-            runBtn.disabled = disabled;
-            itemBtn.disabled = disabled;
-        }
-
-        function checkGameOver() {
-            if (player.currentHp <= 0) {
-                gameActive = false;
-                playerTurn = false;
-                disableAllActions(true);
-                logMessage('¡Pikachu se debilitó! ... ¡Fin del combate!');
-                return true;
-            } else if (opponent.currentHp <= 0) {
-                gameActive = false;
-                playerTurn = false;
-                disableAllActions(true);
-                logMessage('¡Charmander se debilitó! ¡Has ganado!');
-                return true;
-            }
-            return false;
-        }
-
-        // ataque del rival (IA simple)
-        function opponentAttack() {
-            if (!gameActive) return;
-            if (opponent.currentHp <= 0) {
-                checkGameOver();
-                return;
-            }
-
-            // elige ataque aleatorio
-            const attackIdx = Math.floor(Math.random() * opponent.attacks.length);
-            const attack = opponent.attacks[attackIdx];
-            const damage = Math.floor(Math.random() * (attack.maxDmg - attack.minDmg + 1)) + attack.minDmg;
-
-            player.currentHp = Math.max(0, player.currentHp - damage);
-            logMessage(`🔥 Charmander usó ${attack.name} y causó ${damage} de daño.`);
-
-            updateHpBars();
-
-            if (checkGameOver()) {
-                // si el jugador cayó, no habilitar turno
-                return;
-            }
-
-            // después del ataque rival, turno del jugador
-            playerTurn = true;
-            actionInProgress = false;
-            disableAllActions(false); // habilitamos botones (excepto si gameover)
-            if (!gameActive) disableAllActions(true);
-        }
-
-        // ataque del jugador
-        function playerAttack(attackIndex) {
-            if (!gameActive || !playerTurn || actionInProgress) return;
-            if (player.currentHp <= 0 || opponent.currentHp <= 0) {
-                checkGameOver();
-                return;
-            }
-
-            actionInProgress = true;
-            playerTurn = false; // bloquea nuevo ataque hasta turno rival
-            disableAllActions(true); // deshabilita durante proceso
-
-            const attack = player.attacks[attackIndex];
-            const damage = Math.floor(Math.random() * (attack.maxDmg - attack.minDmg + 1)) + attack.minDmg;
-
-            opponent.currentHp = Math.max(0, opponent.currentHp - damage);
-            logMessage(`⚡ Pikachu usó ${attack.name} y causó ${damage} de daño.`);
-
-            updateHpBars();
-
-            if (checkGameOver()) {
-                actionInProgress = false; // partido terminado, no sigue rival
-                return;
-            }
-
-            // turno del rival después de 1 segundo (efecto de juego por turnos)
-            setTimeout(() => {
-                if (gameActive) {
-                    opponentAttack();
-                } else {
-                    // si por algún motivo el juego terminó durante el timeout
-                    disableAllActions(true);
-                }
-            }, 1000);
-        }
-
-        // intentar huir
-        function attemptRun() {
-            if (!gameActive || !playerTurn || actionInProgress) return;
-            actionInProgress = true;
-            playerTurn = false;
-            disableAllActions(true);
-
-            const escapeChance = 0.5; // 50%
-            if (Math.random() < escapeChance) {
-                logMessage('¡Huiste sin problemas! ... (el combate termina)');
-                gameActive = false;
-                disableAllActions(true);
-                // no más acciones
-            } else {
-                logMessage('¡No pudiste escapar!');
-                // el rival ataca inmediatamente (sin esperar)
-                // pero debemos esperar un poco para que se lea el mensaje
-                setTimeout(() => {
-                    if (gameActive) {
-                        opponentAttack();
-                    } else {
-                        disableAllActions(true);
-                    }
-                }, 800);
-            }
-            updateHpBars();
-        }
-
-        // item simulado
-        function useItem() {
-            if (!gameActive || !playerTurn || actionInProgress) return;
-            logMessage('¡No tienes objetos! Es mejor atacar.');
-            // no consume turno? para mantener simple, pierdes el turno (como en algunos pokémon)
-            // pero daremos un mensaje y perderás el turno igual
-            actionInProgress = true;
-            playerTurn = false;
-            disableAllActions(true);
-
-            setTimeout(() => {
-                if (gameActive) {
-                    logMessage('El rival aprovecha para atacar...');
-                    opponentAttack();
-                } else {
-                    disableAllActions(true);
-                }
-            }, 900);
-        }
-
-        // reset completo
-        function resetGame() {
-            // restaurar valores
-            player.currentHp = player.maxHp;
-            opponent.currentHp = opponent.maxHp;
-            playerTurn = true;
-            gameActive = true;
-            actionInProgress = false;
-
-            updateHpBars();
-            // limpiar mensajes
-            messageBox.innerHTML = '> ¡Un Charmander salvaje apareció!';
-            // habilitar botones
-            disableAllActions(false);
-            // sprite normal
-            playerSprite.innerHTML = '⚡⚡<br> (ᵔᴥᵔ)';
-            opponentSprite.innerHTML = '🔥🔥<br> (ㆁωㆁ)';
-        }
-
-        // ----- eventos -----
-        attack1.addEventListener('click', () => playerAttack(0));
-        attack2.addEventListener('click', () => playerAttack(1));
-        runBtn.addEventListener('click', attemptRun);
-        itemBtn.addEventListener('click', useItem);
-        resetBtn.addEventListener('click', resetGame);
-
-        // iniciar con botones habilitados
-        resetGame(); // aseguramos estado inicial limpio
-    })();
-</script>
+        // Ajuste fino si canvas se redimensiona por CSS (mantener relación aspecto)
+        // No es necesario porque hemos fijado width/height en atributos
+    </script>
 </body>
 </html>
