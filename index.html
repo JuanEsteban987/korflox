@@ -3,348 +3,555 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crea juegos con VS Code y HTML</title>
+    <title>Korflox Studio 2008 - Crea juegos con estilo retro</title>
     <style>
+        /* Fuentes retro */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none; /* Para que parezca más una app */
         }
 
         body {
-            background: linear-gradient(135deg, #1e1e2f, #252538);
-            color: #f0f0f0;
-            line-height: 1.6;
+            background: #2a6f8d; /* Fondo azul ochentero */
+            background-image: radial-gradient(circle at 30% 40%, #3f9ec0 0%, #0d4b6e 100%);
+            font-family: 'VT323', monospace;
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            padding: 15px;
         }
 
-        .container {
-            max-width: 1200px;
-            width: 90%;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: rgba(30, 30, 46, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Ventana principal - como un monitor CRT */
+        .korflox-desktop {
+            width: 1300px;
+            max-width: 100%;
+            background: #c0c0c0; /* gris plata típico */
+            border: 5px solid #dfdfdf;
+            border-radius: 15px 15px 10px 10px;
+            box-shadow: 0 0 0 3px #0a0a0a, 10px 10px 0 rgba(0,0,0,0.5);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
         }
 
-        h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #8a7cf0, #e0aaff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+        /* Barra de título estilo Windows XP / 2000 */
+        .title-bar {
+            background: linear-gradient(180deg, #1f5c8a 0%, #0d3d5e 100%);
+            padding: 8px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 3px solid #e8e8e8;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            color: #ffffb0;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .title-bar img { /* no usamos imagen real, solo emoji */
+            width: 24px;
+            height: 24px;
+            filter: drop-shadow(2px 2px 0 black);
+        }
+
+        .title-bar .buttons {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .title-bar .btn {
+            width: 22px;
+            height: 22px;
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #808080;
+            border-bottom-color: #808080;
+            font-weight: bold;
             text-align: center;
+            line-height: 18px;
+            color: black;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
         }
 
-        .subtitle {
-            text-align: center;
-            font-size: 1.3rem;
-            color: #b8b8d0;
-            margin-bottom: 3rem;
-            border-bottom: 1px dashed #3f3f5e;
-            padding-bottom: 1.5rem;
+        .title-bar .btn:active {
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
+        /* Contenedor principal tipo VS Code pero retro */
+        .main-workspace {
+            display: flex;
+            background: #2b2b2b;
+            border: 4px solid #7a7a7a;
+            border-top: none;
+            min-height: 600px;
         }
 
-        .card {
-            background: #2a2a3c;
-            padding: 2rem 1.5rem;
-            border-radius: 20px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #3f3f5e;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        /* Sidebar (explorador) */
+        .sidebar {
+            width: 240px;
+            background: #1e1e1e;
+            border-right: 4px solid #4b4b4b;
+            color: #00ff00;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            padding: 10px 0;
+            box-shadow: inset -2px 0 0 #4f4f4f;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 16px 32px rgba(138, 124, 240, 0.3);
-            border-color: #8a7cf0;
+        .sidebar-header {
+            background: #0a0a0a;
+            padding: 10px;
+            border-bottom: 3px solid #00aa00;
+            color: #ffff00;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .card h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: #c0b0ff;
+        .folder {
+            padding: 8px 15px;
+            border-bottom: 1px solid #3a3a3a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .card p {
-            color: #c5c5e0;
-            font-size: 1rem;
+        .folder:hover {
+            background: #2d2d2d;
+            color: #ffff00;
         }
 
-        .card i {
-            font-size: 2.5rem;
-            color: #8a7cf0;
-            margin-bottom: 1rem;
-            display: inline-block;
+        .folder span {
+            color: #00ffff;
         }
 
-        .code-block {
-            background: #1a1a2a;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            border-left: 6px solid #8a7cf0;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            color: #d0d0ff;
+        .file-list {
+            list-style: none;
+            padding-left: 30px;
         }
 
-        .canvas-container {
-            background: #1e1e2e;
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            text-align: center;
-            border: 2px solid #3f3f5e;
+        .file-list li {
+            padding: 5px 10px;
+            border-left: 2px solid #00aa00;
+            margin: 5px 0;
+            color: #c0c0c0;
+        }
+
+        .file-list li::before {
+            content: "📄 ";
+        }
+
+        /* Área central (editor y canvas) */
+        .center-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #17212b;
+        }
+
+        /* Tabs simulados */
+        .tabs {
+            background: #1f1f1f;
+            display: flex;
+            border-bottom: 3px solid #f0c000;
+            padding-left: 10px;
+        }
+
+        .tab {
+            background: #3a3a3a;
+            color: #ccc;
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            border: 2px solid #6b6b6b;
+            border-bottom: none;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #f0c000;
+            color: #000;
+            font-weight: bold;
+            border-color: #ffffa0;
+        }
+
+        /* Área de juego (canvas) */
+        .game-area {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000000;
+            background-image: repeating-linear-gradient(45deg, #222 0px, #222 2px, #333 2px, #333 8px);
         }
 
         canvas {
-            background: #0f0f1a;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(138, 124, 240, 0.3);
-            max-width: 100%;
+            border: 8px solid #838383;
+            border-right-color: #e0e0e0;
+            border-bottom-color: #e0e0e0;
+            background: #a0d0f0; /* cielo retro */
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 640px;
             height: auto;
-            cursor: pointer;
+            image-rendering: pixelated;
+            cursor: crosshair;
         }
 
-        .btn {
-            background: linear-gradient(45deg, #8a7cf0, #b38cff);
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            color: white;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin: 1rem 0;
-            box-shadow: 0 5px 15px rgba(138, 124, 240, 0.4);
+        /* Panel de propiedades / código */
+        .properties-panel {
+            width: 260px;
+            background: #2a3f4a;
+            border-left: 4px solid #f0c000;
+            padding: 15px;
+            font-family: 'VT323', monospace;
+            color: #ffffaa;
+            text-shadow: 1px 1px 0 #000;
         }
 
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(138, 124, 240, 0.7);
-        }
-
-        .footer {
+        .prop-header {
+            background: #0f2a33;
+            padding: 8px;
             text-align: center;
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid #3f3f5e;
-            color: #9a9ac0;
-            font-size: 0.95rem;
+            font-size: 24px;
+            border-bottom: 3px solid #ffaa00;
+            margin-bottom: 15px;
         }
 
-        .footer a {
-            color: #b38cff;
-            text-decoration: none;
+        .prop-item {
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            background: #1e3d47;
+            padding: 8px;
+            border: 2px solid #5e8d9c;
+            color: #ffd966;
         }
 
-        .footer a:hover {
-            text-decoration: underline;
+        .code-snippet {
+            background: #0e1c24;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            color: #00ff9f;
+            border: 3px solid #b8860b;
+            font-size: 14px;
+            white-space: pre-wrap;
+            margin-top: 20px;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2rem;
-            }
-            .container {
-                padding: 1.5rem;
-            }
+        /* Barra de estado inferior */
+        .status-bar {
+            background: #1f5c8a;
+            padding: 5px 15px;
+            border-top: 4px solid #e8e8e8;
+            display: flex;
+            gap: 25px;
+            color: #ffffff;
+            font-size: 18px;
+            font-family: 'VT323', monospace;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .status-bar .item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Botones retro */
+        .retro-btn {
+            background: #c0c0c0;
+            border: 4px solid #fff;
+            border-right-color: #808080;
+            border-bottom-color: #808080;
+            padding: 8px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: black;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .retro-btn:active {
+            border: 4px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎮 Crear Juegos con VS Code y HTML</h1>
-        <div class="subtitle">Domina el desarrollo de videojuegos web con herramientas profesionales</div>
-
-        <!-- Cards de características -->
-        <div class="grid">
-            <div class="card">
-                <i>⚡</i>
-                <h3>Visual Studio Code</h3>
-                <p>El editor más potente y personalizable para desarrollo web. Extensiones, depuración integrada y terminal para tu flujo de trabajo.</p>
-            </div>
-            <div class="card">
-                <i>🕹️</i>
-                <h3>HTML5 + Canvas</h3>
-                <p>Dibuja gráficos en tiempo real, controla sprites y crea animaciones suaves con la potencia del elemento canvas.</p>
-            </div>
-            <div class="card">
-                <i>🚀</i>
-                <h3>JavaScript moderno</h3>
-                <p>Lógica de juego, detección de colisiones, físicas simples y control de eventos con el lenguaje de la web.</p>
-            </div>
-            <div class="card">
-                <i>📦</i>
-                <h3>Extensiones clave</h3>
-                <p>Live Server, Prettier, ESLint, Debugger for Chrome, y packs para game dev como Phaser o PixiJS.</p>
+    <div class="korflox-desktop">
+        <!-- Barra de título estilo 2000 -->
+        <div class="title-bar">
+            <span>🧊 KORFLOX STUDIO 2008</span>
+            <span style="font-size: 12px; color: #90ff90;">[build 2600]</span>
+            <div class="buttons">
+                <div class="btn">−</div>
+                <div class="btn">□</div>
+                <div class="btn">✕</div>
             </div>
         </div>
 
-        <!-- Configuración inicial -->
-        <h2 style="margin-top: 2rem; color:#c0b0ff;">🔧 Configuración rápida en VS Code</h2>
-        <div class="code-block">
-            1. Instala Visual Studio Code desde code.visualstudio.com<br>
-            2. Abre la terminal (Ctrl + ñ) y crea una carpeta para tu juego.<br>
-            3. Crea un archivo index.html y otro script.js.<br>
-            4. Instala la extensión "Live Server" para ver los cambios en tiempo real.<br>
-            5. ¡Empieza a codificar tu juego!
+        <!-- Contenido principal: imitación de VS Code retro -->
+        <div class="main-workspace">
+            <!-- Sidebar explorador -->
+            <div class="sidebar">
+                <div class="sidebar-header">📁 EXPLORADOR</div>
+                <div class="folder"><span>📂</span> Mi Juego</div>
+                <ul class="file-list">
+                    <li>index.html</li>
+                    <li>style.css</li>
+                    <li>game.js</li>
+                    <li>sprites.png</li>
+                </ul>
+                <div class="folder" style="margin-top: 20px;"><span>📂</span> Assets</div>
+                <ul class="file-list">
+                    <li>player.gif</li>
+                    <li>enemy.bmp</li>
+                    <li>song.mid</li>
+                </ul>
+                <div style="margin-top: 30px; padding: 10px; color: #ffaa00;">🕹️ Korflox Engine v1.0</div>
+            </div>
+
+            <!-- Panel central: pestañas y canvas -->
+            <div class="center-panel">
+                <div class="tabs">
+                    <div class="tab active">🎮 juego.html</div>
+                    <div class="tab">✨ game.js</div>
+                    <div class="tab">🎨 estilos.css</div>
+                    <div style="flex:1; text-align: right; padding-right: 10px; color:#aaa;">📅 2008-03-04</div>
+                </div>
+                <div class="game-area">
+                    <canvas id="gameCanvas" width="640" height="360"></canvas>
+                </div>
+                <!-- Simulación de código en la parte inferior del panel central -->
+                <div style="background: #1f1f1f; padding: 15px; border-top: 4px solid #f0c000;">
+                    <pre style="color: #0f0; font-family: 'Courier New'; font-size: 14px; overflow-x: auto;">
+// game.js - Korflox 2008
+let player = {x: 100, y: 280, vx: 0, vy: 0};
+function update() {
+    // gravedad
+    player.vy += 0.5;
+    player.y += player.vy;
+    if(player.y > 300) player.y = 300;
+}</pre>
+                </div>
+            </div>
+
+            <!-- Panel de propiedades / ayuda -->
+            <div class="properties-panel">
+                <div class="prop-header">⚙️ PROPIEDADES</div>
+                <div class="prop-item"><span>Jugador X:</span> <span id="playerX">100</span></div>
+                <div class="prop-item"><span>Jugador Y:</span> <span id="playerY">280</span></div>
+                <div class="prop-item"><span>Enemigos:</span> <span>3</span></div>
+                <div class="prop-item"><span>FPS:</span> <span id="fps">60</span></div>
+                <div class="code-snippet">
+                    <span style="color: #ff0;">// TIPS 2008</span><br>
+                    Usa ← → para moverte.<br>
+                    Pulsa ESPACIO para saltar.<br>
+                    ¡Crea tu propio juego!
+                </div>
+                <button class="retro-btn" style="margin-top: 15px; width:100%;">▶ COMPILAR</button>
+            </div>
         </div>
 
-        <!-- Ejemplo interactivo: Bola que rebota -->
-        <h2 style="color:#c0b0ff; margin-top: 3rem;">🎯 Ejemplo en vivo: Bola que rebota</h2>
-        <p style="margin-bottom: 1rem;">Haz clic dentro del canvas para cambiar la dirección de la bola. Así de sencillo es empezar con canvas.</p>
-        
-        <div class="canvas-container">
-            <canvas id="gameCanvas" width="600" height="300"></canvas>
-            <br>
-            <button class="btn" id="resetBtn">🔄 Reiniciar bola</button>
-        </div>
-
-        <!-- Código fuente del ejemplo -->
-        <h3 style="color:#c0b0ff;">📄 Código HTML + JavaScript del ejemplo</h3>
-        <div class="code-block">
-            &lt;canvas id="gameCanvas" width="600" height="300"&gt;&lt;/canvas&gt;<br>
-            &lt;script&gt;<br>
-            const canvas = document.getElementById('gameCanvas');<br>
-            const ctx = canvas.getContext('2d');<br>
-            let x = 100, y = 150, dx = 3, dy = 3, radio = 15;<br>
-            function dibujar() { ... } // actualiza y pinta el canvas<br>
-            // requestAnimationFrame crea el bucle del juego<br>
-            &lt;/script&gt;
-        </div>
-
-        <!-- Recursos y siguientes pasos -->
-        <div style="background: #232336; border-radius: 20px; padding: 2rem; margin: 3rem 0;">
-            <h2 style="color:#e0aaff;">📚 Próximos pasos para tu juego</h2>
-            <ul style="list-style-type: none; margin-top: 1.5rem;">
-                <li style="margin: 1rem 0;">✅ Añade múltiples objetos y detección de colisiones</li>
-                <li style="margin: 1rem 0;">✅ Control por teclado (eventListener para mover un paddle o personaje)</li>
-                <li style="margin: 1rem 0;">✅ Sprites e imágenes para darle vida</li>
-                <li style="margin: 1rem 0;">✅ Sonidos con la Web Audio API</li>
-                <li style="margin: 1rem 0;">✅ Usa librerías como Phaser o Kaboom.js para juegos más complejos</li>
-            </ul>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>Creado con ❤️ para desarrolladores · #VS Code · #HTML5 · #GameDev</p>
-            <p>Recursos: <a href="#">Documentación MDN</a> · <a href="#">VS Code Game Dev</a> · <a href="#">Canvas API</a></p>
+        <!-- Barra de estado -->
+        <div class="status-bar">
+            <div class="item"><span>🟢</span> KORFLOX READY</div>
+            <div class="item"><span>📶</span> 120 MB / 256 MB</div>
+            <div class="item blink">💾 GUARDAR...</div>
+            <div class="item">Línea 23, Col 8</div>
         </div>
     </div>
 
     <script>
-        // ----- EJEMPLO DE BOLA QUE REBOTA -----
+        // ----- JUEGO RETRO FUNCIONAL (cubo que se mueve con físicas básicas) -----
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const resetBtn = document.getElementById('resetBtn');
+        const playerXSpan = document.getElementById('playerX');
+        const playerYSpan = document.getElementById('playerY');
+        const fpsSpan = document.getElementById('fps');
 
-        // Parámetros de la bola
-        let x = 150, y = 150;
-        let dx = 4, dy = 3;
-        const radio = 15;
+        // Variables del juego
+        let player = {
+            x: 100,
+            y: 280,
+            vx: 0,
+            vy: 0,
+            width: 24,
+            height: 24,
+            onGround: false
+        };
 
-        // Redimensionar lógica si canvas cambia de tamaño (opcional)
-        function resizeCanvas() {
-            // Mantener proporción pero no redimensionamos, solo aseguramos que se vea bien
+        const GRAVEDAD = 0.6;
+        const FUERZA_SALTO = -10;
+        const VELOCIDAD_MOV = 4;
+        const SUELO_Y = 336; // 360 - altura (24) = 336
+
+        // Control de teclas
+        const keys = {
+            left: false,
+            right: false,
+            space: false
+        };
+
+        // FPS calculation
+        let lastTime = performance.now();
+        let frames = 0;
+        let fps = 60;
+
+        // Eventos de teclado
+        window.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if (key === 'ArrowLeft' || key === 'Left' || key === 'a' || key === 'A') {
+                keys.left = true;
+                e.preventDefault();
+            } else if (key === 'ArrowRight' || key === 'Right' || key === 'd' || key === 'D') {
+                keys.right = true;
+                e.preventDefault();
+            } else if (key === ' ' || key === 'Space') {
+                keys.space = true;
+                e.preventDefault(); // evita scroll
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const key = e.key;
+            if (key === 'ArrowLeft' || key === 'Left' || key === 'a' || key === 'A') {
+                keys.left = false;
+                e.preventDefault();
+            } else if (key === 'ArrowRight' || key === 'Right' || key === 'd' || key === 'D') {
+                keys.right = false;
+                e.preventDefault();
+            } else if (key === ' ' || key === 'Space') {
+                keys.space = false;
+                e.preventDefault();
+            }
+        });
+
+        // Evita que la página se desplace con las flechas (ya prevenido)
+
+        function updatePlayer() {
+            // Movimiento horizontal
+            if (keys.left) {
+                player.vx = -VELOCIDAD_MOV;
+            } else if (keys.right) {
+                player.vx = VELOCIDAD_MOV;
+            } else {
+                player.vx *= 0.8; // fricción
+            }
+
+            // Salto (solo si está en el suelo)
+            if (keys.space && player.onGround) {
+                player.vy = FUERZA_SALTO;
+                player.onGround = false;
+            }
+
+            // Aplicar gravedad
+            player.vy += GRAVEDAD;
+            player.y += player.vy;
+            player.x += player.vx;
+
+            // Limitar en el suelo
+            if (player.y > SUELO_Y) {
+                player.y = SUELO_Y;
+                player.vy = 0;
+                player.onGround = true;
+            } else {
+                player.onGround = false;
+            }
+
+            // Limitar bordes laterales (opcional)
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+            // Actualizar panel de propiedades
+            playerXSpan.textContent = Math.floor(player.x);
+            playerYSpan.textContent = Math.floor(player.y);
         }
 
-        // Dibuja el frame actual
-        function drawBall() {
+        function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Dibujar sombra y bola
-            ctx.shadowColor = '#8a7cf0';
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            ctx.arc(x, y, radio, 0, Math.PI * 2);
-            ctx.fillStyle = '#f0c0ff';
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = '#ffffff';
+            // Dibujar suelo (estilo 2008)
+            ctx.fillStyle = '#4a7029';
+            ctx.fillRect(0, SUELO_Y + player.height - 4, canvas.width, 20);
+            ctx.fillStyle = '#2d4a1e';
+            ctx.fillRect(0, SUELO_Y + player.height + 4, canvas.width, 10);
+            // Línea de césped
+            ctx.fillStyle = '#6a994e';
+            ctx.fillRect(0, SUELO_Y + player.height - 6, canvas.width, 6);
+
+            // Dibujar nubes estáticas (pixel art)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(150, 50, 80, 30);
+            ctx.fillRect(170, 30, 60, 30);
+            ctx.fillRect(500, 80, 100, 35);
+            ctx.fillRect(520, 60, 70, 30);
+
+            // Dibujar al jugador (un cubo con cara)
+            ctx.fillStyle = '#f8c300';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            // Ojos
+            ctx.fillStyle = '#000';
+            ctx.fillRect(player.x + 5, player.y + 6, 4, 4);
+            ctx.fillRect(player.x + 15, player.y + 6, 4, 4);
+            // Sonrisa (boca)
+            ctx.strokeStyle = '#000';
             ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // Dibujar un pequeño destello
             ctx.beginPath();
-            ctx.arc(x-4, y-4, 4, 0, Math.PI*2);
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.fill();
+            ctx.moveTo(player.x + 7, player.y + 16);
+            ctx.lineTo(player.x + 17, player.y + 16);
+            ctx.stroke();
         }
 
-        function updatePosition() {
-            // Rebote en bordes
-            if (x + radio > canvas.width || x - radio < 0) {
-                dx = -dx;
-            }
-            if (y + radio > canvas.height || y - radio < 0) {
-                dy = -dy;
+        function gameLoop(now) {
+            // Calcular FPS
+            frames++;
+            const delta = now - lastTime;
+            if (delta >= 1000) {
+                fps = frames;
+                frames = 0;
+                lastTime = now;
+                fpsSpan.textContent = fps;
             }
 
-            x += dx;
-            y += dy;
-        }
-
-        function gameLoop() {
-            updatePosition();
-            drawBall();
+            updatePlayer();
+            draw();
             requestAnimationFrame(gameLoop);
         }
 
-        // Iniciar animación
-        gameLoop();
+        // Iniciar bucle
+        requestAnimationFrame(gameLoop);
 
-        // Interacción: clic en canvas invierte dirección (como si golpearas la bola)
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
+        // Enfoque del canvas para que funcione sin hacer clic en otro lado
+        canvas.setAttribute('tabindex', '0'); // permite recibir eventos de teclado si es necesario
+        canvas.focus(); // opcional
 
-            const mouseX = (e.clientX - rect.left) * scaleX;
-            const mouseY = (e.clientY - rect.top) * scaleY;
-
-            // Si el clic está cerca de la bola (radio + margen)
-            const dist = Math.hypot(mouseX - x, mouseY - y);
-            if (dist < radio + 20) {
-                dx = -dx * 1.1; // cambia dirección y acelera un poco
-                dy = -dy * 1.1;
-            } else {
-                // si no, la bola se dirige hacia el clic (efecto divertido)
-                const angle = Math.atan2(mouseY - y, mouseX - x);
-                dx = Math.cos(angle) * 5;
-                dy = Math.sin(angle) * 5;
-            }
-        });
-
-        // Botón reiniciar
-        resetBtn.addEventListener('click', () => {
-            x = 150;
-            y = 150;
-            dx = 4;
-            dy = 3;
-        });
-
-        // Ajuste fino si canvas se redimensiona por CSS (mantener relación aspecto)
-        // No es necesario porque hemos fijado width/height en atributos
+        // También funciona con window, así que no es estrictamente necesario
     </script>
 </body>
 </html>
