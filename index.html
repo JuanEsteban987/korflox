@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✧ NOOBS VS ZOMBIES 2008 ✧ VIDA Y DAÑO</title>
+    <title>✧ NOOBS BUSCAN ARMAS 2008 ✧</title>
     <style>
         * {
             box-sizing: border-box;
@@ -109,7 +109,7 @@
 </head>
 <body>
 <div class="game-wrapper">
-    <h1>⚔️ NOOBS VS ZOMBIES 2K8 ⚔️</h1>
+    <h1>⚔️ NOOBS BUSCAN ARMAS 2008 ⚔️</h1>
     <div class="canvas-container">
         <canvas id="gameCanvas" width="800" height="400"></canvas>
     </div>
@@ -126,7 +126,7 @@
 
     <div class="footer-info">
         <span>🖱️ Izq: colocar | Derecho: borrar</span>
-        <span>💥 3❤️ cada uno | daño 1</span>
+        <span>💡 Noobs huyen → buscan arma/aliado</span>
     </div>
 </div>
 
@@ -136,13 +136,10 @@
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    // ---- lista de entidades ----
     let entidades = [];
-
-    // ---- tipo seleccionado ----
     let tipoSeleccionado = 'robloxian';
 
-    // ---- UI ----
+    // UI
     const selectedDisplay = document.getElementById('selectedDisplay');
     const btnRoblox = document.getElementById('btnRoblox');
     const btnZombie = document.getElementById('btnZombie');
@@ -180,14 +177,13 @@
         entidades = [];
     });
 
-    // ---- crear entidad con stats ----
     function crearEntidad(tipo, x, y, extra = {}) {
         let ent = {
             type: tipo,
             x: Math.min(780, Math.max(20, x)),
             y: Math.min(380, Math.max(20, y)),
-            hp: 3,                // vida inicial 3
-            lastAttack: 0,        // cooldown
+            hp: 3,
+            lastAttack: 0,
             ...extra
         };
         if (tipo === 'robloxian') {
@@ -202,7 +198,7 @@
         return ent;
     }
 
-    // ---- inicializar con ejemplos ----
+    // Ejemplos iniciales
     entidades.push(crearEntidad('robloxian', 150, 200));
     entidades.push(crearEntidad('robloxian', 220, 320));
     entidades.push(crearEntidad('zombie', 300, 150));
@@ -211,24 +207,22 @@
     entidades.push(crearEntidad('block', 600, 100));
     entidades.push(crearEntidad('zombie', 80, 90));
 
-    // ---- constantes ----
+    // Constantes
     const ZOMBIE_SPEED = 1.2;
-    const NOOB_SPEED = 1.6;        // velocidad de huida o ataque
+    const NOOB_SPEED = 1.6;
     const DETECT_RADIUS = 160;
     const PICKUP_DIST = 25;
-    const ATTACK_RANGE = 30;        // distancia para atacar
-    const ATTACK_COOLDOWN = 30;      // frames entre ataques (0.5s a 60fps)
+    const ATTACK_RANGE = 30;
+    const ATTACK_COOLDOWN = 30;
     const SPAWN_FRAMES = 120;
 
-    // ---- lógica de movimiento y combate ----
     function actualizar() {
-        // listas actuales
         let noobs = entidades.filter(e => e.type === 'robloxian');
         let zombies = entidades.filter(e => e.type === 'zombie');
         let armas = entidades.filter(e => e.type === 'weapon');
         let spawners = entidades.filter(e => e.type === 'spawner');
 
-        // 1. Recoger armas (solo noobs desarmados)
+        // Recoger armas
         for (let noob of noobs) {
             if (noob.armed) continue;
             for (let i = armas.length - 1; i >= 0; i--) {
@@ -237,13 +231,13 @@
                 if (dist < PICKUP_DIST) {
                     entidades.splice(entidades.indexOf(arma), 1);
                     noob.armed = true;
-                    armas.splice(i, 1); // actualizar copia local
+                    armas.splice(i, 1);
                     break;
                 }
             }
         }
 
-        // 2. Movimiento: zombies persiguen al noob más cercano
+        // Movimiento zombies
         for (let z of zombies) {
             let target = null;
             let minDist = Infinity;
@@ -269,58 +263,111 @@
             }
         }
 
-        // 3. Movimiento de noobs:
-        //    - Desarmados: huyen del zombie más cercano
-        //    - Armados: se acercan al zombie más cercano para atacar
+        // Movimiento noobs
         for (let n of noobs) {
-            let closestZ = null;
-            let minDist = Infinity;
-            for (let z of zombies) {
-                let d = Math.hypot(n.x - z.x, n.y - z.y);
-                if (d < minDist) {
-                    minDist = d;
-                    closestZ = z;
-                }
-            }
-            if (!closestZ) {
-                n.vx = n.vy = 0;
-                continue;
-            }
-
             if (n.armed) {
-                // Atacar: acercarse al zombie
-                if (minDist > ATTACK_RANGE) {
-                    let dx = closestZ.x - n.x;
-                    let dy = closestZ.y - n.y;
-                    let len = Math.hypot(dx, dy);
-                    if (len > 0.1) {
-                        n.vx = (dx / len) * NOOB_SPEED;
-                        n.vy = (dy / len) * NOOB_SPEED;
-                    } else {
-                        n.vx = n.vy = 0;
+                // Noob armado: atacar al zombie más cercano
+                let closestZ = null;
+                let minDist = Infinity;
+                for (let z of zombies) {
+                    let d = Math.hypot(n.x - z.x, n.y - z.y);
+                    if (d < minDist) {
+                        minDist = d;
+                        closestZ = z;
                     }
-                } else {
-                    n.vx = n.vy = 0; // ya está en rango
                 }
-            } else {
-                // Huir
-                if (minDist < DETECT_RADIUS) {
-                    let dx = n.x - closestZ.x;
-                    let dy = n.y - closestZ.y;
-                    let len = Math.hypot(dx, dy);
-                    if (len > 0.1) {
-                        n.vx = (dx / len) * NOOB_SPEED;
-                        n.vy = (dy / len) * NOOB_SPEED;
+                if (closestZ) {
+                    if (minDist > ATTACK_RANGE) {
+                        let dx = closestZ.x - n.x;
+                        let dy = closestZ.y - n.y;
+                        let len = Math.hypot(dx, dy);
+                        if (len > 0.1) {
+                            n.vx = (dx / len) * NOOB_SPEED;
+                            n.vy = (dy / len) * NOOB_SPEED;
+                        } else {
+                            n.vx = n.vy = 0;
+                        }
                     } else {
                         n.vx = n.vy = 0;
                     }
                 } else {
                     n.vx = n.vy = 0;
                 }
+            } else {
+                // Noob desarmado: ver si hay zombie cerca
+                let closestZ = null;
+                let minDistZ = Infinity;
+                for (let z of zombies) {
+                    let d = Math.hypot(n.x - z.x, n.y - z.y);
+                    if (d < minDistZ) {
+                        minDistZ = d;
+                        closestZ = z;
+                    }
+                }
+
+                if (closestZ && minDistZ < DETECT_RADIUS) {
+                    // Está en peligro -> buscar arma o noob armado
+                    // Buscar arma más cercana
+                    let closestArma = null;
+                    let minDistArma = Infinity;
+                    for (let a of armas) {
+                        let d = Math.hypot(n.x - a.x, n.y - a.y);
+                        if (d < minDistArma) {
+                            minDistArma = d;
+                            closestArma = a;
+                        }
+                    }
+                    // Buscar noob armado más cercano
+                    let closestArmed = null;
+                    let minDistArmed = Infinity;
+                    for (let other of noobs) {
+                        if (other !== n && other.armed) {
+                            let d = Math.hypot(n.x - other.x, n.y - other.y);
+                            if (d < minDistArmed) {
+                                minDistArmed = d;
+                                closestArmed = other;
+                            }
+                        }
+                    }
+
+                    // Decidir objetivo
+                    let targetX = null, targetY = null;
+                    if (closestArma) {
+                        // Ir al arma
+                        targetX = closestArma.x;
+                        targetY = closestArma.y;
+                    } else if (closestArmed) {
+                        // Ir al noob armado
+                        targetX = closestArmed.x;
+                        targetY = closestArmed.y;
+                    } else {
+                        // No hay recursos, huir del zombie
+                        targetX = n.x - (closestZ.x - n.x); // dirección opuesta
+                        targetY = n.y - (closestZ.y - n.y);
+                    }
+
+                    // Moverse hacia el objetivo
+                    if (targetX !== null && targetY !== null) {
+                        let dx = targetX - n.x;
+                        let dy = targetY - n.y;
+                        let len = Math.hypot(dx, dy);
+                        if (len > 0.1) {
+                            n.vx = (dx / len) * NOOB_SPEED;
+                            n.vy = (dy / len) * NOOB_SPEED;
+                        } else {
+                            n.vx = n.vy = 0;
+                        }
+                    } else {
+                        n.vx = n.vy = 0;
+                    }
+                } else {
+                    // No hay peligro, quieto
+                    n.vx = n.vy = 0;
+                }
             }
         }
 
-        // 4. Aplicar movimiento
+        // Aplicar movimiento
         for (let e of entidades) {
             if (e.type === 'zombie' || e.type === 'robloxian') {
                 e.x += e.vx;
@@ -330,21 +377,20 @@
             }
         }
 
-        // 5. Ataques cuerpo a cuerpo (con cooldown)
-        // Incrementar contador de cooldown para todos
+        // Cooldowns
         for (let e of entidades) {
             if (e.type === 'zombie' || e.type === 'robloxian') {
                 e.lastAttack = (e.lastAttack || 0) + 1;
             }
         }
 
-        // Ataques de noobs armados contra zombies
+        // Ataques noobs armados vs zombies
         for (let n of noobs) {
             if (!n.armed) continue;
             for (let z of zombies) {
                 let dist = Math.hypot(n.x - z.x, n.y - z.y);
                 if (dist < ATTACK_RANGE && n.lastAttack >= ATTACK_COOLDOWN) {
-                    z.hp -= 1;  // daño 1
+                    z.hp -= 1;
                     n.lastAttack = 0;
                     if (z.hp <= 0) {
                         entidades.splice(entidades.indexOf(z), 1);
@@ -353,12 +399,12 @@
             }
         }
 
-        // Ataques de zombies contra noobs (cualquier noob)
+        // Ataques zombies vs noobs
         for (let z of zombies) {
             for (let n of noobs) {
                 let dist = Math.hypot(z.x - n.x, z.y - n.y);
                 if (dist < ATTACK_RANGE && z.lastAttack >= ATTACK_COOLDOWN) {
-                    n.hp -= 1;  // daño 1
+                    n.hp -= 1;
                     z.lastAttack = 0;
                     if (n.hp <= 0) {
                         entidades.splice(entidades.indexOf(n), 1);
@@ -367,7 +413,7 @@
             }
         }
 
-        // 6. Spawners
+        // Spawners
         for (let s of spawners) {
             s.spawnCounter = (s.spawnCounter || 0) + 1;
             if (s.spawnCounter >= SPAWN_FRAMES) {
@@ -387,7 +433,7 @@
         }
     }
 
-    // ---- dibujado con barras de vida ----
+    // Dibujado (igual que antes, con barras de vida)
     function dibujar() {
         ctx.clearRect(0, 0, 800, 400);
         // cuadrícula
@@ -403,9 +449,7 @@
         for (let e of entidades) {
             const { type, x, y, hp } = e;
 
-            // ---- dibujar sprite según tipo ----
             if (type === 'robloxian') {
-                // Noob base
                 ctx.fillStyle = '#fadf32';
                 ctx.fillRect(x-15, y-20, 30, 25);
                 ctx.fillStyle = '#2a6fdb';
@@ -418,7 +462,6 @@
                 ctx.fillStyle = '#fadf32';
                 ctx.fillRect(x-18, y+8, 6, 15);
                 ctx.fillRect(x+12, y+8, 6, 15);
-                // si está armado, estrella
                 if (e.armed) {
                     ctx.fillStyle = '#ff3333';
                     ctx.beginPath(); ctx.arc(x-8, y-28, 6, 0, 2*Math.PI); ctx.fill();
@@ -475,9 +518,9 @@
                 ctx.beginPath(); ctx.moveTo(x+5, y-20); ctx.lineTo(x+5, y+20); ctx.stroke();
             }
 
-            // ---- barra de vida (solo para noobs y zombies) ----
+            // Barra de vida (corazones)
             if (type === 'robloxian' || type === 'zombie') {
-                let vida = hp !== undefined ? hp : 3; // por si acaso
+                let vida = hp !== undefined ? hp : 3;
                 for (let i = 0; i < vida; i++) {
                     ctx.fillStyle = '#ff3333';
                     ctx.beginPath();
@@ -489,14 +532,13 @@
                 }
             }
 
-            // borde de selección
             ctx.strokeStyle = '#2f2f2f';
             ctx.lineWidth = 1;
             ctx.strokeRect(x-21, y-21, 42, 42);
         }
     }
 
-    // ---- eventos de clic ----
+    // Eventos clic
     canvas.addEventListener('click', (e) => {
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
@@ -507,7 +549,6 @@
         const x = Math.min(780, Math.max(20, mx));
         const y = Math.min(380, Math.max(20, my));
 
-        // Cambiar modo spawner si corresponde
         if (tipoSeleccionado === 'spawner') {
             const spawner = entidades.find(e => e.type === 'spawner' && Math.hypot(e.x - x, e.y - y) < 30);
             if (spawner) {
@@ -516,7 +557,6 @@
             }
         }
 
-        // Crear nueva entidad
         if (tipoSeleccionado === 'robloxian') {
             entidades.push(crearEntidad('robloxian', x, y));
         } else if (tipoSeleccionado === 'zombie') {
@@ -552,7 +592,6 @@
         }
     });
 
-    // ---- bucle del juego ----
     function gameLoop() {
         actualizar();
         dibujar();
