@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✧ NOOBS VS ZOMBIES 2008 ✧</title>
+    <title>✧ NOOBS VS ZOMBIES 2008 ✧ VIDA Y DAÑO</title>
     <style>
         * {
             box-sizing: border-box;
@@ -109,7 +109,7 @@
 </head>
 <body>
 <div class="game-wrapper">
-    <h1>⚡ NOOBS VS ZOMBIES 2K8 ⚡</h1>
+    <h1>⚔️ NOOBS VS ZOMBIES 2K8 ⚔️</h1>
     <div class="canvas-container">
         <canvas id="gameCanvas" width="800" height="400"></canvas>
     </div>
@@ -126,7 +126,7 @@
 
     <div class="footer-info">
         <span>🖱️ Izq: colocar | Derecho: borrar</span>
-        <span>💡 Spawner: clic encima cambia modo N/Z</span>
+        <span>💥 3❤️ cada uno | daño 1</span>
     </div>
 </div>
 
@@ -139,10 +139,10 @@
     // ---- lista de entidades ----
     let entidades = [];
 
-    // ---- tipo seleccionado para colocar ----
+    // ---- tipo seleccionado ----
     let tipoSeleccionado = 'robloxian';
 
-    // ---- UI elements ----
+    // ---- UI ----
     const selectedDisplay = document.getElementById('selectedDisplay');
     const btnRoblox = document.getElementById('btnRoblox');
     const btnZombie = document.getElementById('btnZombie');
@@ -152,7 +152,6 @@
     const clearBtn = document.getElementById('clearBtn');
     const botones = [btnRoblox, btnZombie, btnSpawner, btnWeapon, btnBlock];
 
-    // ---- helpers de UI ----
     function setSelectedType(tipo) {
         tipoSeleccionado = tipo;
         let texto = '';
@@ -181,29 +180,29 @@
         entidades = [];
     });
 
-    // ---- crear entidad base ----
+    // ---- crear entidad con stats ----
     function crearEntidad(tipo, x, y, extra = {}) {
         let ent = {
             type: tipo,
             x: Math.min(780, Math.max(20, x)),
             y: Math.min(380, Math.max(20, y)),
+            hp: 3,                // vida inicial 3
+            lastAttack: 0,        // cooldown
             ...extra
         };
-        // asignar defaults según tipo
         if (tipo === 'robloxian') {
             ent.armed = false;
             ent.vx = 0; ent.vy = 0;
         } else if (tipo === 'zombie') {
             ent.vx = 0; ent.vy = 0;
         } else if (tipo === 'spawner') {
-            ent.spawnType = extra.spawnType || 'noob'; // 'noob' o 'zombie'
-            ent.spawnCounter = 0; // contador de frames para spawn
+            ent.spawnType = extra.spawnType || 'noob';
+            ent.spawnCounter = 0;
         }
-        // armas y bloques no necesitan más
         return ent;
     }
 
-    // ---- inicializar con algunos objetos ----
+    // ---- inicializar con ejemplos ----
     entidades.push(crearEntidad('robloxian', 150, 200));
     entidades.push(crearEntidad('robloxian', 220, 320));
     entidades.push(crearEntidad('zombie', 300, 150));
@@ -212,139 +211,167 @@
     entidades.push(crearEntidad('block', 600, 100));
     entidades.push(crearEntidad('zombie', 80, 90));
 
-    // ---- game loop y físicas ----
-    const ZOMBIE_SPEED = 1.3;
-    const NOOB_SPEED = 1.9;        // huyen más rápido
-    const DETECT_RADIUS = 140;      // distancia para decidir huir/perseguir
-    const PICKUP_DIST = 25;         // distancia para recoger arma
-    const ATTACK_DIST = 30;         // distancia para ataque (noob armado mata zombie)
-    const EAT_DIST = 25;            // zombie mata noob desarmado
-    const SPAWN_FRAMES = 120;       // cada 120 frames (~2 seg a 60fps)
+    // ---- constantes ----
+    const ZOMBIE_SPEED = 1.2;
+    const NOOB_SPEED = 1.6;        // velocidad de huida o ataque
+    const DETECT_RADIUS = 160;
+    const PICKUP_DIST = 25;
+    const ATTACK_RANGE = 30;        // distancia para atacar
+    const ATTACK_COOLDOWN = 30;      // frames entre ataques (0.5s a 60fps)
+    const SPAWN_FRAMES = 120;
 
-    function actualizarMovimientos() {
-        // primero separamos listas para búsquedas rápidas
-        const noobs = entidades.filter(e => e.type === 'robloxian');
-        const zombies = entidades.filter(e => e.type === 'zombie');
-        const armas = entidades.filter(e => e.type === 'weapon');
-        const spawners = entidades.filter(e => e.type === 'spawner');
+    // ---- lógica de movimiento y combate ----
+    function actualizar() {
+        // listas actuales
+        let noobs = entidades.filter(e => e.type === 'robloxian');
+        let zombies = entidades.filter(e => e.type === 'zombie');
+        let armas = entidades.filter(e => e.type === 'weapon');
+        let spawners = entidades.filter(e => e.type === 'spawner');
 
-        // ---- recoger armas (noobs) ----
+        // 1. Recoger armas (solo noobs desarmados)
         for (let noob of noobs) {
-            if (noob.armed) continue; // ya armado
-            for (let i = 0; i < armas.length; i++) {
+            if (noob.armed) continue;
+            for (let i = armas.length - 1; i >= 0; i--) {
                 const arma = armas[i];
-                const dx = noob.x - arma.x;
-                const dy = noob.y - arma.y;
-                const dist = Math.hypot(dx, dy);
+                const dist = Math.hypot(noob.x - arma.x, noob.y - arma.y);
                 if (dist < PICKUP_DIST) {
-                    // recoger arma: eliminar arma, marcar noob como armado
                     entidades.splice(entidades.indexOf(arma), 1);
                     noob.armed = true;
-                    break; // solo un arma a la vez
+                    armas.splice(i, 1); // actualizar copia local
+                    break;
                 }
             }
         }
 
-        // ---- comportamiento zombies: perseguir noob más cercano ----
+        // 2. Movimiento: zombies persiguen al noob más cercano
         for (let z of zombies) {
             let target = null;
             let minDist = Infinity;
             for (let n of noobs) {
-                const d = Math.hypot(z.x - n.x, z.y - n.y);
+                let d = Math.hypot(z.x - n.x, z.y - n.y);
                 if (d < minDist) {
                     minDist = d;
                     target = n;
                 }
             }
             if (target) {
-                const dx = target.x - z.x;
-                const dy = target.y - z.y;
-                const len = Math.hypot(dx, dy);
-                if (len > 1) {
+                let dx = target.x - z.x;
+                let dy = target.y - z.y;
+                let len = Math.hypot(dx, dy);
+                if (len > 0.1) {
                     z.vx = (dx / len) * ZOMBIE_SPEED;
                     z.vy = (dy / len) * ZOMBIE_SPEED;
                 } else {
                     z.vx = z.vy = 0;
                 }
             } else {
-                z.vx = z.vy = 0; // no hay noobs
+                z.vx = z.vy = 0;
             }
         }
 
-        // ---- comportamiento noobs: huir del zombie más cercano (si no armados) ----
+        // 3. Movimiento de noobs:
+        //    - Desarmados: huyen del zombie más cercano
+        //    - Armados: se acercan al zombie más cercano para atacar
         for (let n of noobs) {
-            if (n.armed) {
-                // noob armado: se queda quieto (o podría atacar, ya se maneja en colisiones)
-                n.vx = n.vy = 0;
-                continue;
-            }
-            // buscar zombie más cercano
             let closestZ = null;
             let minDist = Infinity;
             for (let z of zombies) {
-                const d = Math.hypot(n.x - z.x, n.y - z.y);
+                let d = Math.hypot(n.x - z.x, n.y - z.y);
                 if (d < minDist) {
                     minDist = d;
                     closestZ = z;
                 }
             }
-            if (closestZ && minDist < DETECT_RADIUS) {
-                // huir: dirección opuesta al zombie
-                const dx = n.x - closestZ.x;
-                const dy = n.y - closestZ.y;
-                const len = Math.hypot(dx, dy);
-                if (len > 1) {
-                    n.vx = (dx / len) * NOOB_SPEED;
-                    n.vy = (dy / len) * NOOB_SPEED;
+            if (!closestZ) {
+                n.vx = n.vy = 0;
+                continue;
+            }
+
+            if (n.armed) {
+                // Atacar: acercarse al zombie
+                if (minDist > ATTACK_RANGE) {
+                    let dx = closestZ.x - n.x;
+                    let dy = closestZ.y - n.y;
+                    let len = Math.hypot(dx, dy);
+                    if (len > 0.1) {
+                        n.vx = (dx / len) * NOOB_SPEED;
+                        n.vy = (dy / len) * NOOB_SPEED;
+                    } else {
+                        n.vx = n.vy = 0;
+                    }
+                } else {
+                    n.vx = n.vy = 0; // ya está en rango
+                }
+            } else {
+                // Huir
+                if (minDist < DETECT_RADIUS) {
+                    let dx = n.x - closestZ.x;
+                    let dy = n.y - closestZ.y;
+                    let len = Math.hypot(dx, dy);
+                    if (len > 0.1) {
+                        n.vx = (dx / len) * NOOB_SPEED;
+                        n.vy = (dy / len) * NOOB_SPEED;
+                    } else {
+                        n.vx = n.vy = 0;
+                    }
                 } else {
                     n.vx = n.vy = 0;
                 }
-            } else {
-                n.vx = n.vy = 0; // no hay peligro
             }
         }
 
-        // ---- aplicar movimiento a todos los móviles (zombies y noobs) ----
+        // 4. Aplicar movimiento
         for (let e of entidades) {
             if (e.type === 'zombie' || e.type === 'robloxian') {
                 e.x += e.vx;
                 e.y += e.vy;
-                // límites del canvas
                 e.x = Math.min(780, Math.max(20, e.x));
                 e.y = Math.min(380, Math.max(20, e.y));
             }
         }
 
-        // ---- colisiones: ataques ----
-        // Noobs armados matan zombies
-        for (let n of noobs) {
-            if (!n.armed) continue;
-            for (let i = zombies.length - 1; i >= 0; i--) {
-                const z = zombies[i];
-                const d = Math.hypot(n.x - z.x, n.y - z.y);
-                if (d < ATTACK_DIST) {
-                    entidades.splice(entidades.indexOf(z), 1);
-                }
+        // 5. Ataques cuerpo a cuerpo (con cooldown)
+        // Incrementar contador de cooldown para todos
+        for (let e of entidades) {
+            if (e.type === 'zombie' || e.type === 'robloxian') {
+                e.lastAttack = (e.lastAttack || 0) + 1;
             }
         }
-        // Zombies matan noobs desarmados
-        for (let z of zombies) {
-            for (let i = noobs.length - 1; i >= 0; i--) {
-                const n = noobs[i];
-                if (n.armed) continue; // no pueden con armados
-                const d = Math.hypot(z.x - n.x, z.y - n.y);
-                if (d < EAT_DIST) {
-                    entidades.splice(entidades.indexOf(n), 1);
+
+        // Ataques de noobs armados contra zombies
+        for (let n of noobs) {
+            if (!n.armed) continue;
+            for (let z of zombies) {
+                let dist = Math.hypot(n.x - z.x, n.y - z.y);
+                if (dist < ATTACK_RANGE && n.lastAttack >= ATTACK_COOLDOWN) {
+                    z.hp -= 1;  // daño 1
+                    n.lastAttack = 0;
+                    if (z.hp <= 0) {
+                        entidades.splice(entidades.indexOf(z), 1);
+                    }
                 }
             }
         }
 
-        // ---- spawners: generar criaturas ----
+        // Ataques de zombies contra noobs (cualquier noob)
+        for (let z of zombies) {
+            for (let n of noobs) {
+                let dist = Math.hypot(z.x - n.x, z.y - n.y);
+                if (dist < ATTACK_RANGE && z.lastAttack >= ATTACK_COOLDOWN) {
+                    n.hp -= 1;  // daño 1
+                    z.lastAttack = 0;
+                    if (n.hp <= 0) {
+                        entidades.splice(entidades.indexOf(n), 1);
+                    }
+                }
+            }
+        }
+
+        // 6. Spawners
         for (let s of spawners) {
             s.spawnCounter = (s.spawnCounter || 0) + 1;
             if (s.spawnCounter >= SPAWN_FRAMES) {
                 s.spawnCounter = 0;
-                // crear nueva criatura cerca del spawner
                 let angle = Math.random() * 2 * Math.PI;
                 let dist = 40 + Math.random() * 30;
                 let nx = s.x + Math.cos(angle) * dist;
@@ -358,14 +385,12 @@
                 }
             }
         }
-
-        // actualizar listas después de muertes (no es necesario reasignar, todo por referencia)
     }
 
-    // ---- dibujado ----
+    // ---- dibujado con barras de vida ----
     function dibujar() {
         ctx.clearRect(0, 0, 800, 400);
-        // cuadrícula sutil
+        // cuadrícula
         ctx.strokeStyle = '#a7bf8a';
         ctx.lineWidth = 0.6;
         for (let i = 0; i < 800; i += 40) {
@@ -376,10 +401,11 @@
         }
 
         for (let e of entidades) {
-            const { type, x, y } = e;
+            const { type, x, y, hp } = e;
 
+            // ---- dibujar sprite según tipo ----
             if (type === 'robloxian') {
-                // Noob base amarillo
+                // Noob base
                 ctx.fillStyle = '#fadf32';
                 ctx.fillRect(x-15, y-20, 30, 25);
                 ctx.fillStyle = '#2a6fdb';
@@ -415,7 +441,6 @@
                 ctx.fillRect(x+15, y-5, 5, 8);
             }
             else if (type === 'spawner') {
-                // color base según tipo
                 ctx.fillStyle = e.spawnType === 'noob' ? '#b87cd9' : '#7d4283';
                 ctx.fillRect(x-20, y-20, 40, 40);
                 ctx.fillStyle = '#6b3f8c';
@@ -449,14 +474,29 @@
                 ctx.beginPath(); ctx.moveTo(x-5, y-20); ctx.lineTo(x-5, y+20); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(x+5, y-20); ctx.lineTo(x+5, y+20); ctx.stroke();
             }
-            // borde de selección tenue
+
+            // ---- barra de vida (solo para noobs y zombies) ----
+            if (type === 'robloxian' || type === 'zombie') {
+                let vida = hp !== undefined ? hp : 3; // por si acaso
+                for (let i = 0; i < vida; i++) {
+                    ctx.fillStyle = '#ff3333';
+                    ctx.beginPath();
+                    ctx.arc(x - 15 + i*10, y - 35, 4, 0, 2*Math.PI);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 10px monospace';
+                    ctx.fillText('❤️', x - 17 + i*10, y - 32);
+                }
+            }
+
+            // borde de selección
             ctx.strokeStyle = '#2f2f2f';
             ctx.lineWidth = 1;
             ctx.strokeRect(x-21, y-21, 42, 42);
         }
     }
 
-    // ---- interacción: clic izquierdo para colocar ----
+    // ---- eventos de clic ----
     canvas.addEventListener('click', (e) => {
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
@@ -467,13 +507,12 @@
         const x = Math.min(780, Math.max(20, mx));
         const y = Math.min(380, Math.max(20, my));
 
-        // Si el tipo es spawner y hacemos clic sobre un spawner existente, cambiar modo
+        // Cambiar modo spawner si corresponde
         if (tipoSeleccionado === 'spawner') {
-            const spawnerExistente = entidades.find(e => e.type === 'spawner' && Math.hypot(e.x - x, e.y - y) < 30);
-            if (spawnerExistente) {
-                // alternar tipo
-                spawnerExistente.spawnType = spawnerExistente.spawnType === 'noob' ? 'zombie' : 'noob';
-                return; // no crear nuevo
+            const spawner = entidades.find(e => e.type === 'spawner' && Math.hypot(e.x - x, e.y - y) < 30);
+            if (spawner) {
+                spawner.spawnType = spawner.spawnType === 'noob' ? 'zombie' : 'noob';
+                return;
             }
         }
 
@@ -483,7 +522,7 @@
         } else if (tipoSeleccionado === 'zombie') {
             entidades.push(crearEntidad('zombie', x, y));
         } else if (tipoSeleccionado === 'spawner') {
-            entidades.push(crearEntidad('spawner', x, y, { spawnType: 'noob', spawnCounter: 0 }));
+            entidades.push(crearEntidad('spawner', x, y, { spawnType: 'noob' }));
         } else if (tipoSeleccionado === 'weapon') {
             entidades.push(crearEntidad('weapon', x, y));
         } else if (tipoSeleccionado === 'block') {
@@ -491,7 +530,6 @@
         }
     });
 
-    // ---- clic derecho: borrar entidad más cercana ----
     canvas.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
@@ -514,15 +552,14 @@
         }
     });
 
-    // ---- bucle de animación ----
+    // ---- bucle del juego ----
     function gameLoop() {
-        actualizarMovimientos();
+        actualizar();
         dibujar();
         requestAnimationFrame(gameLoop);
     }
     gameLoop();
 
-    // ---- estado inicial UI ----
     setSelectedType('robloxian');
 })();
 </script>
