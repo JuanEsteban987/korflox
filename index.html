@@ -3,947 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zombie Survival.io - Multiplayer P2P</title>
+    <title>PVZ Creator - Crea tus plantas, zombies y niveles</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: linear-gradient(145deg, #1a4d2a 0%, #2e7d32 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
-            color: white;
-        }
-
-        #gameContainer {
-            position: relative;
-            width: 1000px;
-            height: 700px;
-        }
-
-        #gameCanvas {
-            background: #2a5a2a;
-            border: 3px solid #444;
-            cursor: crosshair;
-            width: 100%;
-            height: 100%;
-        }
-
-        #ui {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
         }
-
-        #stats {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 20px;
+        .game-container {
+            background: #5b8c5a;
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,200,0.4);
+            border: 5px solid #7b5e3b;
+        }
+        .main-panel {
             display: flex;
-            gap: 30px;
-            font-size: 18px;
-            border: 1px solid #ff6b6b;
-            pointer-events: auto;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-
-        #skinSelector {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: flex;
-            gap: 10px;
-            border: 1px solid #4ecdc4;
-            pointer-events: auto;
+        .grid-area {
+            background: #3e6b3e;
+            padding: 16px;
+            border-radius: 24px;
+            border: 4px solid #9b7e4b;
+            box-shadow: inset 0 0 0 2px #2d4d2d;
         }
-
-        .skin-option {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.2s;
-            border: 2px solid transparent;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(9, 64px);
+            grid-template-rows: repeat(5, 64px);
+            gap: 6px;
+            background: #5f8b4b;
+            padding: 8px;
+            border-radius: 16px;
+        }
+        .cell {
+            background: #8bb56a;
+            border-radius: 12px;
+            box-shadow: inset 0 -4px 0 #4b6e3a, 0 2px 5px black;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 26px;
+            cursor: pointer;
+            transition: 0.1s ease;
+            position: relative;
         }
-
-        .skin-option:hover {
-            transform: scale(1.1);
+        .cell.planta { background: #7ec850; box-shadow: inset 0 -4px 0 #3f7a23, 0 2px 0 #1f3f1f; }
+        .cell.zombie { background: #6d4c3d; box-shadow: inset 0 -4px 0 #3f2c1f, 0 2px 0 #2d1e15; }
+        .cell:hover { filter: brightness(1.1); transform: scale(0.98); }
+        .plant-emoji { font-size: 36px; filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.4)); }
+        .zombie-emoji { font-size: 34px; filter: drop-shadow(2px 4px 2px #301f12); }
+        
+        .toolbar {
+            background: #c9a87c;
+            border-radius: 30px;
+            padding: 20px;
+            min-width: 260px;
+            border: 5px solid #9b7e4b;
+            box-shadow: inset 0 2px 10px #efd9a8, 0 8px 0 #6b4f2b;
+            color: #2d2d0a;
         }
-
-        .skin-option.selected {
-            border-color: #4ecdc4;
-            transform: scale(1.1);
-        }
-
-        #playerList {
-            position: absolute;
-            top: 80px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 10px;
-            min-width: 200px;
-            border: 1px solid #ff6b6b;
-            pointer-events: auto;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        #playerList h3 {
-            margin-bottom: 10px;
-            color: #ff6b6b;
+        h2 {
+            margin: 0 0 12px 0;
             text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: 900;
+            text-shadow: 2px 2px 0 #b98f47;
         }
-
-        #playerListItems {
-            list-style: none;
+        .section {
+            background: #b58b54;
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #eedbaa;
         }
-
-        #playerListItems li {
-            padding: 8px;
-            margin: 2px 0;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .creator-item {
+            background: #f7e3b1;
+            border-radius: 40px;
+            padding: 8px 16px;
             display: flex;
             align-items: center;
             gap: 8px;
+            border: 3px solid #8f6b3e;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #6b4f2b;
         }
-
-        #connectionStatus {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            border: 1px solid #4ecdc4;
+        .creator-item button {
+            margin-left: auto;
+            background: #a75252;
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #5f3232;
         }
-
-        #connectionStatus.connected {
-            border-color: #2ecc71;
-        }
-
-        #connectionStatus.disconnected {
-            border-color: #e74c3c;
-        }
-
-        #joinScreen {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .creator-item button:hover { background: #c55454; }
+        input, select {
+            background: #faf0cf;
+            border: 3px solid #8b6a40;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-weight: bold;
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
+            margin: 5px 0;
+            outline: none;
         }
-
-        #joinForm {
-            background: #2a2a2a;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            border: 2px solid #4ecdc4;
-            max-width: 400px;
-        }
-
-        #joinForm input {
-            padding: 10px;
-            margin: 10px 0 20px;
+        .btn {
+            background: #fedb7a;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 16px;
+            font-weight: 900;
+            box-shadow: 0 5px 0 #b37b3a;
+            cursor: pointer;
             width: 100%;
             font-size: 16px;
-            border-radius: 5px;
-            border: none;
-            background: #3a3a3a;
-            color: white;
+            transition: 0.07s linear;
+            margin: 4px 0;
+            border: 2px solid #ffeab3;
         }
-
-        #roomInfo {
-            background: #3a3a3a;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        #roomId {
-            font-family: monospace;
-            font-size: 24px;
-            color: #4ecdc4;
-            letter-spacing: 2px;
-            margin: 10px 0;
-            padding: 10px;
-            background: #2a2a2a;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #joinForm button {
-            padding: 12px 30px;
-            font-size: 18px;
-            background: #4ecdc4;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            color: white;
-            font-weight: bold;
-            transition: background 0.2s;
-            margin: 5px;
-        }
-
-        #joinForm button:hover {
-            background: #45b7b0;
-        }
-
-        #gameOver {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            display: none;
-            z-index: 30;
-            border: 2px solid #ff6b6b;
-        }
-
-        #gameOver h2 {
-            color: #ff6b6b;
-            margin-bottom: 20px;
-            font-size: 32px;
-        }
-
-        #gameOver button {
-            padding: 12px 30px;
-            font-size: 18px;
-            background: #4ecdc4;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            color: white;
-            margin-top: 20px;
-        }
-
-        .weapon-info {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        #roomControls {
+        .btn:active { transform: translateY(5px); box-shadow: none; }
+        .btn.play { background: #6fbf4c; box-shadow: 0 5px 0 #2f6b1f; color: white; }
+        .share-bar {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .share-bar input {
+            flex: 1;
+            background: #e6d8b5;
+            font-size: 12px;
+            border-radius: 40px;
+        }
+        .lawn-mower { font-size: 22px; position: absolute; left: 2px; bottom: 0px; filter: drop-shadow(0 4px 2px #333); }
+        .sun-counter { 
+            background: #f5c542; padding: 4px 12px; border-radius: 40px; font-weight: bold;
+            display: inline-block; border: 3px solid #a67c1e; margin-bottom: 8px; box-shadow: 0 4px 0 #7b5e2a;
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="1000" height="700"></canvas>
-        
-        <div id="ui">
-            <div id="stats">
-                <span>❤️ <span id="health">100</span></span>
-                <span>🔫 <span id="ammo">30</span></span>
-                <span>💀 <span id="kills">0</span></span>
+<div class="game-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #ecd59b; padding: 8px 20px; border-radius: 60px; border: 4px solid #a48144;">
+        <span class="sun-counter">☀️ <span id="sunDisplay">150</span></span>
+        <span style="font-weight: 900; font-size: 22px;">🌱 CREADOR PVZ 🌱</span>
+        <span id="waveDisplay" style="background: #3f2530; color: #efc6a0; padding: 6px 14px; border-radius: 30px;">🌊 1/3</span>
+    </div>
+    <div class="main-panel">
+        <div class="grid-area">
+            <div class="grid" id="gameGrid"></div>
+        </div>
+        <div class="toolbar" id="toolbar">
+            <h2>🧪 LABORATORIO</h2>
+            <div class="section">
+                <strong>🌻 PLANTAS CREADAS</strong>
+                <div id="plantList" class="item-list"></div>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="newPlantName" placeholder="ej: Petacereza" maxlength="12" value="Exploto">
+                    <input type="text" id="newPlantEmoji" placeholder="🥦" maxlength="3" value="🍒" style="width: 60px;">
+                </div>
+                <button class="btn" id="addPlantBtn">➕ CREAR PLANTA</button>
             </div>
-            <div id="skinSelector"></div>
-        </div>
-
-        <div id="playerList">
-            <h3>👥 Jugadores Conectados</h3>
-            <ul id="playerListItems"></ul>
-        </div>
-
-        <div id="connectionStatus" class="disconnected">
-            🔌 Desconectado
-        </div>
-
-        <div id="joinScreen">
-            <div id="joinForm">
-                <h2 style="color: #4ecdc4; margin-bottom: 20px;">Zombie Survival.io P2P</h2>
-                <input type="text" id="playerName" placeholder="Tu nombre" maxlength="15" value="Jugador" + Math.floor(Math.random() * 1000)>
-                
-                <div id="roomInfo">
-                    <p style="color: #888; margin-bottom: 5px;">Tu código de sala:</p>
-                    <div id="roomId" onclick="copyRoomId()">CARGANDO...</div>
-                    <p style="color: #888; font-size: 12px; margin-top: 5px;">Click para copiar</p>
+            <div class="section">
+                <strong>🧟 ZOMBIES CREADOS</strong>
+                <div id="zombieList" class="item-list"></div>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="newZombieName" placeholder="ej: Zombiestrella" value="Rapero">
+                    <input type="text" id="newZombieEmoji" placeholder="🧟" maxlength="3" value="🧟‍♂️" style="width: 60px;">
                 </div>
-
-                <div id="roomControls">
-                    <input type="text" id="joinRoomId" placeholder="Código de sala" style="flex: 1;">
-                    <button onclick="joinRoom()">Unirse</button>
-                </div>
-
-                <div style="margin-top: 20px;">
-                    <button onclick="createRoom()" style="background: #ff6b6b;">Crear Nueva Sala</button>
-                </div>
+                <button class="btn" id="addZombieBtn">➕ CREAR ZOMBIE</button>
             </div>
-        </div>
-
-        <div id="gameOver">
-            <h2>💀 HAS MUERTO 💀</h2>
-            <p style="font-size: 24px; margin: 20px 0;">Puntuación: <span id="finalScore">0</span></p>
-            <p style="margin-bottom: 20px;">Asesinatos: <span id="finalKills">0</span></p>
-            <button onclick="respawn()">Reintentar</button>
-        </div>
-
-        <div class="weapon-info">
-            <span>🔫 Pistola | ⚡ Recarga automática</span>
+            <div class="section">
+                <strong>⚙️ CONTROLES</strong>
+                <button class="btn" id="saveLevelBtn">💾 GUARDAR NIVEL</button>
+                <button class="btn" id="loadLevelBtn">📂 CARGAR NIVEL</button>
+                <button class="btn play" id="nextWaveBtn">🌊 SIGUIENTE OLEADA</button>
+                <button class="btn" id="resetGameBtn">🔄 REINICIAR</button>
+            </div>
+            <div class="share-bar">
+                <input type="text" id="shareUrl" readonly placeholder="Comparte tu nivel..." value="🎮 Listo para compartir">
+                <button class="btn" id="copyBtn" style="width: auto;">📋</button>
+            </div>
+            <p style="font-size: 12px; text-align: center;">Click: planta · Ctrl+Click: zombie · Delete: borra</p>
         </div>
     </div>
+</div>
 
-    <script>
-        // Sistema de skins persistente
-        const SKINS = {
-            DEFAULT: { color: '#ffd700', emoji: '👤', name: 'Default' },
-            SOLDIER: { color: '#4ecdc4', emoji: '🪖', name: 'Soldado' },
-            NINJA: { color: '#95a5a6', emoji: '🥷', name: 'Ninja' },
-            SURVIVOR: { color: '#ff6b6b', emoji: '🧟', name: 'Superviviente' },
-            MEDIC: { color: '#2ecc71', emoji: '⚕️', name: 'Médico' }
-        };
+<script>
+    (function() {
+        // ---------- Estado Global ----------
+        const ROWS = 5, COLS = 9;
 
-        // Cargar skin guardada
-        let selectedSkin = localStorage.getItem('selectedSkin') || 'DEFAULT';
+        // gridData: cada celda: { type: 'planta'|'zombie'|null, emoji: string, nombre: string, idCustom?: string }
+        let gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
 
-        // Configuración del canvas
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        // colecciones personalizables
+        let plantas = JSON.parse(localStorage.getItem('pvz_plantas')) || [
+            { nombre: 'Girasol', emoji: '🌻' },
+            { nombre: 'LanzaGuisantes', emoji: '🟢' },
+            { nombre: 'Nuez', emoji: '🥥' }
+        ];
+        let zombies = JSON.parse(localStorage.getItem('pvz_zombies')) || [
+            { nombre: 'Zombie básico', emoji: '🧟' },
+            { nombre: 'Zombie cono', emoji: '🧟‍♂️' },
+            { nombre: 'Zombie cubo', emoji: '🧟‍♀️' }
+        ];
 
-        // Variables del juego
-        let gameRunning = false;
-        let playerId = null;
-        let players = {};
-        let zombies = [];
-        let bullets = [];
-        let playerName = '';
-        let lastShot = 0;
-        const SHOT_COOLDOWN = 200;
+        // oleadas
+        let waves = [ [], [], [] ];  // cada wave: array de { row, col, zombieEmoji, zombieName }
+        let currentWave = 0;  // 0,1,2
+        let sun = 150;
+        let selectedTool = 'planta'; // 'planta' o 'zombie'
 
-        // Estadísticas del jugador
-        let playerHealth = 100;
-        let playerAmmo = 30;
-        let playerKills = 0;
-        let playerScore = 0;
+        // elemento seleccionado para colocar (índice en la lista)
+        let selectedPlantIndex = 0;
+        let selectedZombieIndex = 0;
 
-        // Variables P2P
-        let peer = null;
-        let connections = {};
-        let roomId = null;
-        let isHost = false;
-
-        // Inicializar skins UI
-        function initSkinSelector() {
-            const skinSelector = document.getElementById('skinSelector');
-            skinSelector.innerHTML = '';
-            
-            Object.entries(SKINS).forEach(([key, skin]) => {
-                const div = document.createElement('div');
-                div.className = `skin-option ${key === selectedSkin ? 'selected' : ''}`;
-                div.style.backgroundColor = skin.color;
-                div.title = skin.name;
-                div.onclick = () => selectSkin(key);
-                div.textContent = skin.emoji;
-                skinSelector.appendChild(div);
-            });
+        // ---------- Utilidades ----------
+        function saveToStorage() {
+            localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
+            localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
         }
 
-        function selectSkin(skinKey) {
-            selectedSkin = skinKey;
-            localStorage.setItem('selectedSkin', skinKey);
-            
-            document.querySelectorAll('.skin-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            event.target.classList.add('selected');
-            
-            if (playerId && players[playerId]) {
-                players[playerId].skin = skinKey;
-                broadcastGameState();
-            }
-        }
+        // Renderiza grid completo
+        function renderGrid() {
+            const gridEl = document.getElementById('gameGrid');
+            gridEl.innerHTML = '';
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
 
-        // Funciones P2P
-        async function createRoom() {
-            try {
-                peer = new Peer();
-                
-                peer.on('open', (id) => {
-                    roomId = id;
-                    document.getElementById('roomId').textContent = id;
-                    isHost = true;
-                    startGame();
-                });
-
-                peer.on('connection', (conn) => {
-                    connections[conn.peer] = conn;
-                    
-                    conn.on('open', () => {
-                        console.log('Cliente conectado:', conn.peer);
-                        
-                        // Enviar estado actual
-                        conn.send({
-                            type: 'init',
-                            playerId: playerId,
-                            players: players,
-                            zombies: zombies,
-                            bullets: bullets
-                        });
-
-                        // Crear nuevo jugador para el cliente
-                        const newPlayerId = conn.peer;
-                        players[newPlayerId] = {
-                            id: newPlayerId,
-                            name: 'Jugador ' + Object.keys(players).length,
-                            x: Math.random() * canvas.width,
-                            y: Math.random() * canvas.height,
-                            skin: 'DEFAULT',
-                            kills: 0,
-                            score: 0
-                        };
-
-                        broadcastGameState();
-                    });
-
-                    conn.on('data', handleData);
-                    conn.on('close', () => {
-                        delete connections[conn.peer];
-                        delete players[conn.peer];
-                        broadcastGameState();
-                    });
-                });
-
-            } catch (error) {
-                console.error('Error creando sala:', error);
-            }
-        }
-
-        async function joinRoom() {
-            const targetRoomId = document.getElementById('joinRoomId').value.trim();
-            if (!targetRoomId) return;
-
-            try {
-                peer = new Peer();
-                
-                peer.on('open', (id) => {
-                    roomId = id;
-                    const conn = peer.connect(targetRoomId);
-                    
-                    conn.on('open', () => {
-                        connections[targetRoomId] = conn;
-                        
-                        conn.on('data', handleData);
-                        conn.on('close', () => {
-                            delete connections[targetRoomId];
-                        });
-
-                        // Enviar datos del jugador
-                        conn.send({
-                            type: 'join',
-                            playerId: id,
-                            name: playerName,
-                            skin: selectedSkin
-                        });
-
-                        startGame();
-                    });
-                });
-
-            } catch (error) {
-                console.error('Error uniéndose a sala:', error);
-            }
-        }
-
-        function handleData(data) {
-            switch(data.type) {
-                case 'init':
-                    playerId = data.playerId;
-                    players = data.players;
-                    zombies = data.zombies;
-                    bullets = data.bullets;
-                    break;
-                    
-                case 'join':
-                    players[data.playerId] = {
-                        id: data.playerId,
-                        name: data.name,
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height,
-                        skin: data.skin,
-                        kills: 0,
-                        score: 0
-                    };
-                    broadcastGameState();
-                    break;
-                    
-                case 'playerUpdate':
-                    if (players[data.playerId]) {
-                        players[data.playerId].x = data.x;
-                        players[data.playerId].y = data.y;
-                        players[data.playerId].skin = data.skin;
-                    }
-                    break;
-                    
-                case 'shoot':
-                    bullets.push({
-                        x: data.x,
-                        y: data.y,
-                        vx: data.vx,
-                        vy: data.vy,
-                        owner: data.playerId
-                    });
-                    break;
-                    
-                case 'zombieUpdate':
-                    zombies = data.zombies;
-                    break;
-                    
-                case 'gameState':
-                    players = data.players;
-                    zombies = data.zombies;
-                    bullets = data.bullets;
-                    break;
-            }
-        }
-
-        function broadcastGameState() {
-            const data = {
-                type: 'gameState',
-                players: players,
-                zombies: zombies,
-                bullets: bullets
-            };
-            
-            Object.values(connections).forEach(conn => {
-                if (conn.open) {
-                    conn.send(data);
-                }
-            });
-        }
-
-        function copyRoomId() {
-            navigator.clipboard.writeText(roomId);
-            alert('¡Código de sala copiado!');
-        }
-
-        function startGame() {
-            playerName = document.getElementById('playerName').value.trim() || 'Jugador';
-            
-            if (!players[playerId]) {
-                players[playerId] = {
-                    id: playerId,
-                    name: playerName,
-                    x: canvas.width / 2,
-                    y: canvas.height / 2,
-                    skin: selectedSkin,
-                    kills: 0,
-                    score: 0
-                };
-            }
-
-            document.getElementById('joinScreen').style.display = 'none';
-            document.getElementById('connectionStatus').className = 'connected';
-            document.getElementById('connectionStatus').innerHTML = '🟢 Conectado - ' + Object.keys(connections).length + ' jugadores';
-            
-            gameRunning = true;
-            
-            if (isHost) {
-                spawnZombies();
-            }
-            
-            gameLoop();
-            broadcastLoop();
-        }
-
-        // Broadcast loop para hosts
-        function broadcastLoop() {
-            setInterval(() => {
-                if (gameRunning && isHost) {
-                    broadcastGameState();
-                }
-            }, 100);
-        }
-
-        // Spawn de zombies (solo host)
-        function spawnZombies() {
-            setInterval(() => {
-                if (!gameRunning || !isHost) return;
-                
-                for (let i = 0; i < 2; i++) {
-                    if (zombies.length < 30) {
-                        const side = Math.floor(Math.random() * 4);
-                        let x, y;
-                        
-                        switch(side) {
-                            case 0: x = Math.random() * canvas.width; y = -30; break;
-                            case 1: x = canvas.width + 30; y = Math.random() * canvas.height; break;
-                            case 2: x = Math.random() * canvas.width; y = canvas.height + 30; break;
-                            case 3: x = -30; y = Math.random() * canvas.height; break;
+                    const content = gridData[r][c];
+                    if (content) {
+                        if (content.type === 'planta') {
+                            cell.classList.add('planta');
+                            const span = document.createElement('span');
+                            span.className = 'plant-emoji';
+                            span.textContent = content.emoji || '🌱';
+                            cell.appendChild(span);
+                        } else if (content.type === 'zombie') {
+                            cell.classList.add('zombie');
+                            const span = document.createElement('span');
+                            span.className = 'zombie-emoji';
+                            span.textContent = content.emoji || '🧟';
+                            cell.appendChild(span);
                         }
-                        
-                        zombies.push({
-                            x: x,
-                            y: y,
-                            health: 50,
-                            speed: 1.5,
-                            size: 20
-                        });
                     }
+                    // agregar cortadora (opcional, solo primera columna)
+                    if (c === 0 && !content) {
+                        const mower = document.createElement('span');
+                        mower.className = 'lawn-mower';
+                        mower.textContent = '🛻';
+                        cell.appendChild(mower);
+                    }
+                    gridEl.appendChild(cell);
                 }
-            }, 3000);
+            }
+            updateSunDisplay();
+            updateWaveDisplay();
         }
 
-        // Control del jugador
-        let keys = {};
-        let mouseX = 0, mouseY = 0;
+        function updateSunDisplay() {
+            document.getElementById('sunDisplay').innerText = sun;
+        }
+        function updateWaveDisplay() {
+            document.getElementById('waveDisplay').innerHTML = `🌊 ${currentWave+1}/${waves.length}`;
+        }
 
-        document.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
-        document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
-        
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            mouseX = (e.clientX - rect.left) * scaleX;
-            mouseY = (e.clientY - rect.top) * scaleY;
+        // poblar listas en toolbar
+        function renderLists() {
+            const plantListDiv = document.getElementById('plantList');
+            const zombieListDiv = document.getElementById('zombieList');
+            
+            plantListDiv.innerHTML = '';
+            plantas.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.className = `creator-item ${selectedPlantIndex === idx ? 'selected' : ''}`;
+                div.style.background = selectedPlantIndex === idx ? '#f5e57a' : '#f7e3b1';
+                div.innerHTML = `<span style="font-size:26px;">${p.emoji}</span> ${p.nombre}`;
+                const delBtn = document.createElement('button');
+                delBtn.textContent = '✕';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (plantas.length > 1) {
+                        plantas.splice(idx, 1);
+                        if (selectedPlantIndex >= plantas.length) selectedPlantIndex = plantas.length-1;
+                        saveToStorage();
+                        renderLists();
+                    } else alert('Debe haber al menos 1 planta');
+                };
+                div.appendChild(delBtn);
+                div.onclick = () => {
+                    selectedPlantIndex = idx;
+                    selectedTool = 'planta';
+                    renderLists();
+                };
+                plantListDiv.appendChild(div);
+            });
+
+            zombieListDiv.innerHTML = '';
+            zombies.forEach((z, idx) => {
+                const div = document.createElement('div');
+                div.className = `creator-item ${selectedZombieIndex === idx ? 'selected' : ''}`;
+                div.style.background = selectedZombieIndex === idx ? '#d68b6b' : '#f7e3b1';
+                div.innerHTML = `<span style="font-size:26px;">${z.emoji}</span> ${z.nombre}`;
+                const delBtn = document.createElement('button');
+                delBtn.textContent = '✕';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (zombies.length > 1) {
+                        zombies.splice(idx, 1);
+                        if (selectedZombieIndex >= zombies.length) selectedZombieIndex = zombies.length-1;
+                        saveToStorage();
+                        renderLists();
+                    } else alert('Debe haber al menos 1 zombie');
+                };
+                div.appendChild(delBtn);
+                div.onclick = () => {
+                    selectedZombieIndex = idx;
+                    selectedTool = 'zombie';
+                    renderLists();
+                };
+                zombieListDiv.appendChild(div);
+            });
+        }
+
+        // Colocar en grid
+        function handleCellClick(e) {
+            const row = parseInt(e.currentTarget.dataset.row);
+            const col = parseInt(e.currentTarget.dataset.col);
+            const isCtrl = e.ctrlKey || e.metaKey;
+
+            // delete: si se hace click con tecla delete (usamos Alt+Click para simular delete)
+            if (e.altKey) {
+                gridData[row][col] = null;
+                renderGrid();
+                return;
+            }
+
+            if (isCtrl) { // zombie
+                if (selectedTool === 'zombie') {
+                    const zombie = zombies[selectedZombieIndex];
+                    gridData[row][col] = { type: 'zombie', emoji: zombie.emoji, nombre: zombie.nombre };
+                } else {
+                    // si no hay zombie seleccionado explícitamente, usar zombie indice actual
+                    const zombie = zombies[selectedZombieIndex];
+                    gridData[row][col] = { type: 'zombie', emoji: zombie.emoji, nombre: zombie.nombre };
+                }
+            } else { // planta
+                if (selectedTool === 'planta') {
+                    const planta = plantas[selectedPlantIndex];
+                    gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
+                } else {
+                    const planta = plantas[selectedPlantIndex];
+                    gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
+                }
+            }
+            renderGrid();
+        }
+
+        // Inicializar eventos en celdas
+        function attachGridEvents() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.removeEventListener('click', handleCellClick);
+                cell.addEventListener('click', handleCellClick);
+            });
+        }
+
+        // Guardar wave actual en waves[currentWave] a partir de grid zombies
+        function captureCurrentWave() {
+            const waveZombies = [];
+            for (let r=0; r<ROWS; r++) {
+                for (let c=0; c<COLS; c++) {
+                    const cell = gridData[r][c];
+                    if (cell && cell.type === 'zombie') {
+                        waveZombies.push({ row: r, col: c, emoji: cell.emoji, nombre: cell.nombre });
+                    }
+                }
+            }
+            waves[currentWave] = waveZombies;
+        }
+
+        // Cargar wave actual en grid (solo zombies, las plantas no se sobrescriben, pero cuidado: normalmente se mezcla)
+        function loadWaveIntoGrid() {
+            // Primero quitamos todos los zombies del grid
+            for (let r=0; r<ROWS; r++) {
+                for (let c=0; c<COLS; c++) {
+                    if (gridData[r][c] && gridData[r][c].type === 'zombie') {
+                        gridData[r][c] = null;
+                    }
+                }
+            }
+            // Cargar zombies de la wave actual
+            const wave = waves[currentWave] || [];
+            wave.forEach(z => {
+                if (z.row < ROWS && z.col < COLS) {
+                    gridData[z.row][z.col] = { type: 'zombie', emoji: z.emoji, nombre: z.nombre };
+                }
+            });
+            renderGrid();
+        }
+
+        // Generar URL para compartir
+        function generateShareUrl() {
+            const data = {
+                plantas: plantas,
+                zombies: zombies,
+                waves: waves,
+                grid: gridData.map(row => row.map(cell => cell ? { type: cell.type, emoji: cell.emoji, nombre: cell.nombre } : null))
+            };
+            const json = JSON.stringify(data);
+            const compressed = btoa(encodeURIComponent(json)); // base64
+            const url = new URL(window.location.href);
+            url.hash = compressed;
+            return url.toString();
+        }
+
+        function loadFromHash() {
+            if (window.location.hash.length > 1) {
+                try {
+                    const compressed = window.location.hash.substring(1);
+                    const json = decodeURIComponent(atob(compressed));
+                    const data = JSON.parse(json);
+                    if (data.plantas) plantas = data.plantas;
+                    if (data.zombies) zombies = data.zombies;
+                    if (data.waves) waves = data.waves;
+                    if (data.grid) {
+                        gridData = data.grid;
+                    }
+                    // asegurar waves
+                    while (waves.length < 3) waves.push([]);
+                    currentWave = 0;
+                    saveToStorage();
+                    renderLists();
+                    loadWaveIntoGrid(); // Esto actualiza grid con zombies de wave0 (plantas se preservan)
+                    renderGrid();
+                } catch (e) {
+                    alert('Error al cargar nivel');
+                }
+            }
+        }
+
+        // ---------- Event Listeners ----------
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGrid();
+            attachGridEvents();
+            renderLists();
+            loadFromHash(); // si hay hash lo carga
+
+            // Botones
+            document.getElementById('addPlantBtn').addEventListener('click', () => {
+                const name = document.getElementById('newPlantName').value.trim() || 'Planta';
+                const emoji = document.getElementById('newPlantEmoji').value.trim() || '🌿';
+                plantas.push({ nombre: name, emoji: emoji });
+                saveToStorage();
+                renderLists();
+            });
+
+            document.getElementById('addZombieBtn').addEventListener('click', () => {
+                const name = document.getElementById('newZombieName').value.trim() || 'Zombie';
+                const emoji = document.getElementById('newZombieEmoji').value.trim() || '🧟';
+                zombies.push({ nombre: name, emoji: emoji });
+                saveToStorage();
+                renderLists();
+            });
+
+            document.getElementById('saveLevelBtn').addEventListener('click', () => {
+                captureCurrentWave(); // guarda wave actual
+                const url = generateShareUrl();
+                document.getElementById('shareUrl').value = url;
+            });
+
+            document.getElementById('loadLevelBtn').addEventListener('click', () => {
+                const url = prompt('Pega la URL del nivel:');
+                if (url) {
+                    try {
+                        const hash = new URL(url).hash;
+                        if (hash) {
+                            window.location.hash = hash.substring(1);
+                            loadFromHash();
+                        }
+                    } catch { alert('URL inválida'); }
+                }
+            });
+
+            document.getElementById('nextWaveBtn').addEventListener('click', () => {
+                captureCurrentWave(); // guarda wave actual antes de cambiar
+                if (currentWave < waves.length-1) {
+                    currentWave++;
+                } else {
+                    // opcional: añadir otra wave, pero lo dejamos en ciclo 0
+                    currentWave = 0;
+                }
+                loadWaveIntoGrid();
+                sun += 50;
+                updateSunDisplay();
+            });
+
+            document.getElementById('resetGameBtn').addEventListener('click', () => {
+                if (confirm('Reiniciar nivel?')) {
+                    gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+                    waves = [ [], [], [] ];
+                    currentWave = 0;
+                    sun = 150;
+                    renderGrid();
+                    updateSunDisplay();
+                }
+            });
+
+            document.getElementById('copyBtn').addEventListener('click', () => {
+                const shareInput = document.getElementById('shareUrl');
+                shareInput.select();
+                document.execCommand('copy');
+                alert('Enlace copiado!');
+            });
         });
 
-        canvas.addEventListener('click', shoot);
-
-        function shoot() {
-            if (!gameRunning || !playerId || !players[playerId] || playerAmmo <= 0) return;
-            
-            const now = Date.now();
-            if (now - lastShot < SHOT_COOLDOWN) return;
-            
-            lastShot = now;
-            playerAmmo--;
-            
-            const player = players[playerId];
-            const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
-            
-            const bullet = {
-                x: player.x,
-                y: player.y,
-                vx: Math.cos(angle) * 8,
-                vy: Math.sin(angle) * 8,
-                owner: playerId
-            };
-            
-            bullets.push(bullet);
-            
-            // Broadcast disparo
-            Object.values(connections).forEach(conn => {
-                if (conn.open) {
-                    conn.send({
-                        type: 'shoot',
-                        playerId: playerId,
-                        x: bullet.x,
-                        y: bullet.y,
-                        vx: bullet.vx,
-                        vy: bullet.vy
-                    });
-                }
-            });
-        }
-
-        function updatePlayer() {
-            if (!playerId || !players[playerId]) return;
-            
-            const player = players[playerId];
-            const speed = 3;
-            let moved = false;
-            
-            if (keys['w'] || keys['arrowup']) { player.y -= speed; moved = true; }
-            if (keys['s'] || keys['arrowdown']) { player.y += speed; moved = true; }
-            if (keys['a'] || keys['arrowleft']) { player.x -= speed; moved = true; }
-            if (keys['d'] || keys['arrowright']) { player.x += speed; moved = true; }
-            
-            player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
-            player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
-            
-            if (moved) {
-                // Broadcast movimiento
-                Object.values(connections).forEach(conn => {
-                    if (conn.open) {
-                        conn.send({
-                            type: 'playerUpdate',
-                            playerId: playerId,
-                            x: player.x,
-                            y: player.y,
-                            skin: player.skin
-                        });
-                    }
-                });
-            }
-        }
-
-        function updateZombies() {
-            if (!isHost) return; // Solo host actualiza zombies
-            
-            if (!playerId || !players[playerId]) return;
-            
-            const player = players[playerId];
-            
-            zombies = zombies.filter(zombie => {
-                if (zombie.health <= 0) return false;
-                
-                // Encontrar jugador más cercano
-                let closestPlayer = null;
-                let closestDist = Infinity;
-                
-                Object.values(players).forEach(p => {
-                    const dx = p.x - zombie.x;
-                    const dy = p.y - zombie.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closestPlayer = p;
-                    }
-                });
-                
-                if (closestPlayer) {
-                    const dx = closestPlayer.x - zombie.x;
-                    const dy = closestPlayer.y - zombie.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (dist > 0) {
-                        zombie.x += (dx / dist) * zombie.speed;
-                        zombie.y += (dy / dist) * zombie.speed;
-                    }
-                    
-                    // Daño al jugador
-                    if (dist < 30 && closestPlayer.id === playerId) {
-                        playerHealth -= 0.5;
-                        if (playerHealth <= 0) {
-                            gameOver();
-                        }
-                    }
-                }
-                
-                return true;
-            });
-        }
-
-        function updateBullets() {
-            bullets = bullets.filter(bullet => {
-                bullet.x += bullet.vx;
-                bullet.y += bullet.vy;
-                
-                if (bullet.x < 0 || bullet.x > canvas.width || 
-                    bullet.y < 0 || bullet.y > canvas.height) {
-                    return false;
-                }
-                
-                // Solo host procesa colisiones
-                if (isHost) {
-                    for (let i = 0; i < zombies.length; i++) {
-                        const zombie = zombies[i];
-                        const dx = bullet.x - zombie.x;
-                        const dy = bullet.y - zombie.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (dist < 25) {
-                            zombie.health -= 25;
-                            
-                            if (zombie.health <= 0 && bullet.owner === playerId) {
-                                playerKills++;
-                                playerScore += 100;
-                                playerAmmo += 5;
-                            }
-                            
-                            return false;
-                        }
-                    }
-                }
-                
-                return true;
-            });
-            
-            if (playerAmmo <= 0) {
-                setTimeout(() => {
-                    playerAmmo = 30;
-                }, 2000);
-            }
-        }
-
-        function gameOver() {
-            gameRunning = false;
-            document.getElementById('finalScore').textContent = playerScore;
-            document.getElementById('finalKills').textContent = playerKills;
-            document.getElementById('gameOver').style.display = 'block';
-        }
-
-        function respawn() {
-            if (playerId && players[playerId]) {
-                players[playerId].x = canvas.width / 2;
-                players[playerId].y = canvas.height / 2;
-            }
-            
-            playerHealth = 100;
-            playerAmmo = 30;
-            playerKills = 0;
-            playerScore = 0;
-            zombies = [];
-            bullets = [];
-            
-            document.getElementById('gameOver').style.display = 'none';
-            gameRunning = true;
-        }
-
-        function updatePlayerList() {
-            const list = document.getElementById('playerListItems');
-            list.innerHTML = '';
-            
-            Object.values(players).forEach(p => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span style="background: ${SKINS[p.skin]?.color || '#ffd700'}; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        ${SKINS[p.skin]?.emoji || '👤'}
-                    </span>
-                    <span style="flex: 1;">${p.name}</span>
-                    <span style="color: #ff6b6b;">${p.kills || 0} 💀</span>
-                `;
-                if (p.id === playerId) {
-                    li.style.background = 'rgba(78, 205, 196, 0.2)';
-                }
-                list.appendChild(li);
-            });
-            
-            document.getElementById('connectionStatus').innerHTML = 
-                `🟢 Conectado - ${Object.keys(players).length} jugadores`;
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Cuadrícula
-            ctx.strokeStyle = '#3a6e3a';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 50) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, canvas.height);
-                ctx.stroke();
-            }
-            for (let i = 0; i < canvas.height; i += 50) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(canvas.width, i);
-                ctx.stroke();
-            }
-            
-            // Zombies
-            zombies.forEach(zombie => {
-                ctx.fillStyle = '#2ecc71';
-                ctx.beginPath();
-                ctx.arc(zombie.x, zombie.y, 20, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = 'black';
-                ctx.font = '20px Arial';
-                ctx.fillText('🧟', zombie.x - 15, zombie.y - 15);
-                
-                // Barra de vida
-                ctx.fillStyle = 'red';
-                ctx.fillRect(zombie.x - 20, zombie.y - 30, 40, 5);
-                ctx.fillStyle = 'green';
-                ctx.fillRect(zombie.x - 20, zombie.y - 30, 40 * (zombie.health / 50), 5);
-            });
-            
-            // Balas
-            bullets.forEach(bullet => {
-                ctx.fillStyle = 'yellow';
-                ctx.beginPath();
-                ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            
-            // Jugadores
-            Object.values(players).forEach(player => {
-                const skin = SKINS[player.skin] || SKINS.DEFAULT;
-                
-                ctx.fillStyle = skin.color;
-                ctx.beginPath();
-                ctx.arc(player.x, player.y, 20, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = 'black';
-                ctx.font = '20px Arial';
-                ctx.fillText(skin.emoji, player.x - 15, player.y - 15);
-                
-                // Nombre
-                ctx.fillStyle = 'white';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(player.name, player.x, player.y - 30);
-                
-                // Indicador de jugador local
-                if (player.id === playerId) {
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(player.x, player.y, 22, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            });
-            
-            // UI
-            document.getElementById('health').textContent = Math.max(0, Math.floor(playerHealth));
-            document.getElementById('ammo').textContent = playerAmmo;
-            document.getElementById('kills').textContent = playerKills;
-            
-            updatePlayerList();
-        }
-
-        function gameLoop() {
-            if (!gameRunning) return;
-            
-            updatePlayer();
-            if (isHost) {
-                updateZombies();
-            }
-            updateBullets();
-            draw();
-            
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Inicializar
-        initSkinSelector();
-
-        // Cargar PeerJS
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js';
-        script.onload = () => {
-            console.log('PeerJS cargado');
-            createRoom(); // Crear sala automáticamente
-        };
-        document.head.appendChild(script);
-    </script>
+        // Reattached después de cada render
+        const observer = new MutationObserver(() => attachGridEvents());
+        observer.observe(document.getElementById('gameGrid'), { childList: true, subtree: true });
+    })();
+</script>
 </body>
 </html>
