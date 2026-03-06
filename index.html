@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BATTLE SIMULATOR 2008 · CREADOR CUSTOM</title>
+    <title>BATTLE SIMULATOR 2008 · GUARDAR TROPAS · IA Y SALTOS</title>
     <style>
         body {
             margin: 0;
@@ -38,20 +38,22 @@
             z-index: 100;
             font-size: 16px;
         }
-        /* Panel de personalización */
+        /* Panel de personalización mejorado */
         #custom-panel {
             position: absolute;
             top: 120px;
             left: 20px;
-            background: rgba(10, 10, 20, 0.9);
+            background: rgba(10, 10, 20, 0.95);
             border: 3px solid #ffaa00;
             padding: 15px;
-            width: 240px;
+            width: 260px;
             color: #ffaa00;
             box-shadow: 0 0 30px #ffaa00;
             z-index: 150;
             font-family: 'Courier New', monospace;
             backdrop-filter: blur(2px);
+            max-height: 70vh;
+            overflow-y: auto;
         }
         #custom-panel h3 {
             margin: 0 0 15px 0;
@@ -125,6 +127,61 @@
             text-align: right;
             color: white;
             text-shadow: 0 0 5px cyan;
+        }
+        /* Sección de guardado */
+        .save-section {
+            border-top: 2px solid #ffaa00;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+        .save-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .save-row input {
+            flex: 1;
+            background: black;
+            border: 2px solid #0ff;
+            color: #0ff;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        .save-btn {
+            background: black;
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 10px #0f0;
+        }
+        .saved-list {
+            max-height: 120px;
+            overflow-y: auto;
+            background: #111;
+            border: 1px solid #ffaa00;
+            padding: 5px;
+        }
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px;
+            margin-bottom: 2px;
+            background: #222;
+            border-left: 3px solid #ffaa00;
+            cursor: pointer;
+        }
+        .saved-item:hover {
+            background: #333;
+        }
+        .saved-item .load {
+            color: #0ff;
+            text-decoration: underline;
+        }
+        .saved-item .delete {
+            color: #f0f;
+            cursor: pointer;
         }
         #panel-colocacion {
             position: absolute;
@@ -227,10 +284,10 @@
     </style>
 </head>
 <body>
-    <div id="info">⚡ BATTLE SIMULATOR 2008 · CREADOR CUSTOM ⚡</div>
+    <div id="info">⚡ BATTLE SIMULATOR 2008 · GUARDADO + IA + SALTOS ⚡</div>
     <div id="contador">ROJO: <span id="rojo-count">0</span> | AZUL: <span id="azul-count">0</span></div>
     
-    <!-- Panel de personalización -->
+    <!-- Panel de personalización con guardado -->
     <div id="custom-panel">
         <h3>🎨 CREADOR DE TROPAS</h3>
         <div class="custom-row">
@@ -264,11 +321,25 @@
                 <input type="range" id="size-slider" min="0.6" max="1.8" step="0.1" value="1.0">
             </div>
         </div>
+
+        <!-- Sección guardar/cargar -->
+        <div class="save-section">
+            <span class="custom-label">GUARDAR TROPA</span>
+            <div class="save-row">
+                <input type="text" id="troop-name" placeholder="nombre" value="Mi tropa">
+                <button class="save-btn" id="save-troop">💾</button>
+            </div>
+            <span class="custom-label">TROPAS GUARDADAS</span>
+            <div id="saved-list" class="saved-list">
+                <!-- Se llenará con JS -->
+            </div>
+        </div>
     </div>
 
     <div class="instruccion">
         🖱️ SELECCIONA BANDO, PERSONALIZA Y HAZ CLIC EN EL SUELO<br>
-        <span style="color:#ff3333">ROJO</span> ⚔️ <span style="color:#3366ff">AZUL</span>
+        <span style="color:#ff3333">ROJO</span> ⚔️ <span style="color:#3366ff">AZUL</span><br>
+        <small>IA: persiguen al enemigo más cercano y saltan al atacar</small>
     </div>
 
     <div id="panel-colocacion">
@@ -361,9 +432,10 @@
         }
 
         // --- EJÉRCITOS ---
-        let armyRed = [];
+        let armyRed = [];      // unidades vivas
         let armyBlue = [];
-        
+        let jumpingUnits = []; // unidades en salto (muriendo)
+
         let bandoSeleccionado = 'rojo';
         const maxTropas = 20;
 
@@ -387,9 +459,9 @@
             btnRojo.classList.remove('activo');
         });
 
-        // --- PERSONALIZACIÓN ---
+        // --- PERSONALIZACIÓN (estado actual) ---
         const customState = {
-            color: '#ff3333', // por defecto rojo
+            color: '#ff3333',
             shape: 'sphere',
             speed: 0.06,
             size: 1.0
@@ -403,7 +475,6 @@
                 customState.color = btn.dataset.color;
             });
         });
-        // Seleccionar rojo por defecto
         document.querySelector('.color-btn[data-color="#ff3333"]').classList.add('selected');
 
         // Formas
@@ -414,7 +485,6 @@
                 customState.shape = btn.dataset.shape;
             });
         });
-        // Seleccionar esfera por defecto
         document.querySelector('.shape-btn[data-shape="sphere"]').classList.add('selected');
 
         // Sliders
@@ -432,12 +502,63 @@
             sizeSpan.textContent = customState.size.toFixed(1);
         });
 
+        // --- GUARDADO EN LOCALSTORAGE ---
+        let savedTroops = JSON.parse(localStorage.getItem('tabs2008_troops')) || [];
+
+        function renderSavedList() {
+            const container = document.getElementById('saved-list');
+            container.innerHTML = '';
+            savedTroops.forEach((troop, index) => {
+                const div = document.createElement('div');
+                div.className = 'saved-item';
+                div.innerHTML = `<span class="load">📁 ${troop.name}</span> <span class="delete">❌</span>`;
+                div.querySelector('.load').addEventListener('click', () => {
+                    // Cargar configuración
+                    customState.color = troop.color;
+                    customState.shape = troop.shape;
+                    customState.speed = troop.speed;
+                    customState.size = troop.size;
+                    // Actualizar UI
+                    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelector(`.color-btn[data-color="${troop.color}"]`).classList.add('selected');
+                    document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelector(`.shape-btn[data-shape="${troop.shape}"]`).classList.add('selected');
+                    speedSlider.value = troop.speed;
+                    speedSpan.textContent = troop.speed.toFixed(2);
+                    sizeSlider.value = troop.size;
+                    sizeSpan.textContent = troop.size.toFixed(1);
+                });
+                div.querySelector('.delete').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    savedTroops.splice(index, 1);
+                    localStorage.setItem('tabs2008_troops', JSON.stringify(savedTroops));
+                    renderSavedList();
+                });
+                container.appendChild(div);
+            });
+        }
+        renderSavedList();
+
+        document.getElementById('save-troop').addEventListener('click', () => {
+            const name = document.getElementById('troop-name').value.trim() || 'Sin nombre';
+            const troop = {
+                name: name,
+                color: customState.color,
+                shape: customState.shape,
+                speed: customState.speed,
+                size: customState.size
+            };
+            savedTroops.push(troop);
+            localStorage.setItem('tabs2008_troops', JSON.stringify(savedTroops));
+            renderSavedList();
+        });
+
         // --- FUNCIÓN PARA CREAR UNIDAD PERSONALIZADA ---
         function crearUnidadCustom(equipo) {
             const group = new THREE.Group();
             const colorHex = parseInt(customState.color.slice(1), 16);
             
-            // Cuerpo (cilindro con el color elegido)
+            // Cuerpo (cilindro)
             const bodyGeo = new THREE.CylinderGeometry(0.5 * customState.size, 0.5 * customState.size, 1.2 * customState.size, 8);
             const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, emissive: 0x222222 });
             const body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -447,8 +568,8 @@
             group.add(body);
             
             // Cabeza según forma
-            let headGeo, headMat;
-            const headColor = 0xffcc88; // color carne fijo para que resalte
+            let headGeo;
+            const headColor = 0xffcc88;
             if (customState.shape === 'sphere') {
                 headGeo = new THREE.SphereGeometry(0.4 * customState.size, 6, 4);
             } else if (customState.shape === 'cube') {
@@ -456,14 +577,14 @@
             } else if (customState.shape === 'pyramid') {
                 headGeo = new THREE.ConeGeometry(0.5 * customState.size, 0.8 * customState.size, 4);
             }
-            headMat = new THREE.MeshStandardMaterial({ color: headColor, emissive: 0x332200 });
+            const headMat = new THREE.MeshStandardMaterial({ color: headColor, emissive: 0x332200 });
             const head = new THREE.Mesh(headGeo, headMat);
             head.position.y = 1.4 * customState.size;
             head.castShadow = true;
             head.receiveShadow = true;
             group.add(head);
             
-            // Ojos (solo si la cabeza lo permite, los colocamos siempre)
+            // Ojos
             const eyeGeo = new THREE.SphereGeometry(0.1 * customState.size, 4);
             const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
             const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
@@ -493,7 +614,6 @@
             const target = new THREE.Vector3();
             if (raycaster.ray.intersectPlane(plane, target)) {
                 if (Math.abs(target.x) < 14 && Math.abs(target.z) < 14) {
-                    // Límite de tropas
                     if (bandoSeleccionado === 'rojo' && armyRed.length >= maxTropas) {
                         alert('Máximo de tropas rojas alcanzado');
                         return;
@@ -513,7 +633,9 @@
                     const unidadData = {
                         mesh: nuevaUnidad,
                         health: 1,
-                        speed: customState.speed // velocidad personalizada
+                        speed: customState.speed,
+                        team: bandoSeleccionado,
+                        target: null
                     };
                     
                     if (bandoSeleccionado === 'rojo') {
@@ -551,84 +673,120 @@
         btnReiniciar.addEventListener('click', () => {
             armyRed.forEach(u => scene.remove(u.mesh));
             armyBlue.forEach(u => scene.remove(u.mesh));
+            jumpingUnits.forEach(u => scene.remove(u.mesh));
             armyRed = [];
             armyBlue = [];
-            
-            deathParticles.forEach(p => scene.remove(p));
-            deathParticles.length = 0;
+            jumpingUnits = [];
             
             batallaIniciada = false;
             btnIniciar.disabled = false;
             btnRojo.disabled = false;
             btnAzul.disabled = false;
-            document.getElementById('info').innerHTML = '⚡ BATTLE SIMULATOR 2008 · CREADOR CUSTOM ⚡';
+            document.getElementById('info').innerHTML = '⚡ BATTLE SIMULATOR 2008 · GUARDADO + IA + SALTOS ⚡';
             
             actualizarContador();
         });
 
-        // --- LÓGICA DE BATALLA ---
-        const deathParticles = [];
+        // --- IA: encontrar enemigo más cercano ---
+        function findNearestEnemy(unit, enemyArray) {
+            let nearest = null;
+            let minDist = Infinity;
+            for (let other of enemyArray) {
+                const dist = unit.mesh.position.distanceTo(other.mesh.position);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = other;
+                }
+            }
+            return { unit: nearest, dist: minDist };
+        }
 
+        // --- LÓGICA DE BATALLA CON IA Y SALTOS ---
         function checkCollisionsAndMove() {
             if (!batallaIniciada) return;
 
-            // Mover rojos
+            // Movimiento de rojos hacia el azul más cercano
             for (let i = armyRed.length - 1; i >= 0; i--) {
-                const unit = armyRed[i];
-                let dirX = -unit.mesh.position.x;
-                let dirZ = -unit.mesh.position.z * 0.5;
-                const len = Math.sqrt(dirX*dirX + dirZ*dirZ);
-                if (len > 0.1) {
-                    unit.mesh.position.x += (dirX / len) * unit.speed;
-                    unit.mesh.position.z += (dirZ / len) * unit.speed;
-                }
-                if (len > 0.1) {
-                    unit.mesh.rotation.y = Math.atan2(dirX, dirZ);
-                }
-            }
-
-            for (let i = armyBlue.length - 1; i >= 0; i--) {
-                const unit = armyBlue[i];
-                let dirX = -unit.mesh.position.x;
-                let dirZ = -unit.mesh.position.z * 0.5;
-                const len = Math.sqrt(dirX*dirX + dirZ*dirZ);
-                if (len > 0.1) {
-                    unit.mesh.position.x += (dirX / len) * unit.speed;
-                    unit.mesh.position.z += (dirZ / len) * unit.speed;
-                }
-                if (len > 0.1) {
-                    unit.mesh.rotation.y = Math.atan2(dirX, dirZ);
-                }
-            }
-
-            // Colisiones
-            for (let i = armyRed.length - 1; i >= 0; i--) {
-                const redUnit = armyRed[i];
-                for (let j = armyBlue.length - 1; j >= 0; j--) {
-                    const blueUnit = armyBlue[j];
-                    const dist = redUnit.mesh.position.distanceTo(blueUnit.mesh.position);
-                    if (dist < 1.5) {
-                        createDeathEffect(redUnit.mesh.position.clone().lerp(blueUnit.mesh.position, 0.5));
-                        scene.remove(redUnit.mesh);
-                        scene.remove(blueUnit.mesh);
-                        armyRed.splice(i, 1);
-                        armyBlue.splice(j, 1);
-                        break;
+                const red = armyRed[i];
+                const nearest = findNearestEnemy(red, armyBlue);
+                if (nearest.unit) {
+                    // Dirección hacia el enemigo
+                    let dir = new THREE.Vector3().subVectors(nearest.unit.mesh.position, red.mesh.position);
+                    const dist = dir.length();
+                    if (dist > 0.5) {
+                        dir.normalize();
+                        red.mesh.position.x += dir.x * red.speed;
+                        red.mesh.position.z += dir.z * red.speed;
+                        // Rotar hacia donde mira
+                        red.mesh.rotation.y = Math.atan2(dir.x, dir.z);
                     }
                 }
             }
 
-            actualizarContador();
+            for (let i = armyBlue.length - 1; i >= 0; i--) {
+                const blue = armyBlue[i];
+                const nearest = findNearestEnemy(blue, armyRed);
+                if (nearest.unit) {
+                    let dir = new THREE.Vector3().subVectors(nearest.unit.mesh.position, blue.mesh.position);
+                    const dist = dir.length();
+                    if (dist > 0.5) {
+                        dir.normalize();
+                        blue.mesh.position.x += dir.x * blue.speed;
+                        blue.mesh.position.z += dir.z * blue.speed;
+                        blue.mesh.rotation.y = Math.atan2(dir.x, dir.z);
+                    }
+                }
+            }
 
-            if (armyRed.length === 0 || armyBlue.length === 0) {
-                batallaIniciada = false;
-                btnIniciar.disabled = false;
-                btnRojo.disabled = false;
-                btnAzul.disabled = false;
-                document.getElementById('info').innerHTML = '⚡ BATALLA FINALIZADA · REINICIA ⚡';
+            // Detectar colisiones y generar saltos
+            for (let i = armyRed.length - 1; i >= 0; i--) {
+                const red = armyRed[i];
+                for (let j = armyBlue.length - 1; j >= 0; j--) {
+                    const blue = armyBlue[j];
+                    const dist = red.mesh.position.distanceTo(blue.mesh.position);
+                    if (dist < 1.8) {
+                        // Marcar ambas para salto (en lugar de muerte instantánea)
+                        startJump(red, blue);
+                        armyRed.splice(i, 1);
+                        armyBlue.splice(j, 1);
+                        break; // red eliminado, salir del bucle interno
+                    }
+                }
             }
         }
 
+        function startJump(unitA, unitB) {
+            // Añadir ambas unidades al array de saltos con velocidad ascendente
+            [unitA, unitB].forEach(u => {
+                // Crear una copia visual (podríamos reutilizar el mesh, pero mejor guardarlo)
+                const mesh = u.mesh;
+                // Añadir velocidad vertical y marcador de salto
+                jumpingUnits.push({
+                    mesh: mesh,
+                    vy: 0.2, // velocidad inicial hacia arriba
+                    life: 20  // frames hasta desaparecer
+                });
+            });
+        }
+
+        // --- ANIMACIÓN DE SALTOS (unidades muriendo) ---
+        function updateJumping() {
+            for (let i = jumpingUnits.length - 1; i >= 0; i--) {
+                const j = jumpingUnits[i];
+                j.vy -= 0.015; // gravedad
+                j.mesh.position.y += j.vy;
+                j.life--;
+                if (j.life <= 0 || j.mesh.position.y < 0) {
+                    scene.remove(j.mesh);
+                    jumpingUnits.splice(i, 1);
+                    // Pequeña explosión de partículas al caer
+                    createDeathEffect(j.mesh.position.clone());
+                }
+            }
+        }
+
+        // Efecto de partículas (igual que antes)
+        const deathParticles = [];
         function createDeathEffect(position) {
             for (let k = 0; k < 6; k++) {
                 const boxGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
@@ -644,12 +802,14 @@
             }
         }
 
-        // --- ANIMACIÓN ---
+        // --- ANIMACIÓN PRINCIPAL ---
         function animate() {
             requestAnimationFrame(animate);
 
             checkCollisionsAndMove();
+            updateJumping();
 
+            // Partículas de muerte (las viejas)
             for (let i = deathParticles.length - 1; i >= 0; i--) {
                 const p = deathParticles[i];
                 p.position.add(p.userData.velocity);
