@@ -3,508 +3,577 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Script 2008 · Edición Deluxe</title>
-    <!-- Drawflow base -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/drawflow@0.0.58/dist/drawflow.min.css">
+    <title>Visual Studio 2008 - Creador de Programas</title>
     <style>
-        /* ===== ESTÉTICA 2008 PULIDA =====
-           - Más brillos, texturas y sombras
-           - Sensación de "programa de autor" de la época
-           - Botones con efecto cristal / glossy
-           - Fondo con ruido analógico
-        */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
+            font-family: 'Segoe UI', Tahoma, 'Lucida Grande', Verdana, Arial, sans-serif;
+            user-select: none; /* retro, todo parece más "bloqueado" */
         }
 
         body {
-            font-family: 'Tahoma', 'Verdana', 'Segoe UI', sans-serif;
-            background: #1b2a3a; /* Fondo más profundo */
-            overflow: hidden;
-            height: 100vh;
+            background: #3a6ea5; /* azul fondo estilo Windows XP */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        /* ventana principal estilo 2008 */
+        .ide-window {
+            width: 1100px;
+            max-width: 100%;
+            height: 800px;
+            max-height: 90vh;
+            background: #d4d0c8; /* gris clásico de fondo de ventana */
+            border: 3px solid #0a246a; /* borde azul oscuro */
+            border-radius: 8px 8px 5px 5px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* BARRA SUPERIOR ESTILO VISTA + TOQUES MEDIA CENTER */
-        .toolbar {
-            background: linear-gradient(180deg, #3f7ac6 0%, #1f4a9c 50%, #0f2f6a 100%);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            border-bottom: 3px solid #fdd023;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.7), inset 0 1px 0 #a0c0ff;
+        /* barra de título */
+        .title-bar {
+            background: linear-gradient(180deg, #0a246a 0%, #3a6ea5 100%);
+            padding: 6px 10px;
             color: white;
-            text-shadow: 2px 2px 0 #0a1e3a;
+            font-weight: bold;
             font-size: 14px;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .toolbar::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 16px);
-            pointer-events: none;
-        }
-
-        .toolbar h1 {
-            font-size: 24px;
-            font-weight: bold;
-            background: linear-gradient(180deg, #ffffff, #c7e0ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 3px 3px 0 #0b2550;
-            margin-right: 15px;
-            font-style: italic;
-            letter-spacing: 1px;
-        }
-
-        .badge {
-            background: #fee38b;
-            color: #1f3f6e;
-            padding: 5px 18px;
-            border-radius: 40px;
-            font-weight: bold;
-            font-size: 16px;
-            border: 2px solid #f5b81b;
-            box-shadow: inset 0 2px 5px #ffffdd, 0 4px 0 #7f5f1c, 0 6px 8px black;
-            text-shadow: 0 1px 0 white;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .badge span {
-            font-size: 18px;
-            background: #203e6b;
-            color: #fee38b;
-            border-radius: 30px;
-            padding: 0px 8px;
-            margin-left: 5px;
-            border: 1px solid #f5b81b;
-        }
-
-        .toolbar button {
-            background: linear-gradient(180deg, #f5faff, #b0cdf0);
-            border: 2px solid #fde470;
-            border-radius: 40px;
-            padding: 8px 24px;
-            font-weight: bold;
-            color: #17315b;
-            font-size: 15px;
-            box-shadow: 0 5px 0 #7f5f1c, inset 0 2px 10px white;
-            cursor: pointer;
-            transition: 0.05s linear;
-            text-transform: uppercase;
             display: flex;
             align-items: center;
+            border-bottom: 2px solid #ffdf8c;
+            text-shadow: 1px 1px 0 #000;
+        }
+        .title-bar .icon {
+            width: 20px;
+            height: 20px;
+            background: #ffdf8c;
+            border: 2px solid #fff;
+            border-radius: 4px;
+            margin-right: 8px;
+            box-shadow: inset -1px -1px 0 #0a246a;
+        }
+        .title-bar .spacer {
+            flex: 1;
+        }
+        .title-bar .window-buttons {
+            display: flex;
             gap: 6px;
         }
-
-        .toolbar button:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #7f5f1c, inset 0 2px 6px white;
-        }
-
-        /* CONTENEDOR DEL EDITOR — con ruido y textura papel */
-        #drawflow-container {
-            flex: 1;
-            width: 100%;
-            background: #4f555d;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255,250,210,0.15) 0%, transparent 25%),
-                repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 4px, transparent 4px, transparent 12px);
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 0 30px #00000055;
-        }
-
-        /* Estilos de nodo aún más detallados */
-        .drawflow-node {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            width: auto !important;
-        }
-
-        .drawflow-node .node-content {
-            background: linear-gradient(135deg, #f6fafe 0%, #d5e2f0 100%);
-            border: 4px solid #fde158;
-            border-radius: 28px 14px 28px 14px;
-            box-shadow: 0 12px 0 #7f5f1c, 0 10px 20px rgba(0,0,0,0.8), inset 0 1px 8px white;
-            padding: 14px 18px;
-            min-width: 210px;
-            font-family: 'Tahoma', 'Verdana', sans-serif;
-            color: #11253d;
-            transition: all 0.12s ease;
-            position: relative;
-            backdrop-filter: blur(1px);
-            /* textura sutil de ruido */
-            background-blend-mode: overlay;
-        }
-
-        .drawflow-node .node-content::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 20px);
-            pointer-events: none;
-            border-radius: inherit;
-        }
-
-        /* brillo glossy exagerado */
-        .drawflow-node .node-content::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 45%;
-            background: radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 240, 0.4) 50%, transparent 85%);
-            pointer-events: none;
-            border-radius: 26px 12px 0 0;
-        }
-
-        .node-header {
-            font-weight: bold;
-            font-size: 17px;
+        .title-bar .win-btn {
+            width: 22px;
+            height: 22px;
+            background: #d4d0c8;
+            border: 2px solid #f0f0f0;
+            box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff;
+            cursor: pointer;
+            font-size: 14px;
             text-align: center;
-            padding-bottom: 12px;
-            margin-bottom: 14px;
-            border-bottom: 3px solid #fecb2f;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #002d72;
-            text-shadow: 0 2px 2px white;
-            background: linear-gradient(180deg, #fff9, transparent);
-            border-radius: 20px 20px 0 0;
-            position: relative;
-            z-index: 2;
+            line-height: 18px;
+            color: #000;
+        }
+        .title-bar .win-btn:active {
+            box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #fff;
         }
 
-        .node-inputs, .node-outputs {
+        /* menú estilo 2008 */
+        .menu-bar {
+            background: #ece9d8;
+            border-bottom: 1px solid #808080;
+            display: flex;
+            padding: 2px 4px;
+            gap: 12px;
+            font-size: 13px;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        .menu-bar .menu-item {
+            padding: 2px 6px;
+            cursor: default;
+            border: 1px solid transparent;
+        }
+        .menu-bar .menu-item:hover {
+            background: #c0c0c0;
+            border-color: #808080;
+        }
+
+        /* barra de herramientas con botones 3D */
+        .toolbar {
+            background: #d4d0c8;
+            border-bottom: 2px solid #808080;
+            padding: 5px 10px;
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            margin: 12px 0;
+            gap: 10px;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        .toolbar button {
+            background: linear-gradient(180deg, #f0f0f0 0%, #d0d0d0 100%);
+            border: 2px solid #707070;
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .toolbar button:active {
+            box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #fff;
+            background: linear-gradient(0deg, #f0f0f0, #d0d0d0);
+        }
+        .toolbar button:focus {
+            outline: 1px dotted #0a246a;
         }
 
-        /* Puertos con efecto 3D más pronunciado */
-        .input, .output {
-            background: linear-gradient(180deg, #e1edff, #a5bfe5);
-            border: 3px solid #133e72;
-            border-radius: 40px;
-            padding: 6px 18px;
+        /* área principal (contenido) */
+        .workspace {
+            display: flex;
+            flex: 1;
+            min-height: 0; /* importante para flex hijos */
+            background: #ece9d8;
+            border-top: 1px solid #fff;
+            border-bottom: 1px solid #808080;
+        }
+
+        /* panel lateral (explorador) estilo 2008 */
+        .sidebar {
+            width: 220px;
+            background: #d4d0c8;
+            border-right: 3px solid #808080;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset -1px 0 0 #fff;
+        }
+        .sidebar-header {
+            background: #0a246a;
+            color: white;
+            padding: 4px 6px;
             font-size: 12px;
             font-weight: bold;
-            color: #0b2342;
-            box-shadow: inset 0 3px 5px white, 0 5px 0 #133e72;
-            cursor: crosshair;
+            border-bottom: 2px solid #ffdf8c;
+        }
+        .tree-view {
+            padding: 8px 0 0 10px;
+            font-size: 13px;
+            color: #000;
+        }
+        .tree-item {
+            padding: 2px 0;
+            cursor: default;
+            white-space: nowrap;
+        }
+        .tree-item:before {
+            content: "📁 ";
+            color: #e0a800;
+        }
+        .tree-item.file:before {
+            content: "📄 ";
+            color: #000080;
+        }
+        .tree-item.folder-open:before {
+            content: "📂 ";
+        }
+        .tree-item .spacer {
+            margin-left: 16px;
+        }
+        .tree-item .children {
+            margin-left: 16px;
+        }
+
+        /* panel central (editor) */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-left: 1px solid #fff;
+        }
+
+        /* pestañas (mockup) */
+        .tabs {
+            background: #c0c0c0;
+            border-bottom: 2px solid #808080;
+            display: flex;
+            padding: 4px 4px 0 4px;
+            gap: 3px;
+        }
+        .tab {
+            background: #d4d0c8;
+            border: 2px solid #808080;
+            border-bottom: none;
+            padding: 3px 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        .tab.active {
+            background: #fff;
+            border-bottom: 2px solid #fff;
+            margin-bottom: -2px;
+            font-weight: bold;
+        }
+        .tab .close {
+            width: 16px;
+            height: 16px;
+            background: #a0a0a0;
+            border: 1px solid #404040;
             text-align: center;
-            min-width: 60px;
-            transition: 0.03s linear;
-            position: relative;
-            text-transform: uppercase;
+            line-height: 14px;
+            cursor: default;
+            color: #fff;
         }
 
-        .output {
-            background: linear-gradient(180deg, #fff2d4, #fccf7a);
-            border-color: #ad5f0e;
-            box-shadow: inset 0 3px 5px white, 0 5px 0 #ad5f0e;
-            color: #5a3a04;
+        /* área de edición con números de línea */
+        .edit-area {
+            flex: 1;
+            display: flex;
+            background: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            border: 2px inset #e0e0e0;
+            margin: 8px;
+            overflow: hidden; /* el scroll lo manejan los hijos */
+            min-height: 0;
         }
 
-        .input:active, .output:active {
-            transform: translateY(4px);
-            box-shadow: inset 0 3px 5px white, 0 1px 0 #133e72;
+        .line-numbers {
+            width: 50px;
+            background: #f0f0f0;
+            border-right: 2px solid #808080;
+            text-align: right;
+            padding: 4px 6px 4px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2b2b2b;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            white-space: pre;
+            cursor: default;
+            box-shadow: inset -2px 0 0 #d0d0d0;
+            scrollbar-width: thin; /* retro pero fino */
         }
 
-        /* Conexiones con estilo cable de audio vintage */
-        .drawflow .connection .main-path {
-            stroke: #ffd966 !important;
-            stroke-width: 5px !important;
-            filter: drop-shadow(0 5px 3px #00000099) drop-shadow(0 0 2px #ffb347);
-            stroke-dasharray: 0;
+        .line-numbers div {
+            padding-right: 4px;
         }
 
-        .drawflow .connection .point {
-            fill: #f5b81b;
-            stroke: #a15500;
-            stroke-width: 3px;
-            r: 6;
+        .code-textarea {
+            flex: 1;
+            border: none;
+            padding: 4px 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            background: #fff;
+            overflow-y: scroll;
+            white-space: pre;
+            word-wrap: normal;
+            overflow-x: auto;
         }
 
-        /* nodo seleccionado con brillo dorado */
-        .drawflow-node.selected .node-content {
-            border-color: #ffb703;
-            box-shadow: 0 0 0 5px #ffeeaa, 0 12px 0 #7f5f1c, 0 15px 25px black;
+        /* panel de salida (consola) */
+        .output-panel {
+            background: #ece9d8;
+            border-top: 3px solid #808080;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            height: 180px;
+        }
+        .output-header {
+            background: #0a246a;
+            color: white;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #ffdf8c;
+        }
+        .output-header button {
+            background: #d4d0c8;
+            border: 2px solid #f0f0f0;
+            box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff;
+            padding: 0 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .output-header button:active {
+            box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #fff;
+        }
+        .output-content {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            padding: 6px;
+            flex: 1;
+            overflow: auto;
+            border: 2px inset #808080;
+            margin-top: 4px;
+            white-space: pre-wrap;
         }
 
-        /* clases de tipo con colores más vivos */
-        .node-type-event .node-content {
-            background: linear-gradient(135deg, #b7d9ff, #4781d4);
+        /* barra de estado */
+        .status-bar {
+            background: #d4d0c8;
+            border-top: 2px solid #f0f0f0;
+            padding: 2px 8px;
+            display: flex;
+            font-size: 11px;
+            color: #000;
+            gap: 20px;
+            box-shadow: inset 0 1px 0 #808080;
         }
-        .node-type-action .node-content {
-            background: linear-gradient(135deg, #bcf5bc, #4ba84b);
+        .status-bar span {
+            border-right: 1px solid #808080;
+            padding-right: 12px;
         }
-        .node-type-condition .node-content {
-            background: linear-gradient(135deg, #fff2b5, #e5b83b);
-        }
-        .node-type-variable .node-content {
-            background: linear-gradient(135deg, #e5c7ff, #9f6fe0);
-        }
-        .node-type-math .node-content {
-            background: linear-gradient(135deg, #ffcf9f, #f57c31);
-        }
-        .node-type-sound .node-content {
-            background: linear-gradient(135deg, #ffb5c8, #db6180);
-        }
-        .node-type-physics .node-content {
-            background: linear-gradient(135deg, #b5e7ff, #3697b5);
-        }
-        .node-type-io .node-content {
-            background: linear-gradient(135deg, #d3c6ff, #8266b0);
-        }
-        .node-type-network .node-content {
-            background: linear-gradient(135deg, #b5f0e6, #2f9688);
-        }
-        .node-type-animation .node-content {
-            background: linear-gradient(135deg, #fcc1f0, #c73e9b);
-        }
-
-        /* scrollbar retro mejorado */
-        ::-webkit-scrollbar {
-            width: 18px;
-            background: #32373d;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #d9e2f0, #7b99cf);
-            border-radius: 20px;
-            border: 3px solid #fecb2f;
-            box-shadow: inset 0 1px 4px white;
+        .status-bar span:last-child {
+            border-right: none;
         }
     </style>
 </head>
 <body>
-    <div class="toolbar">
-        <h1>🎮 VISUAL SCRIPT 2008 DX</h1>
-        <div class="badge" id="nodeCounter">
-            ⚡ NODOS <span id="nodeCountValue">0</span>
-        </div>
-        <button id="btnRandomConnect">🔀 CONECTAR ALEATORIO</button>
-        <button id="btnAddNode">✨ NUEVO NODO</button>
-        <button id="btnOrganize">🌀 REORGANIZAR (simple)</button>
-        <div style="flex:1; text-align:right; font-size:13px; color:#c7e0ff; text-shadow:1px 1px 0 #102541;">
-            ⚙️ 256+ NODOS • MODO RETRO
+<div class="ide-window">
+    <!-- Barra de título -->
+    <div class="title-bar">
+        <div class="icon"></div>
+        <span>Visual Studio 2008 - Creador de Programas</span>
+        <div class="spacer"></div>
+        <div class="window-buttons">
+            <div class="win-btn">─</div>
+            <div class="win-btn">□</div>
+            <div class="win-btn">✕</div>
         </div>
     </div>
-    <div id="drawflow-container"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/drawflow@0.0.58/dist/drawflow.min.js"></script>
-    <script>
-        (function() {
-            // ---------- INICIALIZACIÓN DRAWFLOW ----------
-            const container = document.getElementById('drawflow-container');
-            const editor = new Drawflow(container);
-            editor.start();
-            editor.reroute = true;
-            editor.grid = true;
-            editor.gridsize = 25; // cuadrícula más notoria
+    <!-- Menú -->
+    <div class="menu-bar">
+        <div class="menu-item">Archivo</div>
+        <div class="menu-item">Editar</div>
+        <div class="menu-item">Ver</div>
+        <div class="menu-item">Proyecto</div>
+        <div class="menu-item">Depurar</div>
+        <div class="menu-item">Herramientas</div>
+        <div class="menu-item">Ventana</div>
+        <div class="menu-item">Ayuda</div>
+    </div>
 
-            // Almacén de IDs
-            let nodeIds = [];
-            const nodeCountSpan = document.getElementById('nodeCountValue');
+    <!-- Barra de herramientas -->
+    <div class="toolbar">
+        <button id="newBtn"><span style="font-size:16px;">📄</span> Nuevo</button>
+        <button id="openBtn"><span style="font-size:16px;">📂</span> Abrir</button>
+        <button id="saveBtn"><span style="font-size:16px;">💾</span> Guardar</button>
+        <button id="runBtn"><span style="font-size:16px;">▶</span> Run</button>
+        <button id="stopBtn"><span style="font-size:16px;">■</span> Detener</button>
+    </div>
 
-            // ---------- TIPOS DE NODOS EXTENDIDOS (muchos más) ----------
-            const tipos = [
-                { name: 'event', class: 'node-type-event', color: '#a8d8ff' },
-                { name: 'action', class: 'node-type-action', color: '#b8e0b8' },
-                { name: 'condition', class: 'node-type-condition', color: '#fff0b0' },
-                { name: 'variable', class: 'node-type-variable', color: '#d8b8ff' },
-                { name: 'math', class: 'node-type-math', color: '#ffd8b0' },
-                { name: 'sound', class: 'node-type-sound', color: '#ffb5c8' },
-                { name: 'physics', class: 'node-type-physics', color: '#b5e7ff' },
-                { name: 'io', class: 'node-type-io', color: '#d3c6ff' },
-                { name: 'network', class: 'node-type-network', color: '#b5f0e6' },
-                { name: 'animation', class: 'node-type-animation', color: '#fcc1f0' }
-            ];
+    <!-- Área principal -->
+    <div class="workspace">
+        <!-- Sidebar explorador -->
+        <div class="sidebar">
+            <div class="sidebar-header">Explorador de soluciones</div>
+            <div class="tree-view">
+                <div class="tree-item folder-open">Solución 'MiPrograma' (1 proyecto)</div>
+                <div class="tree-item folder-open" style="margin-left:16px;">📂 MiPrograma</div>
+                <div class="tree-item file" style="margin-left:32px;">app.js</div>
+                <div class="tree-item file" style="margin-left:32px;">style.css</div>
+                <div class="tree-item folder-open" style="margin-left:32px;">📂 Referencias</div>
+                <div class="tree-item file" style="margin-left:48px;">System.dll</div>
+                <div class="tree-item file" style="margin-left:48px;">mscorlib.dll</div>
+            </div>
+        </div>
 
-            // Títulos específicos para cada categoría (más de 100 nombres distintos)
-            const titulosPorTipo = {
-                event: ['On Start', 'On Update', 'On Collide', 'On Click', 'On Key Press', 'On Timer', 'On Destroy', 'On Spawn', 'On Trigger Enter', 'On Trigger Exit', 'On Health Change', 'On Score', 'On Level Load', 'On Pause', 'On Resume', 'On Game Over', 'On Checkpoint', 'On Respawn'],
-                action: ['Move Player', 'Jump', 'Play Sound', 'Spawn Enemy', 'Add Score', 'Destroy Object', 'Play Animation', 'Set Gravity', 'Apply Force', 'Teleport', 'Rotate Object', 'Set Material', 'Play Particle', 'Stop Sound', 'Save Game', 'Load Game', 'Open Door', 'Shoot Projectile', 'Heal Player', 'Set Camera'],
-                condition: ['If Health <', 'If Score >', 'Is Grounded', 'Distance <', 'Has Item', 'Button Pressed', 'Random Chance', 'If Variable =', 'If In Zone', 'If Visible', 'If Key Held', 'If Near', 'If Daytime', 'If Timer Done'],
-                variable: ['Set Variable', 'Get Variable', 'Global Data', 'Player Data', 'Enemy Var', 'String Concat', 'Increment', 'Decrement', 'Random Int', 'Random Float', 'Format String', 'To Integer', 'To Float', 'Array Get', 'Array Set'],
-                math: ['Add', 'Subtract', 'Multiply', 'Divide', 'Random Range', 'Clamp', 'Lerp', 'Sin', 'Cos', 'Tan', 'ArcTan', 'Square Root', 'Absolute', 'Round', 'Floor', 'Ceil', 'Min', 'Max', 'Modulo'],
-                sound: ['Play Music', 'Stop Music', 'Set Volume', 'Fade In', 'Fade Out', 'Play SFX', 'Pause Sound', 'Resume Sound', 'Set Pitch', 'Set Pan', 'Play Voice', 'Loop Sound'],
-                physics: ['Set Velocity', 'Add Force', 'Set Mass', 'Set Drag', 'Use Gravity', 'Raycast', 'Collision Check', 'Set Trigger', 'Set Kinematic', 'Apply Torque', 'Get Velocity'],
-                io: ['Read Input', 'Read Axis', 'Mouse Position', 'Mouse Button', 'Any Key', 'Get Joystick', 'Get Touch', 'Get Accelerometer'],
-                network: ['Connect', 'Send Data', 'Receive Data', 'Disconnect', 'Is Connected', 'Ping', 'Host Server', 'Join Room', 'RPC Call', 'Sync Variable'],
-                animation: ['Play Anim', 'Stop Anim', 'Set Blend', 'Set Speed', 'Set Layer', 'Crossfade', 'Add Animation Event', 'IK Pass', 'Set Bone']
+        <!-- Panel central con editor y salida -->
+        <div class="editor-panel">
+            <!-- Pestañas -->
+            <div class="tabs">
+                <div class="tab active">app.js <span class="close">✕</span></div>
+                <div class="tab">style.css <span class="close">✕</span></div>
+                <div class="tab">Inicio <span class="close">✕</span></div>
+            </div>
+
+            <!-- Editor con números de línea -->
+            <div class="edit-area">
+                <div class="line-numbers" id="lineNumbers"></div>
+                <textarea class="code-textarea" id="codeArea" spellcheck="false" wrap="off">// Escribe tu programa en JavaScript
+console.log("Hola, 2008!");
+function suma(a, b) {
+    return a + b;
+}
+let resultado = suma(5, 7);
+console.log("5 + 7 =", resultado);
+// Ejecuta con el botón Run</textarea>
+            </div>
+
+            <!-- Panel de salida (consola) -->
+            <div class="output-panel">
+                <div class="output-header">
+                    <span>Consola</span>
+                    <button id="clearOutputBtn">Limpiar</button>
+                </div>
+                <div class="output-content" id="outputContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de estado -->
+    <div class="status-bar">
+        <span id="cursorPos">Línea 1, Columna 1</span>
+        <span>Caracteres: 123</span>
+        <span>Modo: INS</span>
+        <span>JavaScript</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Elementos del DOM
+        const textarea = document.getElementById('codeArea');
+        const lineNumbersDiv = document.getElementById('lineNumbers');
+        const outputDiv = document.getElementById('outputContent');
+        const cursorPosSpan = document.getElementById('cursorPos');
+        const runBtn = document.getElementById('runBtn');
+        const clearBtn = document.getElementById('clearOutputBtn');
+        const newBtn = document.getElementById('newBtn');
+        const openBtn = document.getElementById('openBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        // --- Funcionalidad de números de línea ---
+        function updateLineNumbers() {
+            const lines = textarea.value.split('\n').length;
+            let lineNumberHtml = '';
+            for (let i = 1; i <= lines; i++) {
+                lineNumberHtml += i + '<br>';
+            }
+            lineNumbersDiv.innerHTML = lineNumberHtml;
+            // sincronizar scroll
+            lineNumbersDiv.scrollTop = textarea.scrollTop;
+        }
+
+        // Sincronizar scroll entre textarea y line numbers
+        textarea.addEventListener('scroll', () => {
+            lineNumbersDiv.scrollTop = textarea.scrollTop;
+        });
+
+        lineNumbersDiv.addEventListener('scroll', () => {
+            textarea.scrollTop = lineNumbersDiv.scrollTop;
+        });
+
+        // Actualizar números al escribir
+        textarea.addEventListener('input', updateLineNumbers);
+        textarea.addEventListener('change', updateLineNumbers);
+
+        // Inicializar números
+        updateLineNumbers();
+
+        // --- Actualizar posición del cursor (línea/columna) ---
+        function updateCursorPosition() {
+            const pos = textarea.selectionStart;
+            const text = textarea.value;
+            const lines = text.substr(0, pos).split('\n');
+            const line = lines.length;
+            const col = lines[lines.length-1].length + 1; // +1 porque empieza en 1
+            cursorPosSpan.innerText = `Línea ${line}, Columna ${col}`;
+        }
+        textarea.addEventListener('click', updateCursorPosition);
+        textarea.addEventListener('keyup', updateCursorPosition);
+        textarea.addEventListener('select', updateCursorPosition);
+        updateCursorPosition(); // inicial
+
+        // --- Redirigir console.log a la consola retro ---
+        (function overrideConsole() {
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+
+            function appendToOutput(level, args) {
+                const msg = Array.from(args).map(arg => {
+                    if (typeof arg === 'object') {
+                        try {
+                            return JSON.stringify(arg, null, 2);
+                        } catch (e) {
+                            return String(arg);
+                        }
+                    }
+                    return String(arg);
+                }).join(' ');
+
+                const line = document.createElement('div');
+                line.style.color = level === 'error' ? '#f66' : (level === 'warn' ? '#ff0' : '#0f0');
+                line.style.fontFamily = 'monospace';
+                line.style.whiteSpace = 'pre-wrap';
+                line.textContent = `[${level.toUpperCase()}] ${msg}`;
+                outputDiv.appendChild(line);
+                // Auto-scroll al final
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
+
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                appendToOutput('log', args);
             };
-
-            // Función para obtener título aleatorio de su tipo
-            function getRandomTitle(tipo) {
-                const list = titulosPorTipo[tipo] || titulosPorTipo.event;
-                return list[Math.floor(Math.random() * list.length)];
-            }
-
-            // ---------- GENERAR HTML DEL NODO (con más puertos) ----------
-            function generarNodeHTML(titulo, numInputs, numOutputs, tipoClase) {
-                let inputsHtml = '';
-                for (let i = 0; i < numInputs; i++) {
-                    inputsHtml += `<div class="input" data-input="input_${i}">▶ IN ${i+1}</div>`;
-                }
-                let outputsHtml = '';
-                for (let i = 0; i < numOutputs; i++) {
-                    outputsHtml += `<div class="output" data-output="output_${i}">OUT ${i+1} ◀</div>`;
-                }
-
-                return `
-                    <div class="node-content ${tipoClase}">
-                        <div class="node-header">${titulo}</div>
-                        <div class="node-inputs">${inputsHtml}</div>
-                        <div class="node-outputs">${outputsHtml}</div>
-                    </div>
-                `;
-            }
-
-            // ---------- CREAR CANTIDAD MASIVA DE NODOS (256) ----------
-            function generarNodosIniciales() {
-                const cantidad = 256; // ¡más de 100!
-                for (let i = 0; i < cantidad; i++) {
-                    const tipoIdx = Math.floor(Math.random() * tipos.length);
-                    const tipo = tipos[tipoIdx];
-                    const titulo = getRandomTitle(tipo.name);
-                    // Ahora pueden tener entre 1 y 4 entradas/salidas
-                    const numInputs = Math.floor(Math.random() * 4) + 1;
-                    const numOutputs = Math.floor(Math.random() * 4) + 1;
-                    const clase = tipo.class;
-
-                    const html = generarNodeHTML(titulo, numInputs, numOutputs, clase);
-
-                    // Distribución más amplia (4200x3200) para que no se solapen tanto
-                    const posX = Math.floor(Math.random() * 4000) + 200;
-                    const posY = Math.floor(Math.random() * 3000) + 200;
-
-                    try {
-                        const nodeId = editor.addNode(html, numInputs, numOutputs, posX, posY, 'node-' + tipo.name, { tipo: tipo.name, titulo });
-                        nodeIds.push(nodeId);
-                    } catch (e) {
-                        console.warn('Error añadiendo nodo', e);
-                    }
-                }
-                actualizarContador();
-                // Zoom out para ver la magnitud
-                editor.zoom = 0.3;
-                editor.offsetX = -800;
-                editor.offsetY = -400;
-                editor.zoom_refresh();
-            }
-
-            // ---------- CONEXIONES ALEATORIAS (más abundantes) ----------
-            function conectarNodosAleatorios(cantidad = 80) {
-                if (nodeIds.length < 2) return;
-                for (let c = 0; c < cantidad; c++) {
-                    const fromId = nodeIds[Math.floor(Math.random() * nodeIds.length)];
-                    let toId = nodeIds[Math.floor(Math.random() * nodeIds.length)];
-                    let attempts = 0;
-                    while (toId === fromId && attempts < 10) {
-                        toId = nodeIds[Math.floor(Math.random() * nodeIds.length)];
-                        attempts++;
-                    }
-                    if (fromId === toId) continue; // evitar autoconectar
-
-                    const fromNode = editor.getNodeFromId(fromId);
-                    const toNode = editor.getNodeFromId(toId);
-                    if (!fromNode || !toNode) continue;
-
-                    const numOutputs = fromNode.outputs ? Object.keys(fromNode.outputs).length : 0;
-                    const numInputs = toNode.inputs ? Object.keys(toNode.inputs).length : 0;
-                    if (numOutputs === 0 || numInputs === 0) continue;
-
-                    const outputKey = 'output_' + Math.floor(Math.random() * numOutputs);
-                    const inputKey = 'input_' + Math.floor(Math.random() * numInputs);
-
-                    try {
-                        editor.addConnection(fromId, outputKey, toId, inputKey);
-                    } catch (e) { /* ignorar conexión inválida */ }
-                }
-            }
-
-            // ---------- REORGANIZACIÓN SIMPLE (desplazar algunos nodos) ----------
-            function reorganizarNodos() {
-                // Desplazar cada nodo un poco aleatoriamente para que no estén tan amontonados
-                nodeIds.forEach(id => {
-                    const node = editor.getNodeFromId(id);
-                    if (node) {
-                        const newX = node.pos_x + (Math.random() * 200 - 100);
-                        const newY = node.pos_y + (Math.random() * 200 - 100);
-                        editor.updateNodePos(id, newX, newY);
-                    }
-                });
-            }
-
-            // ---------- AÑADIR NODO EXTRA (cerca del centro visual) ----------
-            function agregarNodoExtra() {
-                const tipoIdx = Math.floor(Math.random() * tipos.length);
-                const tipo = tipos[tipoIdx];
-                const titulo = getRandomTitle(tipo.name);
-                const numInputs = Math.floor(Math.random() * 4) + 1;
-                const numOutputs = Math.floor(Math.random() * 4) + 1;
-                const clase = tipo.class;
-                const html = generarNodeHTML(titulo, numInputs, numOutputs, clase);
-
-                // Centro aproximado de la vista
-                const viewportCenter = container.getBoundingClientRect();
-                const posX = editor.offsetX + (viewportCenter.width / 2) / editor.zoom - 100;
-                const posY = editor.offsetY + (viewportCenter.height / 2) / editor.zoom - 50;
-
-                const nodeId = editor.addNode(html, numInputs, numOutputs, posX, posY, 'node-' + tipo.name, { tipo: tipo.name, titulo });
-                nodeIds.push(nodeId);
-                actualizarContador();
-            }
-
-            function actualizarContador() {
-                nodeCountSpan.innerText = nodeIds.length;
-            }
-
-            // ---------- INICIALIZAR ----------
-            window.onload = function() {
-                generarNodosIniciales();
-                setTimeout(() => {
-                    conectarNodosAleatorios(110); // muchas conexiones para simular complejidad
-                }, 300);
-
-                document.getElementById('btnRandomConnect').addEventListener('click', () => {
-                    conectarNodosAleatorios(25);
-                });
-                document.getElementById('btnAddNode').addEventListener('click', () => {
-                    agregarNodoExtra();
-                });
-                document.getElementById('btnOrganize').addEventListener('click', () => {
-                    reorganizarNodos();
-                });
-
-                // Exponer editor globalmente (por si se quiere jugar)
-                window.editor = editor;
+            console.error = function(...args) {
+                originalError.apply(console, args);
+                appendToOutput('error', args);
+            };
+            console.warn = function(...args) {
+                originalWarn.apply(console, args);
+                appendToOutput('warn', args);
             };
         })();
-    </script>
+
+        // --- Botón Run: ejecutar el código JavaScript ---
+        runBtn.addEventListener('click', () => {
+            const code = textarea.value;
+            // Agregar separador visual en consola
+            const sep = document.createElement('div');
+            sep.style.borderTop = '1px solid #0f0';
+            sep.style.margin = '4px 0';
+            sep.style.color = '#0f0';
+            sep.textContent = '▶ Ejecutando código...';
+            outputDiv.appendChild(sep);
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+
+            try {
+                // Ejecutar en un entorno controlado (new Function es más seguro que eval en ámbito global)
+                const func = new Function(code);
+                func();
+            } catch (e) {
+                console.error('Error de ejecución:', e.message);
+            }
+        });
+
+        // --- Botón limpiar consola ---
+        clearBtn.addEventListener('click', () => {
+            outputDiv.innerHTML = '';
+        });
+
+        // --- Mockups para botones (sin funcionalidad real, solo estética) ---
+        newBtn.addEventListener('click', () => console.log('¡Nuevo archivo! (simulado)'));
+        openBtn.addEventListener('click', () => console.log('Abrir archivo... (simulado)'));
+        saveBtn.addEventListener('click', () => console.log('Guardando... (simulado)'));
+        stopBtn.addEventListener('click', () => console.log('Detener ejecución (simulado)'));
+
+        // Pequeña bienvenida en la consola
+        console.log('Bienvenido al entorno Visual Studio 2008. Escribe código y presiona Run.');
+    })();
+</script>
 </body>
 </html>
