@@ -3,555 +3,947 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Korflox Studio 2008 - Crea juegos con estilo retro</title>
+    <title>Zombie Survival.io - Multiplayer P2P</title>
     <style>
-        /* Fuentes retro */
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* Para que parezca más una app */
         }
 
         body {
-            background: #2a6f8d; /* Fondo azul ochentero */
-            background-image: radial-gradient(circle at 30% 40%, #3f9ec0 0%, #0d4b6e 100%);
-            font-family: 'VT323', monospace;
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 15px;
+            min-height: 100vh;
+            margin: 0;
+            color: white;
         }
 
-        /* Ventana principal - como un monitor CRT */
-        .korflox-desktop {
-            width: 1300px;
-            max-width: 100%;
-            background: #c0c0c0; /* gris plata típico */
-            border: 5px solid #dfdfdf;
-            border-radius: 15px 15px 10px 10px;
-            box-shadow: 0 0 0 3px #0a0a0a, 10px 10px 0 rgba(0,0,0,0.5);
-            padding: 10px;
+        #gameContainer {
+            position: relative;
+            width: 1000px;
+            height: 700px;
+        }
+
+        #gameCanvas {
+            background: #2a5a2a;
+            border: 3px solid #444;
+            cursor: crosshair;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        /* Barra de título estilo Windows XP / 2000 */
-        .title-bar {
-            background: linear-gradient(180deg, #1f5c8a 0%, #0d3d5e 100%);
-            padding: 8px 15px;
-            border-radius: 8px 8px 0 0;
+        #stats {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: flex;
+            gap: 30px;
+            font-size: 18px;
+            border: 1px solid #ff6b6b;
+            pointer-events: auto;
+        }
+
+        #skinSelector {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: flex;
+            gap: 10px;
+            border: 1px solid #4ecdc4;
+            pointer-events: auto;
+        }
+
+        .skin-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-bottom: 3px solid #e8e8e8;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            color: #ffffb0;
-            text-shadow: 2px 2px 0 #000;
+            justify-content: center;
+            font-size: 20px;
         }
 
-        .title-bar img { /* no usamos imagen real, solo emoji */
-            width: 24px;
-            height: 24px;
-            filter: drop-shadow(2px 2px 0 black);
+        .skin-option:hover {
+            transform: scale(1.1);
         }
 
-        .title-bar .buttons {
-            margin-left: auto;
+        .skin-option.selected {
+            border-color: #4ecdc4;
+            transform: scale(1.1);
+        }
+
+        #playerList {
+            position: absolute;
+            top: 80px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+            border: 1px solid #ff6b6b;
+            pointer-events: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #playerList h3 {
+            margin-bottom: 10px;
+            color: #ff6b6b;
+            text-align: center;
+        }
+
+        #playerListItems {
+            list-style: none;
+        }
+
+        #playerListItems li {
+            padding: 8px;
+            margin: 2px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
             display: flex;
+            align-items: center;
             gap: 8px;
         }
 
-        .title-bar .btn {
-            width: 22px;
-            height: 22px;
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            font-weight: bold;
-            text-align: center;
-            line-height: 18px;
-            color: black;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .title-bar .btn:active {
-            border: 2px solid #808080;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
-        }
-
-        /* Contenedor principal tipo VS Code pero retro */
-        .main-workspace {
-            display: flex;
-            background: #2b2b2b;
-            border: 4px solid #7a7a7a;
-            border-top: none;
-            min-height: 600px;
-        }
-
-        /* Sidebar (explorador) */
-        .sidebar {
-            width: 240px;
-            background: #1e1e1e;
-            border-right: 4px solid #4b4b4b;
-            color: #00ff00;
-            font-family: 'VT323', monospace;
-            font-size: 18px;
-            padding: 10px 0;
-            box-shadow: inset -2px 0 0 #4f4f4f;
-        }
-
-        .sidebar-header {
-            background: #0a0a0a;
-            padding: 10px;
-            border-bottom: 3px solid #00aa00;
-            color: #ffff00;
-            font-size: 22px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .folder {
+        #connectionStatus {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
             padding: 8px 15px;
-            border-bottom: 1px solid #3a3a3a;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #4ecdc4;
         }
 
-        .folder:hover {
-            background: #2d2d2d;
-            color: #ffff00;
+        #connectionStatus.connected {
+            border-color: #2ecc71;
         }
 
-        .folder span {
-            color: #00ffff;
+        #connectionStatus.disconnected {
+            border-color: #e74c3c;
         }
 
-        .file-list {
-            list-style: none;
-            padding-left: 30px;
-        }
-
-        .file-list li {
-            padding: 5px 10px;
-            border-left: 2px solid #00aa00;
-            margin: 5px 0;
-            color: #c0c0c0;
-        }
-
-        .file-list li::before {
-            content: "📄 ";
-        }
-
-        /* Área central (editor y canvas) */
-        .center-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #17212b;
-        }
-
-        /* Tabs simulados */
-        .tabs {
-            background: #1f1f1f;
-            display: flex;
-            border-bottom: 3px solid #f0c000;
-            padding-left: 10px;
-        }
-
-        .tab {
-            background: #3a3a3a;
-            color: #ccc;
-            padding: 10px 20px;
-            border-radius: 8px 8px 0 0;
-            margin-right: 5px;
-            font-family: 'VT323', monospace;
-            font-size: 20px;
-            border: 2px solid #6b6b6b;
-            border-bottom: none;
-            cursor: pointer;
-        }
-
-        .tab.active {
-            background: #f0c000;
-            color: #000;
-            font-weight: bold;
-            border-color: #ffffa0;
-        }
-
-        /* Área de juego (canvas) */
-        .game-area {
-            padding: 20px;
+        #joinScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #000000;
-            background-image: repeating-linear-gradient(45deg, #222 0px, #222 2px, #333 2px, #333 8px);
+            z-index: 20;
         }
 
-        canvas {
-            border: 8px solid #838383;
-            border-right-color: #e0e0e0;
-            border-bottom-color: #e0e0e0;
-            background: #a0d0f0; /* cielo retro */
-            box-shadow: 5px 5px 0 rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 640px;
-            height: auto;
-            image-rendering: pixelated;
-            cursor: crosshair;
-        }
-
-        /* Panel de propiedades / código */
-        .properties-panel {
-            width: 260px;
-            background: #2a3f4a;
-            border-left: 4px solid #f0c000;
-            padding: 15px;
-            font-family: 'VT323', monospace;
-            color: #ffffaa;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        .prop-header {
-            background: #0f2a33;
-            padding: 8px;
+        #joinForm {
+            background: #2a2a2a;
+            padding: 40px;
+            border-radius: 20px;
             text-align: center;
-            font-size: 24px;
-            border-bottom: 3px solid #ffaa00;
-            margin-bottom: 15px;
+            border: 2px solid #4ecdc4;
+            max-width: 400px;
         }
 
-        .prop-item {
-            margin: 15px 0;
-            display: flex;
-            justify-content: space-between;
-            background: #1e3d47;
-            padding: 8px;
-            border: 2px solid #5e8d9c;
-            color: #ffd966;
-        }
-
-        .code-snippet {
-            background: #0e1c24;
+        #joinForm input {
             padding: 10px;
-            font-family: 'Courier New', monospace;
-            color: #00ff9f;
-            border: 3px solid #b8860b;
-            font-size: 14px;
-            white-space: pre-wrap;
+            margin: 10px 0 20px;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background: #3a3a3a;
+            color: white;
+        }
+
+        #roomInfo {
+            background: #3a3a3a;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        #roomId {
+            font-family: monospace;
+            font-size: 24px;
+            color: #4ecdc4;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #joinForm button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: #4ecdc4;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: background 0.2s;
+            margin: 5px;
+        }
+
+        #joinForm button:hover {
+            background: #45b7b0;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            z-index: 30;
+            border: 2px solid #ff6b6b;
+        }
+
+        #gameOver h2 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        #gameOver button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: #4ecdc4;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            color: white;
             margin-top: 20px;
         }
 
-        /* Barra de estado inferior */
-        .status-bar {
-            background: #1f5c8a;
-            padding: 5px 15px;
-            border-top: 4px solid #e8e8e8;
+        .weapon-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        #roomControls {
             display: flex;
-            gap: 25px;
-            color: #ffffff;
-            font-size: 18px;
-            font-family: 'VT323', monospace;
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        .status-bar .item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .blink {
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        /* Botones retro */
-        .retro-btn {
-            background: #c0c0c0;
-            border: 4px solid #fff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            padding: 8px 20px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            color: black;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .retro-btn:active {
-            border: 4px solid #808080;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+            gap: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="korflox-desktop">
-        <!-- Barra de título estilo 2000 -->
-        <div class="title-bar">
-            <span>🧊 KORFLOX STUDIO 2008</span>
-            <span style="font-size: 12px; color: #90ff90;">[build 2600]</span>
-            <div class="buttons">
-                <div class="btn">−</div>
-                <div class="btn">□</div>
-                <div class="btn">✕</div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="1000" height="700"></canvas>
+        
+        <div id="ui">
+            <div id="stats">
+                <span>❤️ <span id="health">100</span></span>
+                <span>🔫 <span id="ammo">30</span></span>
+                <span>💀 <span id="kills">0</span></span>
+            </div>
+            <div id="skinSelector"></div>
+        </div>
+
+        <div id="playerList">
+            <h3>👥 Jugadores Conectados</h3>
+            <ul id="playerListItems"></ul>
+        </div>
+
+        <div id="connectionStatus" class="disconnected">
+            🔌 Desconectado
+        </div>
+
+        <div id="joinScreen">
+            <div id="joinForm">
+                <h2 style="color: #4ecdc4; margin-bottom: 20px;">Zombie Survival.io P2P</h2>
+                <input type="text" id="playerName" placeholder="Tu nombre" maxlength="15" value="Jugador" + Math.floor(Math.random() * 1000)>
+                
+                <div id="roomInfo">
+                    <p style="color: #888; margin-bottom: 5px;">Tu código de sala:</p>
+                    <div id="roomId" onclick="copyRoomId()">CARGANDO...</div>
+                    <p style="color: #888; font-size: 12px; margin-top: 5px;">Click para copiar</p>
+                </div>
+
+                <div id="roomControls">
+                    <input type="text" id="joinRoomId" placeholder="Código de sala" style="flex: 1;">
+                    <button onclick="joinRoom()">Unirse</button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button onclick="createRoom()" style="background: #ff6b6b;">Crear Nueva Sala</button>
+                </div>
             </div>
         </div>
 
-        <!-- Contenido principal: imitación de VS Code retro -->
-        <div class="main-workspace">
-            <!-- Sidebar explorador -->
-            <div class="sidebar">
-                <div class="sidebar-header">📁 EXPLORADOR</div>
-                <div class="folder"><span>📂</span> Mi Juego</div>
-                <ul class="file-list">
-                    <li>index.html</li>
-                    <li>style.css</li>
-                    <li>game.js</li>
-                    <li>sprites.png</li>
-                </ul>
-                <div class="folder" style="margin-top: 20px;"><span>📂</span> Assets</div>
-                <ul class="file-list">
-                    <li>player.gif</li>
-                    <li>enemy.bmp</li>
-                    <li>song.mid</li>
-                </ul>
-                <div style="margin-top: 30px; padding: 10px; color: #ffaa00;">🕹️ Korflox Engine v1.0</div>
-            </div>
-
-            <!-- Panel central: pestañas y canvas -->
-            <div class="center-panel">
-                <div class="tabs">
-                    <div class="tab active">🎮 juego.html</div>
-                    <div class="tab">✨ game.js</div>
-                    <div class="tab">🎨 estilos.css</div>
-                    <div style="flex:1; text-align: right; padding-right: 10px; color:#aaa;">📅 2008-03-04</div>
-                </div>
-                <div class="game-area">
-                    <canvas id="gameCanvas" width="640" height="360"></canvas>
-                </div>
-                <!-- Simulación de código en la parte inferior del panel central -->
-                <div style="background: #1f1f1f; padding: 15px; border-top: 4px solid #f0c000;">
-                    <pre style="color: #0f0; font-family: 'Courier New'; font-size: 14px; overflow-x: auto;">
-// game.js - Korflox 2008
-let player = {x: 100, y: 280, vx: 0, vy: 0};
-function update() {
-    // gravedad
-    player.vy += 0.5;
-    player.y += player.vy;
-    if(player.y > 300) player.y = 300;
-}</pre>
-                </div>
-            </div>
-
-            <!-- Panel de propiedades / ayuda -->
-            <div class="properties-panel">
-                <div class="prop-header">⚙️ PROPIEDADES</div>
-                <div class="prop-item"><span>Jugador X:</span> <span id="playerX">100</span></div>
-                <div class="prop-item"><span>Jugador Y:</span> <span id="playerY">280</span></div>
-                <div class="prop-item"><span>Enemigos:</span> <span>3</span></div>
-                <div class="prop-item"><span>FPS:</span> <span id="fps">60</span></div>
-                <div class="code-snippet">
-                    <span style="color: #ff0;">// TIPS 2008</span><br>
-                    Usa ← → para moverte.<br>
-                    Pulsa ESPACIO para saltar.<br>
-                    ¡Crea tu propio juego!
-                </div>
-                <button class="retro-btn" style="margin-top: 15px; width:100%;">▶ COMPILAR</button>
-            </div>
+        <div id="gameOver">
+            <h2>💀 HAS MUERTO 💀</h2>
+            <p style="font-size: 24px; margin: 20px 0;">Puntuación: <span id="finalScore">0</span></p>
+            <p style="margin-bottom: 20px;">Asesinatos: <span id="finalKills">0</span></p>
+            <button onclick="respawn()">Reintentar</button>
         </div>
 
-        <!-- Barra de estado -->
-        <div class="status-bar">
-            <div class="item"><span>🟢</span> KORFLOX READY</div>
-            <div class="item"><span>📶</span> 120 MB / 256 MB</div>
-            <div class="item blink">💾 GUARDAR...</div>
-            <div class="item">Línea 23, Col 8</div>
+        <div class="weapon-info">
+            <span>🔫 Pistola | ⚡ Recarga automática</span>
         </div>
     </div>
 
     <script>
-        // ----- JUEGO RETRO FUNCIONAL (cubo que se mueve con físicas básicas) -----
+        // Sistema de skins persistente
+        const SKINS = {
+            DEFAULT: { color: '#ffd700', emoji: '👤', name: 'Default' },
+            SOLDIER: { color: '#4ecdc4', emoji: '🪖', name: 'Soldado' },
+            NINJA: { color: '#95a5a6', emoji: '🥷', name: 'Ninja' },
+            SURVIVOR: { color: '#ff6b6b', emoji: '🧟', name: 'Superviviente' },
+            MEDIC: { color: '#2ecc71', emoji: '⚕️', name: 'Médico' }
+        };
+
+        // Cargar skin guardada
+        let selectedSkin = localStorage.getItem('selectedSkin') || 'DEFAULT';
+
+        // Configuración del canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const playerXSpan = document.getElementById('playerX');
-        const playerYSpan = document.getElementById('playerY');
-        const fpsSpan = document.getElementById('fps');
 
         // Variables del juego
-        let player = {
-            x: 100,
-            y: 280,
-            vx: 0,
-            vy: 0,
-            width: 24,
-            height: 24,
-            onGround: false
-        };
+        let gameRunning = false;
+        let playerId = null;
+        let players = {};
+        let zombies = [];
+        let bullets = [];
+        let playerName = '';
+        let lastShot = 0;
+        const SHOT_COOLDOWN = 200;
 
-        const GRAVEDAD = 0.6;
-        const FUERZA_SALTO = -10;
-        const VELOCIDAD_MOV = 4;
-        const SUELO_Y = 336; // 360 - altura (24) = 336
+        // Estadísticas del jugador
+        let playerHealth = 100;
+        let playerAmmo = 30;
+        let playerKills = 0;
+        let playerScore = 0;
 
-        // Control de teclas
-        const keys = {
-            left: false,
-            right: false,
-            space: false
-        };
+        // Variables P2P
+        let peer = null;
+        let connections = {};
+        let roomId = null;
+        let isHost = false;
 
-        // FPS calculation
-        let lastTime = performance.now();
-        let frames = 0;
-        let fps = 60;
+        // Inicializar skins UI
+        function initSkinSelector() {
+            const skinSelector = document.getElementById('skinSelector');
+            skinSelector.innerHTML = '';
+            
+            Object.entries(SKINS).forEach(([key, skin]) => {
+                const div = document.createElement('div');
+                div.className = `skin-option ${key === selectedSkin ? 'selected' : ''}`;
+                div.style.backgroundColor = skin.color;
+                div.title = skin.name;
+                div.onclick = () => selectSkin(key);
+                div.textContent = skin.emoji;
+                skinSelector.appendChild(div);
+            });
+        }
 
-        // Eventos de teclado
-        window.addEventListener('keydown', (e) => {
-            const key = e.key;
-            if (key === 'ArrowLeft' || key === 'Left' || key === 'a' || key === 'A') {
-                keys.left = true;
-                e.preventDefault();
-            } else if (key === 'ArrowRight' || key === 'Right' || key === 'd' || key === 'D') {
-                keys.right = true;
-                e.preventDefault();
-            } else if (key === ' ' || key === 'Space') {
-                keys.space = true;
-                e.preventDefault(); // evita scroll
+        function selectSkin(skinKey) {
+            selectedSkin = skinKey;
+            localStorage.setItem('selectedSkin', skinKey);
+            
+            document.querySelectorAll('.skin-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            if (playerId && players[playerId]) {
+                players[playerId].skin = skinKey;
+                broadcastGameState();
             }
+        }
+
+        // Funciones P2P
+        async function createRoom() {
+            try {
+                peer = new Peer();
+                
+                peer.on('open', (id) => {
+                    roomId = id;
+                    document.getElementById('roomId').textContent = id;
+                    isHost = true;
+                    startGame();
+                });
+
+                peer.on('connection', (conn) => {
+                    connections[conn.peer] = conn;
+                    
+                    conn.on('open', () => {
+                        console.log('Cliente conectado:', conn.peer);
+                        
+                        // Enviar estado actual
+                        conn.send({
+                            type: 'init',
+                            playerId: playerId,
+                            players: players,
+                            zombies: zombies,
+                            bullets: bullets
+                        });
+
+                        // Crear nuevo jugador para el cliente
+                        const newPlayerId = conn.peer;
+                        players[newPlayerId] = {
+                            id: newPlayerId,
+                            name: 'Jugador ' + Object.keys(players).length,
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            skin: 'DEFAULT',
+                            kills: 0,
+                            score: 0
+                        };
+
+                        broadcastGameState();
+                    });
+
+                    conn.on('data', handleData);
+                    conn.on('close', () => {
+                        delete connections[conn.peer];
+                        delete players[conn.peer];
+                        broadcastGameState();
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error creando sala:', error);
+            }
+        }
+
+        async function joinRoom() {
+            const targetRoomId = document.getElementById('joinRoomId').value.trim();
+            if (!targetRoomId) return;
+
+            try {
+                peer = new Peer();
+                
+                peer.on('open', (id) => {
+                    roomId = id;
+                    const conn = peer.connect(targetRoomId);
+                    
+                    conn.on('open', () => {
+                        connections[targetRoomId] = conn;
+                        
+                        conn.on('data', handleData);
+                        conn.on('close', () => {
+                            delete connections[targetRoomId];
+                        });
+
+                        // Enviar datos del jugador
+                        conn.send({
+                            type: 'join',
+                            playerId: id,
+                            name: playerName,
+                            skin: selectedSkin
+                        });
+
+                        startGame();
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error uniéndose a sala:', error);
+            }
+        }
+
+        function handleData(data) {
+            switch(data.type) {
+                case 'init':
+                    playerId = data.playerId;
+                    players = data.players;
+                    zombies = data.zombies;
+                    bullets = data.bullets;
+                    break;
+                    
+                case 'join':
+                    players[data.playerId] = {
+                        id: data.playerId,
+                        name: data.name,
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        skin: data.skin,
+                        kills: 0,
+                        score: 0
+                    };
+                    broadcastGameState();
+                    break;
+                    
+                case 'playerUpdate':
+                    if (players[data.playerId]) {
+                        players[data.playerId].x = data.x;
+                        players[data.playerId].y = data.y;
+                        players[data.playerId].skin = data.skin;
+                    }
+                    break;
+                    
+                case 'shoot':
+                    bullets.push({
+                        x: data.x,
+                        y: data.y,
+                        vx: data.vx,
+                        vy: data.vy,
+                        owner: data.playerId
+                    });
+                    break;
+                    
+                case 'zombieUpdate':
+                    zombies = data.zombies;
+                    break;
+                    
+                case 'gameState':
+                    players = data.players;
+                    zombies = data.zombies;
+                    bullets = data.bullets;
+                    break;
+            }
+        }
+
+        function broadcastGameState() {
+            const data = {
+                type: 'gameState',
+                players: players,
+                zombies: zombies,
+                bullets: bullets
+            };
+            
+            Object.values(connections).forEach(conn => {
+                if (conn.open) {
+                    conn.send(data);
+                }
+            });
+        }
+
+        function copyRoomId() {
+            navigator.clipboard.writeText(roomId);
+            alert('¡Código de sala copiado!');
+        }
+
+        function startGame() {
+            playerName = document.getElementById('playerName').value.trim() || 'Jugador';
+            
+            if (!players[playerId]) {
+                players[playerId] = {
+                    id: playerId,
+                    name: playerName,
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    skin: selectedSkin,
+                    kills: 0,
+                    score: 0
+                };
+            }
+
+            document.getElementById('joinScreen').style.display = 'none';
+            document.getElementById('connectionStatus').className = 'connected';
+            document.getElementById('connectionStatus').innerHTML = '🟢 Conectado - ' + Object.keys(connections).length + ' jugadores';
+            
+            gameRunning = true;
+            
+            if (isHost) {
+                spawnZombies();
+            }
+            
+            gameLoop();
+            broadcastLoop();
+        }
+
+        // Broadcast loop para hosts
+        function broadcastLoop() {
+            setInterval(() => {
+                if (gameRunning && isHost) {
+                    broadcastGameState();
+                }
+            }, 100);
+        }
+
+        // Spawn de zombies (solo host)
+        function spawnZombies() {
+            setInterval(() => {
+                if (!gameRunning || !isHost) return;
+                
+                for (let i = 0; i < 2; i++) {
+                    if (zombies.length < 30) {
+                        const side = Math.floor(Math.random() * 4);
+                        let x, y;
+                        
+                        switch(side) {
+                            case 0: x = Math.random() * canvas.width; y = -30; break;
+                            case 1: x = canvas.width + 30; y = Math.random() * canvas.height; break;
+                            case 2: x = Math.random() * canvas.width; y = canvas.height + 30; break;
+                            case 3: x = -30; y = Math.random() * canvas.height; break;
+                        }
+                        
+                        zombies.push({
+                            x: x,
+                            y: y,
+                            health: 50,
+                            speed: 1.5,
+                            size: 20
+                        });
+                    }
+                }
+            }, 3000);
+        }
+
+        // Control del jugador
+        let keys = {};
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+        document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            mouseX = (e.clientX - rect.left) * scaleX;
+            mouseY = (e.clientY - rect.top) * scaleY;
         });
 
-        window.addEventListener('keyup', (e) => {
-            const key = e.key;
-            if (key === 'ArrowLeft' || key === 'Left' || key === 'a' || key === 'A') {
-                keys.left = false;
-                e.preventDefault();
-            } else if (key === 'ArrowRight' || key === 'Right' || key === 'd' || key === 'D') {
-                keys.right = false;
-                e.preventDefault();
-            } else if (key === ' ' || key === 'Space') {
-                keys.space = false;
-                e.preventDefault();
-            }
-        });
+        canvas.addEventListener('click', shoot);
 
-        // Evita que la página se desplace con las flechas (ya prevenido)
+        function shoot() {
+            if (!gameRunning || !playerId || !players[playerId] || playerAmmo <= 0) return;
+            
+            const now = Date.now();
+            if (now - lastShot < SHOT_COOLDOWN) return;
+            
+            lastShot = now;
+            playerAmmo--;
+            
+            const player = players[playerId];
+            const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
+            
+            const bullet = {
+                x: player.x,
+                y: player.y,
+                vx: Math.cos(angle) * 8,
+                vy: Math.sin(angle) * 8,
+                owner: playerId
+            };
+            
+            bullets.push(bullet);
+            
+            // Broadcast disparo
+            Object.values(connections).forEach(conn => {
+                if (conn.open) {
+                    conn.send({
+                        type: 'shoot',
+                        playerId: playerId,
+                        x: bullet.x,
+                        y: bullet.y,
+                        vx: bullet.vx,
+                        vy: bullet.vy
+                    });
+                }
+            });
+        }
 
         function updatePlayer() {
-            // Movimiento horizontal
-            if (keys.left) {
-                player.vx = -VELOCIDAD_MOV;
-            } else if (keys.right) {
-                player.vx = VELOCIDAD_MOV;
-            } else {
-                player.vx *= 0.8; // fricción
+            if (!playerId || !players[playerId]) return;
+            
+            const player = players[playerId];
+            const speed = 3;
+            let moved = false;
+            
+            if (keys['w'] || keys['arrowup']) { player.y -= speed; moved = true; }
+            if (keys['s'] || keys['arrowdown']) { player.y += speed; moved = true; }
+            if (keys['a'] || keys['arrowleft']) { player.x -= speed; moved = true; }
+            if (keys['d'] || keys['arrowright']) { player.x += speed; moved = true; }
+            
+            player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
+            player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
+            
+            if (moved) {
+                // Broadcast movimiento
+                Object.values(connections).forEach(conn => {
+                    if (conn.open) {
+                        conn.send({
+                            type: 'playerUpdate',
+                            playerId: playerId,
+                            x: player.x,
+                            y: player.y,
+                            skin: player.skin
+                        });
+                    }
+                });
             }
+        }
 
-            // Salto (solo si está en el suelo)
-            if (keys.space && player.onGround) {
-                player.vy = FUERZA_SALTO;
-                player.onGround = false;
+        function updateZombies() {
+            if (!isHost) return; // Solo host actualiza zombies
+            
+            if (!playerId || !players[playerId]) return;
+            
+            const player = players[playerId];
+            
+            zombies = zombies.filter(zombie => {
+                if (zombie.health <= 0) return false;
+                
+                // Encontrar jugador más cercano
+                let closestPlayer = null;
+                let closestDist = Infinity;
+                
+                Object.values(players).forEach(p => {
+                    const dx = p.x - zombie.x;
+                    const dy = p.y - zombie.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        closestPlayer = p;
+                    }
+                });
+                
+                if (closestPlayer) {
+                    const dx = closestPlayer.x - zombie.x;
+                    const dy = closestPlayer.y - zombie.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist > 0) {
+                        zombie.x += (dx / dist) * zombie.speed;
+                        zombie.y += (dy / dist) * zombie.speed;
+                    }
+                    
+                    // Daño al jugador
+                    if (dist < 30 && closestPlayer.id === playerId) {
+                        playerHealth -= 0.5;
+                        if (playerHealth <= 0) {
+                            gameOver();
+                        }
+                    }
+                }
+                
+                return true;
+            });
+        }
+
+        function updateBullets() {
+            bullets = bullets.filter(bullet => {
+                bullet.x += bullet.vx;
+                bullet.y += bullet.vy;
+                
+                if (bullet.x < 0 || bullet.x > canvas.width || 
+                    bullet.y < 0 || bullet.y > canvas.height) {
+                    return false;
+                }
+                
+                // Solo host procesa colisiones
+                if (isHost) {
+                    for (let i = 0; i < zombies.length; i++) {
+                        const zombie = zombies[i];
+                        const dx = bullet.x - zombie.x;
+                        const dy = bullet.y - zombie.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 25) {
+                            zombie.health -= 25;
+                            
+                            if (zombie.health <= 0 && bullet.owner === playerId) {
+                                playerKills++;
+                                playerScore += 100;
+                                playerAmmo += 5;
+                            }
+                            
+                            return false;
+                        }
+                    }
+                }
+                
+                return true;
+            });
+            
+            if (playerAmmo <= 0) {
+                setTimeout(() => {
+                    playerAmmo = 30;
+                }, 2000);
             }
+        }
 
-            // Aplicar gravedad
-            player.vy += GRAVEDAD;
-            player.y += player.vy;
-            player.x += player.vx;
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = playerScore;
+            document.getElementById('finalKills').textContent = playerKills;
+            document.getElementById('gameOver').style.display = 'block';
+        }
 
-            // Limitar en el suelo
-            if (player.y > SUELO_Y) {
-                player.y = SUELO_Y;
-                player.vy = 0;
-                player.onGround = true;
-            } else {
-                player.onGround = false;
+        function respawn() {
+            if (playerId && players[playerId]) {
+                players[playerId].x = canvas.width / 2;
+                players[playerId].y = canvas.height / 2;
             }
+            
+            playerHealth = 100;
+            playerAmmo = 30;
+            playerKills = 0;
+            playerScore = 0;
+            zombies = [];
+            bullets = [];
+            
+            document.getElementById('gameOver').style.display = 'none';
+            gameRunning = true;
+        }
 
-            // Limitar bordes laterales (opcional)
-            if (player.x < 0) player.x = 0;
-            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-
-            // Actualizar panel de propiedades
-            playerXSpan.textContent = Math.floor(player.x);
-            playerYSpan.textContent = Math.floor(player.y);
+        function updatePlayerList() {
+            const list = document.getElementById('playerListItems');
+            list.innerHTML = '';
+            
+            Object.values(players).forEach(p => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span style="background: ${SKINS[p.skin]?.color || '#ffd700'}; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        ${SKINS[p.skin]?.emoji || '👤'}
+                    </span>
+                    <span style="flex: 1;">${p.name}</span>
+                    <span style="color: #ff6b6b;">${p.kills || 0} 💀</span>
+                `;
+                if (p.id === playerId) {
+                    li.style.background = 'rgba(78, 205, 196, 0.2)';
+                }
+                list.appendChild(li);
+            });
+            
+            document.getElementById('connectionStatus').innerHTML = 
+                `🟢 Conectado - ${Object.keys(players).length} jugadores`;
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Dibujar suelo (estilo 2008)
-            ctx.fillStyle = '#4a7029';
-            ctx.fillRect(0, SUELO_Y + player.height - 4, canvas.width, 20);
-            ctx.fillStyle = '#2d4a1e';
-            ctx.fillRect(0, SUELO_Y + player.height + 4, canvas.width, 10);
-            // Línea de césped
-            ctx.fillStyle = '#6a994e';
-            ctx.fillRect(0, SUELO_Y + player.height - 6, canvas.width, 6);
-
-            // Dibujar nubes estáticas (pixel art)
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(150, 50, 80, 30);
-            ctx.fillRect(170, 30, 60, 30);
-            ctx.fillRect(500, 80, 100, 35);
-            ctx.fillRect(520, 60, 70, 30);
-
-            // Dibujar al jugador (un cubo con cara)
-            ctx.fillStyle = '#f8c300';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            // Ojos
-            ctx.fillStyle = '#000';
-            ctx.fillRect(player.x + 5, player.y + 6, 4, 4);
-            ctx.fillRect(player.x + 15, player.y + 6, 4, 4);
-            // Sonrisa (boca)
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(player.x + 7, player.y + 16);
-            ctx.lineTo(player.x + 17, player.y + 16);
-            ctx.stroke();
+            
+            // Cuadrícula
+            ctx.strokeStyle = '#3a6e3a';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            
+            // Zombies
+            zombies.forEach(zombie => {
+                ctx.fillStyle = '#2ecc71';
+                ctx.beginPath();
+                ctx.arc(zombie.x, zombie.y, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.font = '20px Arial';
+                ctx.fillText('🧟', zombie.x - 15, zombie.y - 15);
+                
+                // Barra de vida
+                ctx.fillStyle = 'red';
+                ctx.fillRect(zombie.x - 20, zombie.y - 30, 40, 5);
+                ctx.fillStyle = 'green';
+                ctx.fillRect(zombie.x - 20, zombie.y - 30, 40 * (zombie.health / 50), 5);
+            });
+            
+            // Balas
+            bullets.forEach(bullet => {
+                ctx.fillStyle = 'yellow';
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Jugadores
+            Object.values(players).forEach(player => {
+                const skin = SKINS[player.skin] || SKINS.DEFAULT;
+                
+                ctx.fillStyle = skin.color;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.font = '20px Arial';
+                ctx.fillText(skin.emoji, player.x - 15, player.y - 15);
+                
+                // Nombre
+                ctx.fillStyle = 'white';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(player.name, player.x, player.y - 30);
+                
+                // Indicador de jugador local
+                if (player.id === playerId) {
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(player.x, player.y, 22, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+            
+            // UI
+            document.getElementById('health').textContent = Math.max(0, Math.floor(playerHealth));
+            document.getElementById('ammo').textContent = playerAmmo;
+            document.getElementById('kills').textContent = playerKills;
+            
+            updatePlayerList();
         }
 
-        function gameLoop(now) {
-            // Calcular FPS
-            frames++;
-            const delta = now - lastTime;
-            if (delta >= 1000) {
-                fps = frames;
-                frames = 0;
-                lastTime = now;
-                fpsSpan.textContent = fps;
-            }
-
+        function gameLoop() {
+            if (!gameRunning) return;
+            
             updatePlayer();
+            if (isHost) {
+                updateZombies();
+            }
+            updateBullets();
             draw();
+            
             requestAnimationFrame(gameLoop);
         }
 
-        // Iniciar bucle
-        requestAnimationFrame(gameLoop);
+        // Inicializar
+        initSkinSelector();
 
-        // Enfoque del canvas para que funcione sin hacer clic en otro lado
-        canvas.setAttribute('tabindex', '0'); // permite recibir eventos de teclado si es necesario
-        canvas.focus(); // opcional
-
-        // También funciona con window, así que no es estrictamente necesario
+        // Cargar PeerJS
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js';
+        script.onload = () => {
+            console.log('PeerJS cargado');
+            createRoom(); // Crear sala automáticamente
+        };
+        document.head.appendChild(script);
     </script>
 </body>
 </html>
