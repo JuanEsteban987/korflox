@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BATTLE SIMULATOR 2008 · COLOCA TUS TROPAS</title>
+    <title>BATTLE SIMULATOR 2008 · CREADOR CUSTOM</title>
     <style>
         body {
             margin: 0;
@@ -38,6 +38,94 @@
             z-index: 100;
             font-size: 16px;
         }
+        /* Panel de personalización */
+        #custom-panel {
+            position: absolute;
+            top: 120px;
+            left: 20px;
+            background: rgba(10, 10, 20, 0.9);
+            border: 3px solid #ffaa00;
+            padding: 15px;
+            width: 240px;
+            color: #ffaa00;
+            box-shadow: 0 0 30px #ffaa00;
+            z-index: 150;
+            font-family: 'Courier New', monospace;
+            backdrop-filter: blur(2px);
+        }
+        #custom-panel h3 {
+            margin: 0 0 15px 0;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 2px dashed #ffaa00;
+            padding-bottom: 5px;
+        }
+        .custom-row {
+            margin-bottom: 15px;
+        }
+        .custom-label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #fff700;
+            text-shadow: 0 0 5px #ffaa00;
+        }
+        .color-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .color-btn {
+            width: 35px;
+            height: 35px;
+            border: 2px solid white;
+            cursor: pointer;
+            box-shadow: 0 0 10px currentColor;
+            transition: transform 0.1s;
+        }
+        .color-btn.selected {
+            transform: scale(1.2);
+            border-color: yellow;
+            box-shadow: 0 0 20px yellow;
+        }
+        .shape-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .shape-btn {
+            background: black;
+            border: 2px solid #0ff;
+            color: #0ff;
+            font-size: 18px;
+            padding: 8px 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px #0ff;
+            flex: 1;
+        }
+        .shape-btn.selected {
+            background: #0ff;
+            color: black;
+            border-color: black;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider-container input {
+            flex: 1;
+            cursor: pointer;
+            accent-color: #ffaa00;
+            height: 8px;
+        }
+        .slider-container span {
+            min-width: 45px;
+            text-align: right;
+            color: white;
+            text-shadow: 0 0 5px cyan;
+        }
         #panel-colocacion {
             position: absolute;
             bottom: 120px;
@@ -51,7 +139,6 @@
             gap: 20px;
             z-index: 200;
             box-shadow: 0 0 30px #ffaa00;
-            font-family: 'Courier New', monospace;
         }
         .boton-bando {
             background: black;
@@ -93,8 +180,9 @@
             box-shadow: 0 0 30px #00ff00;
             letter-spacing: 4px;
         }
-        #btnIniciar:active, .boton-bando:active {
-            transform: scale(0.95);
+        #btnIniciar:disabled {
+            opacity: 0.3;
+            pointer-events: none;
         }
         #btnReiniciar {
             position: absolute;
@@ -139,10 +227,47 @@
     </style>
 </head>
 <body>
-    <div id="info">⚡ BATTLE SIMULATOR 2008 · MODO COLOCACIÓN ⚡</div>
+    <div id="info">⚡ BATTLE SIMULATOR 2008 · CREADOR CUSTOM ⚡</div>
     <div id="contador">ROJO: <span id="rojo-count">0</span> | AZUL: <span id="azul-count">0</span></div>
+    
+    <!-- Panel de personalización -->
+    <div id="custom-panel">
+        <h3>🎨 CREADOR DE TROPAS</h3>
+        <div class="custom-row">
+            <span class="custom-label">COLOR CUERPO</span>
+            <div class="color-buttons">
+                <div class="color-btn" style="background:#ff3333; box-shadow:0 0 15px #ff3333;" data-color="#ff3333" data-name="rojo"></div>
+                <div class="color-btn" style="background:#3366ff; box-shadow:0 0 15px #3366ff;" data-color="#3366ff" data-name="azul"></div>
+                <div class="color-btn" style="background:#33ff33; box-shadow:0 0 15px #33ff33;" data-color="#33ff33" data-name="verde"></div>
+                <div class="color-btn" style="background:#ffff33; box-shadow:0 0 15px #ffff33;" data-color="#ffff33" data-name="amarillo"></div>
+                <div class="color-btn" style="background:#ff33ff; box-shadow:0 0 15px #ff33ff;" data-color="#ff33ff" data-name="morado"></div>
+                <div class="color-btn" style="background:#ff8800; box-shadow:0 0 15px #ff8800;" data-color="#ff8800" data-name="naranja"></div>
+            </div>
+        </div>
+        <div class="custom-row">
+            <span class="custom-label">FORMA CABEZA</span>
+            <div class="shape-buttons">
+                <button class="shape-btn" data-shape="sphere">⚪</button>
+                <button class="shape-btn" data-shape="cube">⬛</button>
+                <button class="shape-btn" data-shape="pyramid">🔺</button>
+            </div>
+        </div>
+        <div class="custom-row">
+            <span class="custom-label">VELOCIDAD: <span id="speed-val">0.06</span></span>
+            <div class="slider-container">
+                <input type="range" id="speed-slider" min="0.02" max="0.15" step="0.01" value="0.06">
+            </div>
+        </div>
+        <div class="custom-row">
+            <span class="custom-label">TAMAÑO: <span id="size-val">1.0</span></span>
+            <div class="slider-container">
+                <input type="range" id="size-slider" min="0.6" max="1.8" step="0.1" value="1.0">
+            </div>
+        </div>
+    </div>
+
     <div class="instruccion">
-        🖱️ SELECCIONA BANDO Y HAZ CLIC EN EL SUELO PARA COLOCAR<br>
+        🖱️ SELECCIONA BANDO, PERSONALIZA Y HAZ CLIC EN EL SUELO<br>
         <span style="color:#ff3333">ROJO</span> ⚔️ <span style="color:#3366ff">AZUL</span>
     </div>
 
@@ -235,21 +360,20 @@
             scene.add(star);
         }
 
-        // --- EJÉRCITOS (vacíos al inicio) ---
+        // --- EJÉRCITOS ---
         let armyRed = [];
         let armyBlue = [];
         
-        // Bandos (para colocación)
-        let bandoSeleccionado = 'rojo'; // por defecto rojo
-        const maxTropas = 15; // límite por bando para no saturar
+        let bandoSeleccionado = 'rojo';
+        const maxTropas = 20;
 
-        // Referencias a los botones
+        // Referencias a los botones de bando
         const btnRojo = document.getElementById('btnRojo');
         const btnAzul = document.getElementById('btnAzul');
         const btnIniciar = document.getElementById('btnIniciar');
         const btnReiniciar = document.getElementById('btnReiniciar');
 
-        btnRojo.classList.add('activo'); // rojo activo por defecto
+        btnRojo.classList.add('activo');
 
         btnRojo.addEventListener('click', () => {
             bandoSeleccionado = 'rojo';
@@ -263,65 +387,113 @@
             btnRojo.classList.remove('activo');
         });
 
-        // Función para crear una unidad (retorna el grupo)
-        function crearUnidad(colorTipo) {
+        // --- PERSONALIZACIÓN ---
+        const customState = {
+            color: '#ff3333', // por defecto rojo
+            shape: 'sphere',
+            speed: 0.06,
+            size: 1.0
+        };
+
+        // Colores
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                customState.color = btn.dataset.color;
+            });
+        });
+        // Seleccionar rojo por defecto
+        document.querySelector('.color-btn[data-color="#ff3333"]').classList.add('selected');
+
+        // Formas
+        document.querySelectorAll('.shape-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                customState.shape = btn.dataset.shape;
+            });
+        });
+        // Seleccionar esfera por defecto
+        document.querySelector('.shape-btn[data-shape="sphere"]').classList.add('selected');
+
+        // Sliders
+        const speedSlider = document.getElementById('speed-slider');
+        const speedSpan = document.getElementById('speed-val');
+        speedSlider.addEventListener('input', (e) => {
+            customState.speed = parseFloat(e.target.value);
+            speedSpan.textContent = customState.speed.toFixed(2);
+        });
+
+        const sizeSlider = document.getElementById('size-slider');
+        const sizeSpan = document.getElementById('size-val');
+        sizeSlider.addEventListener('input', (e) => {
+            customState.size = parseFloat(e.target.value);
+            sizeSpan.textContent = customState.size.toFixed(1);
+        });
+
+        // --- FUNCIÓN PARA CREAR UNIDAD PERSONALIZADA ---
+        function crearUnidadCustom(equipo) {
             const group = new THREE.Group();
-            const isRed = (colorTipo === 'rojo');
-            const cuerpoColor = isRed ? 0xff3333 : 0x3366ff;
-            const emisivo = isRed ? 0x330000 : 0x001133;
+            const colorHex = parseInt(customState.color.slice(1), 16);
             
-            // Cuerpo
-            const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 8);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: cuerpoColor, emissive: emisivo });
+            // Cuerpo (cilindro con el color elegido)
+            const bodyGeo = new THREE.CylinderGeometry(0.5 * customState.size, 0.5 * customState.size, 1.2 * customState.size, 8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, emissive: 0x222222 });
             const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 0.6;
+            body.position.y = 0.6 * customState.size;
             body.castShadow = true;
             body.receiveShadow = true;
             group.add(body);
             
-            // Cabeza
-            const headGeo = new THREE.SphereGeometry(0.4, 6, 4);
-            const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, emissive: 0x332200 });
+            // Cabeza según forma
+            let headGeo, headMat;
+            const headColor = 0xffcc88; // color carne fijo para que resalte
+            if (customState.shape === 'sphere') {
+                headGeo = new THREE.SphereGeometry(0.4 * customState.size, 6, 4);
+            } else if (customState.shape === 'cube') {
+                headGeo = new THREE.BoxGeometry(0.7 * customState.size, 0.7 * customState.size, 0.7 * customState.size);
+            } else if (customState.shape === 'pyramid') {
+                headGeo = new THREE.ConeGeometry(0.5 * customState.size, 0.8 * customState.size, 4);
+            }
+            headMat = new THREE.MeshStandardMaterial({ color: headColor, emissive: 0x332200 });
             const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 1.4;
+            head.position.y = 1.4 * customState.size;
             head.castShadow = true;
             head.receiveShadow = true;
             group.add(head);
             
-            // Ojos
-            const eyeGeo = new THREE.SphereGeometry(0.1, 4);
+            // Ojos (solo si la cabeza lo permite, los colocamos siempre)
+            const eyeGeo = new THREE.SphereGeometry(0.1 * customState.size, 4);
             const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
             const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeL.position.set(-0.15, 1.5, 0.35);
+            eyeL.position.set(-0.2 * customState.size, 1.5 * customState.size, 0.4 * customState.size);
             group.add(eyeL);
             const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeR.position.set(0.15, 1.5, 0.35);
+            eyeR.position.set(0.2 * customState.size, 1.5 * customState.size, 0.4 * customState.size);
             group.add(eyeR);
             
             return group;
         }
 
-        // Raycaster para colocar unidades
+        // --- COLOCACIÓN MEDIANTE CLIC ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+        let batallaIniciada = false;
 
         function onMouseClick(event) {
-            // Solo permitir colocación si la batalla no ha comenzado (variable global)
             if (batallaIniciada) return;
 
-            // Calcular posición del ratón en coordenadas normalizadas
             mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
             mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
 
-            // Intersectar con el suelo (plano y=0)
             const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
             const target = new THREE.Vector3();
             if (raycaster.ray.intersectPlane(plane, target)) {
-                // Verificar que esté dentro del área (opcional)
                 if (Math.abs(target.x) < 14 && Math.abs(target.z) < 14) {
-                    // Comprobar límite de tropas por bando
+                    // Límite de tropas
                     if (bandoSeleccionado === 'rojo' && armyRed.length >= maxTropas) {
                         alert('Máximo de tropas rojas alcanzado');
                         return;
@@ -331,19 +503,23 @@
                         return;
                     }
 
-                    const nuevaUnidad = crearUnidad(bandoSeleccionado);
+                    const nuevaUnidad = crearUnidadCustom(bandoSeleccionado);
                     nuevaUnidad.position.copy(target);
-                    nuevaUnidad.position.y = 0; // el suelo
-                    // Rotación aleatoria
+                    nuevaUnidad.position.y = 0;
                     nuevaUnidad.rotation.y = Math.random() * Math.PI * 2;
                     
                     scene.add(nuevaUnidad);
                     
-                    // Guardar en el array correspondiente con velocidad aleatoria
+                    const unidadData = {
+                        mesh: nuevaUnidad,
+                        health: 1,
+                        speed: customState.speed // velocidad personalizada
+                    };
+                    
                     if (bandoSeleccionado === 'rojo') {
-                        armyRed.push({ mesh: nuevaUnidad, health: 1, speed: 0.05 + Math.random() * 0.02 });
+                        armyRed.push(unidadData);
                     } else {
-                        armyBlue.push({ mesh: nuevaUnidad, health: 1, speed: 0.05 + Math.random() * 0.02 });
+                        armyBlue.push(unidadData);
                     }
                     
                     actualizarContador();
@@ -351,65 +527,52 @@
             }
         }
 
-        // Actualizar contador HTML
+        renderer.domElement.addEventListener('click', onMouseClick);
+
         function actualizarContador() {
             document.getElementById('rojo-count').innerText = armyRed.length;
             document.getElementById('azul-count').innerText = armyBlue.length;
         }
 
-        // Estado de la batalla
-        let batallaIniciada = false;
-        let animationFrame;
-        const deathParticles = [];
-
-        // Función para iniciar la batalla
-        function iniciarBatalla() {
+        // --- INICIAR BATALLA ---
+        btnIniciar.addEventListener('click', () => {
             if (armyRed.length === 0 || armyBlue.length === 0) {
-                alert('¡Debe haber tropas de ambos bandos para iniciar la batalla!');
+                alert('¡Debe haber tropas de ambos bandos!');
                 return;
             }
             batallaIniciada = true;
             btnIniciar.disabled = true;
-            btnIniciar.style.opacity = '0.5';
             btnRojo.disabled = true;
             btnAzul.disabled = true;
-            // Cambiar texto del panel
-            document.getElementById('info').innerHTML = '⚡ BATTLE SIMULATOR 2008 · BATALLA EN CURSO ⚡';
-        }
+            document.getElementById('info').innerHTML = '⚡ BATALLA EN CURSO ⚡';
+        });
 
-        // Botón iniciar
-        btnIniciar.addEventListener('click', iniciarBatalla);
-
-        // Reiniciar colocación
+        // --- REINICIAR ---
         btnReiniciar.addEventListener('click', () => {
-            // Eliminar todas las tropas
             armyRed.forEach(u => scene.remove(u.mesh));
             armyBlue.forEach(u => scene.remove(u.mesh));
             armyRed = [];
             armyBlue = [];
             
-            // Eliminar partículas
             deathParticles.forEach(p => scene.remove(p));
             deathParticles.length = 0;
             
             batallaIniciada = false;
             btnIniciar.disabled = false;
-            btnIniciar.style.opacity = '1';
             btnRojo.disabled = false;
             btnAzul.disabled = false;
-            document.getElementById('info').innerHTML = '⚡ BATTLE SIMULATOR 2008 · MODO COLOCACIÓN ⚡';
+            document.getElementById('info').innerHTML = '⚡ BATTLE SIMULATOR 2008 · CREADOR CUSTOM ⚡';
             
             actualizarContador();
         });
 
-        // Añadir event listener para clics
-        renderer.domElement.addEventListener('click', onMouseClick);
+        // --- LÓGICA DE BATALLA ---
+        const deathParticles = [];
 
-        // --- LÓGICA DE BATALLA (movimiento y colisiones) ---
         function checkCollisionsAndMove() {
             if (!batallaIniciada) return;
 
-            // Mover rojos hacia el centro (o hacia el enemigo más cercano - simplificado hacia centro)
+            // Mover rojos
             for (let i = armyRed.length - 1; i >= 0; i--) {
                 const unit = armyRed[i];
                 let dirX = -unit.mesh.position.x;
@@ -438,7 +601,7 @@
                 }
             }
 
-            // Detectar colisiones
+            // Colisiones
             for (let i = armyRed.length - 1; i >= 0; i--) {
                 const redUnit = armyRed[i];
                 for (let j = armyBlue.length - 1; j >= 0; j--) {
@@ -457,18 +620,15 @@
 
             actualizarContador();
 
-            // Si un equipo es destruido, terminar batalla
             if (armyRed.length === 0 || armyBlue.length === 0) {
                 batallaIniciada = false;
                 btnIniciar.disabled = false;
-                btnIniciar.style.opacity = '1';
                 btnRojo.disabled = false;
                 btnAzul.disabled = false;
-                document.getElementById('info').innerHTML = '⚡ BATALLA FINALIZADA · REINICIA PARA COLOCAR ⚡';
+                document.getElementById('info').innerHTML = '⚡ BATALLA FINALIZADA · REINICIA ⚡';
             }
         }
 
-        // Efecto de muerte
         function createDeathEffect(position) {
             for (let k = 0; k < 6; k++) {
                 const boxGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
@@ -490,7 +650,6 @@
 
             checkCollisionsAndMove();
 
-            // Animar partículas
             for (let i = deathParticles.length - 1; i >= 0; i--) {
                 const p = deathParticles[i];
                 p.position.add(p.userData.velocity);
@@ -514,7 +673,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Inicializar contador
         actualizarContador();
     </script>
 </body>
