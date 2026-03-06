@@ -3,710 +3,507 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🗺️ NOOB WAR · CONSTRUCCIÓN & MOVIMIENTO · 2008 🗺️</title>
+    <title>Visual Script 2008 · Edición Deluxe</title>
+    <!-- Drawflow base -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/drawflow@0.0.58/dist/drawflow.min.css">
     <style>
+        /* ===== ESTÉTICA 2008 PULIDA =====
+           - Más brillos, texturas y sombras
+           - Sensación de "programa de autor" de la época
+           - Botones con efecto cristal / glossy
+           - Fondo con ruido analógico
+        */
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            font-family: 'Courier New', Courier, monospace;
+            user-select: none;
         }
 
         body {
-            background: #1b3b4f;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-        .game-container {
-            max-width: 1300px;
-            width: 100%;
-            background: #6d9ac4;
-            border: 6px ridge #ffffff;
-            box-shadow: 12px 12px 0px #0a1f2b;
-            padding: 24px 20px;
-        }
-
-        .header {
-            background: #4b6e8c;
-            border: 4px outset #e0e0e0;
-            padding: 14px 8px;
-            margin-bottom: 24px;
-            text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 4px 4px 0px #1f4f6e, 6px 6px 0px #0b2b3f;
-            letter-spacing: 2px;
-        }
-
-        .stats-panel {
-            background: #b8d8f0;
-            border: 4px inset #f0f8ff;
-            padding: 20px 15px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 16px;
-            box-shadow: inset 2px 2px 0px #3b5e7a;
-        }
-
-        .stat-item {
-            background: #e6f0fa;
-            border: 3px ridge #ffffff;
-            padding: 12px 18px;
-            font-size: 22px;
-            font-weight: bold;
-            color: #0f2f44;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 3px 3px 0px #3b6e8c;
-        }
-
-        .stat-item span {
-            background: #1b2f44;
-            color: #ffffc0;
-            padding: 4px 16px;
-            border: 2px inset #c0c0c0;
-            font-size: 30px;
-            margin-left: 8px;
-        }
-
-        .map-wrapper {
-            position: relative;
-            margin: 20px 0;
-            border: 8px ridge #5f8faf;
-            background: #2f5f7a;
-            padding: 0;
+            font-family: 'Tahoma', 'Verdana', 'Segoe UI', sans-serif;
+            background: #1b2a3a; /* Fondo más profundo */
             overflow: hidden;
-            cursor: grab;
-            width: 100%;
-            height: 600px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .map-wrapper:active {
-            cursor: grabbing;
+        /* BARRA SUPERIOR ESTILO VISTA + TOQUES MEDIA CENTER */
+        .toolbar {
+            background: linear-gradient(180deg, #3f7ac6 0%, #1f4a9c 50%, #0f2f6a 100%);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 3px solid #fdd023;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.7), inset 0 1px 0 #a0c0ff;
+            color: white;
+            text-shadow: 2px 2px 0 #0a1e3a;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 10;
         }
 
-        canvas {
-            display: block;
+        .toolbar::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: #3f7a5a;
-            image-rendering: crisp-edges;
+            background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 16px);
+            pointer-events: none;
         }
 
-        .buildings-panel {
+        .toolbar h1 {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(180deg, #ffffff, #c7e0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 3px 3px 0 #0b2550;
+            margin-right: 15px;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            background: #fee38b;
+            color: #1f3f6e;
+            padding: 5px 18px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            border: 2px solid #f5b81b;
+            box-shadow: inset 0 2px 5px #ffffdd, 0 4px 0 #7f5f1c, 0 6px 8px black;
+            text-shadow: 0 1px 0 white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge span {
+            font-size: 18px;
+            background: #203e6b;
+            color: #fee38b;
+            border-radius: 30px;
+            padding: 0px 8px;
+            margin-left: 5px;
+            border: 1px solid #f5b81b;
+        }
+
+        .toolbar button {
+            background: linear-gradient(180deg, #f5faff, #b0cdf0);
+            border: 2px solid #fde470;
+            border-radius: 40px;
+            padding: 8px 24px;
+            font-weight: bold;
+            color: #17315b;
+            font-size: 15px;
+            box-shadow: 0 5px 0 #7f5f1c, inset 0 2px 10px white;
+            cursor: pointer;
+            transition: 0.05s linear;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #7f5f1c, inset 0 2px 6px white;
+        }
+
+        /* CONTENEDOR DEL EDITOR — con ruido y textura papel */
+        #drawflow-container {
+            flex: 1;
+            width: 100%;
+            background: #4f555d;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,250,210,0.15) 0%, transparent 25%),
+                repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 4px, transparent 4px, transparent 12px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px #00000055;
+        }
+
+        /* Estilos de nodo aún más detallados */
+        .drawflow-node {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            width: auto !important;
+        }
+
+        .drawflow-node .node-content {
+            background: linear-gradient(135deg, #f6fafe 0%, #d5e2f0 100%);
+            border: 4px solid #fde158;
+            border-radius: 28px 14px 28px 14px;
+            box-shadow: 0 12px 0 #7f5f1c, 0 10px 20px rgba(0,0,0,0.8), inset 0 1px 8px white;
+            padding: 14px 18px;
+            min-width: 210px;
+            font-family: 'Tahoma', 'Verdana', sans-serif;
+            color: #11253d;
+            transition: all 0.12s ease;
+            position: relative;
+            backdrop-filter: blur(1px);
+            /* textura sutil de ruido */
+            background-blend-mode: overlay;
+        }
+
+        .drawflow-node .node-content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 20px);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        /* brillo glossy exagerado */
+        .drawflow-node .node-content::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            background: radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 240, 0.4) 50%, transparent 85%);
+            pointer-events: none;
+            border-radius: 26px 12px 0 0;
+        }
+
+        .node-header {
+            font-weight: bold;
+            font-size: 17px;
+            text-align: center;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            border-bottom: 3px solid #fecb2f;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #002d72;
+            text-shadow: 0 2px 2px white;
+            background: linear-gradient(180deg, #fff9, transparent);
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .node-inputs, .node-outputs {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
             justify-content: center;
-            margin: 25px 0 15px;
+            gap: 12px;
+            margin: 12px 0;
         }
 
-        .roblox-btn {
-            background: #c0c0c0;
-            border: 6px outset #f8f8f8;
-            font-size: 26px;
+        /* Puertos con efecto 3D más pronunciado */
+        .input, .output {
+            background: linear-gradient(180deg, #e1edff, #a5bfe5);
+            border: 3px solid #133e72;
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 12px;
             font-weight: bold;
-            padding: 16px 32px;
-            cursor: pointer;
-            color: #1f2f3f;
-            text-transform: uppercase;
-            box-shadow: 5px 5px 0px #2f4f6f;
-            transition: 0.05s linear;
-            letter-spacing: 2px;
-            min-width: 260px;
-        }
-
-        .roblox-btn:active {
-            border: 6px inset #f8f8f8;
-            transform: translate(4px, 4px);
-            box-shadow: 2px 2px 0px #2f4f6f;
-        }
-
-        .roblox-btn.active {
-            background: #f0f0a0;
-            border-color: #ffff00;
-            box-shadow: 0 0 10px yellow;
-        }
-
-        .roblox-btn:disabled {
-            opacity: 0.4;
-            filter: grayscale(60%);
-            transform: none;
-            border: 6px outset #a0a0a0;
-            box-shadow: 2px 2px 0px #1f3f4f;
-            cursor: not-allowed;
-        }
-
-        .attack-btn {
-            background: #c02f2f;
-            border: 8px outset #ffc0c0;
-            font-size: 44px;
-            padding: 24px 70px;
-            color: white;
-            text-shadow: 4px 4px 0 #5f1f1f;
-            box-shadow: 12px 12px 0 #2f1f1f;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .log-box {
-            background: #0f1f2b;
-            border: 6px inset #3f6f8f;
-            padding: 16px;
-            color: #9bff9b;
-            font-size: 20px;
-            min-height: 100px;
-            max-height: 140px;
-            overflow-y: auto;
-            box-shadow: inset 0 0 0 2px #1f4f6e;
-            margin: 20px 0 10px;
-        }
-
-        .log-box p {
-            margin: 4px 0;
-            border-left: 4px solid #5faf5f;
-            padding-left: 10px;
-        }
-
-        .footer-note {
+            color: #0b2342;
+            box-shadow: inset 0 3px 5px white, 0 5px 0 #133e72;
+            cursor: crosshair;
             text-align: center;
-            font-size: 18px;
-            color: #e0f0ff;
-            text-shadow: 2px 2px 0 #0f2a3f;
-            background: #2b4f6b;
-            padding: 6px;
-            border: 2px ridge #9fbfdf;
+            min-width: 60px;
+            transition: 0.03s linear;
+            position: relative;
+            text-transform: uppercase;
         }
 
-        .mode-indicator {
-            background: #00000080;
-            color: white;
-            font-size: 24px;
-            padding: 10px;
-            border-radius: 10px;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            pointer-events: none;
+        .output {
+            background: linear-gradient(180deg, #fff2d4, #fccf7a);
+            border-color: #ad5f0e;
+            box-shadow: inset 0 3px 5px white, 0 5px 0 #ad5f0e;
+            color: #5a3a04;
+        }
+
+        .input:active, .output:active {
+            transform: translateY(4px);
+            box-shadow: inset 0 3px 5px white, 0 1px 0 #133e72;
+        }
+
+        /* Conexiones con estilo cable de audio vintage */
+        .drawflow .connection .main-path {
+            stroke: #ffd966 !important;
+            stroke-width: 5px !important;
+            filter: drop-shadow(0 5px 3px #00000099) drop-shadow(0 0 2px #ffb347);
+            stroke-dasharray: 0;
+        }
+
+        .drawflow .connection .point {
+            fill: #f5b81b;
+            stroke: #a15500;
+            stroke-width: 3px;
+            r: 6;
+        }
+
+        /* nodo seleccionado con brillo dorado */
+        .drawflow-node.selected .node-content {
+            border-color: #ffb703;
+            box-shadow: 0 0 0 5px #ffeeaa, 0 12px 0 #7f5f1c, 0 15px 25px black;
+        }
+
+        /* clases de tipo con colores más vivos */
+        .node-type-event .node-content {
+            background: linear-gradient(135deg, #b7d9ff, #4781d4);
+        }
+        .node-type-action .node-content {
+            background: linear-gradient(135deg, #bcf5bc, #4ba84b);
+        }
+        .node-type-condition .node-content {
+            background: linear-gradient(135deg, #fff2b5, #e5b83b);
+        }
+        .node-type-variable .node-content {
+            background: linear-gradient(135deg, #e5c7ff, #9f6fe0);
+        }
+        .node-type-math .node-content {
+            background: linear-gradient(135deg, #ffcf9f, #f57c31);
+        }
+        .node-type-sound .node-content {
+            background: linear-gradient(135deg, #ffb5c8, #db6180);
+        }
+        .node-type-physics .node-content {
+            background: linear-gradient(135deg, #b5e7ff, #3697b5);
+        }
+        .node-type-io .node-content {
+            background: linear-gradient(135deg, #d3c6ff, #8266b0);
+        }
+        .node-type-network .node-content {
+            background: linear-gradient(135deg, #b5f0e6, #2f9688);
+        }
+        .node-type-animation .node-content {
+            background: linear-gradient(135deg, #fcc1f0, #c73e9b);
+        }
+
+        /* scrollbar retro mejorado */
+        ::-webkit-scrollbar {
+            width: 18px;
+            background: #32373d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #d9e2f0, #7b99cf);
+            border-radius: 20px;
+            border: 3px solid #fecb2f;
+            box-shadow: inset 0 1px 4px white;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            🏰 NOOB WAR · CONSTRUCCIÓN & MOVIMIENTO 🏰
+    <div class="toolbar">
+        <h1>🎮 VISUAL SCRIPT 2008 DX</h1>
+        <div class="badge" id="nodeCounter">
+            ⚡ NODOS <span id="nodeCountValue">0</span>
         </div>
-
-        <!-- Panel de recursos -->
-        <div class="stats-panel">
-            <div class="stat-item">💰 TIX <span id="tixDisplay">300</span></div>
-            <div class="stat-item">⚔️ NOOBS EN CENTRO <span id="noobsCenterDisplay">0</span></div>
-            <div class="stat-item">🏭 SPAWNERS <span id="spawnerCount">1</span></div>
-            <div class="stat-item">🔬 INVEST. <span id="investigatorCount">1</span></div>
-        </div>
-
-        <!-- Mapa con zoom y pan -->
-        <div class="map-wrapper" id="mapWrapper">
-            <canvas id="gameCanvas" width="600" height="600"></canvas>
-            <div class="mode-indicator" id="modeIndicator">⚡ Modo: Ninguno</div>
-        </div>
-
-        <!-- Botones de construcción -->
-        <div class="buildings-panel">
-            <button class="roblox-btn" id="buySpawnerBtn">🏭 COLOCAR SPAWNER (50💰)</button>
-            <button class="roblox-btn" id="buyInvestigatorBtn">🔬 COLOCAR INVESTIGADOR (30💰)</button>
-        </div>
-
-        <!-- Botón de ataque central -->
-        <div style="display: flex; justify-content: center;">
-            <button class="roblox-btn attack-btn" id="attackBtn">💥 ¡ATACAR! 💥</button>
-        </div>
-
-        <!-- Log de eventos -->
-        <div class="log-box" id="logMessages">
-            <p>🌍 2008: Haz clic en tu territorio (verde) para colocar edificios. Los noobs van al centro.</p>
-        </div>
-
-        <div class="footer-note">
-            🧱 ROBLOX 2008 · MAPA 120x120 · CONSTRUCCIÓN MANUAL · CUBOS 🧱
+        <button id="btnRandomConnect">🔀 CONECTAR ALEATORIO</button>
+        <button id="btnAddNode">✨ NUEVO NODO</button>
+        <button id="btnOrganize">🌀 REORGANIZAR (simple)</button>
+        <div style="flex:1; text-align:right; font-size:13px; color:#c7e0ff; text-shadow:1px 1px 0 #102541;">
+            ⚙️ 256+ NODOS • MODO RETRO
         </div>
     </div>
+    <div id="drawflow-container"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/drawflow@0.0.58/dist/drawflow.min.js"></script>
     <script>
         (function() {
-            // --- Dimensiones del mapa ---
-            const MAP_SIZE = 120;            // 120x120 casillas
-            const CELL_SIZE = 5;              // píxeles por casilla (canvas 600x600)
+            // ---------- INICIALIZACIÓN DRAWFLOW ----------
+            const container = document.getElementById('drawflow-container');
+            const editor = new Drawflow(container);
+            editor.start();
+            editor.reroute = true;
+            editor.grid = true;
+            editor.gridsize = 25; // cuadrícula más notoria
 
-            // --- Territorios ---
-            const PLAYER_ZONE = { rowMin: 0, rowMax: 39, colMin: 0, colMax: 39 };
-            const ENEMY_ZONE = { rowMin: 80, rowMax: 119, colMin: 80, colMax: 119 };
+            // Almacén de IDs
+            let nodeIds = [];
+            const nodeCountSpan = document.getElementById('nodeCountValue');
 
-            // --- Estado del juego ---
-            let playerTix = 300;
-            let playerCenterNoobs = 0;          // noobs que han llegado al centro (listos para pelear)
-            let enemyCenterNoobs = 5;            // noobs enemigos en centro (inicialmente algunos)
+            // ---------- TIPOS DE NODOS EXTENDIDOS (muchos más) ----------
+            const tipos = [
+                { name: 'event', class: 'node-type-event', color: '#a8d8ff' },
+                { name: 'action', class: 'node-type-action', color: '#b8e0b8' },
+                { name: 'condition', class: 'node-type-condition', color: '#fff0b0' },
+                { name: 'variable', class: 'node-type-variable', color: '#d8b8ff' },
+                { name: 'math', class: 'node-type-math', color: '#ffd8b0' },
+                { name: 'sound', class: 'node-type-sound', color: '#ffb5c8' },
+                { name: 'physics', class: 'node-type-physics', color: '#b5e7ff' },
+                { name: 'io', class: 'node-type-io', color: '#d3c6ff' },
+                { name: 'network', class: 'node-type-network', color: '#b5f0e6' },
+                { name: 'animation', class: 'node-type-animation', color: '#fcc1f0' }
+            ];
 
-            let playerSpawners = [];              // {x, y}
-            let playerInvestigators = [];          // {x, y}
-            let enemySpawners = [];                // {x, y}
+            // Títulos específicos para cada categoría (más de 100 nombres distintos)
+            const titulosPorTipo = {
+                event: ['On Start', 'On Update', 'On Collide', 'On Click', 'On Key Press', 'On Timer', 'On Destroy', 'On Spawn', 'On Trigger Enter', 'On Trigger Exit', 'On Health Change', 'On Score', 'On Level Load', 'On Pause', 'On Resume', 'On Game Over', 'On Checkpoint', 'On Respawn'],
+                action: ['Move Player', 'Jump', 'Play Sound', 'Spawn Enemy', 'Add Score', 'Destroy Object', 'Play Animation', 'Set Gravity', 'Apply Force', 'Teleport', 'Rotate Object', 'Set Material', 'Play Particle', 'Stop Sound', 'Save Game', 'Load Game', 'Open Door', 'Shoot Projectile', 'Heal Player', 'Set Camera'],
+                condition: ['If Health <', 'If Score >', 'Is Grounded', 'Distance <', 'Has Item', 'Button Pressed', 'Random Chance', 'If Variable =', 'If In Zone', 'If Visible', 'If Key Held', 'If Near', 'If Daytime', 'If Timer Done'],
+                variable: ['Set Variable', 'Get Variable', 'Global Data', 'Player Data', 'Enemy Var', 'String Concat', 'Increment', 'Decrement', 'Random Int', 'Random Float', 'Format String', 'To Integer', 'To Float', 'Array Get', 'Array Set'],
+                math: ['Add', 'Subtract', 'Multiply', 'Divide', 'Random Range', 'Clamp', 'Lerp', 'Sin', 'Cos', 'Tan', 'ArcTan', 'Square Root', 'Absolute', 'Round', 'Floor', 'Ceil', 'Min', 'Max', 'Modulo'],
+                sound: ['Play Music', 'Stop Music', 'Set Volume', 'Fade In', 'Fade Out', 'Play SFX', 'Pause Sound', 'Resume Sound', 'Set Pitch', 'Set Pan', 'Play Voice', 'Loop Sound'],
+                physics: ['Set Velocity', 'Add Force', 'Set Mass', 'Set Drag', 'Use Gravity', 'Raycast', 'Collision Check', 'Set Trigger', 'Set Kinematic', 'Apply Torque', 'Get Velocity'],
+                io: ['Read Input', 'Read Axis', 'Mouse Position', 'Mouse Button', 'Any Key', 'Get Joystick', 'Get Touch', 'Get Accelerometer'],
+                network: ['Connect', 'Send Data', 'Receive Data', 'Disconnect', 'Is Connected', 'Ping', 'Host Server', 'Join Room', 'RPC Call', 'Sync Variable'],
+                animation: ['Play Anim', 'Stop Anim', 'Set Blend', 'Set Speed', 'Set Layer', 'Crossfade', 'Add Animation Event', 'IK Pass', 'Set Bone']
+            };
 
-            // Tropas en movimiento hacia el centro
-            let movingTroops = [];                 // { x, y, targetX, targetY, bando }  bando: 'player' o 'enemy'
+            // Función para obtener título aleatorio de su tipo
+            function getRandomTitle(tipo) {
+                const list = titulosPorTipo[tipo] || titulosPorTipo.event;
+                return list[Math.floor(Math.random() * list.length)];
+            }
 
-            const SPAWNER_COST = 50;
-            const INVESTIGATOR_COST = 30;
-            const REWARD = 50;
-            const PRODUCTION_INTERVAL = 3000;      // 3 segundos
-            const MOVE_SPEED = 1.0;                 // píxeles por frame (a 60fps, 60 por segundo)
-
-            // Variables para zoom y pan
-            let viewX = 300, viewY = 300;
-            let zoom = 1.0;
-            const MIN_ZOOM = 0.5;
-            const MAX_ZOOM = 3.0;
-
-            // Arrastre
-            let isDragging = false;
-            let lastMouseX, lastMouseY;
-
-            // Modo construcción
-            let buildMode = null;                   // 'spawner' o 'investigator'
-
-            // Elementos DOM
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const mapWrapper = document.getElementById('mapWrapper');
-            const tixSpan = document.getElementById('tixDisplay');
-            const noobsCenterSpan = document.getElementById('noobsCenterDisplay');
-            const spawnerCountSpan = document.getElementById('spawnerCount');
-            const investigatorCountSpan = document.getElementById('investigatorCount');
-            const logDiv = document.getElementById('logMessages');
-            const buySpawnerBtn = document.getElementById('buySpawnerBtn');
-            const buyInvestigatorBtn = document.getElementById('buyInvestigatorBtn');
-            const attackBtn = document.getElementById('attackBtn');
-            const modeIndicator = document.getElementById('modeIndicator');
-
-            // --- Funciones de utilidad ---
-            function agregarLog(mensaje) {
-                const p = document.createElement('p');
-                p.textContent = mensaje;
-                logDiv.appendChild(p);
-                while (logDiv.children.length > 6) {
-                    logDiv.removeChild(logDiv.firstChild);
+            // ---------- GENERAR HTML DEL NODO (con más puertos) ----------
+            function generarNodeHTML(titulo, numInputs, numOutputs, tipoClase) {
+                let inputsHtml = '';
+                for (let i = 0; i < numInputs; i++) {
+                    inputsHtml += `<div class="input" data-input="input_${i}">▶ IN ${i+1}</div>`;
                 }
-                logDiv.scrollTop = logDiv.scrollHeight;
+                let outputsHtml = '';
+                for (let i = 0; i < numOutputs; i++) {
+                    outputsHtml += `<div class="output" data-output="output_${i}">OUT ${i+1} ◀</div>`;
+                }
+
+                return `
+                    <div class="node-content ${tipoClase}">
+                        <div class="node-header">${titulo}</div>
+                        <div class="node-inputs">${inputsHtml}</div>
+                        <div class="node-outputs">${outputsHtml}</div>
+                    </div>
+                `;
             }
 
-            // --- Actualizar UI y modo visual ---
-            function actualizarUI() {
-                tixSpan.textContent = playerTix;
-                noobsCenterSpan.textContent = playerCenterNoobs;
-                spawnerCountSpan.textContent = playerSpawners.length;
-                investigatorCountSpan.textContent = playerInvestigators.length;
+            // ---------- CREAR CANTIDAD MASIVA DE NODOS (256) ----------
+            function generarNodosIniciales() {
+                const cantidad = 256; // ¡más de 100!
+                for (let i = 0; i < cantidad; i++) {
+                    const tipoIdx = Math.floor(Math.random() * tipos.length);
+                    const tipo = tipos[tipoIdx];
+                    const titulo = getRandomTitle(tipo.name);
+                    // Ahora pueden tener entre 1 y 4 entradas/salidas
+                    const numInputs = Math.floor(Math.random() * 4) + 1;
+                    const numOutputs = Math.floor(Math.random() * 4) + 1;
+                    const clase = tipo.class;
 
-                // Botones según modo
-                buySpawnerBtn.classList.toggle('active', buildMode === 'spawner');
-                buyInvestigatorBtn.classList.toggle('active', buildMode === 'investigator');
-                modeIndicator.textContent = buildMode ? `⚡ Modo: ${buildMode === 'spawner' ? 'SPAWNER' : 'INVESTIGADOR'}` : '⚡ Modo: Ninguno';
-            }
+                    const html = generarNodeHTML(titulo, numInputs, numOutputs, clase);
 
-            // --- Dibujar mapa con efecto cubo (relieve en celdas) ---
-            function dibujarMapa() {
-                ctx.clearRect(0, 0, 600, 600);
-                ctx.save();
-                ctx.translate(300, 300);
-                ctx.scale(zoom, zoom);
-                ctx.translate(-viewX, -viewY);
+                    // Distribución más amplia (4200x3200) para que no se solapen tanto
+                    const posX = Math.floor(Math.random() * 4000) + 200;
+                    const posY = Math.floor(Math.random() * 3000) + 200;
 
-                // Dibujar fondo de césped (cada celda con relieve)
-                // Para dar efecto cubo, pintamos cada celda con un color base y luego bordes claros/oscuros
-                for (let row = 0; row < MAP_SIZE; row++) {
-                    for (let col = 0; col < MAP_SIZE; col++) {
-                        let x = col * CELL_SIZE;
-                        let y = row * CELL_SIZE;
-                        // Color base según territorio
-                        let baseColor;
-                        if (row >= PLAYER_ZONE.rowMin && row <= PLAYER_ZONE.rowMax && col >= PLAYER_ZONE.colMin && col <= PLAYER_ZONE.colMax) {
-                            baseColor = '#5f9f6f'; // verde jugador
-                        } else if (row >= ENEMY_ZONE.rowMin && row <= ENEMY_ZONE.rowMax && col >= ENEMY_ZONE.colMin && col <= ENEMY_ZONE.colMax) {
-                            baseColor = '#9f6f5f'; // rojizo enemigo
-                        } else {
-                            baseColor = '#3f7a5a'; // tierra de nadie
-                        }
-                        ctx.fillStyle = baseColor;
-                        ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-
-                        // Efecto cubo: borde superior e izquierdo más claro, inferior y derecho más oscuro
-                        ctx.beginPath();
-                        ctx.strokeStyle = '#ffffff40';
-                        ctx.lineWidth = 0.5;
-                        ctx.moveTo(x, y + CELL_SIZE);
-                        ctx.lineTo(x, y);
-                        ctx.lineTo(x + CELL_SIZE, y);
-                        ctx.stroke();
-
-                        ctx.beginPath();
-                        ctx.strokeStyle = '#00000040';
-                        ctx.lineWidth = 0.5;
-                        ctx.moveTo(x + CELL_SIZE, y);
-                        ctx.lineTo(x + CELL_SIZE, y + CELL_SIZE);
-                        ctx.lineTo(x, y + CELL_SIZE);
-                        ctx.stroke();
+                    try {
+                        const nodeId = editor.addNode(html, numInputs, numOutputs, posX, posY, 'node-' + tipo.name, { tipo: tipo.name, titulo });
+                        nodeIds.push(nodeId);
+                    } catch (e) {
+                        console.warn('Error añadiendo nodo', e);
                     }
                 }
-
-                // Dibujar edificios del jugador (con efecto 3D simple)
-                playerSpawners.forEach(s => {
-                    let x = s.y * CELL_SIZE;
-                    let y = s.x * CELL_SIZE;
-                    // Cara frontal
-                    ctx.fillStyle = '#3a7aff';
-                    ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                    // Relieve: cara superior e izquierda más claras
-                    ctx.fillStyle = '#7aafff';
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x + CELL_SIZE, y);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + 2);
-                    ctx.lineTo(x + 2, y + 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#1a4fbf';
-                    ctx.beginPath();
-                    ctx.moveTo(x + CELL_SIZE, y);
-                    ctx.lineTo(x + CELL_SIZE, y + CELL_SIZE);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + CELL_SIZE - 2);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + 2);
-                    ctx.fill();
-                    // Icono
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = `bold ${4 * (1/zoom)}px monospace`;
-                    ctx.fillText('🏭', x + 1, y + 4);
-                });
-                playerInvestigators.forEach(s => {
-                    let x = s.y * CELL_SIZE;
-                    let y = s.x * CELL_SIZE;
-                    ctx.fillStyle = '#3aff3a';
-                    ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                    ctx.fillStyle = '#afffaf';
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x + CELL_SIZE, y);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + 2);
-                    ctx.lineTo(x + 2, y + 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#1fbf1f';
-                    ctx.beginPath();
-                    ctx.moveTo(x + CELL_SIZE, y);
-                    ctx.lineTo(x + CELL_SIZE, y + CELL_SIZE);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + CELL_SIZE - 2);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#000000';
-                    ctx.font = `bold ${4 * (1/zoom)}px monospace`;
-                    ctx.fillText('🔬', x + 1, y + 4);
-                });
-                enemySpawners.forEach(s => {
-                    let x = s.y * CELL_SIZE;
-                    let y = s.x * CELL_SIZE;
-                    ctx.fillStyle = '#ff3a3a';
-                    ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                    ctx.fillStyle = '#ffafaf';
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x + CELL_SIZE, y);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + 2);
-                    ctx.lineTo(x + 2, y + 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#bf1f1f';
-                    ctx.beginPath();
-                    ctx.moveTo(x + CELL_SIZE, y);
-                    ctx.lineTo(x + CELL_SIZE, y + CELL_SIZE);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + CELL_SIZE - 2);
-                    ctx.lineTo(x + CELL_SIZE - 2, y + 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = `bold ${4 * (1/zoom)}px monospace`;
-                    ctx.fillText('🏭', x + 1, y + 4);
-                });
-
-                // Dibujar tropas en movimiento
-                movingTroops.forEach(t => {
-                    ctx.beginPath();
-                    ctx.arc(t.x, t.y, 3, 0, 2 * Math.PI);
-                    ctx.fillStyle = t.bando === 'player' ? '#ffff00' : '#ff4444';
-                    ctx.shadowColor = t.bando === 'player' ? '#ffaa00' : '#aa0000';
-                    ctx.shadowBlur = 5;
-                    ctx.fill();
-                });
-                ctx.shadowBlur = 0;
-
-                ctx.restore();
+                actualizarContador();
+                // Zoom out para ver la magnitud
+                editor.zoom = 0.3;
+                editor.offsetX = -800;
+                editor.offsetY = -400;
+                editor.zoom_refresh();
             }
 
-            // --- Actualizar posiciones de tropas en movimiento ---
-            function actualizarMovimiento() {
-                let nuevas = [];
-                for (let t of movingTroops) {
-                    // Dirección al centro (300,300)
-                    let dx = 300 - t.x;
-                    let dy = 300 - t.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < MOVE_SPEED) {
-                        // Llegó al centro
-                        if (t.bando === 'player') {
-                            playerCenterNoobs++;
-                        } else {
-                            enemyCenterNoobs++;
-                        }
-                        // No agregar a nuevas
-                    } else {
-                        let ang = Math.atan2(dy, dx);
-                        t.x += Math.cos(ang) * MOVE_SPEED;
-                        t.y += Math.sin(ang) * MOVE_SPEED;
-                        nuevas.push(t);
+            // ---------- CONEXIONES ALEATORIAS (más abundantes) ----------
+            function conectarNodosAleatorios(cantidad = 80) {
+                if (nodeIds.length < 2) return;
+                for (let c = 0; c < cantidad; c++) {
+                    const fromId = nodeIds[Math.floor(Math.random() * nodeIds.length)];
+                    let toId = nodeIds[Math.floor(Math.random() * nodeIds.length)];
+                    let attempts = 0;
+                    while (toId === fromId && attempts < 10) {
+                        toId = nodeIds[Math.floor(Math.random() * nodeIds.length)];
+                        attempts++;
                     }
+                    if (fromId === toId) continue; // evitar autoconectar
+
+                    const fromNode = editor.getNodeFromId(fromId);
+                    const toNode = editor.getNodeFromId(toId);
+                    if (!fromNode || !toNode) continue;
+
+                    const numOutputs = fromNode.outputs ? Object.keys(fromNode.outputs).length : 0;
+                    const numInputs = toNode.inputs ? Object.keys(toNode.inputs).length : 0;
+                    if (numOutputs === 0 || numInputs === 0) continue;
+
+                    const outputKey = 'output_' + Math.floor(Math.random() * numOutputs);
+                    const inputKey = 'input_' + Math.floor(Math.random() * numInputs);
+
+                    try {
+                        editor.addConnection(fromId, outputKey, toId, inputKey);
+                    } catch (e) { /* ignorar conexión inválida */ }
                 }
-                movingTroops = nuevas;
-                dibujarMapa();
-                requestAnimationFrame(actualizarMovimiento);
             }
 
-            // --- Producción de recursos (cada 3 segundos) ---
-            function producir() {
-                // Los spawners del jugador generan tropas en movimiento
-                playerSpawners.forEach(s => {
-                    // Crear una nueva tropa en la posición del spawner
-                    let x = s.y * CELL_SIZE + CELL_SIZE/2;
-                    let y = s.x * CELL_SIZE + CELL_SIZE/2;
-                    movingTroops.push({ x, y, targetX: 300, targetY: 300, bando: 'player' });
+            // ---------- REORGANIZACIÓN SIMPLE (desplazar algunos nodos) ----------
+            function reorganizarNodos() {
+                // Desplazar cada nodo un poco aleatoriamente para que no estén tan amontonados
+                nodeIds.forEach(id => {
+                    const node = editor.getNodeFromId(id);
+                    if (node) {
+                        const newX = node.pos_x + (Math.random() * 200 - 100);
+                        const newY = node.pos_y + (Math.random() * 200 - 100);
+                        editor.updateNodePos(id, newX, newY);
+                    }
                 });
-                if (playerSpawners.length > 0) {
-                    agregarLog(`🏭 Spawners envían ${playerSpawners.length} noob(s) al centro.`);
-                }
-                // Investigadores generan Tix
-                if (playerInvestigators.length > 0) {
-                    playerTix += playerInvestigators.length * 5;
-                    agregarLog(`🔬 Investigadores generan ${playerInvestigators.length * 5} Tix.`);
-                }
-                // Spawners enemigos generan tropas en movimiento enemigas
-                enemySpawners.forEach(s => {
-                    let x = s.y * CELL_SIZE + CELL_SIZE/2;
-                    let y = s.x * CELL_SIZE + CELL_SIZE/2;
-                    movingTroops.push({ x, y, targetX: 300, targetY: 300, bando: 'enemy' });
+            }
+
+            // ---------- AÑADIR NODO EXTRA (cerca del centro visual) ----------
+            function agregarNodoExtra() {
+                const tipoIdx = Math.floor(Math.random() * tipos.length);
+                const tipo = tipos[tipoIdx];
+                const titulo = getRandomTitle(tipo.name);
+                const numInputs = Math.floor(Math.random() * 4) + 1;
+                const numOutputs = Math.floor(Math.random() * 4) + 1;
+                const clase = tipo.class;
+                const html = generarNodeHTML(titulo, numInputs, numOutputs, clase);
+
+                // Centro aproximado de la vista
+                const viewportCenter = container.getBoundingClientRect();
+                const posX = editor.offsetX + (viewportCenter.width / 2) / editor.zoom - 100;
+                const posY = editor.offsetY + (viewportCenter.height / 2) / editor.zoom - 50;
+
+                const nodeId = editor.addNode(html, numInputs, numOutputs, posX, posY, 'node-' + tipo.name, { tipo: tipo.name, titulo });
+                nodeIds.push(nodeId);
+                actualizarContador();
+            }
+
+            function actualizarContador() {
+                nodeCountSpan.innerText = nodeIds.length;
+            }
+
+            // ---------- INICIALIZAR ----------
+            window.onload = function() {
+                generarNodosIniciales();
+                setTimeout(() => {
+                    conectarNodosAleatorios(110); // muchas conexiones para simular complejidad
+                }, 300);
+
+                document.getElementById('btnRandomConnect').addEventListener('click', () => {
+                    conectarNodosAleatorios(25);
                 });
-                if (enemySpawners.length > 0) {
-                    agregarLog(`👾 Enemigo envía ${enemySpawners.length} noob(s) al centro.`);
-                }
-                actualizarUI();
-                dibujarMapa();
-            }
+                document.getElementById('btnAddNode').addEventListener('click', () => {
+                    agregarNodoExtra();
+                });
+                document.getElementById('btnOrganize').addEventListener('click', () => {
+                    reorganizarNodos();
+                });
 
-            // --- El enemigo construye spawners periódicamente ---
-            function enemigoConstruye() {
-                if (enemySpawners.length >= 40) return;
-                // Buscar celda libre en zona enemiga
-                let intentos = 0;
-                while (intentos < 100) {
-                    let row = Math.floor(Math.random() * (ENEMY_ZONE.rowMax - ENEMY_ZONE.rowMin + 1)) + ENEMY_ZONE.rowMin;
-                    let col = Math.floor(Math.random() * (ENEMY_ZONE.colMax - ENEMY_ZONE.colMin + 1)) + ENEMY_ZONE.colMin;
-                    let ocupado = enemySpawners.some(s => s.x === row && s.y === col);
-                    if (!ocupado) {
-                        enemySpawners.push({ x: row, y: col });
-                        agregarLog(`⚠️ Enemigo construyó spawner en (${row}, ${col}).`);
-                        break;
-                    }
-                    intentos++;
-                }
-                actualizarUI();
-                dibujarMapa();
-            }
-
-            // --- Batalla (combate en el centro) ---
-            function atacar() {
-                if (playerCenterNoobs === 0 && enemyCenterNoobs === 0) {
-                    agregarLog('🤷 No hay noobs en el centro para pelear.');
-                    return;
-                }
-
-                // Animación flash en canvas
-                canvas.style.border = '6px inset #ffff00';
-                setTimeout(() => canvas.style.border = '6px inset #9fbfdf', 200);
-
-                // Comparar
-                if (playerCenterNoobs > enemyCenterNoobs) {
-                    let bajas = enemyCenterNoobs;
-                    playerCenterNoobs -= bajas;
-                    enemyCenterNoobs = 0;
-                    playerTix += REWARD;
-                    agregarLog(`🎉 VICTORIA! +${REWARD} TIX. Te quedan ${playerCenterNoobs} noobs en centro.`);
-                } else if (enemyCenterNoobs > playerCenterNoobs) {
-                    let bajas = playerCenterNoobs;
-                    enemyCenterNoobs -= bajas;
-                    playerCenterNoobs = 0;
-                    agregarLog(`💔 DERROTA... Enemigo queda con ${enemyCenterNoobs} noobs en centro.`);
-                } else {
-                    playerCenterNoobs = 0;
-                    enemyCenterNoobs = 0;
-                    agregarLog(`⚖️ EMPATE! Ambos ejércitos se destruyen.`);
-                }
-                actualizarUI();
-                dibujarMapa();
-            }
-
-            // --- Conversión de coordenadas de clic a celda ---
-            function obtenerCeldaDesdeClic(clientX, clientY) {
-                const rect = canvas.getBoundingClientRect();
-                // Coordenadas relativas al canvas (píxeles de pantalla)
-                let canvasX = (clientX - rect.left) * (canvas.width / rect.width);
-                let canvasY = (clientY - rect.top) * (canvas.height / rect.height);
-
-                // Aplicar transformación inversa: (canvasX, canvasY) en píxeles del canvas (0-600)
-                // Transformar a coordenadas del mundo
-                let worldX = (canvasX - 300) / zoom + viewX;
-                let worldY = (canvasY - 300) / zoom + viewY;
-
-                // Convertir a fila y columna
-                let col = Math.floor(worldX / CELL_SIZE);
-                let row = Math.floor(worldY / CELL_SIZE);
-
-                return { row, col };
-            }
-
-            // --- Manejar clic en canvas para construir ---
-            function handleCanvasClick(e) {
-                if (!buildMode) return;
-
-                const { row, col } = obtenerCeldaDesdeClic(e.clientX, e.clientY);
-
-                // Verificar si está dentro del territorio del jugador
-                if (row < PLAYER_ZONE.rowMin || row > PLAYER_ZONE.rowMax || col < PLAYER_ZONE.colMin || col > PLAYER_ZONE.colMax) {
-                    agregarLog('❌ Solo puedes construir en tu territorio (verde).');
-                    return;
-                }
-
-                // Verificar que la celda esté vacía
-                let ocupado = playerSpawners.some(s => s.x === row && s.y === col) ||
-                              playerInvestigators.some(s => s.x === row && s.y === col);
-                if (ocupado) {
-                    agregarLog('❌ Celda ocupada por otro edificio.');
-                    return;
-                }
-
-                // Comprar según modo
-                if (buildMode === 'spawner') {
-                    if (playerTix < SPAWNER_COST) {
-                        agregarLog(`❌ Necesitas ${SPAWNER_COST} TIX.`);
-                        return;
-                    }
-                    playerTix -= SPAWNER_COST;
-                    playerSpawners.push({ x: row, y: col });
-                    agregarLog(`🏭 Spawner colocado en (${row}, ${col}).`);
-                } else if (buildMode === 'investigator') {
-                    if (playerTix < INVESTIGATOR_COST) {
-                        agregarLog(`❌ Necesitas ${INVESTIGATOR_COST} TIX.`);
-                        return;
-                    }
-                    playerTix -= INVESTIGATOR_COST;
-                    playerInvestigators.push({ x: row, y: col });
-                    agregarLog(`🔬 Investigador colocado en (${row}, ${col}).`);
-                }
-
-                // Salir del modo construcción
-                buildMode = null;
-                actualizarUI();
-                dibujarMapa();
-            }
-
-            // --- Eventos de zoom y pan ---
-            mapWrapper.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const delta = -Math.sign(e.deltaY) * 0.1;
-                zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom + delta));
-                dibujarMapa();
-            });
-
-            mapWrapper.addEventListener('mousedown', (e) => {
-                if (e.button !== 0) return;
-                isDragging = true;
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-                mapWrapper.style.cursor = 'grabbing';
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                const dx = (e.clientX - lastMouseX) / zoom;
-                const dy = (e.clientY - lastMouseY) / zoom;
-                viewX = Math.max(0, Math.min(600, viewX - dx));
-                viewY = Math.max(0, Math.min(600, viewY - dy));
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-                dibujarMapa();
-            });
-
-            window.addEventListener('mouseup', () => {
-                isDragging = false;
-                mapWrapper.style.cursor = 'grab';
-            });
-
-            // Clic en canvas para construir
-            canvas.addEventListener('click', handleCanvasClick);
-
-            // Botones de construcción
-            buySpawnerBtn.addEventListener('click', () => {
-                buildMode = buildMode === 'spawner' ? null : 'spawner';
-                actualizarUI();
-            });
-            buyInvestigatorBtn.addEventListener('click', () => {
-                buildMode = buildMode === 'investigator' ? null : 'investigator';
-                actualizarUI();
-            });
-            attackBtn.addEventListener('click', atacar);
-
-            // --- Inicializar ---
-            function inicializarEdificios() {
-                // Colocar spawner inicial aleatorio
-                for (let i = 0; i < 1; i++) {
-                    let row = Math.floor(Math.random() * (PLAYER_ZONE.rowMax - PLAYER_ZONE.rowMin + 1)) + PLAYER_ZONE.rowMin;
-                    let col = Math.floor(Math.random() * (PLAYER_ZONE.colMax - PLAYER_ZONE.colMin + 1)) + PLAYER_ZONE.colMin;
-                    playerSpawners.push({ x: row, y: col });
-                }
-                // Investigador inicial
-                let row = Math.floor(Math.random() * (PLAYER_ZONE.rowMax - PLAYER_ZONE.rowMin + 1)) + PLAYER_ZONE.rowMin;
-                let col = Math.floor(Math.random() * (PLAYER_ZONE.colMax - PLAYER_ZONE.colMin + 1)) + PLAYER_ZONE.colMin;
-                playerInvestigators.push({ x: row, y: col });
-
-                // Enemigo: 2 spawners
-                for (let i = 0; i < 2; i++) {
-                    row = Math.floor(Math.random() * (ENEMY_ZONE.rowMax - ENEMY_ZONE.rowMin + 1)) + ENEMY_ZONE.rowMin;
-                    col = Math.floor(Math.random() * (ENEMY_ZONE.colMax - ENEMY_ZONE.colMin + 1)) + ENEMY_ZONE.colMin;
-                    enemySpawners.push({ x: row, y: col });
-                }
-            }
-
-            inicializarEdificios();
-            actualizarUI();
-            dibujarMapa();
-            agregarLog('🌟 Haz clic en tu territorio (verde) para colocar edificios. Los noobs van al centro.');
-
-            // Iniciar bucle de movimiento
-            requestAnimationFrame(actualizarMovimiento);
-
-            // Intervalos
-            setInterval(producir, PRODUCTION_INTERVAL);
-            setInterval(enemigoConstruye, 30000);
+                // Exponer editor globalmente (por si se quiere jugar)
+                window.editor = editor;
+            };
         })();
     </script>
 </body>
