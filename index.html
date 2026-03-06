@@ -3,478 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG 2D · Estilo TABS (2008)</title>
+    <title>CS 2008 · Apertura de Cajas</title>
     <style>
+        /* ESTÉTICA 2008 — GLOSS, BORDES REDONDEADOS, SOMBRAS, DEGRADÉS */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
         }
+
         body {
-            background: #1a1a2e;
+            background: #2a2a2a url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M30 0 L60 30 L30 60 L0 30 Z" fill="%23333333" fill-opacity="0.15"/></svg>');
+            font-family: 'Arial', 'Helvetica', 'Trebuchet MS', sans-serif;
             min-height: 100vh;
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 16px;
         }
-        .game-container {
-            background: #0b0b1f;
-            border: 6px ridge #7a5c3a;
-            border-radius: 12px;
-            padding: 20px 20px 15px 20px;
-            box-shadow: 0 0 0 3px #4a3a2a, 0 10px 20px rgba(0,0,0,0.8);
+
+        /* ventana principal — como un widget de escritorio vintage */
+        .ventana {
+            max-width: 680px;
+            width: 100%;
+            background: #eae3d7;  /* fondo crema antiguo */
+            background: linear-gradient(145deg, #f2ecdf 0%, #d9cfbc 100%);
+            border: 3px solid #5d4b3a;
+            border-radius: 24px 24px 20px 20px;
+            box-shadow: inset 0 1px 4px #fff4e6, 0 12px 20px rgba(0,0,0,0.7), 0 0 0 2px #3b2e22;
+            padding: 28px 24px 32px 24px;
+            position: relative;
         }
-        .canvas-wrapper {
-            border: 4px inset #6b4f32;
-            background: #2a2a1e;
+
+        /* brillo superpuesto "glass" */
+        .ventana::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: radial-gradient(circle at 20% 20%, rgba(255,255,245,0.7) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+            border-radius: 24px 24px 0 0;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 900;
+            text-align: center;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+            color: #1f2b1f;
+            text-shadow: 3px 3px 0 #8b7a64, 1px 1px 0 #d9c8b2, 4px 4px 0 #3a2e20;
+            font-family: 'Impact', 'Arial Black', 'Arial', sans-serif;
+            word-break: break-word;
+            line-height: 1.1;
+            transform: rotate(-0.5deg);
+        }
+
+        .subhead {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 28px;
+            font-style: italic;
+            color: #2c3e2c;
+            background: #c9bcab;
             display: inline-block;
-        }
-        canvas {
-            display: block;
-            width: 640px;
-            height: 480px;
-            background: #2d2d1c;
-            cursor: crosshair;
-            image-rendering: crisp-edges; /* retro pixelado */
-        }
-        .panel {
-            margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1f2a1f;
-            border: 3px groove #6a5a4a;
-            padding: 8px 15px;
-            border-radius: 30px;
-            color: #b8ffb0;
-            text-shadow: 2px 2px 0 #0a3a0a;
-            font-size: 20px;
+            padding: 4px 24px;
+            border-radius: 40px;
+            margin-left: auto;
+            margin-right: auto;
+            width: fit-content;
+            border: 2px solid #948470;
+            box-shadow: inset 0 1px 4px #efebdd, 0 2px 0 #5f4f3e;
+            text-transform: uppercase;
             font-weight: bold;
             letter-spacing: 1px;
-            box-shadow: inset 0 0 8px #00000066;
         }
-        .stats {
+
+        /* Caja de madera artesanal (estética crate Counter-Strike) */
+        .crate-wrapper {
             display: flex;
-            gap: 30px;
+            justify-content: center;
+            margin: 16px 0 24px 0;
+            cursor: pointer;
         }
-        .stat {
-            background: #1a1f1a;
-            padding: 4px 12px;
-            border-radius: 40px;
-            border: 2px solid #7a9f7a;
-            color: #d0ffb0;
-            font-size: 22px;
+
+        .crate {
+            position: relative;
+            width: 240px;
+            height: 180px;
+            background-color: #b87c4b;
+            background-image: repeating-linear-gradient(0deg, 
+                #9c6b3e 0px, 
+                #9c6b3e 12px, 
+                #b87c4b 12px, 
+                #b87c4b 24px);
+            border: 8px solid #5f3e28;
+            border-radius: 20px 20px 16px 16px;
+            box-shadow: inset 0 0 0 2px #e4b585, 0 14px 0 #3e2e1d, 0 20px 15px rgba(0,0,0,0.5);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
-        .message-box {
-            background: #0f0f0f;
-            border: 3px inset #7a7a5a;
-            border-radius: 20px;
-            padding: 6px 20px;
-            min-width: 240px;
+
+        .crate:hover {
+            transform: scale(1.02);
+            box-shadow: inset 0 0 0 2px #f3ca9c, 0 14px 0 #3e2e1d, 0 22px 20px rgba(0,0,0,0.6);
+        }
+
+        .crate:active {
+            transform: translateY(6px);
+            box-shadow: inset 0 0 0 2px #f3ca9c, 0 8px 0 #3e2e1d, 0 16px 18px rgba(0,0,0,0.6);
+        }
+
+        /* flejes metálicos */
+        .stripe {
+            position: absolute;
+            background: #2d2d2d;
+            background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+            border-radius: 6px;
+            box-shadow: 0 0 0 2px #6b4f31, 2px 2px 0 #1a1a1a;
+            z-index: 2;
+        }
+
+        .stripe.horizontal {
+            width: 100%;
+            height: 16px;
+            top: 40%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .stripe.vertical {
+            width: 16px;
+            height: 100%;
+            left: 25%;
+            top: 0;
+        }
+
+        .stripe.vertical2 {
+            width: 16px;
+            height: 100%;
+            left: 70%;
+            top: 0;
+        }
+
+        .crate-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1f1f1f;
+            color: #e0d9c7;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: 2.5rem;
+            padding: 10px 16px 4px 16px;
+            border: 4px solid #ab7e54;
+            border-radius: 18px;
+            box-shadow: inset 0 -2px 0 #4d3f2b, 0 5px 0 #422f1d, 0 8px 10px black;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 0 #211810;
+            z-index: 5;
+            line-height: 1;
+        }
+
+        /* área del objeto actual */
+        .current-item {
+            background: #3d3329;
+            border: 6px ridge #8b735b;
+            border-radius: 50px 16px 50px 16px;
+            padding: 20px 16px;
+            margin: 20px 0 18px 0;
             text-align: center;
-            font-family: 'Courier New', monospace;
-            font-size: 18px;
-            color: #f5e6c4;
-            background: #2f2f1f;
-            box-shadow: 0 0 0 2px #4d3d2a;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 3px 3px 0 #1f1f1f, 1px 1px 10px black;
+            box-shadow: inset 0 0 30px #1f1712, 0 10px 10px rgba(0,0,0,0.5);
+            background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="2" fill="%23ffeecc" fill-opacity="0.1"/></svg>');
+            word-break: break-word;
         }
-        .footer-note {
-            color: #7e9b7e;
-            text-align: center;
+
+        .item-rarity {
+            font-size: 1.2rem;
+            display: block;
             margin-top: 8px;
-            font-size: 15px;
-            text-shadow: 1px 1px 0 #121212;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 12px;
+            border-radius: 40px;
+            display: inline-block;
         }
-        .footer-note span {
-            background: #2d352d;
-            padding: 3px 12px;
-            border-radius: 30px;
-            border: 1px solid #6c8c6c;
+
+        /* botón gigante gloss 2k8 */
+        .open-btn {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: none;
+            margin: 24px 0 18px 0;
+        }
+
+        .open-btn button {
+            width: 100%;
+            padding: 24px 10px;
+            font-size: 2.4rem;
+            font-weight: bold;
+            background: #d6b17e;
+            background: linear-gradient(180deg, #f3dbb8 0%, #c99f68 50%, #a07442 100%);
+            border: 6px solid #6e4f2b;
+            border-radius: 120px;
+            color: #211c14;
+            text-shadow: 3px 3px 0 #dbbd92, 0 2px 0 white;
+            box-shadow: inset 0 -6px 0 #5f401f, inset 0 6px 10px #ffefcd, 0 16px 12px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: all 0.06s linear;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            letter-spacing: 5px;
+        }
+
+        .open-btn button:active {
+            transform: translateY(8px);
+            box-shadow: inset 0 -2px 0 #5f401f, inset 0 6px 8px #ffefcd, 0 8px 6px rgba(0,0,0,0.5);
+        }
+
+        .stats {
+            background: #48412e;
+            color: #faeacb;
+            padding: 10px 24px;
+            border-radius: 40px 40px 10px 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+            margin: 10px auto 20px auto;
+            border: 3px solid #7f6a48;
+            box-shadow: inset 0 0 0 2px #b79f72, 0 4px 0 #2a1f12;
+        }
+
+        .history-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2b2b1a;
+            text-shadow: 2px 2px 0 #bba88b;
+            margin-bottom: 12px;
+            border-bottom: 4px dotted #7a6548;
+            padding-bottom: 6px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            background: #bba88b;
+            background: linear-gradient(0deg, #988f7a, #cbbaa7);
+            border: 4px inset #6d5c46;
+            padding: 20px 12px;
+            border-radius: 30px 8px 30px 8px;
+            min-height: 110px;
+            box-shadow: inset 0 0 0 3px #efe2cf, 0 5px 0 #4d3d2e;
+        }
+
+        .history-item {
+            background: #4b3d31;
+            color: white;
+            padding: 8px 6px;
+            border-radius: 16px 4px 16px 4px;
+            font-size: 1.0rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 0 #1c1c1c;
+            border: 3px solid #b5976c;
+            box-shadow: 0 6px 0 #3a2d1f, 0 8px 8px black;
+            min-width: 90px;
+            max-width: 110px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: 0.1s ease;
+            flex: 0 1 auto;
+        }
+
+        .history-item span {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        footer {
+            margin-top: 28px;
+            color: #3b3522;
+            font-size: 0.9rem;
+            text-align: center;
+            background: #cbbc9f;
+            padding: 4px 8px;
+            border-radius: 50px;
+            border: 2px solid #8f754b;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="canvas-wrapper">
-            <canvas id="gameCanvas" width="640" height="480"></canvas>
-        </div>
+<div class="ventana">
+    <h1>CS: 2OO8</h1>
+    <div class="subhead">★ crate opening ★</div>
 
-        <div class="panel">
-            <div class="stats">
-                <div class="stat">❤️ 100/100</div>
-                <div class="stat">💙 50/50</div>
-            </div>
-            <div id="messageDisplay" class="message-box">✨ Bienvenido a 2008 ✨</div>
-        </div>
-        <div class="footer-note">
-            <span>▲ ▼ ◀ ▶  o  WASD  •  Tiles RPG 2K8</span>
+    <!-- crate clickeable -->
+    <div class="crate-wrapper" id="crateClick">
+        <div class="crate">
+            <div class="stripe horizontal"></div>
+            <div class="stripe vertical"></div>
+            <div class="stripe vertical2"></div>
+            <div class="crate-label">CS</div>
         </div>
     </div>
 
-    <script>
-        (function() {
-            // ---------- CONSTANTES Y CONFIGURACIÓN ----------
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-            const messageEl = document.getElementById('messageDisplay');
+    <!-- item actual -->
+    <div class="current-item" id="currentItem">
+        HAZ CLICK EN LA CAJA
+        <span class="item-rarity" id="currentRarity"></span>
+    </div>
 
-            // Tamaño del tile (píxeles)
-            const TILE_SIZE = 32;
-            const MAP_WIDTH = 20;   // 20 columnas = 640px
-            const MAP_HEIGHT = 15;  // 15 filas = 480px
+    <!-- botón enorme -->
+    <div class="open-btn">
+        <button id="openBtn">ABRIR CAJA</button>
+    </div>
 
-            // Tipos de tiles
-            const TILE = {
-                GRASS: 0,
-                TREE: 1,
-                WATER: 2,
-                SIGN: 3
+    <!-- contador -->
+    <div class="stats">
+        📦 CAJAS ABIERTAS: <span id="caseCounter">0</span>
+    </div>
+
+    <!-- historial últimos objetos -->
+    <div class="history-title">ÚLTIMOS OBJETOS</div>
+    <div class="history-list" id="historyList">
+        <!-- se llena con JS -->
+    </div>
+
+    <footer>
+        ⚡ CS 2008 · rarezas originales ⚡
+    </footer>
+</div>
+
+<script>
+    (function() {
+        // ---------- BASE DE DATOS ESTILO COUNTER-STRIKE ----------
+        const itemsByRarity = [
+            {
+                rarity: "CONSUMER (GRIS)",
+                color: "#b0c3d9",
+                weight: 50,
+                items: ["Glock-18 | Sand Dune", "USP-S | Forest Leaves", "MAG-7 | Hazard", "MP9 | Green Plaid", "SSG 08 | Lichen Dashed"]
+            },
+            {
+                rarity: "INDUSTRIAL (AZUL CLARO)",
+                color: "#5e98d9",
+                weight: 20,
+                items: ["M4A1-S | Boreal Forest", "AWP | Safari Mesh", "FAMAS | Cyanospatter", "P250 | Gunsmoke", "UMP-45 | Urban DDPAT"]
+            },
+            {
+                rarity: "MIL-SPEC (AZUL)",
+                color: "#4b69ff",
+                weight: 15,
+                items: ["AK-47 | Blue Laminate", "M4A4 | Faded Zebra", "AWP | Pit Viper", "Desert Eagle | Mudder", "P90 | Teardown"]
+            },
+            {
+                rarity: "RESTRICTED (PÚRPURA)",
+                color: "#8847ff",
+                weight: 8,
+                items: ["AK-47 | Redline", "AWP | Electric Hive", "M4A1-S | Guardian", "USP-S | Caiman", "FAMAS | Pulse"]
+            },
+            {
+                rarity: "CLASSIFIED (ROSA)",
+                color: "#d32ce6",
+                weight: 4,
+                items: ["AK-47 | Vulcan", "M4A4 | Howl", "AWP | Asiimov", "Desert Eagle | Hand Cannon", "P250 | Undertow"]
+            },
+            {
+                rarity: "COVERT (ROJO)",
+                color: "#eb4b4b",
+                weight: 2,
+                items: ["AWP | Dragon Lore", "M4A1-S | Knight", "AK-47 | Fire Serpent", "Desert Eagle | Blaze", "Glock-18 | Fade"]
+            },
+            {
+                rarity: "CUCHILLO / RARO (ORO)",
+                color: "#ffd700",
+                weight: 1,
+                items: ["Karambit | Fade", "M9 Bayonet | Crimson Web", "Butterfly Knife | Slaughter", "Flip Knife | Blue Steel", "Bayonet | Doppler"]
+            }
+        ];
+
+        // Variables de estado
+        let openedCount = 0;
+        const lastItems = [];   // guarda hasta 5 objetos { name, rarity, color }
+
+        // Elementos DOM
+        const currentItemDiv = document.getElementById('currentItem');
+        const currentRaritySpan = document.getElementById('currentRarity');
+        const caseCounterSpan = document.getElementById('caseCounter');
+        const historyListDiv = document.getElementById('historyList');
+        const openBtn = document.getElementById('openBtn');
+        const crateClick = document.getElementById('crateClick');
+
+        // Función para obtener un objeto aleatorio según pesos
+        function getRandomItem() {
+            const totalWeight = itemsByRarity.reduce((acc, curr) => acc + curr.weight, 0);
+            let rand = Math.random() * totalWeight;  // 0 .. 100
+
+            for (let i = 0; i < itemsByRarity.length; i++) {
+                const tier = itemsByRarity[i];
+                if (rand < tier.weight) {
+                    // Seleccionar un item aleatorio dentro del tier
+                    const randomIndex = Math.floor(Math.random() * tier.items.length);
+                    const itemName = tier.items[randomIndex];
+                    return {
+                        name: itemName,
+                        rarity: tier.rarity,
+                        color: tier.color
+                    };
+                }
+                rand -= tier.weight;
+            }
+            // fallback (nunca debería pasar)
+            return {
+                name: "AK-47 | Case Hardened",
+                rarity: "COVERT (ROJO)",
+                color: "#eb4b4b"
             };
+        }
 
-            // Propiedades de tiles (colisionable)
-            const SOLID_TILES = new Set([TILE.TREE, TILE.WATER]);
+        // Actualizar display del item actual y contador/historial
+        function openCrate() {
+            const newItem = getRandomItem();
 
-            // ---------- MAPA (mundo 2D) ----------
-            // Inicializamos todo a GRASS
-            let map = Array(MAP_HEIGHT).fill().map(() => Array(MAP_WIDTH).fill(TILE.GRASS));
+            // Mostrar item actual con su color
+            currentItemDiv.innerHTML = `${newItem.name} <span class="item-rarity" id="currentRarity" style="background: ${newItem.color}; color: #111; text-shadow: 1px 1px 0 white;">${newItem.rarity}</span>`;
+            currentItemDiv.style.backgroundColor = newItem.color;
+            currentItemDiv.style.color = '#111';
+            currentItemDiv.style.textShadow = '2px 2px 0 rgba(255,255,255,0.5)';
 
-            // Función para generar el mapa con estética clásica
-            function buildMap() {
-                // 1. Bordes de árboles (paredes naturales)
-                for (let row = 0; row < MAP_HEIGHT; row++) {
-                    for (let col = 0; col < MAP_WIDTH; col++) {
-                        if (row === 0 || row === MAP_HEIGHT-1 || col === 0 || col === MAP_WIDTH-1) {
-                            map[row][col] = TILE.TREE;
-                        }
-                    }
-                }
+            // Incrementar contador
+            openedCount++;
+            caseCounterSpan.innerText = openedCount;
 
-                // 2. Algunos árboles aleatorios (pero no demasiados)
-                const treesPos = [
-                    [3,4], [4,3], [5,7], [7,5], [8,2], [12,10], [14,5], [16,12], [17,3], [10,13]
-                ];
-                treesPos.forEach(([row, col]) => {
-                    if (row > 0 && row < MAP_HEIGHT-1 && col > 0 && col < MAP_WIDTH-1) {
-                        map[row][col] = TILE.TREE;
-                    }
-                });
+            // Actualizar historial (últimos 5)
+            lastItems.unshift({ name: newItem.name, rarity: newItem.rarity, color: newItem.color });
+            if (lastItems.length > 5) lastItems.pop();
 
-                // 3. Un pequeño lago (agua)
-                for (let r = 6; r <= 9; r++) {
-                    for (let c = 13; c <= 16; c++) {
-                        if (r > 0 && r < MAP_HEIGHT-1 && c > 0 && c < MAP_WIDTH-1) {
-                            map[r][c] = TILE.WATER;
-                        }
-                    }
-                }
-                // bordeamos el lago con algo de hierba para que no quede pegado al borde de árboles
-                // pero ya lo dejamos así.
+            renderHistory();
+        }
 
-                // 4. Un cartel / signo (en el 5,5) — interactivo
-                map[5][5] = TILE.SIGN;
-
-                // 5. Pequeño detalle: una mina o cueva simulada con agua? no, dejamos así.
+        // Dibujar los últimos items
+        function renderHistory() {
+            historyListDiv.innerHTML = ''; 
+            if (lastItems.length === 0) {
+                // placeholder vacío con estilo
+                const emptyMsg = document.createElement('div');
+                emptyMsg.innerText = '⚡ NINGUNO ⚡';
+                emptyMsg.style.background = '#5b4f3f';
+                emptyMsg.style.padding = '16px';
+                emptyMsg.style.borderRadius = '12px';
+                emptyMsg.style.color = '#ddd';
+                emptyMsg.style.width = '100%';
+                emptyMsg.style.textAlign = 'center';
+                historyListDiv.appendChild(emptyMsg);
+                return;
             }
 
-            buildMap();
+            lastItems.forEach(item => {
+                const historyBox = document.createElement('div');
+                historyBox.className = 'history-item';
+                historyBox.style.backgroundColor = item.color;
+                historyBox.style.color = '#111';
+                historyBox.style.textShadow = '1px 1px 0 rgba(255,255,255,0.5)';
+                historyBox.setAttribute('title', `${item.name} (${item.rarity})`); // tooltip
 
-            // Posición inicial del jugador (en tiles)
-            let player = { x: 10, y: 7 };  // céntrico
+                // Mostrar nombre corto + rareza en línea
+                const nameSpan = document.createElement('span');
+                nameSpan.style.fontWeight = 'bold';
+                nameSpan.innerText = item.name.length > 14 ? item.name.substring(0,12)+'…' : item.name;
 
-            // Control de tiempo para throttling de movimiento (estilo TABS / turno suave)
-            let lastMoveTime = 0;
-            const MOVE_COOLDOWN = 200; // milisegundos
+                const raritySpan = document.createElement('span');
+                raritySpan.innerText = item.rarity.split(' ')[0]; // solo primera palabra
 
-            // Mensaje actual (se actualiza por interacción o pisa tile especial)
-            let currentMessage = "Pisa el cartel (🪧) para leer";
-
-            // ---------- FUNCIONES DE DIBUJO (estética 2008 pixelada) ----------
-            function drawTile(row, col, type) {
-                const x = col * TILE_SIZE;
-                const y = row * TILE_SIZE;
-
-                // Sombra ligera para dar relieve (muy 2008)
-                ctx.shadowColor = '#00000040';
-                ctx.shadowBlur = 2;
-                ctx.shadowOffsetX = 1;
-                ctx.shadowOffsetY = 1;
-
-                switch (type) {
-                    case TILE.GRASS:
-                        // Césped base con variación de tono
-                        ctx.fillStyle = ( (row+col) % 2 === 0 ) ? '#5a9e4e' : '#4b8c3a';
-                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-                        // textura de puntitos (hierba)
-                        ctx.fillStyle = '#6bb85a';
-                        ctx.fillRect(x+4, y+4, 6, 6);
-                        ctx.fillStyle = '#3f7a2f';
-                        ctx.fillRect(x+20, y+18, 8, 8);
-                        break;
-
-                    case TILE.TREE:
-                        // Suelo de tierra
-                        ctx.fillStyle = '#7a5c3a';
-                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-                        // Tronco
-                        ctx.fillStyle = '#6b4a2c';
-                        ctx.fillRect(x+12, y+8, 8, 20);
-                        // Copa del árbol (verde oscuro)
-                        ctx.fillStyle = '#2f6b2f';
-                        ctx.beginPath();
-                        ctx.arc(x+16, y+12, 12, 0, Math.PI*2);
-                        ctx.fill();
-                        ctx.fillStyle = '#1f4f1f';
-                        ctx.beginPath();
-                        ctx.arc(x+8, y+8, 7, 0, Math.PI*2);
-                        ctx.fill();
-                        ctx.beginPath();
-                        ctx.arc(x+24, y+10, 7, 0, Math.PI*2);
-                        ctx.fill();
-                        break;
-
-                    case TILE.WATER:
-                        // Agua con ondas
-                        ctx.fillStyle = '#3a68a0';
-                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-                        // Reflejos
-                        ctx.fillStyle = '#7aa5d9';
-                        ctx.beginPath();
-                        ctx.moveTo(x+5, y+8);
-                        ctx.lineTo(x+15, y+16);
-                        ctx.lineTo(x+25, y+6);
-                        ctx.fill();
-                        ctx.fillStyle = '#1f3f6f';
-                        ctx.beginPath();
-                        ctx.moveTo(x+18, y+22);
-                        ctx.lineTo(x+28, y+26);
-                        ctx.lineTo(x+8, y+28);
-                        ctx.fill();
-                        break;
-
-                    case TILE.SIGN:
-                        // Suelo de hierba (como grass)
-                        ctx.fillStyle = ( (row+col) % 2 === 0 ) ? '#5a9e4e' : '#4b8c3a';
-                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-                        // Poste del cartel
-                        ctx.fillStyle = '#8b6b4b';
-                        ctx.fillRect(x+14, y+10, 4, 20);
-                        // Tablero
-                        ctx.fillStyle = '#c49a6c';
-                        ctx.fillRect(x+6, y+4, 20, 12);
-                        ctx.fillStyle = '#3a281a';
-                        ctx.font = 'bold 16px "Courier New", monospace';
-                        ctx.shadowBlur = 0; // sin sombra en texto pequeño
-                        ctx.shadowOffsetX = 0;
-                        ctx.shadowOffsetY = 0;
-                        ctx.fillStyle = '#3a2a1a';
-                        ctx.fillText('🪧', x+10, y+17);
-                        break;
-                }
-                // Reiniciar sombra
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
-            }
-
-            // Dibujar al jugador con estilo RPG básico
-            function drawPlayer() {
-                const px = player.x * TILE_SIZE;
-                const py = player.y * TILE_SIZE;
-
-                // Sombra del personaje
-                ctx.shadowColor = '#00000070';
-                ctx.shadowBlur = 6;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
-
-                // Túnica / cuerpo
-                ctx.fillStyle = '#c04040';  // rojo clásico
-                ctx.fillRect(px+6, py+8, 20, 22);
-                // Cabeza
-                ctx.fillStyle = '#f5dbb1';
-                ctx.beginPath();
-                ctx.ellipse(px+16, py+10, 8, 9, 0, 0, Math.PI*2);
-                ctx.fill();
-                // Gorro / pelo (puntiagudo)
-                ctx.fillStyle = '#a52a2a';
-                ctx.beginPath();
-                ctx.moveTo(px+8, py+2);
-                ctx.lineTo(px+24, py+2);
-                ctx.lineTo(px+16, py-4);
-                ctx.closePath();
-                ctx.fill();
-                // Ojos
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(px+12, py+9, 2, 0, 2*Math.PI);
-                ctx.arc(px+20, py+9, 2, 0, 2*Math.PI);
-                ctx.fill();
-                // Arma / bastón (simple)
-                ctx.fillStyle = '#5d3a1a';
-                ctx.fillRect(px+26, py+12, 4, 24);
-
-                // Reiniciar sombra
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
-            }
-
-            // Dibujar todo (mapa + jugador)
-            function render() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Dibujar tiles del mapa
-                for (let row = 0; row < MAP_HEIGHT; row++) {
-                    for (let col = 0; col < MAP_WIDTH; col++) {
-                        drawTile(row, col, map[row][col]);
-                    }
-                }
-
-                // Dibujar personaje encima
-                drawPlayer();
-
-                // Pequeña cuadrícula estilo 2008 (opcional)
-                ctx.strokeStyle = '#2d3a2d';
-                ctx.lineWidth = 0.5;
-                ctx.globalAlpha = 0.2;
-                for (let i = 0; i <= MAP_WIDTH; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(i * TILE_SIZE, 0);
-                    ctx.lineTo(i * TILE_SIZE, canvas.height);
-                    ctx.stroke();
-                }
-                for (let i = 0; i <= MAP_HEIGHT; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, i * TILE_SIZE);
-                    ctx.lineTo(canvas.width, i * TILE_SIZE);
-                    ctx.stroke();
-                }
-                ctx.globalAlpha = 1.0;
-            }
-
-            // ---------- LÓGICA DE MOVIMIENTO E INTERACCIÓN ----------
-            function tryMove(dx, dy) {
-                const newX = player.x + dx;
-                const newY = player.y + dy;
-
-                // Verificar límites
-                if (newX < 0 || newX >= MAP_WIDTH || newY < 0 || newY >= MAP_HEIGHT) {
-                    currentMessage = "⬆️ Fin del mundo (necesitas un barco)";
-                    messageEl.innerText = currentMessage;
-                    return false;
-                }
-
-                const tile = map[newY][newX];
-
-                // Colisión con tiles sólidos
-                if (SOLID_TILES.has(tile)) {
-                    if (tile === TILE.TREE) currentMessage = "🌲 Un árbol frondoso te bloquea";
-                    else if (tile === TILE.WATER) currentMessage = "🌊 Agua profunda... mejor no nadar";
-                    else currentMessage = "🚧 No puedes pasar";
-                    messageEl.innerText = currentMessage;
-                    return false;
-                }
-
-                // Movimiento válido
-                player.x = newX;
-                player.y = newY;
-
-                // Interacción automática con el cartel (SIGN)
-                if (tile === TILE.SIGN) {
-                    currentMessage = "🪧 \"Bienvenido a RuneScape... digo, TABS 2008\"";
-                } else {
-                    // Mensaje aleatorio ambient
-                    const ambientMsg = [
-                        "Caminas por la hierba...", 
-                        "♪ sonidos de grillo 8-bit ♪",
-                        "TABs clásico - 2008",
-                        "Un lugar tranquilo..."
-                    ];
-                    currentMessage = ambientMsg[Math.floor(Math.random() * ambientMsg.length)];
-                }
-                messageEl.innerText = currentMessage;
-                return true;
-            }
-
-            // Throttle de movimiento (estilo retro, sin acelerón)
-            function handleKeyPress(e) {
-                const key = e.key;
-                // Evitar scroll con flechas
-                if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "w", "W", "A", "a", "s", "S", "d", "D"].includes(key)) {
-                    e.preventDefault();
-                }
-
-                const now = Date.now();
-                if (now - lastMoveTime < MOVE_COOLDOWN) return;
-
-                let dx = 0, dy = 0;
-                switch (key) {
-                    case 'ArrowUp':
-                    case 'w':
-                    case 'W':
-                        dy = -1;
-                        break;
-                    case 'ArrowDown':
-                    case 's':
-                    case 'S':
-                        dy = 1;
-                        break;
-                    case 'ArrowLeft':
-                    case 'a':
-                    case 'A':
-                        dx = -1;
-                        break;
-                    case 'ArrowRight':
-                    case 'd':
-                    case 'D':
-                        dx = 1;
-                        break;
-                    default: return;
-                }
-
-                if (dx !== 0 || dy !== 0) {
-                    if (tryMove(dx, dy)) {
-                        lastMoveTime = now;
-                        render();
-                    }
-                }
-            }
-
-            // Reiniciar mensaje al hacer clic (extra)
-            function showControlsTip() {
-                currentMessage = "Flechas / WASD para moverte";
-                messageEl.innerText = currentMessage;
-                render();
-            }
-
-            // ---------- INICIALIZAR EVENTOS Y RENDER ----------
-            window.addEventListener('keydown', handleKeyPress);
-
-            // Para dispositivos táctiles / ratón (info extra)
-            canvas.addEventListener('click', () => {
-                currentMessage = "Usa el teclado (↑ ↓ ← →)  o  WASD";
-                messageEl.innerText = currentMessage;
+                historyBox.appendChild(nameSpan);
+                historyBox.appendChild(raritySpan);
+                historyListDiv.appendChild(historyBox);
             });
+        }
 
-            // Render inicial
-            render();
+        // Asignar eventos
+        function handleOpen() {
+            openCrate();
+        }
 
-            // Mensaje inicial ambient
-            setTimeout(() => {
-                currentMessage = "Pisa el cartel (🪧) para leer";
-                messageEl.innerText = currentMessage;
-            }, 500);
+        openBtn.addEventListener('click', handleOpen);
+        crateClick.addEventListener('click', handleOpen);
 
-            // Enfoque del canvas para capturar teclas sin perder el foco (opcional)
-            canvas.setAttribute('tabindex', '0');  // permite enfocar el canvas
-            canvas.focus();
-            canvas.addEventListener('click', () => canvas.focus());
-            // Estilo de focus
-            canvas.style.outline = 'none';
-        })();
-    </script>
+        // Inicializar historial vacío
+        renderHistory();
+
+        // Mensaje inicial con color neutro
+        currentItemDiv.style.backgroundColor = '#3d3329';
+        currentItemDiv.style.color = 'white';
+        currentItemDiv.style.textShadow = '3px 3px 0 #1f1f1f';
+        currentRaritySpan.innerText = '';
+    })();
+</script>
 </body>
 </html>
