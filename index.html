@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌲 NOOB TERRITORY · ROBLOX 2008 🌲</title>
+    <title>🗺️ NOOB EMPIRE · 120x120 · ROBLOX 2008 🗺️</title>
     <style>
         /* --- ESTÉTICA ROBLOX 2008 (blocky, brillante, biseles) --- */
         * {
@@ -24,7 +24,7 @@
         }
 
         .game-container {
-            max-width: 1200px;
+            max-width: 1300px;
             width: 100%;
             background: #6d9ac4;
             border: 6px ridge #ffffff;
@@ -79,121 +79,33 @@
             margin-left: 8px;
         }
 
-        /* --- MAPA CON PARCELAS (bases) --- */
-        .map-row {
+        /* --- MAPA CANVAS 120x120 (600x600 píxeles) --- */
+        .map-container {
             display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
             justify-content: center;
-        }
-
-        .base-territory {
-            flex: 1 1 400px;
-            background: #4a7a5c;  /* verde césped */
-            border: 8px ridge #6b8f6b;
-            padding: 20px 20px 25px;
-            box-shadow: 10px 10px 0px #1f3f2f;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .base-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #fffbc2;
-            text-shadow: 3px 3px 0 #2f5f2f;
-            background: #2d5a3d;
+            margin: 20px 0;
+            border: 8px ridge #5f8faf;
+            background: #2f5f7a;
             padding: 10px;
-            border: 4px ridge #9fcf9f;
-            text-align: center;
-            margin-bottom: 20px;
         }
 
-        /* zona de spawners (edificios) */
-        .spawner-row {
+        canvas {
+            width: 100%;
+            height: auto;
+            max-width: 600px;
+            border: 6px inset #9fbfdf;
+            background: #3f7a5a; /* verde hierba */
+            box-shadow: 8px 8px 0px #1f3f4f;
+            image-rendering: crisp-edges;
+        }
+
+        /* botones de compra */
+        .buildings-panel {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #2b5a3b;
-            border: 5px inset #7fa07f;
-            padding: 16px 18px;
-            margin-bottom: 25px;
-            color: white;
-            font-size: 26px;
             flex-wrap: wrap;
-        }
-
-        .spawner-icon {
-            font-size: 40px;
-            filter: drop-shadow(4px 4px 0 #1f3f2f);
-        }
-
-        .spawner-badge {
-            background: #1f3f2f;
-            padding: 8px 20px;
-            border: 3px ridge #afcfaf;
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffffb0;
-            margin-left: auto;
-        }
-
-        /* cuadrícula de parcelas (4x4) */
-        .parcel-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            background: #2f6f3f;
-            border: 6px inset #5f9f6f;
-            padding: 16px;
-            min-height: 240px;
-            box-shadow: inset 0 0 0 4px #1f4f2f;
-        }
-
-        .parcel {
-            background: #5f9f6f;
-            border: 4px ridge #b0e0b0;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
+            gap: 20px;
             justify-content: center;
-            font-size: 38px;
-            box-shadow: 3px 3px 0 #1f4f2f;
-            transition: 0.1s;
-        }
-
-        .parcel.occupied {
-            background: #ffe68f;
-            border-color: #b87c3a;
-            box-shadow: 3px 3px 0 #8b5a2f;
-        }
-
-        .parcel.enemy-occupied {
-            background: #ffa07a;
-            border-color: #b85a3a;
-            box-shadow: 3px 3px 0 #8b3a2f;
-        }
-
-        .parcel .noob-emoji {
-            font-size: 40px;
-            line-height: 1;
-        }
-
-        .parcel .extra-indicator {
-            background: #00000080;
-            color: white;
-            font-size: 24px;
-            padding: 4px 8px;
-            border-radius: 40px;
-            border: 2px solid white;
-        }
-
-        /* botones dentro de la base */
-        .base-actions {
-            margin-top: 25px;
-            display: flex;
-            justify-content: center;
+            margin: 25px 0 15px;
         }
 
         .roblox-btn {
@@ -208,6 +120,7 @@
             box-shadow: 5px 5px 0px #2f4f6f;
             transition: 0.05s linear;
             letter-spacing: 2px;
+            min-width: 260px;
         }
 
         .roblox-btn:active {
@@ -225,21 +138,17 @@
             cursor: not-allowed;
         }
 
-        /* botón de ataque central */
-        .attack-area {
-            display: flex;
-            justify-content: center;
-            margin: 30px 0 20px;
-        }
-
         .attack-btn {
             background: #c02f2f;
             border: 8px outset #ffc0c0;
-            font-size: 48px;
+            font-size: 44px;
             padding: 24px 70px;
             color: white;
             text-shadow: 4px 4px 0 #5f1f1f;
             box-shadow: 12px 12px 0 #2f1f1f;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .log-box {
@@ -270,160 +179,93 @@
             padding: 6px;
             border: 2px ridge #9fbfdf;
         }
-
-        /* animación de batalla */
-        .base-territory.flash {
-            animation: battleFlash 0.2s infinite;
-        }
-        @keyframes battleFlash {
-            0% { filter: brightness(1); }
-            50% { filter: brightness(1.8) drop-shadow(0 0 10px yellow); }
-            100% { filter: brightness(1); }
-        }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="header">
-            🗺️ NOOB TERRITORY · 2008 🗺️
+            🏰 NOOB EMPIRE · 120x120 · 2008 🏰
         </div>
 
         <!-- Panel de recursos -->
         <div class="stats-panel">
-            <div class="stat-item">💰 TIX <span id="tixDisplay">200</span></div>
-            <div class="stat-item">🏭 SPAWNERS <span id="spawnerDisplay">1</span></div>
-            <div class="stat-item">🪖 TUS NOOBS <span id="playerNoobsDisplay">3</span></div>
+            <div class="stat-item">💰 TIX <span id="tixDisplay">300</span></div>
+            <div class="stat-item">⚔️ NOOBS <span id="noobsDisplay">0</span></div>
+            <div class="stat-item">🏭 SPAWNERS <span id="spawnerCount">1</span></div>
+            <div class="stat-item">🔬 INVEST. <span id="investigatorCount">1</span></div>
         </div>
 
-        <!-- MAPA CON DOS BASES (izquierda jugador, derecha enemigo) -->
-        <div class="map-row">
-            <!-- Base Jugador -->
-            <div class="base-territory" id="playerBase">
-                <div class="base-title">🔵 TU TERRITORIO</div>
-                <!-- Spawners del jugador -->
-                <div class="spawner-row">
-                    <span class="spawner-icon">🏭</span>
-                    <span>SPAWNERS</span>
-                    <span class="spawner-badge" id="playerSpawnerCount">1</span>
-                </div>
-                <!-- Parcelas (grid 4x4) -->
-                <div class="parcel-grid" id="playerParcelGrid">
-                    <!-- Se llena con JS -->
-                </div>
-                <!-- Botón comprar spawner -->
-                <div class="base-actions">
-                    <button class="roblox-btn" id="buySpawnerBtn">➕ COMPRAR SPAWNER (50💰)</button>
-                </div>
-            </div>
-
-            <!-- Base Enemiga -->
-            <div class="base-territory" id="enemyBase">
-                <div class="base-title">🔴 TERRITORIO ENEMIGO</div>
-                <div class="spawner-row">
-                    <span class="spawner-icon">🏭</span>
-                    <span>SPAWNERS</span>
-                    <span class="spawner-badge" id="enemySpawnerCount">1</span>
-                </div>
-                <div class="parcel-grid" id="enemyParcelGrid">
-                    <!-- Se llena con JS -->
-                </div>
-                <!-- Sin acciones para el enemigo, solo decoración -->
-                <div style="text-align: center; margin-top: 20px; color: #ffcf9f; font-size: 22px;">⚔️ HOSTIL</div>
-            </div>
+        <!-- Mapa enorme de 120x120 casillas (canvas) -->
+        <div class="map-container">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
         </div>
 
-        <!-- Botón de batalla central -->
-        <div class="attack-area">
-            <button class="roblox-btn attack-btn" id="attackBtn">⚡ ¡INVADIR! ⚡</button>
+        <!-- Botones de construcción -->
+        <div class="buildings-panel">
+            <button class="roblox-btn" id="buySpawnerBtn">🏭 COMPRAR SPAWNER (50💰)</button>
+            <button class="roblox-btn" id="buyInvestigatorBtn">🔬 COMPRAR INVESTIGADOR (30💰)</button>
+        </div>
+
+        <!-- Botón de ataque central -->
+        <div style="display: flex; justify-content: center;">
+            <button class="roblox-btn attack-btn" id="attackBtn">💥 ¡ATACAR! 💥</button>
         </div>
 
         <!-- Log de eventos -->
         <div class="log-box" id="logMessages">
-            <p>🌲 2008: Conquista el territorio enemigo. Compra spawners y ocupa parcelas.</p>
+            <p>🌍 2008: construye spawners (noobs) e investigadores (Tix). El mapa es 120x120.</p>
         </div>
 
         <div class="footer-note">
-            🧱 ROBLOX 2008 · PARCEL WARS · NOOB TERRITORY 🧱
+            🧱 ROBLOX 2008 · MAPA 120x120 · SPAWNERS + INVESTIGADORES 🧱
         </div>
     </div>
 
     <script>
         (function() {
-            // --- Estado del juego ---
-            let playerTix = 200;
-            let playerSpawners = 1;
-            let playerNoobs = 3;          // empieza con algunos
-            let enemySpawners = 1;
-            let enemyNoobs = 5;            // enemigo inicial
+            // --- Dimensiones del mapa ---
+            const MAP_SIZE = 120;            // 120x120 casillas
+            const CELL_SIZE = 5;              // píxeles por casilla (canvas 600x600)
 
+            // --- Territorios (áreas donde se pueden colocar edificios) ---
+            // Territorio del jugador: filas 0-39, columnas 0-39 (40x40 = 1600 celdas)
+            const PLAYER_ZONE = { rowMin: 0, rowMax: 39, colMin: 0, colMax: 39 };
+            // Territorio enemigo: filas 80-119, columnas 80-119 (40x40)
+            const ENEMY_ZONE = { rowMin: 80, rowMax: 119, colMin: 80, colMax: 119 };
+
+            // --- Estado del juego ---
+            let playerTix = 300;
+            let playerNoobs = 0;               // noobs acumulados para atacar
+            let enemyNoobs = 5;                 // noobs enemigos
+
+            // Edificios del jugador
+            let playerSpawners = [];             // array de {x, y} (fila, columna)
+            let playerInvestigators = [];         // array de {x, y}
+
+            // Edificios del enemigo (solo spawners)
+            let enemySpawners = [];               // array de {x, y}
+
+            // Precios
             const SPAWNER_COST = 50;
-            const REWARD = 40;              // tix por victoria en batalla
-            const SPAWN_INTERVAL_MS = 3000;  // 3 segundos
+            const INVESTIGATOR_COST = 30;
+            const REWARD = 50;                    // tix por victoria
+
+            // Intervalos de producción (ms)
+            const PRODUCTION_INTERVAL = 3000;      // 3 segundos
 
             // Elementos DOM
             const tixSpan = document.getElementById('tixDisplay');
-            const spawnerSpan = document.getElementById('spawnerDisplay');
-            const playerNoobsSpan = document.getElementById('playerNoobsDisplay');
-            const playerSpawnerSpan = document.getElementById('playerSpawnerCount');
-            const enemySpawnerSpan = document.getElementById('enemySpawnerCount');
-            const playerParcelGrid = document.getElementById('playerParcelGrid');
-            const enemyParcelGrid = document.getElementById('enemyParcelGrid');
+            const noobsSpan = document.getElementById('noobsDisplay');
+            const spawnerCountSpan = document.getElementById('spawnerCount');
+            const investigatorCountSpan = document.getElementById('investigatorCount');
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
             const logDiv = document.getElementById('logMessages');
             const buySpawnerBtn = document.getElementById('buySpawnerBtn');
+            const buyInvestigatorBtn = document.getElementById('buyInvestigatorBtn');
             const attackBtn = document.getElementById('attackBtn');
-            const playerBaseDiv = document.getElementById('playerBase');
-            const enemyBaseDiv = document.getElementById('enemyBase');
 
-            // --- Función para actualizar las parcelas (grid 4x4) ---
-            function renderParcelas(container, count, esEnemigo) {
-                container.innerHTML = ''; // Limpiar grid
-                const totalCeldas = 16; // 4x4
-                for (let i = 0; i < totalCeldas; i++) {
-                    const parcela = document.createElement('div');
-                    parcela.className = 'parcel';
-                    
-                    // Determinar si esta celda debe estar ocupada por un noob
-                    if (i < count) {
-                        // Mostrar un noob en esta parcela
-                        if (esEnemigo) {
-                            parcela.classList.add('enemy-occupied');
-                        } else {
-                            parcela.classList.add('occupied');
-                        }
-                        // Si es la última celda y hay más noobs que celdas, mostramos un contador extra
-                        if (i === totalCeldas - 1 && count > totalCeldas) {
-                            // En lugar de un noob, mostramos +X
-                            const extra = count - (totalCeldas - 1);
-                            parcela.innerHTML = `<span class="extra-indicator">+${extra}</span>`;
-                        } else {
-                            parcela.innerHTML = '<span class="noob-emoji">☺</span>';
-                        }
-                    } else {
-                        // Parcela vacía
-                        parcela.innerHTML = '🌿';
-                    }
-                    container.appendChild(parcela);
-                }
-            }
-
-            // Función para actualizar toda la UI
-            function actualizarUI() {
-                // Contadores numéricos
-                tixSpan.textContent = playerTix;
-                spawnerSpan.textContent = playerSpawners;
-                playerNoobsSpan.textContent = playerNoobs;
-                playerSpawnerSpan.textContent = playerSpawners;
-                enemySpawnerSpan.textContent = enemySpawners;
-
-                // Renderizar parcelas
-                renderParcelas(playerParcelGrid, playerNoobs, false);
-                renderParcelas(enemyParcelGrid, enemyNoobs, true);
-
-                // Botón comprar spawner habilitado según TIX
-                buySpawnerBtn.disabled = (playerTix < SPAWNER_COST);
-            }
-
-            // Agregar mensaje al log (máximo 6 líneas)
+            // --- Funciones de utilidad ---
             function agregarLog(mensaje) {
                 const p = document.createElement('p');
                 p.textContent = mensaje;
@@ -434,100 +276,236 @@
                 logDiv.scrollTop = logDiv.scrollHeight;
             }
 
-            // Spawn automático para jugador y enemigo
-            function spawnPlayerNoob() {
-                if (playerSpawners > 0) {
-                    playerNoobs += playerSpawners;  // cada spawner aporta 1 noob por tick
-                    agregarLog(`🏭 Tus spawners generan ${playerSpawners} noob(s).`);
-                    actualizarUI();
+            // --- Dibujar el mapa completo ---
+            function dibujarMapa() {
+                ctx.clearRect(0, 0, 600, 600);
+
+                // Dibujar fondo de cuadrícula (césped)
+                ctx.fillStyle = '#3f7a5a';
+                ctx.fillRect(0, 0, 600, 600);
+                // Dibujar líneas de cuadrícula (opcional, para dar efecto parcelas)
+                ctx.strokeStyle = '#2f5f4f';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= MAP_SIZE; i++) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#2f5f4f';
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(i * CELL_SIZE, 0);
+                    ctx.lineTo(i * CELL_SIZE, 600);
+                    ctx.stroke();
+                    ctx.moveTo(0, i * CELL_SIZE);
+                    ctx.lineTo(600, i * CELL_SIZE);
+                    ctx.stroke();
                 }
+
+                // Dibujar territorios con un sombreado suave (bordes)
+                ctx.fillStyle = '#ffffff20';
+                ctx.fillRect(PLAYER_ZONE.colMin * CELL_SIZE, PLAYER_ZONE.rowMin * CELL_SIZE, 
+                            (PLAYER_ZONE.colMax - PLAYER_ZONE.colMin + 1) * CELL_SIZE, 
+                            (PLAYER_ZONE.rowMax - PLAYER_ZONE.rowMin + 1) * CELL_SIZE);
+                ctx.fillStyle = '#ff000020';
+                ctx.fillRect(ENEMY_ZONE.colMin * CELL_SIZE, ENEMY_ZONE.rowMin * CELL_SIZE, 
+                            (ENEMY_ZONE.colMax - ENEMY_ZONE.colMin + 1) * CELL_SIZE, 
+                            (ENEMY_ZONE.rowMax - ENEMY_ZONE.rowMin + 1) * CELL_SIZE);
+
+                // Dibujar spawners del jugador (azul)
+                playerSpawners.forEach(s => {
+                    ctx.fillStyle = '#3a7aff';
+                    ctx.fillRect(s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 4px monospace';
+                    ctx.fillText('🏭', s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 4); // pequeño icono
+                });
+
+                // Dibujar investigadores del jugador (verde)
+                playerInvestigators.forEach(s => {
+                    ctx.fillStyle = '#3aff3a';
+                    ctx.fillRect(s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 4px monospace';
+                    ctx.fillText('🔬', s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 4);
+                });
+
+                // Dibujar spawners enemigos (rojo)
+                enemySpawners.forEach(s => {
+                    ctx.fillStyle = '#ff3a3a';
+                    ctx.fillRect(s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 4px monospace';
+                    ctx.fillText('🏭', s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 4);
+                });
             }
 
-            function spawnEnemyNoob() {
-                if (enemySpawners > 0) {
-                    enemyNoobs += enemySpawners;
-                    agregarLog(`👾 Los spawners enemigos generan ${enemySpawners} noob(s).`);
-                    actualizarUI();
-                }
+            // --- Actualizar UI (contadores y canvas) ---
+            function actualizarUI() {
+                tixSpan.textContent = playerTix;
+                noobsSpan.textContent = playerNoobs;
+                spawnerCountSpan.textContent = playerSpawners.length;
+                investigatorCountSpan.textContent = playerInvestigators.length;
+
+                // Habilitar/deshabilitar botones
+                buySpawnerBtn.disabled = (playerTix < SPAWNER_COST);
+                buyInvestigatorBtn.disabled = (playerTix < INVESTIGATOR_COST);
+
+                dibujarMapa();
             }
 
-            // Iniciar intervalos de spawn
-            setInterval(() => {
-                spawnPlayerNoob();
-            }, SPAWN_INTERVAL_MS);
+            // --- Función para obtener una celda libre aleatoria en una zona ---
+            function getRandomFreeCell(zone, existingBuildings) {
+                const maxAttempts = 1000;
+                for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                    const row = Math.floor(Math.random() * (zone.rowMax - zone.rowMin + 1)) + zone.rowMin;
+                    const col = Math.floor(Math.random() * (zone.colMax - zone.colMin + 1)) + zone.colMin;
+                    // Verificar si la celda está ocupada por algún edificio (jugador o enemigo)
+                    const ocupado = existingBuildings.some(b => b.x === row && b.y === col);
+                    if (!ocupado) {
+                        return { x: row, y: col };
+                    }
+                }
+                return null; // no hay espacio
+            }
 
-            setInterval(() => {
-                spawnEnemyNoob();
-            }, SPAWN_INTERVAL_MS);
+            // --- Comprar spawner (jugador) ---
+            function comprarSpawner() {
+                if (playerTix < SPAWNER_COST) {
+                    agregarLog(`❌ Necesitas ${SPAWNER_COST} TIX para comprar un spawner.`);
+                    return;
+                }
+                // Reunir todos los edificios del jugador para verificar ocupación
+                const edificiosJugador = [...playerSpawners, ...playerInvestigators];
+                const pos = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
+                if (!pos) {
+                    agregarLog(`⚠️ No hay espacio en tu territorio para más edificios.`);
+                    return;
+                }
+                playerTix -= SPAWNER_COST;
+                playerSpawners.push(pos);
+                agregarLog(`🏭 Nuevo spawner en (${pos.x}, ${pos.y}).`);
+                actualizarUI();
+            }
 
-            // Compra de spawner
-            buySpawnerBtn.addEventListener('click', () => {
-                if (playerTix >= SPAWNER_COST) {
-                    playerTix -= SPAWNER_COST;
-                    playerSpawners++;
-                    agregarLog(`✅ Compraste un spawner. Ahora tienes ${playerSpawners}.`);
-                    actualizarUI();
+            // --- Comprar investigador (jugador) ---
+            function comprarInvestigador() {
+                if (playerTix < INVESTIGATOR_COST) {
+                    agregarLog(`❌ Necesitas ${INVESTIGATOR_COST} TIX para comprar un investigador.`);
+                    return;
+                }
+                const edificiosJugador = [...playerSpawners, ...playerInvestigators];
+                const pos = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
+                if (!pos) {
+                    agregarLog(`⚠️ No hay espacio en tu territorio para más edificios.`);
+                    return;
+                }
+                playerTix -= INVESTIGATOR_COST;
+                playerInvestigators.push(pos);
+                agregarLog(`🔬 Nuevo investigador en (${pos.x}, ${pos.y}).`);
+                actualizarUI();
+            }
+
+            // --- Producción de recursos (cada 3 segundos) ---
+            function producir() {
+                // Los spawners del jugador generan noobs
+                if (playerSpawners.length > 0) {
+                    playerNoobs += playerSpawners.length;
+                    agregarLog(`🏭 Spawners producen ${playerSpawners.length} noob(s). Total: ${playerNoobs}`);
+                }
+                // Los investigadores generan Tix
+                if (playerInvestigators.length > 0) {
+                    playerTix += playerInvestigators.length * 5;  // 5 tix por investigador
+                    agregarLog(`🔬 Investigadores generan ${playerInvestigators.length * 5} Tix.`);
+                }
+                // Los spawners enemigos generan noobs enemigos
+                if (enemySpawners.length > 0) {
+                    enemyNoobs += enemySpawners.length;
+                    agregarLog(`👾 Enemigo gana ${enemySpawners.length} noob(s). Ahora tiene ${enemyNoobs}`);
+                }
+                actualizarUI();
+            }
+
+            // --- El enemigo construye un spawner cada 30 segundos (hasta 20) ---
+            function enemigoConstruye() {
+                if (enemySpawners.length >= 40) return; // límite, hay espacio de sobra
+                const pos = getRandomFreeCell(ENEMY_ZONE, enemySpawners);
+                if (pos) {
+                    enemySpawners.push(pos);
+                    agregarLog(`⚠️ El enemigo construyó un spawner en (${pos.x}, ${pos.y}). Total: ${enemySpawners.length}`);
                 } else {
-                    agregarLog(`❌ Necesitas ${SPAWNER_COST} TIX para comprar spawner.`);
+                    agregarLog(`⚠️ El enemigo no tiene espacio para más spawners.`);
                 }
-            });
+                actualizarUI();
+            }
 
-            // ATACAR (batalla)
-            attackBtn.addEventListener('click', () => {
+            // --- Batalla ---
+            function atacar() {
                 if (playerNoobs === 0 && enemyNoobs === 0) {
-                    agregarLog('🤷 No hay tropas en ningún territorio. Consigue noobs.');
+                    agregarLog('🤷 Nadie tiene noobs para pelear.');
                     return;
                 }
 
-                // Aplicar flash de batalla a los territorios
-                playerBaseDiv.classList.add('flash');
-                enemyBaseDiv.classList.add('flash');
+                // Animación flash (cambiamos borde del canvas)
+                canvas.style.border = '6px inset #ffff00';
                 setTimeout(() => {
-                    playerBaseDiv.classList.remove('flash');
-                    enemyBaseDiv.classList.remove('flash');
-                }, 300);
+                    canvas.style.border = '6px inset #9fbfdf';
+                }, 200);
 
-                // Determinar resultado de la batalla (cada noob elimina a un enemigo)
+                // Comparar ejércitos
                 if (playerNoobs > enemyNoobs) {
-                    // Victoria: jugador pierde la misma cantidad que el enemigo, enemigo queda 0
                     let bajas = enemyNoobs;
                     playerNoobs -= bajas;
                     enemyNoobs = 0;
                     playerTix += REWARD;
-                    agregarLog(`🎉 VICTORIA! Conquistas el territorio. +${REWARD} TIX. Te quedan ${playerNoobs} noobs.`);
+                    agregarLog(`🎉 VICTORIA! Eliminas al enemigo. +${REWARD} TIX. Te quedan ${playerNoobs} noobs.`);
                 } else if (enemyNoobs > playerNoobs) {
-                    // Derrota: enemigo pierde la misma cantidad que jugador, jugador queda 0
                     let bajas = playerNoobs;
                     enemyNoobs -= bajas;
                     playerNoobs = 0;
-                    agregarLog(`💔 DERROTA... El enemigo invade tu base. Les quedan ${enemyNoobs} noobs.`);
+                    agregarLog(`💔 DERROTA... El enemigo aniquila tus tropas. Le quedan ${enemyNoobs} noobs.`);
                 } else {
-                    // Empate: ambos a cero
                     playerNoobs = 0;
                     enemyNoobs = 0;
-                    agregarLog(`⚖️ EMPATE! Ambos territorios quedan vacíos.`);
+                    agregarLog(`⚖️ EMPATE! Ambos ejércitos se destruyen.`);
                 }
-
                 actualizarUI();
-            });
+            }
 
-            // El enemigo aumenta su dificultad cada 30 segundos (hasta 8 spawners)
-            function aumentarDificultadEnemiga() {
-                if (enemySpawners < 8) {
-                    enemySpawners++;
-                    agregarLog(`⚠️ El enemigo construyó un nuevo spawner (total ${enemySpawners}).`);
-                    actualizarUI();
+            // --- Inicializar edificios iniciales ---
+            function inicializarEdificios() {
+                // Jugador: 1 spawner y 1 investigador en posiciones aleatorias
+                let edificiosJugador = [];
+                let posSpawner = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
+                if (posSpawner) {
+                    playerSpawners.push(posSpawner);
+                    edificiosJugador.push(posSpawner);
+                }
+                let posInv = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
+                if (posInv) {
+                    playerInvestigators.push(posInv);
+                    edificiosJugador.push(posInv);
+                }
+                // Enemigo: 2 spawners
+                for (let i = 0; i < 2; i++) {
+                    let posEnemy = getRandomFreeCell(ENEMY_ZONE, enemySpawners);
+                    if (posEnemy) enemySpawners.push(posEnemy);
                 }
             }
-            setInterval(() => {
-                if (enemySpawners < 8) {
-                    aumentarDificultadEnemiga();
-                }
-            }, 30000); // 30 segundos
 
-            // Inicializar UI
+            // --- Event listeners ---
+            buySpawnerBtn.addEventListener('click', comprarSpawner);
+            buyInvestigatorBtn.addEventListener('click', comprarInvestigador);
+            attackBtn.addEventListener('click', atacar);
+
+            // Inicializar
+            inicializarEdificios();
             actualizarUI();
-            agregarLog('🔰 Tix inicial: 200. Compra spawners y ocupa parcelas con noobs.');
+            agregarLog('🌟 Imperio iniciado. Tienes 1 spawner y 1 investigador. El enemigo tiene 2 spawners.');
+
+            // Intervalos de producción
+            setInterval(producir, PRODUCTION_INTERVAL);
+            // Intervalo para que el enemigo construya (cada 30 segundos)
+            setInterval(enemigoConstruye, 30000);
+
+            // Dibujar mapa inicial
+            dibujarMapa();
         })();
     </script>
 </body>
