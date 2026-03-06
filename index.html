@@ -3,627 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✧ NOOBS VS ZOMBIES 2008 ✧ EQUIPA Y BUSCA ARMAS</title>
+    <title>🔵 NOOB ARMY · Roblox 2008 🔵</title>
     <style>
+        /* --- ESTÉTICA ROBLOX 2008 --- */
         * {
             box-sizing: border-box;
-            user-select: none;
-        }
-        body {
-            background: #2f4f2f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 12px;
             image-rendering: pixelated;
-        }
-        .game-wrapper {
-            background: #6b8e4b;
-            padding: 20px;
-            border: 6px solid #4a6130;
-            border-radius: 20px;
-            box-shadow: 8px 8px 0 #2b3a1f;
-            max-width: 100%;
-            overflow-x: auto;
-        }
-        h1 {
-            margin: 0 0 12px;
-            font-size: 28px;
-            color: #ffffaa;
-            text-shadow: 3px 3px 0 #7f5f30;
-            text-align: center;
-        }
-        .canvas-container {
-            border: 4px solid #7b5f3a;
-            background: #9bb87f;
-            display: inline-block;
-            box-shadow: inset 0 0 0 2px #4f6730, 5px 5px 0 #2f3e1f;
-        }
-        canvas {
-            display: block;
-            width: 1000px;
-            height: 600px;
-            background: #c2d9ad;
-            cursor: crosshair;
             image-rendering: crisp-edges;
         }
-        .toolbar {
+
+        body {
+            background: #1b3b4f;  /* azul oscuro clásico */
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            min-height: 100vh;
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 18px;
+            align-items: center;
             justify-content: center;
-            background: #798e5c;
-            padding: 15px;
-            border: 4px solid #5b733c;
-            border-radius: 40px;
-            box-shadow: inset 2px 2px 0 #b2cf92;
+            padding: 16px;
         }
-        .tool-btn {
-            background: #eedbaa;
-            border: 4px solid #b48b4b;
-            font-family: 'Courier New', monospace;
+
+        .game-container {
+            width: 720px;
+            max-width: 100%;
+            background: #6d9ac4;  /* fondo celeste Roblox */
+            border: 6px ridge #ffffff;
+            box-shadow: 12px 12px 0px #0a1f2b;
+            padding: 24px 20px;
+            position: relative;
+        }
+
+        /* cabecera con texto 3D estilo 2008 */
+        .header {
+            background: #4b6e8c;
+            border: 4px outset #e0e0e0;
+            padding: 14px 8px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-size: 32px;
             font-weight: bold;
-            font-size: 16px;
-            padding: 8px 12px;
-            cursor: pointer;
-            box-shadow: 3px 3px 0 #6f4f2e, inset -2px -2px 0 #d4b886, inset 2px 2px 0 #fff2cc;
-            text-transform: uppercase;
-            transition: 0.07s;
-            white-space: nowrap;
+            color: #ffffff;
+            text-shadow: 4px 4px 0px #1f4f6e, 6px 6px 0px #0b2b3f;
+            letter-spacing: 2px;
+            word-break: break-word;
         }
-        .tool-btn:active {
-            transform: translate(3px, 3px);
-            box-shadow: 1px 1px 0 #6f4f2e;
-        }
-        .tool-btn.selected {
-            background: #fff3b8;
-            border-color: #e5a84b;
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0 #6f4f2e, inset -2px -2px 0 #ccb477;
-        }
-        .clear-btn {
-            background: #cfaa8a;
-            border-color: #9f6f50;
-            margin-left: auto;
-        }
-        .status-area {
-            background: #283a1c;
-            color: #d1f0b0;
-            padding: 8px 18px;
-            font-size: 18px;
-            border-radius: 40px;
-            border: 3px solid #5b8040;
-            font-weight: bold;
-            margin-right: 8px;
-            box-shadow: inset 1px 1px 0 #769a52;
-            white-space: nowrap;
-        }
-        .footer-info {
+
+        /* cajas de estadísticas */
+        .stats-panel {
+            background: #b8d8f0;
+            border: 4px inset #f0f8ff;
+            padding: 20px 15px;
+            margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
-            margin-top: 12px;
-            color: #efffc9;
-            text-shadow: 2px 2px 0 #3d5925;
             flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 16px 10px;
+            box-shadow: inset 2px 2px 0px #3b5e7a;
+        }
+
+        .stat-item {
+            background: #e6f0fa;
+            border: 3px ridge #ffffff;
+            padding: 12px 18px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #0f2f44;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 3px 3px 0px #3b6e8c;
+        }
+
+        .stat-item span {
+            background: #1b2f44;
+            color: #ffffc0;
+            padding: 4px 12px;
+            border: 2px inset #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 26px;
+            margin-left: 8px;
+        }
+
+        /* enemigo */
+        .enemy-panel {
+            background: #4f7b9c;
+            border: 4px inset #b0d0f0;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .enemy-title {
+            font-size: 26px;
+            color: #fff9c4;
+            text-shadow: 2px 2px 0px #a13d2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .enemy-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .enemy-bar label {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            background: #2d4f6e;
+            padding: 4px 12px;
+            border: 2px ridge #afc9e0;
+        }
+
+        progress {
+            flex: 1;
+            height: 36px;
+            border: 4px solid #1f3f5c;
+            background: #3a3a3a;
+        }
+
+        /* estilos para la barra de progreso (cross-browser retro) */
+        progress::-webkit-progress-bar {
+            background-color: #4f4f4f;
+            box-shadow: inset 2px 2px 0px #1f1f1f;
+        }
+        progress::-webkit-progress-value {
+            background-color: #e04e4e;
+            background-image: linear-gradient(145deg, #ff7b7b 0%, #b32e2e 100%);
+        }
+        progress::-moz-progress-bar {
+            background-color: #e04e4e;
+            background-image: linear-gradient(145deg, #ff7b7b 0%, #b32e2e 100%);
+        }
+
+        /* botones enormes, estilo Roblox antiguo */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin: 24px 0 20px;
+        }
+
+        .roblox-btn {
+            background: #c0c0c0;
+            border: 6px outset #f8f8f8;
+            font-family: 'Courier New', monospace;
+            font-size: 26px;
+            font-weight: bold;
+            padding: 16px 28px;
+            cursor: pointer;
+            color: #1f2f3f;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 0px #2f4f6f;
+            transition: 0.05s linear;
+            flex: 1 1 auto;
+            min-width: 200px;
+            letter-spacing: 2px;
+        }
+
+        .roblox-btn:active {
+            border: 6px inset #f8f8f8;
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0px #2f4f6f;
+        }
+
+        .roblox-btn:disabled {
+            opacity: 0.4;
+            filter: grayscale(60%);
+            transform: none;
+            border: 6px outset #a0a0a0;
+            box-shadow: 2px 2px 0px #1f3f4f;
+            cursor: not-allowed;
+        }
+
+        /* caja de eventos / log */
+        .log-box {
+            background: #0f1f2b;
+            border: 6px inset #3f6f8f;
+            padding: 16px;
+            color: #9bff9b;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            min-height: 90px;
+            max-height: 140px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 0 2px #1f4f6e;
+            margin-top: 10px;
+        }
+
+        .log-box p {
+            margin: 4px 0;
+            line-height: 1.4;
+            border-left: 4px solid #5faf5f;
+            padding-left: 10px;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 16px;
+            color: #e0f0ff;
+            text-shadow: 2px 2px 0px #0f2a3f;
+            background: #2b4f6b;
+            padding: 4px;
+            border: 2px ridge #9fbfdf;
+        }
+
+        /* iconos e imagenes rudimentarias estilo 2008 */
+        .noob-icon {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #ffe68f;
+            border: 3px solid #b87c3a;
+            border-radius: 30% 30% 40% 40%;
+            position: relative;
+            margin-right: 8px;
+            box-shadow: 2px 2px 0 #6b4f2a;
+        }
+        .noob-icon::before {
+            content: "☺";
+            position: absolute;
+            top: -2px;
+            left: 4px;
+            font-size: 24px;
+            color: #000;
+        }
+
+        .tix-icon {
+            font-size: 28px;
+            filter: drop-shadow(2px 2px 0 #ad7f2e);
         }
     </style>
 </head>
 <body>
-<div class="game-wrapper">
-    <h1>⚔️ NOOBS VS ZOMBIES 2K8 ⚔️</h1>
-    <div class="canvas-container">
-        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+    <div class="game-container">
+        <div class="header">
+            <span class="noob-icon" style="vertical-align: middle;"></span> 
+            NOOB ARMY 2008 
+            <span class="noob-icon" style="vertical-align: middle;"></span>
+        </div>
+
+        <!-- Estadísticas principales -->
+        <div class="stats-panel">
+            <div class="stat-item">
+                <span class="noob-icon" style="width: 34px; height: 34px;"></span> NOOBS
+                <span id="noobCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="tix-icon">💰</span> TIX
+                <span id="tixCount">100</span>
+            </div>
+            <div class="stat-item">
+                ⚔️ PODER <span id="attackPower">1</span>
+            </div>
+        </div>
+
+        <!-- Panel del enemigo -->
+        <div class="enemy-panel">
+            <div class="enemy-title">
+                <span>👾 ENEMY NOOBS</span> 
+                <span id="enemyNoobsDisplay" style="background: #330f0f; color: #ffbebe; padding: 6px 20px; border: 3px inset #8b3a3a;">100</span>
+            </div>
+            <div class="enemy-bar">
+                <label>HP</label>
+                <progress id="enemyHealthBar" value="100" max="100"></progress>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+            <button class="roblox-btn" id="recruitBtn">🔹 RECLUTAR (10💰)</button>
+            <button class="roblox-btn" id="trainBtn">🔸 ENTRENAR (20💰)</button>
+            <button class="roblox-btn" id="attackBtn">💥 ATACAR</button>
+        </div>
+
+        <!-- Registro de eventos (log) -->
+        <div class="log-box" id="logMessages">
+            <p>⚡ Bienvenido, general. Recluta noobs y aplasta a la horda enemiga.</p>
+        </div>
+
+        <!-- pie de época -->
+        <div class="footer-note">
+            🔵 ROBLOX 2008 · BLOCKY STYLE · ☁️ NOOB ARMY ☁️
+        </div>
     </div>
 
-    <div class="toolbar">
-        <div class="status-area" id="selectedDisplay">🤖 NOOB</div>
-        <button class="tool-btn" data-type="robloxian" id="btnRoblox">🧱 NOOB</button>
-        <button class="tool-btn" data-type="zombie" id="btnZombie">🧟 ZOMBIE</button>
-        <button class="tool-btn" data-type="spawner" id="btnSpawner">🌀 SPAWNER</button>
-        <button class="tool-btn" data-type="weapon" id="btnWeapon">🔫 ARMA</button>
-        <button class="tool-btn" data-type="block" id="btnBlock">📦 BLOQUE</button>
-        <button class="tool-btn" data-type="equip" id="btnEquip">🔧 EQUIPAR</button>
-        <button class="tool-btn clear-btn" id="clearBtn">✖ LIMPIAR</button>
-    </div>
+    <script>
+        (function() {
+            // --- variables del juego ---
+            let noobs = 0;
+            let tix = 100;
+            let attackPowerPerNoob = 1;      // daño base por cada noob
+            let enemyNoobs = 100;
+            const ENEMY_MAX = 100;
+            const RECRUIT_COST = 10;
+            const TRAIN_COST = 20;
+            const REWARD = 50;
 
-    <div class="footer-info">
-        <span>🖱️ Izq: colocar/equipar | Derecho: borrar</span>
-        <span>💡 Noob busca arma o aliado armado</span>
-        <span>❤️ 3 vida | daño 1</span>
-    </div>
-</div>
+            // --- elementos del DOM ---
+            const noobSpan = document.getElementById('noobCount');
+            const tixSpan = document.getElementById('tixCount');
+            const powerSpan = document.getElementById('attackPower');
+            const enemyNoobsSpan = document.getElementById('enemyNoobsDisplay');
+            const enemyBar = document.getElementById('enemyHealthBar');
+            const logDiv = document.getElementById('logMessages');
 
-<script>
-(function() {
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
+            const recruitBtn = document.getElementById('recruitBtn');
+            const trainBtn = document.getElementById('trainBtn');
+            const attackBtn = document.getElementById('attackBtn');
 
-    // ---- lista de entidades ----
-    let entidades = [];
+            // --- funciones auxiliares ---
+            function actualizarUI() {
+                noobSpan.textContent = noobs;
+                tixSpan.textContent = tix;
+                powerSpan.textContent = attackPowerPerNoob;
+                enemyNoobsSpan.textContent = enemyNoobs;
+                enemyBar.value = enemyNoobs;
 
-    // ---- tipo seleccionado ----
-    let tipoSeleccionado = 'robloxian';
+                // habilitar/deshabilitar botones según recursos
+                recruitBtn.disabled = (tix < RECRUIT_COST);
+                trainBtn.disabled = (tix < TRAIN_COST);
+                // atacar siempre está habilitado, pero puede no hacer nada
+            }
 
-    // ---- UI ----
-    const selectedDisplay = document.getElementById('selectedDisplay');
-    const btnRoblox = document.getElementById('btnRoblox');
-    const btnZombie = document.getElementById('btnZombie');
-    const btnSpawner = document.getElementById('btnSpawner');
-    const btnWeapon = document.getElementById('btnWeapon');
-    const btnBlock = document.getElementById('btnBlock');
-    const btnEquip = document.getElementById('btnEquip');
-    const clearBtn = document.getElementById('clearBtn');
-    const botones = [btnRoblox, btnZombie, btnSpawner, btnWeapon, btnBlock, btnEquip];
+            // función para añadir mensaje al log (máximo 6 líneas)
+            function agregarLog(mensaje) {
+                const p = document.createElement('p');
+                p.textContent = mensaje;
+                logDiv.appendChild(p);
+                // mantener últimas líneas (borrar si hay más de 6)
+                while (logDiv.children.length > 6) {
+                    logDiv.removeChild(logDiv.firstChild);
+                }
+                logDiv.scrollTop = logDiv.scrollHeight; // auto-scroll
+            }
 
-    function setSelectedType(tipo) {
-        tipoSeleccionado = tipo;
-        let texto = '';
-        if (tipo === 'robloxian') texto = '🤖 NOOB';
-        else if (tipo === 'zombie') texto = '🧟 ZOMBIE';
-        else if (tipo === 'spawner') texto = '🌀 SPAWNER';
-        else if (tipo === 'weapon') texto = '🔫 ARMA';
-        else if (tipo === 'block') texto = '📦 BLOQUE';
-        else if (tipo === 'equip') texto = '🔧 EQUIPAR';
-        selectedDisplay.innerText = texto;
-
-        botones.forEach(btn => btn.classList.remove('selected'));
-        if (tipo === 'robloxian') btnRoblox.classList.add('selected');
-        else if (tipo === 'zombie') btnZombie.classList.add('selected');
-        else if (tipo === 'spawner') btnSpawner.classList.add('selected');
-        else if (tipo === 'weapon') btnWeapon.classList.add('selected');
-        else if (tipo === 'block') btnBlock.classList.add('selected');
-        else if (tipo === 'equip') btnEquip.classList.add('selected');
-    }
-
-    btnRoblox.addEventListener('click', () => setSelectedType('robloxian'));
-    btnZombie.addEventListener('click', () => setSelectedType('zombie'));
-    btnSpawner.addEventListener('click', () => setSelectedType('spawner'));
-    btnWeapon.addEventListener('click', () => setSelectedType('weapon'));
-    btnBlock.addEventListener('click', () => setSelectedType('block'));
-    btnEquip.addEventListener('click', () => setSelectedType('equip'));
-
-    clearBtn.addEventListener('click', () => {
-        entidades = [];
-    });
-
-    // ---- crear entidad con stats ----
-    function crearEntidad(tipo, x, y, extra = {}) {
-        let ent = {
-            type: tipo,
-            x: Math.min(980, Math.max(20, x)),
-            y: Math.min(580, Math.max(20, y)),
-            hp: 3,
-            lastAttack: 0,
-            ...extra
-        };
-        if (tipo === 'robloxian') {
-            ent.armed = false;
-            ent.vx = 0; ent.vy = 0;
-        } else if (tipo === 'zombie') {
-            ent.vx = 0; ent.vy = 0;
-        } else if (tipo === 'spawner') {
-            ent.spawnType = extra.spawnType || 'noob';
-            ent.spawnCounter = 0;
-        }
-        return ent;
-    }
-
-    // ---- inicializar con ejemplos (ajustados al nuevo tamaño) ----
-    entidades.push(crearEntidad('robloxian', 200, 300));
-    entidades.push(crearEntidad('robloxian', 300, 450));
-    entidades.push(crearEntidad('zombie', 450, 250));
-    entidades.push(crearEntidad('spawner', 700, 350, { spawnType: 'noob' }));
-    entidades.push(crearEntidad('weapon', 550, 150));
-    entidades.push(crearEntidad('block', 800, 200));
-    entidades.push(crearEntidad('zombie', 120, 150));
-
-    // ---- constantes ----
-    const ZOMBIE_SPEED = 1.2;
-    const NOOB_SPEED = 1.6;
-    const DETECT_RADIUS = 180;
-    const PICKUP_DIST = 25;
-    const ATTACK_RANGE = 30;
-    const ATTACK_COOLDOWN = 30; // frames (~0.5s a 60fps)
-    const SPAWN_FRAMES = 120;
-
-    // ---- lógica de movimiento y combate ----
-    function actualizar() {
-        // listas actuales
-        let noobs = entidades.filter(e => e.type === 'robloxian');
-        let zombies = entidades.filter(e => e.type === 'zombie');
-        let armas = entidades.filter(e => e.type === 'weapon');
-        let spawners = entidades.filter(e => e.type === 'spawner');
-
-        // 1. Recoger armas (solo noobs desarmados)
-        for (let noob of noobs) {
-            if (noob.armed) continue;
-            for (let i = armas.length - 1; i >= 0; i--) {
-                const arma = armas[i];
-                const dist = Math.hypot(noob.x - arma.x, noob.y - arma.y);
-                if (dist < PICKUP_DIST) {
-                    entidades.splice(entidades.indexOf(arma), 1);
-                    noob.armed = true;
-                    armas.splice(i, 1);
-                    break;
+            // comprobar si el enemigo ha sido derrotado y entregar premio
+            function checkEnemyDefeated() {
+                if (enemyNoobs <= 0) {
+                    // premio
+                    tix += REWARD;
+                    enemyNoobs = ENEMY_MAX;  // reaparecen
+                    agregarLog(`🏆 VICTORIA! Enemigo aniquilado. +${REWARD} TIX. Nueva oleada.`);
+                    actualizarUI();
                 }
             }
-        }
 
-        // 2. Movimiento de zombies: persiguen al noob más cercano
-        for (let z of zombies) {
-            let target = null;
-            let minDist = Infinity;
-            for (let n of noobs) {
-                let d = Math.hypot(z.x - n.x, z.y - n.y);
-                if (d < minDist) {
-                    minDist = d;
-                    target = n;
-                }
-            }
-            if (target) {
-                let dx = target.x - z.x;
-                let dy = target.y - z.y;
-                let len = Math.hypot(dx, dy);
-                if (len > 0.1) {
-                    z.vx = (dx / len) * ZOMBIE_SPEED;
-                    z.vy = (dy / len) * ZOMBIE_SPEED;
+            // --- eventos ---
+
+            // reclutar noob
+            recruitBtn.addEventListener('click', () => {
+                if (tix >= RECRUIT_COST) {
+                    tix -= RECRUIT_COST;
+                    noobs++;
+                    agregarLog(`✅ Reclutaste 1 noob. (Total: ${noobs})`);
+                    actualizarUI();
                 } else {
-                    z.vx = z.vy = 0;
+                    agregarLog(`❌ No tienes suficientes TIX (necesitas ${RECRUIT_COST})`);
                 }
-            } else {
-                z.vx = z.vy = 0;
-            }
-        }
+            });
 
-        // 3. Movimiento de noobs:
-        //    - Armados: se acercan al zombie más cercano para atacar
-        //    - Desarmados: si hay un zombie cerca, buscan arma o noob armado; si no, huyen
-        for (let n of noobs) {
-            if (n.armed) {
-                // Atacar: acercarse al zombie más cercano
-                let closestZ = null;
-                let minDistZ = Infinity;
-                for (let z of zombies) {
-                    let d = Math.hypot(n.x - z.x, n.y - z.y);
-                    if (d < minDistZ) {
-                        minDistZ = d;
-                        closestZ = z;
-                    }
+            // entrenar (aumenta poder de ataque por noob)
+            trainBtn.addEventListener('click', () => {
+                if (tix >= TRAIN_COST) {
+                    tix -= TRAIN_COST;
+                    attackPowerPerNoob++;
+                    agregarLog(`⚡ Entrenamiento completado. Poder por noob: ${attackPowerPerNoob}`);
+                    actualizarUI();
+                } else {
+                    agregarLog(`❌ Necesitas ${TRAIN_COST} TIX para entrenar.`);
                 }
-                if (closestZ) {
-                    if (minDistZ > ATTACK_RANGE) {
-                        let dx = closestZ.x - n.x;
-                        let dy = closestZ.y - n.y;
-                        let len = Math.hypot(dx, dy);
-                        if (len > 0.1) {
-                            n.vx = (dx / len) * NOOB_SPEED;
-                            n.vy = (dy / len) * NOOB_SPEED;
-                        } else {
-                            n.vx = n.vy = 0;
-                        }
+            });
+
+            // atacar
+            attackBtn.addEventListener('click', () => {
+                if (noobs === 0) {
+                    agregarLog(`😿 No tienes noobs en tu ejército. Recluta primero.`);
+                    return;
+                }
+
+                // calcular daño total
+                let totalDamage = noobs * attackPowerPerNoob;
+                let oldEnemy = enemyNoobs;
+                enemyNoobs -= totalDamage;
+
+                // evitar número negativo para el display
+                if (enemyNoobs < 0) {
+                    enemyNoobs = 0;
+                }
+
+                let damageDealt = oldEnemy - enemyNoobs; // daño real (sin excedente)
+                agregarLog(`⚔️ ATACASTE con ${noobs} noobs (daño ${damageDealt}).`);
+
+                actualizarUI();
+
+                // si el enemigo quedó en 0 o menos, dar recompensa
+                if (enemyNoobs === 0) {
+                    checkEnemyDefeated();
+                } else {
+                    // mensaje de contraataque (solo para ambientar)
+                    if (damageDealt > 0) {
+                        agregarLog(`😤 Enemigo debilitado, le quedan ${enemyNoobs} noobs.`);
                     } else {
-                        n.vx = n.vy = 0; // ya en rango
-                    }
-                } else {
-                    n.vx = n.vy = 0;
-                }
-            } else {
-                // Desarmado: ver si hay zombie cerca
-                let closestZ = null;
-                let minDistZ = Infinity;
-                for (let z of zombies) {
-                    let d = Math.hypot(n.x - z.x, n.y - z.y);
-                    if (d < minDistZ) {
-                        minDistZ = d;
-                        closestZ = z;
+                        agregarLog(`🛡️ El enemigo se ríe. Tu ataque fue inútil.`);
                     }
                 }
-                if (closestZ && minDistZ < DETECT_RADIUS) {
-                    // Buscar el arma más cercana o noob armado más cercano
-                    let mejorObjetivo = null;
-                    let mejorDist = Infinity;
 
-                    // Buscar armas
-                    for (let a of armas) {
-                        let d = Math.hypot(n.x - a.x, n.y - a.y);
-                        if (d < mejorDist) {
-                            mejorDist = d;
-                            mejorObjetivo = a;
-                        }
-                    }
-                    // Buscar noob armados
-                    for (let otro of noobs) {
-                        if (otro.armed && otro !== n) {
-                            let d = Math.hypot(n.x - otro.x, n.y - otro.y);
-                            if (d < mejorDist) {
-                                mejorDist = d;
-                                mejorObjetivo = otro;
-                            }
-                        }
-                    }
+                // recalc botones por si cambió tix (victoria)
+                actualizarUI();
+            });
 
-                    if (mejorObjetivo) {
-                        // Dirigirse al objetivo (arma o noob armado)
-                        let dx = mejorObjetivo.x - n.x;
-                        let dy = mejorObjetivo.y - n.y;
-                        let len = Math.hypot(dx, dy);
-                        if (len > 0.1) {
-                            n.vx = (dx / len) * NOOB_SPEED;
-                            n.vy = (dy / len) * NOOB_SPEED;
-                        } else {
-                            n.vx = n.vy = 0;
-                        }
-                    } else {
-                        // No hay refugio: huir del zombie
-                        let dx = n.x - closestZ.x;
-                        let dy = n.y - closestZ.y;
-                        let len = Math.hypot(dx, dy);
-                        if (len > 0.1) {
-                            n.vx = (dx / len) * NOOB_SPEED;
-                            n.vy = (dy / len) * NOOB_SPEED;
-                        } else {
-                            n.vx = n.vy = 0;
-                        }
-                    }
-                } else {
-                    n.vx = n.vy = 0; // no hay peligro
-                }
-            }
-        }
+            // --- inicializar valores por primera vez ---
+            actualizarUI();
 
-        // 4. Aplicar movimiento
-        for (let e of entidades) {
-            if (e.type === 'zombie' || e.type === 'robloxian') {
-                e.x += e.vx;
-                e.y += e.vy;
-                e.x = Math.min(980, Math.max(20, e.x));
-                e.y = Math.min(580, Math.max(20, e.y));
-            }
-        }
-
-        // 5. Ataques (con cooldown)
-        for (let e of entidades) {
-            if (e.type === 'zombie' || e.type === 'robloxian') {
-                e.lastAttack = (e.lastAttack || 0) + 1;
-            }
-        }
-
-        // Ataques de noobs armados contra zombies
-        for (let n of noobs) {
-            if (!n.armed) continue;
-            for (let z of zombies) {
-                let dist = Math.hypot(n.x - z.x, n.y - z.y);
-                if (dist < ATTACK_RANGE && n.lastAttack >= ATTACK_COOLDOWN) {
-                    z.hp -= 1;
-                    n.lastAttack = 0;
-                    if (z.hp <= 0) {
-                        entidades.splice(entidades.indexOf(z), 1);
-                    }
-                }
-            }
-        }
-
-        // Ataques de zombies contra noobs
-        for (let z of zombies) {
-            for (let n of noobs) {
-                let dist = Math.hypot(z.x - n.x, z.y - n.y);
-                if (dist < ATTACK_RANGE && z.lastAttack >= ATTACK_COOLDOWN) {
-                    n.hp -= 1;
-                    z.lastAttack = 0;
-                    if (n.hp <= 0) {
-                        entidades.splice(entidades.indexOf(n), 1);
-                    }
-                }
-            }
-        }
-
-        // 6. Spawners
-        for (let s of spawners) {
-            s.spawnCounter = (s.spawnCounter || 0) + 1;
-            if (s.spawnCounter >= SPAWN_FRAMES) {
-                s.spawnCounter = 0;
-                let angle = Math.random() * 2 * Math.PI;
-                let dist = 40 + Math.random() * 30;
-                let nx = s.x + Math.cos(angle) * dist;
-                let ny = s.y + Math.sin(angle) * dist;
-                nx = Math.min(980, Math.max(20, nx));
-                ny = Math.min(580, Math.max(20, ny));
-                if (s.spawnType === 'noob') {
-                    entidades.push(crearEntidad('robloxian', nx, ny));
-                } else {
-                    entidades.push(crearEntidad('zombie', nx, ny));
-                }
-            }
-        }
-    }
-
-    // ---- dibujado ----
-    function dibujar() {
-        ctx.clearRect(0, 0, 1000, 600);
-        // cuadrícula
-        ctx.strokeStyle = '#a7bf8a';
-        ctx.lineWidth = 0.6;
-        for (let i = 0; i < 1000; i += 40) {
-            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 600); ctx.stroke();
-        }
-        for (let i = 0; i < 600; i += 40) {
-            ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1000, i); ctx.stroke();
-        }
-
-        for (let e of entidades) {
-            const { type, x, y, hp } = e;
-
-            // sprites
-            if (type === 'robloxian') {
-                ctx.fillStyle = '#fadf32';
-                ctx.fillRect(x-15, y-20, 30, 25);
-                ctx.fillStyle = '#2a6fdb';
-                ctx.fillRect(x-12, y+5, 24, 20);
-                ctx.fillStyle = '#000';
-                ctx.fillRect(x-8, y-10, 5, 5);
-                ctx.fillRect(x+3, y-10, 5, 5);
-                ctx.beginPath(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
-                ctx.arc(x, y-2, 6, 0.1, Math.PI - 0.1); ctx.stroke();
-                ctx.fillStyle = '#fadf32';
-                ctx.fillRect(x-18, y+8, 6, 15);
-                ctx.fillRect(x+12, y+8, 6, 15);
-                if (e.armed) {
-                    ctx.fillStyle = '#ff3333';
-                    ctx.beginPath(); ctx.arc(x-8, y-28, 6, 0, 2*Math.PI); ctx.fill();
-                    ctx.fillStyle = '#ffff00';
-                    ctx.font = 'bold 14px monospace'; ctx.fillText('⭐', x-15, y-23);
-                }
-            }
-            else if (type === 'zombie') {
-                ctx.fillStyle = '#3f8433';
-                ctx.fillRect(x-15, y-20, 30, 25);
-                ctx.fillStyle = '#2b5e1f';
-                ctx.fillRect(x-12, y+5, 24, 20);
-                ctx.fillStyle = '#a00';
-                ctx.fillRect(x-8, y-10, 5, 5);
-                ctx.fillRect(x+3, y-10, 5, 5);
-                ctx.fillStyle = '#5f1f1f';
-                ctx.fillRect(x-5, y-2, 10, 5);
-                ctx.fillStyle = '#1f4a1a';
-                ctx.fillRect(x-20, y-5, 5, 8);
-                ctx.fillRect(x+15, y-5, 5, 8);
-            }
-            else if (type === 'spawner') {
-                ctx.fillStyle = e.spawnType === 'noob' ? '#b87cd9' : '#7d4283';
-                ctx.fillRect(x-20, y-20, 40, 40);
-                ctx.fillStyle = '#6b3f8c';
-                ctx.fillRect(x-16, y-16, 32, 32);
-                ctx.font = 'bold 26px "Courier New"';
-                ctx.fillStyle = '#ffecb0';
-                ctx.fillText(e.spawnType === 'noob' ? 'N' : 'Z', x-10, y+12);
-                ctx.fillStyle = '#f5c6ff';
-                ctx.beginPath(); ctx.arc(x-25, y-25, 5, 0, 2*Math.PI); ctx.fill();
-                ctx.beginPath(); ctx.arc(x+25, y+20, 5, 0, 2*Math.PI); ctx.fill();
-            }
-            else if (type === 'weapon') {
-                ctx.fillStyle = '#3f3f3f';
-                ctx.fillRect(x-10, y-5, 40, 12);
-                ctx.fillStyle = '#6f6f6f';
-                ctx.fillRect(x+20, y-10, 10, 20);
-                ctx.fillStyle = '#272727';
-                ctx.fillRect(x, y-2, 25, 6);
-                ctx.fillStyle = '#ac7339';
-                ctx.fillRect(x-15, y-3, 8, 8);
-            }
-            else if (type === 'block') {
-                ctx.fillStyle = '#b57d4a';
-                ctx.fillRect(x-20, y-20, 40, 40);
-                ctx.fillStyle = '#7b562e';
-                ctx.fillRect(x-18, y-18, 36, 36);
-                ctx.strokeStyle = '#4f3a20';
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(x-20, y-5); ctx.lineTo(x+20, y-5); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x-20, y+5); ctx.lineTo(x+20, y+5); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x-5, y-20); ctx.lineTo(x-5, y+20); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x+5, y-20); ctx.lineTo(x+5, y+20); ctx.stroke();
-            }
-
-            // barra de vida (solo noobs y zombies)
-            if (type === 'robloxian' || type === 'zombie') {
-                let vida = hp !== undefined ? hp : 3;
-                for (let i = 0; i < vida; i++) {
-                    ctx.fillStyle = '#ff3333';
-                    ctx.beginPath();
-                    ctx.arc(x - 15 + i*10, y - 35, 4, 0, 2*Math.PI);
-                    ctx.fill();
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 10px monospace';
-                    ctx.fillText('❤️', x - 17 + i*10, y - 32);
-                }
-            }
-
-            // borde de selección
-            ctx.strokeStyle = '#2f2f2f';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x-21, y-21, 42, 42);
-        }
-    }
-
-    // ---- eventos de clic ----
-    canvas.addEventListener('click', (e) => {
-        e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        const mx = (e.clientX - rect.left) * scaleX;
-        const my = (e.clientY - rect.top) * scaleY;
-        const x = Math.min(980, Math.max(20, mx));
-        const y = Math.min(580, Math.max(20, my));
-
-        // Modo equipar: clic en noob para alternar armed
-        if (tipoSeleccionado === 'equip') {
-            const noob = entidades.find(e => e.type === 'robloxian' && Math.hypot(e.x - x, e.y - y) < 30);
-            if (noob) {
-                noob.armed = !noob.armed; // toggle
-            }
-            return;
-        }
-
-        // Cambiar modo spawner
-        if (tipoSeleccionado === 'spawner') {
-            const spawner = entidades.find(e => e.type === 'spawner' && Math.hypot(e.x - x, e.y - y) < 30);
-            if (spawner) {
-                spawner.spawnType = spawner.spawnType === 'noob' ? 'zombie' : 'noob';
-                return;
-            }
-        }
-
-        // Crear nueva entidad
-        if (tipoSeleccionado === 'robloxian') {
-            entidades.push(crearEntidad('robloxian', x, y));
-        } else if (tipoSeleccionado === 'zombie') {
-            entidades.push(crearEntidad('zombie', x, y));
-        } else if (tipoSeleccionado === 'spawner') {
-            entidades.push(crearEntidad('spawner', x, y, { spawnType: 'noob' }));
-        } else if (tipoSeleccionado === 'weapon') {
-            entidades.push(crearEntidad('weapon', x, y));
-        } else if (tipoSeleccionado === 'block') {
-            entidades.push(crearEntidad('block', x, y));
-        }
-    });
-
-    canvas.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        const mx = (e.clientX - rect.left) * scaleX;
-        const my = (e.clientY - rect.top) * scaleY;
-
-        let closestIdx = -1;
-        let minDist = 50;
-        for (let i = 0; i < entidades.length; i++) {
-            const d = Math.hypot(entidades[i].x - mx, entidades[i].y - my);
-            if (d < minDist) {
-                minDist = d;
-                closestIdx = i;
-            }
-        }
-        if (closestIdx !== -1) {
-            entidades.splice(closestIdx, 1);
-        }
-    });
-
-    // ---- bucle del juego ----
-    function gameLoop() {
-        actualizar();
-        dibujar();
-        requestAnimationFrame(gameLoop);
-    }
-    gameLoop();
-
-    setSelectedType('robloxian');
-})();
-</script>
+            // pequeño extra: mensaje inicial de bienvenida
+            agregarLog(`🕹️ Año 2008. Tienes ${tix} TIX. Crea tu Noob Army.`);
+        })();
+    </script>
 </body>
 </html>
