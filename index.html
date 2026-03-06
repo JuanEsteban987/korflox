@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS 2008 · Apertura de Cajas</title>
+    <title>2008 · CAJA DE TROPAS</title>
     <style>
         /* ESTÉTICA 2008 — GLOSS, BORDES REDONDEADOS, SOMBRAS, DEGRADÉS */
         * {
@@ -25,7 +25,7 @@
 
         /* ventana principal — como un widget de escritorio vintage */
         .ventana {
-            max-width: 680px;
+            max-width: 800px;
             width: 100%;
             background: #eae3d7;  /* fondo crema antiguo */
             background: linear-gradient(145deg, #f2ecdf 0%, #d9cfbc 100%);
@@ -50,7 +50,7 @@
         }
 
         h1 {
-            font-size: 2.4rem;
+            font-size: 2.8rem;
             font-weight: 900;
             text-align: center;
             margin: 0 0 8px 0;
@@ -65,7 +65,7 @@
 
         .subhead {
             text-align: center;
-            font-size: 1rem;
+            font-size: 1.1rem;
             margin-bottom: 28px;
             font-style: italic;
             color: #2c3e2c;
@@ -83,7 +83,7 @@
             letter-spacing: 1px;
         }
 
-        /* Caja de madera artesanal (estética crate Counter-Strike) */
+        /* Caja de madera artesanal (estética crate) */
         .crate-wrapper {
             display: flex;
             justify-content: center;
@@ -107,12 +107,26 @@
             transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
 
-        .crate:hover {
+        /* ANIMACIÓN AL ABRIR LA CAJA */
+        .crate.shake {
+            animation: crateShake 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+
+        @keyframes crateShake {
+            0% { transform: translateX(0) rotateZ(0deg); }
+            20% { transform: translateX(-8px) rotateZ(-4deg); }
+            40% { transform: translateX(8px) rotateZ(4deg); }
+            60% { transform: translateX(-5px) rotateZ(-2deg); }
+            80% { transform: translateX(5px) rotateZ(2deg); }
+            100% { transform: translateX(0) rotateZ(0); }
+        }
+
+        .crate:hover:not(.shake) {
             transform: scale(1.02);
             box-shadow: inset 0 0 0 2px #f3ca9c, 0 14px 0 #3e2e1d, 0 22px 20px rgba(0,0,0,0.6);
         }
 
-        .crate:active {
+        .crate:active:not(.shake) {
             transform: translateY(6px);
             box-shadow: inset 0 0 0 2px #f3ca9c, 0 8px 0 #3e2e1d, 0 16px 18px rgba(0,0,0,0.6);
         }
@@ -168,8 +182,8 @@
             line-height: 1;
         }
 
-        /* área del objeto actual */
-        .current-item {
+        /* área de la tropa actual */
+        .current-troop {
             background: #3d3329;
             border: 6px ridge #8b735b;
             border-radius: 50px 16px 50px 16px;
@@ -185,7 +199,7 @@
             word-break: break-word;
         }
 
-        .item-rarity {
+        .troop-rarity {
             font-size: 1.2rem;
             display: block;
             margin-top: 8px;
@@ -242,6 +256,64 @@
             margin: 10px auto 20px auto;
             border: 3px solid #7f6a48;
             box-shadow: inset 0 0 0 2px #b79f72, 0 4px 0 #2a1f12;
+        }
+
+        /* TERRENO (grid 3x3) donde se colocan las tropas */
+        .terrain-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2b2b1a;
+            text-shadow: 2px 2px 0 #bba88b;
+            margin: 30px 0 12px 0;
+            border-bottom: 4px dotted #7a6548;
+            padding-bottom: 6px;
+        }
+
+        .terrain-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            background: #6c8e5a;  /* verde campo */
+            background: linear-gradient(145deg, #5b7e49, #3e632a);
+            border: 8px ridge #7a613f;
+            padding: 24px 18px;
+            border-radius: 50px 12px 50px 12px;
+            box-shadow: inset 0 0 0 4px #b1a07b, 0 10px 0 #3a4f2a, 0 15px 15px black;
+            margin-bottom: 30px;
+        }
+
+        .terrain-cell {
+            background: #4b6333;
+            background: radial-gradient(circle at 30% 30%, #7c9e60, #2e4d1e);
+            aspect-ratio: 1 / 1;
+            border: 5px groove #af8f5a;
+            border-radius: 24px 6px 24px 6px;
+            box-shadow: inset 0 -4px 0 #1d2e0e, 0 8px 0 #1e2e12, 0 10px 10px black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 3px 3px 0 #1a1a1a;
+            font-size: 1rem;
+            padding: 6px;
+            transition: 0.2s ease;
+            text-align: center;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .terrain-cell span.rarity-tag {
+            font-size: 0.7rem;
+            background: black;
+            padding: 2px 6px;
+            border-radius: 20px;
+            margin-top: 4px;
+            max-width: 90%;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         .history-title {
@@ -309,23 +381,23 @@
 </head>
 <body>
 <div class="ventana">
-    <h1>CS: 2OO8</h1>
-    <div class="subhead">★ crate opening ★</div>
+    <h1>★ TROPA CRATE 2OO8 ★</h1>
+    <div class="subhead">recluta · coloca · combate</div>
 
-    <!-- crate clickeable -->
+    <!-- crate clickeable con animación -->
     <div class="crate-wrapper" id="crateClick">
-        <div class="crate">
+        <div class="crate" id="crate">
             <div class="stripe horizontal"></div>
             <div class="stripe vertical"></div>
             <div class="stripe vertical2"></div>
-            <div class="crate-label">CS</div>
+            <div class="crate-label">TROPA</div>
         </div>
     </div>
 
-    <!-- item actual -->
-    <div class="current-item" id="currentItem">
+    <!-- tropa actual -->
+    <div class="current-troop" id="currentTroop">
         HAZ CLICK EN LA CAJA
-        <span class="item-rarity" id="currentRarity"></span>
+        <span class="troop-rarity" id="currentRarity"></span>
     </div>
 
     <!-- botón enorme -->
@@ -338,132 +410,196 @@
         📦 CAJAS ABIERTAS: <span id="caseCounter">0</span>
     </div>
 
-    <!-- historial últimos objetos -->
-    <div class="history-title">ÚLTIMOS OBJETOS</div>
+    <!-- TERRENO (grid 3x3) donde se colocan las tropas obtenidas -->
+    <div class="terrain-title">⚔️ TERRENO · POSICIONES ⚔️</div>
+    <div class="terrain-grid" id="terrainGrid">
+        <!-- Se generarán 9 celdas vacías con JS -->
+    </div>
+
+    <!-- historial últimos reclutas -->
+    <div class="history-title">ÚLTIMAS TROPAS</div>
     <div class="history-list" id="historyList">
         <!-- se llena con JS -->
     </div>
 
     <footer>
-        ⚡ CS 2008 · rarezas originales ⚡
+        ⚡ abre cajas · consigue tropas · ocupa el terreno ⚡
     </footer>
 </div>
 
 <script>
     (function() {
-        // ---------- BASE DE DATOS ESTILO COUNTER-STRIKE ----------
-        const itemsByRarity = [
+        // ---------- BASE DE DATOS DE TROPAS (estilo rarezas CS) ----------
+        const troopsByRarity = [
             {
-                rarity: "CONSUMER (GRIS)",
+                rarity: "CONSCRIPT (GRIS)",
                 color: "#b0c3d9",
                 weight: 50,
-                items: ["Glock-18 | Sand Dune", "USP-S | Forest Leaves", "MAG-7 | Hazard", "MP9 | Green Plaid", "SSG 08 | Lichen Dashed"]
+                items: ["Recluta", "Miliano", "Infante", "Soldado raso", "Centinela novato"]
             },
             {
-                rarity: "INDUSTRIAL (AZUL CLARO)",
+                rarity: "REGULAR (AZUL CLARO)",
                 color: "#5e98d9",
                 weight: 20,
-                items: ["M4A1-S | Boreal Forest", "AWP | Safari Mesh", "FAMAS | Cyanospatter", "P250 | Gunsmoke", "UMP-45 | Urban DDPAT"]
+                items: ["Fusilero", "Granadero", "Ametrallador", "Explorador", "Sanitario"]
             },
             {
-                rarity: "MIL-SPEC (AZUL)",
+                rarity: "VETERANO (AZUL)",
                 color: "#4b69ff",
                 weight: 15,
-                items: ["AK-47 | Blue Laminate", "M4A4 | Faded Zebra", "AWP | Pit Viper", "Desert Eagle | Mudder", "P90 | Teardown"]
+                items: ["Cabo", "Sargento", "Francotirador", "Bombardero", "Ingeniero"]
             },
             {
-                rarity: "RESTRICTED (PÚRPURA)",
+                rarity: "ÉLITE (PÚRPURA)",
                 color: "#8847ff",
                 weight: 8,
-                items: ["AK-47 | Redline", "AWP | Electric Hive", "M4A1-S | Guardian", "USP-S | Caiman", "FAMAS | Pulse"]
+                items: ["Comando", "Boinas Verdes", "Paracaidista", "Fuerza Delta", "Lancero"]
             },
             {
-                rarity: "CLASSIFIED (ROSA)",
+                rarity: "HÉROE (ROSA)",
                 color: "#d32ce6",
                 weight: 4,
-                items: ["AK-47 | Vulcan", "M4A4 | Howl", "AWP | Asiimov", "Desert Eagle | Hand Cannon", "P250 | Undertow"]
+                items: ["Capitán", "Comandante", "Guerrillero", "Mercenario", "Justiciero"]
             },
             {
-                rarity: "COVERT (ROJO)",
+                rarity: "LEYENDA (ROJO)",
                 color: "#eb4b4b",
                 weight: 2,
-                items: ["AWP | Dragon Lore", "M4A1-S | Knight", "AK-47 | Fire Serpent", "Desert Eagle | Blaze", "Glock-18 | Fade"]
+                items: ["General", "Héroe de guerra", "Señor de la guerra", "Inmortal", "Cacique"]
             },
             {
-                rarity: "CUCHILLO / RARO (ORO)",
+                rarity: "MITO (ORO)",
                 color: "#ffd700",
                 weight: 1,
-                items: ["Karambit | Fade", "M9 Bayonet | Crimson Web", "Butterfly Knife | Slaughter", "Flip Knife | Blue Steel", "Bayonet | Doppler"]
+                items: ["Semidiós", "Emperador", "Elegido", "Fénix", "Titán"]
             }
         ];
 
         // Variables de estado
         let openedCount = 0;
-        const lastItems = [];   // guarda hasta 5 objetos { name, rarity, color }
+        const lastItems = [];   // guarda hasta 5 tropas { name, rarity, color }
+
+        // Terreno: array de 9 posiciones (inicialmente vacías = null)
+        let terrain = new Array(9).fill(null);
 
         // Elementos DOM
-        const currentItemDiv = document.getElementById('currentItem');
+        const currentTroopDiv = document.getElementById('currentTroop');
         const currentRaritySpan = document.getElementById('currentRarity');
         const caseCounterSpan = document.getElementById('caseCounter');
         const historyListDiv = document.getElementById('historyList');
+        const terrainGridDiv = document.getElementById('terrainGrid');
         const openBtn = document.getElementById('openBtn');
         const crateClick = document.getElementById('crateClick');
+        const crateElement = document.getElementById('crate');
 
-        // Función para obtener un objeto aleatorio según pesos
-        function getRandomItem() {
-            const totalWeight = itemsByRarity.reduce((acc, curr) => acc + curr.weight, 0);
-            let rand = Math.random() * totalWeight;  // 0 .. 100
+        // Función para obtener una tropa aleatoria según pesos
+        function getRandomTroop() {
+            const totalWeight = troopsByRarity.reduce((acc, curr) => acc + curr.weight, 0);
+            let rand = Math.random() * totalWeight;
 
-            for (let i = 0; i < itemsByRarity.length; i++) {
-                const tier = itemsByRarity[i];
+            for (let i = 0; i < troopsByRarity.length; i++) {
+                const tier = troopsByRarity[i];
                 if (rand < tier.weight) {
-                    // Seleccionar un item aleatorio dentro del tier
                     const randomIndex = Math.floor(Math.random() * tier.items.length);
-                    const itemName = tier.items[randomIndex];
+                    const troopName = tier.items[randomIndex];
                     return {
-                        name: itemName,
+                        name: troopName,
                         rarity: tier.rarity,
                         color: tier.color
                     };
                 }
                 rand -= tier.weight;
             }
-            // fallback (nunca debería pasar)
+            // fallback
             return {
-                name: "AK-47 | Case Hardened",
-                rarity: "COVERT (ROJO)",
-                color: "#eb4b4b"
+                name: "Mercenario",
+                rarity: "ÉLITE (PÚRPURA)",
+                color: "#8847ff"
             };
         }
 
-        // Actualizar display del item actual y contador/historial
-        function openCrate() {
-            const newItem = getRandomItem();
-
-            // Mostrar item actual con su color
-            currentItemDiv.innerHTML = `${newItem.name} <span class="item-rarity" id="currentRarity" style="background: ${newItem.color}; color: #111; text-shadow: 1px 1px 0 white;">${newItem.rarity}</span>`;
-            currentItemDiv.style.backgroundColor = newItem.color;
-            currentItemDiv.style.color = '#111';
-            currentItemDiv.style.textShadow = '2px 2px 0 rgba(255,255,255,0.5)';
-
-            // Incrementar contador
-            openedCount++;
-            caseCounterSpan.innerText = openedCount;
-
-            // Actualizar historial (últimos 5)
-            lastItems.unshift({ name: newItem.name, rarity: newItem.rarity, color: newItem.color });
-            if (lastItems.length > 5) lastItems.pop();
-
-            renderHistory();
+        // Añadir la tropa al terreno (primer celda vacía, si no hay vacía sobreescribe la más antigua? decidimos desplazar circular)
+        function addTroopToTerrain(troop) {
+            // Buscar primera celda vacía (null)
+            const emptyIndex = terrain.findIndex(cell => cell === null);
+            if (emptyIndex !== -1) {
+                terrain[emptyIndex] = troop;
+            } else {
+                // Si todas están ocupadas, hacemos shift (eliminamos la primera y agregamos al final)
+                terrain.shift();
+                terrain.push(troop);
+            }
+            renderTerrain();
         }
 
-        // Dibujar los últimos items
+        // Renderizar el grid del terreno
+        function renderTerrain() {
+            terrainGridDiv.innerHTML = '';
+            terrain.forEach((troop, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'terrain-cell';
+                if (troop) {
+                    cell.style.backgroundColor = troop.color;
+                    cell.style.color = '#111';
+                    cell.style.textShadow = '1px 1px 0 rgba(255,255,255,0.5)';
+                    // Mostrar nombre corto y rareza abreviada
+                    const nameSpan = document.createElement('div');
+                    nameSpan.innerText = troop.name.length > 8 ? troop.name.substring(0,6)+'…' : troop.name;
+                    nameSpan.style.fontWeight = 'bold';
+                    const raritySpan = document.createElement('span');
+                    raritySpan.className = 'rarity-tag';
+                    raritySpan.innerText = troop.rarity.split(' ')[0]; // primera palabra
+                    raritySpan.style.background = 'rgba(0,0,0,0.7)';
+                    raritySpan.style.color = 'white';
+                    cell.appendChild(nameSpan);
+                    cell.appendChild(raritySpan);
+                } else {
+                    cell.innerHTML = '⛔<br><span style="font-size:0.7rem;">vacío</span>';
+                    cell.style.background = '#3b552b';
+                    cell.style.color = '#aaa';
+                }
+                terrainGridDiv.appendChild(cell);
+            });
+        }
+
+        // Actualizar display de la tropa actual y contador/historial/terreno
+        function openCrateWithAnimation() {
+            // Activar animación en la caja
+            crateElement.classList.add('shake');
+            setTimeout(() => {
+                crateElement.classList.remove('shake');
+            }, 300); // duración de la animación
+
+            // Pequeño retardo para que la animación se note antes de cambiar el contenido (opcional)
+            setTimeout(() => {
+                const newTroop = getRandomTroop();
+
+                // Mostrar tropa actual con su color
+                currentTroopDiv.innerHTML = `${newTroop.name} <span class="troop-rarity" id="currentRarity" style="background: ${newTroop.color}; color: #111; text-shadow: 1px 1px 0 white;">${newTroop.rarity}</span>`;
+                currentTroopDiv.style.backgroundColor = newTroop.color;
+                currentTroopDiv.style.color = '#111';
+                currentTroopDiv.style.textShadow = '2px 2px 0 rgba(255,255,255,0.5)';
+
+                // Incrementar contador
+                openedCount++;
+                caseCounterSpan.innerText = openedCount;
+
+                // Actualizar historial (últimos 5)
+                lastItems.unshift({ name: newTroop.name, rarity: newTroop.rarity, color: newTroop.color });
+                if (lastItems.length > 5) lastItems.pop();
+                renderHistory();
+
+                // COLOCAR LA TROPA EN EL TERRENO
+                addTroopToTerrain(newTroop);
+            }, 30); // pequeño offset para que la animación se vea
+        }
+
+        // Renderizar historial
         function renderHistory() {
-            historyListDiv.innerHTML = ''; 
+            historyListDiv.innerHTML = '';
             if (lastItems.length === 0) {
-                // placeholder vacío con estilo
                 const emptyMsg = document.createElement('div');
-                emptyMsg.innerText = '⚡ NINGUNO ⚡';
+                emptyMsg.innerText = '⚡ NINGUNA ⚡';
                 emptyMsg.style.background = '#5b4f3f';
                 emptyMsg.style.padding = '16px';
                 emptyMsg.style.borderRadius = '12px';
@@ -480,15 +616,14 @@
                 historyBox.style.backgroundColor = item.color;
                 historyBox.style.color = '#111';
                 historyBox.style.textShadow = '1px 1px 0 rgba(255,255,255,0.5)';
-                historyBox.setAttribute('title', `${item.name} (${item.rarity})`); // tooltip
+                historyBox.setAttribute('title', `${item.name} (${item.rarity})`);
 
-                // Mostrar nombre corto + rareza en línea
                 const nameSpan = document.createElement('span');
                 nameSpan.style.fontWeight = 'bold';
                 nameSpan.innerText = item.name.length > 14 ? item.name.substring(0,12)+'…' : item.name;
 
                 const raritySpan = document.createElement('span');
-                raritySpan.innerText = item.rarity.split(' ')[0]; // solo primera palabra
+                raritySpan.innerText = item.rarity.split(' ')[0];
 
                 historyBox.appendChild(nameSpan);
                 historyBox.appendChild(raritySpan);
@@ -496,21 +631,24 @@
             });
         }
 
-        // Asignar eventos
-        function handleOpen() {
-            openCrate();
+        // Inicializar terreno con 9 celdas vacías
+        function initTerrain() {
+            terrain = new Array(9).fill(null);
+            renderTerrain();
         }
 
-        openBtn.addEventListener('click', handleOpen);
-        crateClick.addEventListener('click', handleOpen);
+        // Asignar eventos
+        openBtn.addEventListener('click', openCrateWithAnimation);
+        crateClick.addEventListener('click', openCrateWithAnimation);
 
-        // Inicializar historial vacío
+        // Inicializar todo
+        initTerrain();
         renderHistory();
 
         // Mensaje inicial con color neutro
-        currentItemDiv.style.backgroundColor = '#3d3329';
-        currentItemDiv.style.color = 'white';
-        currentItemDiv.style.textShadow = '3px 3px 0 #1f1f1f';
+        currentTroopDiv.style.backgroundColor = '#3d3329';
+        currentTroopDiv.style.color = 'white';
+        currentTroopDiv.style.textShadow = '3px 3px 0 #1f1f1f';
         currentRaritySpan.innerText = '';
     })();
 </script>
