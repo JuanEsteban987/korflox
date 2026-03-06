@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔵 BASE WARS · ROBLOX 2008 🔵</title>
+    <title>🌲 NOOB TERRITORY · ROBLOX 2008 🌲</title>
     <style>
         /* --- ESTÉTICA ROBLOX 2008 (blocky, brillante, biseles) --- */
         * {
@@ -24,7 +24,7 @@
         }
 
         .game-container {
-            max-width: 1100px;
+            max-width: 1200px;
             width: 100%;
             background: #6d9ac4;
             border: 6px ridge #ffffff;
@@ -79,123 +79,134 @@
             margin-left: 8px;
         }
 
-        /* --- BASES (jugador a la izquierda, enemigo derecha) --- */
-        .bases-row {
+        /* --- MAPA CON PARCELAS (bases) --- */
+        .map-row {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             margin-bottom: 30px;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .base {
-            flex: 1 1 280px;
-            background: #2f5f7a;
-            border: 6px ridge #c0e0ff;
-            padding: 16px;
-            box-shadow: 8px 8px 0px #0e2a38;
+        .base-territory {
+            flex: 1 1 400px;
+            background: #4a7a5c;  /* verde césped */
+            border: 8px ridge #6b8f6b;
+            padding: 20px 20px 25px;
+            box-shadow: 10px 10px 0px #1f3f2f;
             display: flex;
             flex-direction: column;
         }
 
-        .base-izq {
-            background: #2f6f4a; /* tono verdoso para diferenciar */
-        }
-        .base-der {
-            background: #7a4f2f; /* tono rojizo enemigo */
-        }
-
-        .base-titulo {
+        .base-title {
             font-size: 28px;
             font-weight: bold;
-            color: white;
-            text-shadow: 3px 3px 0 #1f3f5f;
-            background: #1d4155;
-            padding: 8px;
-            border: 3px inset #a0c0e0;
+            color: #fffbc2;
+            text-shadow: 3px 3px 0 #2f5f2f;
+            background: #2d5a3d;
+            padding: 10px;
+            border: 4px ridge #9fcf9f;
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        .spawner-info {
+        /* zona de spawners (edificios) */
+        .spawner-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background: #194154;
-            padding: 12px;
-            border: 4px ridge #8bb0d0;
-            margin-bottom: 16px;
+            gap: 12px;
+            background: #2b5a3b;
+            border: 5px inset #7fa07f;
+            padding: 16px 18px;
+            margin-bottom: 25px;
             color: white;
-            font-size: 24px;
+            font-size: 26px;
+            flex-wrap: wrap;
         }
 
         .spawner-icon {
-            font-size: 36px;
-            filter: drop-shadow(4px 4px 0 #00000050);
+            font-size: 40px;
+            filter: drop-shadow(4px 4px 0 #1f3f2f);
         }
 
-        .troops-area {
-            background: #102b36;
-            border: 6px inset #3f6f8f;
-            min-height: 140px;
-            padding: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-            box-shadow: inset 0 0 0 3px #1d4f6e;
+        .spawner-badge {
+            background: #1f3f2f;
+            padding: 8px 20px;
+            border: 3px ridge #afcfaf;
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffffb0;
+            margin-left: auto;
         }
 
-        /* cada soldadito */
-        .troop {
-            background: #ffe68f;
-            border: 3px solid #b87c3a;
-            border-radius: 30% 30% 40% 40%;
-            width: 40px;
-            height: 40px;
+        /* cuadrícula de parcelas (4x4) */
+        .parcel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            background: #2f6f3f;
+            border: 6px inset #5f9f6f;
+            padding: 16px;
+            min-height: 240px;
+            box-shadow: inset 0 0 0 4px #1f4f2f;
+        }
+
+        .parcel {
+            background: #5f9f6f;
+            border: 4px ridge #b0e0b0;
+            aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            font-weight: bold;
-            color: #000;
-            box-shadow: 3px 3px 0 #6b4f2a;
+            font-size: 38px;
+            box-shadow: 3px 3px 0 #1f4f2f;
+            transition: 0.1s;
         }
-        .troop.enemy {
+
+        .parcel.occupied {
+            background: #ffe68f;
+            border-color: #b87c3a;
+            box-shadow: 3px 3px 0 #8b5a2f;
+        }
+
+        .parcel.enemy-occupied {
             background: #ffa07a;
-            border-color: #a13d2f;
-            box-shadow: 3px 3px 0 #6b2f1f;
+            border-color: #b85a3a;
+            box-shadow: 3px 3px 0 #8b3a2f;
         }
 
-        .extra-troops {
-            font-size: 24px;
-            background: #00000060;
+        .parcel .noob-emoji {
+            font-size: 40px;
+            line-height: 1;
+        }
+
+        .parcel .extra-indicator {
+            background: #00000080;
             color: white;
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: 3px ridge white;
+            font-size: 24px;
+            padding: 4px 8px;
+            border-radius: 40px;
+            border: 2px solid white;
         }
 
-        /* botones de compra dentro de la base */
+        /* botones dentro de la base */
         .base-actions {
+            margin-top: 25px;
             display: flex;
-            gap: 12px;
-            margin-top: 8px;
-            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .roblox-btn {
             background: #c0c0c0;
             border: 6px outset #f8f8f8;
-            font-size: 22px;
+            font-size: 26px;
             font-weight: bold;
-            padding: 14px 18px;
+            padding: 16px 32px;
             cursor: pointer;
             color: #1f2f3f;
             text-transform: uppercase;
             box-shadow: 5px 5px 0px #2f4f6f;
             transition: 0.05s linear;
-            flex: 1 1 auto;
             letter-spacing: 2px;
         }
 
@@ -214,7 +225,7 @@
             cursor: not-allowed;
         }
 
-        /* botón de batalla central */
+        /* botón de ataque central */
         .attack-area {
             display: flex;
             justify-content: center;
@@ -224,8 +235,8 @@
         .attack-btn {
             background: #c02f2f;
             border: 8px outset #ffc0c0;
-            font-size: 44px;
-            padding: 24px 60px;
+            font-size: 48px;
+            padding: 24px 70px;
             color: white;
             text-shadow: 4px 4px 0 #5f1f1f;
             box-shadow: 12px 12px 0 #2f1f1f;
@@ -261,7 +272,7 @@
         }
 
         /* animación de batalla */
-        .base.flash {
+        .base-territory.flash {
             animation: battleFlash 0.2s infinite;
         }
         @keyframes battleFlash {
@@ -274,61 +285,65 @@
 <body>
     <div class="game-container">
         <div class="header">
-            ⚔️ NOOB BASE WARS · 2008 ⚔️
+            🗺️ NOOB TERRITORY · 2008 🗺️
         </div>
 
         <!-- Panel de recursos -->
         <div class="stats-panel">
             <div class="stat-item">💰 TIX <span id="tixDisplay">200</span></div>
             <div class="stat-item">🏭 SPAWNERS <span id="spawnerDisplay">1</span></div>
-            <div class="stat-item">🤜 TUS NOOBS <span id="playerNoobsDisplay">3</span></div>
+            <div class="stat-item">🪖 TUS NOOBS <span id="playerNoobsDisplay">3</span></div>
         </div>
 
-        <!-- BASES (IZQUIERDA JUGADOR, DERECHA ENEMIGO) -->
-        <div class="bases-row">
+        <!-- MAPA CON DOS BASES (izquierda jugador, derecha enemigo) -->
+        <div class="map-row">
             <!-- Base Jugador -->
-            <div class="base base-izq" id="playerBase">
-                <div class="base-titulo">🔵 TU BASE</div>
-                <div class="spawner-info">
+            <div class="base-territory" id="playerBase">
+                <div class="base-title">🔵 TU TERRITORIO</div>
+                <!-- Spawners del jugador -->
+                <div class="spawner-row">
                     <span class="spawner-icon">🏭</span>
-                    <span id="playerSpawnerCount">1</span> spawners
-                    <span style="font-size: 18px;">(c/3s)</span>
+                    <span>SPAWNERS</span>
+                    <span class="spawner-badge" id="playerSpawnerCount">1</span>
                 </div>
-                <div class="troops-area" id="playerTroopsContainer">
-                    <!-- Aquí se insertarán los noobs dinámicamente -->
+                <!-- Parcelas (grid 4x4) -->
+                <div class="parcel-grid" id="playerParcelGrid">
+                    <!-- Se llena con JS -->
                 </div>
+                <!-- Botón comprar spawner -->
                 <div class="base-actions">
-                    <button class="roblox-btn" id="buySpawnerBtn">COMPRAR SPAWNER (50💰)</button>
+                    <button class="roblox-btn" id="buySpawnerBtn">➕ COMPRAR SPAWNER (50💰)</button>
                 </div>
             </div>
 
             <!-- Base Enemiga -->
-            <div class="base base-der" id="enemyBase">
-                <div class="base-titulo">🔴 BASE ENEMIGA</div>
-                <div class="spawner-info">
+            <div class="base-territory" id="enemyBase">
+                <div class="base-title">🔴 TERRITORIO ENEMIGO</div>
+                <div class="spawner-row">
                     <span class="spawner-icon">🏭</span>
-                    <span id="enemySpawnerCount">1</span> spawners
+                    <span>SPAWNERS</span>
+                    <span class="spawner-badge" id="enemySpawnerCount">1</span>
                 </div>
-                <div class="troops-area" id="enemyTroopsContainer">
-                    <!-- Noobs enemigos -->
+                <div class="parcel-grid" id="enemyParcelGrid">
+                    <!-- Se llena con JS -->
                 </div>
-                <!-- El enemigo no tiene botones, pero se muestra su poder -->
-                <div style="color:white; text-align:center; padding:8px;">🐾 HOSTIL</div>
+                <!-- Sin acciones para el enemigo, solo decoración -->
+                <div style="text-align: center; margin-top: 20px; color: #ffcf9f; font-size: 22px;">⚔️ HOSTIL</div>
             </div>
         </div>
 
         <!-- Botón de batalla central -->
         <div class="attack-area">
-            <button class="roblox-btn attack-btn" id="attackBtn">💥 ¡BATALLA! 💥</button>
+            <button class="roblox-btn attack-btn" id="attackBtn">⚡ ¡INVADIR! ⚡</button>
         </div>
 
         <!-- Log de eventos -->
         <div class="log-box" id="logMessages">
-            <p>⚡ 2008: Construye tu base, compra spawners y aplasta al enemigo.</p>
+            <p>🌲 2008: Conquista el territorio enemigo. Compra spawners y ocupa parcelas.</p>
         </div>
 
         <div class="footer-note">
-            🧱 ROBLOX 2008 · SPAWNER WARS · NOOB ARMY 🧱
+            🧱 ROBLOX 2008 · PARCEL WARS · NOOB TERRITORY 🧱
         </div>
     </div>
 
@@ -351,15 +366,47 @@
             const playerNoobsSpan = document.getElementById('playerNoobsDisplay');
             const playerSpawnerSpan = document.getElementById('playerSpawnerCount');
             const enemySpawnerSpan = document.getElementById('enemySpawnerCount');
-            const playerTroopsDiv = document.getElementById('playerTroopsContainer');
-            const enemyTroopsDiv = document.getElementById('enemyTroopsContainer');
+            const playerParcelGrid = document.getElementById('playerParcelGrid');
+            const enemyParcelGrid = document.getElementById('enemyParcelGrid');
             const logDiv = document.getElementById('logMessages');
             const buySpawnerBtn = document.getElementById('buySpawnerBtn');
             const attackBtn = document.getElementById('attackBtn');
             const playerBaseDiv = document.getElementById('playerBase');
             const enemyBaseDiv = document.getElementById('enemyBase');
 
-            // Función para actualizar toda la UI (contadores y visualización de tropas)
+            // --- Función para actualizar las parcelas (grid 4x4) ---
+            function renderParcelas(container, count, esEnemigo) {
+                container.innerHTML = ''; // Limpiar grid
+                const totalCeldas = 16; // 4x4
+                for (let i = 0; i < totalCeldas; i++) {
+                    const parcela = document.createElement('div');
+                    parcela.className = 'parcel';
+                    
+                    // Determinar si esta celda debe estar ocupada por un noob
+                    if (i < count) {
+                        // Mostrar un noob en esta parcela
+                        if (esEnemigo) {
+                            parcela.classList.add('enemy-occupied');
+                        } else {
+                            parcela.classList.add('occupied');
+                        }
+                        // Si es la última celda y hay más noobs que celdas, mostramos un contador extra
+                        if (i === totalCeldas - 1 && count > totalCeldas) {
+                            // En lugar de un noob, mostramos +X
+                            const extra = count - (totalCeldas - 1);
+                            parcela.innerHTML = `<span class="extra-indicator">+${extra}</span>`;
+                        } else {
+                            parcela.innerHTML = '<span class="noob-emoji">☺</span>';
+                        }
+                    } else {
+                        // Parcela vacía
+                        parcela.innerHTML = '🌿';
+                    }
+                    container.appendChild(parcela);
+                }
+            }
+
+            // Función para actualizar toda la UI
             function actualizarUI() {
                 // Contadores numéricos
                 tixSpan.textContent = playerTix;
@@ -368,39 +415,12 @@
                 playerSpawnerSpan.textContent = playerSpawners;
                 enemySpawnerSpan.textContent = enemySpawners;
 
-                // Renderizar tropas jugador
-                renderTroops(playerTroopsDiv, playerNoobs, 'player');
-                // Renderizar tropas enemigo
-                renderTroops(enemyTroopsDiv, enemyNoobs, 'enemy');
+                // Renderizar parcelas
+                renderParcelas(playerParcelGrid, playerNoobs, false);
+                renderParcelas(enemyParcelGrid, enemyNoobs, true);
 
-                // Botón comprar spawner (habilitado si tiene tix suficientes)
+                // Botón comprar spawner habilitado según TIX
                 buySpawnerBtn.disabled = (playerTix < SPAWNER_COST);
-            }
-
-            // Muestra hasta 8 iconos de noob, si hay más agrega un contador extra
-            function renderTroops(container, count, type) {
-                container.innerHTML = '';
-                const maxIcons = 8;  // mostramos máximo 8 para no saturar
-                const showCount = Math.min(count, maxIcons);
-                for (let i = 0; i < showCount; i++) {
-                    const troopDiv = document.createElement('div');
-                    troopDiv.className = 'troop' + (type === 'enemy' ? ' enemy' : '');
-                    troopDiv.textContent = '☺';  // carita blocky
-                    container.appendChild(troopDiv);
-                }
-                if (count > maxIcons) {
-                    const extra = document.createElement('div');
-                    extra.className = 'extra-troops';
-                    extra.textContent = `+${count - maxIcons}`;
-                    container.appendChild(extra);
-                } else if (count === 0) {
-                    const emptyMsg = document.createElement('div');
-                    emptyMsg.style.color = '#aaa';
-                    emptyMsg.style.fontSize = '22px';
-                    emptyMsg.style.padding = '8px';
-                    emptyMsg.textContent = '⚫ vacío';
-                    container.appendChild(emptyMsg);
-                }
             }
 
             // Agregar mensaje al log (máximo 6 líneas)
@@ -455,11 +475,11 @@
             // ATACAR (batalla)
             attackBtn.addEventListener('click', () => {
                 if (playerNoobs === 0 && enemyNoobs === 0) {
-                    agregarLog('🤷 No hay tropas en ningún bando. Consigue noobs.');
+                    agregarLog('🤷 No hay tropas en ningún territorio. Consigue noobs.');
                     return;
                 }
 
-                // Aplicar flash de batalla a las bases
+                // Aplicar flash de batalla a los territorios
                 playerBaseDiv.classList.add('flash');
                 enemyBaseDiv.classList.add('flash');
                 setTimeout(() => {
@@ -474,32 +494,31 @@
                     playerNoobs -= bajas;
                     enemyNoobs = 0;
                     playerTix += REWARD;
-                    agregarLog(`🎉 VICTORIA! Derrotaste al enemigo. +${REWARD} TIX. Te quedan ${playerNoobs} noobs.`);
+                    agregarLog(`🎉 VICTORIA! Conquistas el territorio. +${REWARD} TIX. Te quedan ${playerNoobs} noobs.`);
                 } else if (enemyNoobs > playerNoobs) {
                     // Derrota: enemigo pierde la misma cantidad que jugador, jugador queda 0
                     let bajas = playerNoobs;
                     enemyNoobs -= bajas;
                     playerNoobs = 0;
-                    agregarLog(`💔 DERROTA... El enemigo aniquila tus tropas. Les quedan ${enemyNoobs} noobs.`);
+                    agregarLog(`💔 DERROTA... El enemigo invade tu base. Les quedan ${enemyNoobs} noobs.`);
                 } else {
                     // Empate: ambos a cero
                     playerNoobs = 0;
                     enemyNoobs = 0;
-                    agregarLog(`⚖️ EMPATE! Ambos ejércitos se destruyen mutuamente.`);
+                    agregarLog(`⚖️ EMPATE! Ambos territorios quedan vacíos.`);
                 }
 
                 actualizarUI();
             });
 
-            // Botón extra: el enemigo de vez en cuando "mejora" (para dificultad dinámica)
+            // El enemigo aumenta su dificultad cada 30 segundos (hasta 8 spawners)
             function aumentarDificultadEnemiga() {
-                if (enemySpawners < 8) {  // límite para no volverse imposible
+                if (enemySpawners < 8) {
                     enemySpawners++;
                     agregarLog(`⚠️ El enemigo construyó un nuevo spawner (total ${enemySpawners}).`);
                     actualizarUI();
                 }
             }
-            // Cada 30 segundos el enemigo gana un spawner (siempre que no tenga muchos)
             setInterval(() => {
                 if (enemySpawners < 8) {
                     aumentarDificultadEnemiga();
@@ -508,7 +527,7 @@
 
             // Inicializar UI
             actualizarUI();
-            agregarLog('🔰 Tix inicial: 200. Compra spawners para generar noobs automáticos.');
+            agregarLog('🔰 Tix inicial: 200. Compra spawners y ocupa parcelas con noobs.');
         })();
     </script>
 </body>
