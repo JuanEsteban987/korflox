@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BATTLE SIMULATOR 2008 · TERRENO + ESTÉTICA BÁSICA</title>
+    <title>BATTLE 2008 · GUARDADO + TERRENO + IA</title>
     <style>
         body {
             margin: 0;
@@ -138,11 +138,13 @@
             background: #000;
             border: 3px solid #ffaa00;
             padding: 10px;
-            width: 220px;
+            width: 260px;
             color: #ffaa00;
             box-shadow: 0 0 20px #ffaa00;
             z-index: 150;
             font-size: 14px;
+            max-height: 70vh;
+            overflow-y: auto;
         }
         .custom-row {
             margin-bottom: 10px;
@@ -192,6 +194,61 @@
             min-width: 40px;
             text-align: right;
         }
+        /* Sección guardado */
+        .save-section {
+            border-top: 2px solid #ffaa00;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .save-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .save-row input {
+            flex: 1;
+            background: #000;
+            border: 2px solid #0ff;
+            color: #0ff;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        .save-btn {
+            background: #000;
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 10px #0f0;
+        }
+        .saved-list {
+            max-height: 120px;
+            overflow-y: auto;
+            background: #111;
+            border: 1px solid #ffaa00;
+            padding: 5px;
+        }
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px;
+            margin-bottom: 2px;
+            background: #222;
+            border-left: 3px solid #ffaa00;
+            cursor: pointer;
+        }
+        .saved-item:hover {
+            background: #333;
+        }
+        .saved-item .load {
+            color: #0ff;
+            text-decoration: underline;
+        }
+        .saved-item .delete {
+            color: #f0f;
+            cursor: pointer;
+        }
         .instruccion {
             position: absolute;
             top: 100px;
@@ -208,12 +265,12 @@
     </style>
 </head>
 <body>
-    <div id="info">⚡ BATTLE 2008 · TERRENO ⚡</div>
+    <div id="info">⚡ BATTLE 2008 · GUARDADO + TERRENO ⚡</div>
     <div id="contador">ROJO: <span id="rojo-count">0</span> | AZUL: <span id="azul-count">0</span></div>
     
-    <!-- Panel de personalización de tropas (básico) -->
+    <!-- Panel de personalización con guardado -->
     <div id="custom-panel">
-        <h3 style="margin:0 0 10px; text-align:center;">🎨 TROPAS</h3>
+        <h3 style="margin:0 0 10px; text-align:center;">🎨 CREADOR</h3>
         <div class="custom-row">
             <span>COLOR</span>
             <div class="color-buttons">
@@ -243,6 +300,19 @@
             <span>TAMAÑO <span id="size-val">1.0</span></span>
             <div class="slider-container">
                 <input type="range" id="size-slider" min="0.6" max="1.8" step="0.1" value="1.0">
+            </div>
+        </div>
+
+        <!-- Sección guardar/cargar -->
+        <div class="save-section">
+            <span class="custom-label">GUARDAR TROPA</span>
+            <div class="save-row">
+                <input type="text" id="troop-name" placeholder="nombre" value="Mi tropa">
+                <button class="save-btn" id="save-troop">💾</button>
+            </div>
+            <span class="custom-label">TROPAS GUARDADAS</span>
+            <div id="saved-list" class="saved-list">
+                <!-- Se llena con JS -->
             </div>
         </div>
     </div>
@@ -352,13 +422,13 @@
         // --- ESTADO GLOBAL ---
         let armyRed = [];
         let armyBlue = [];
-        let obstacles = []; // { mesh, pos }
+        let obstacles = []; // { mesh, line, pos }
         let jumpingUnits = [];
         let batallaIniciada = false;
         let modoActual = 'tropas'; // 'tropas' o 'terreno'
         let bandoSeleccionado = 'rojo';
 
-        // Personalización
+        // Personalización actual
         const customState = {
             color: '#f33',
             shape: 'sphere',
@@ -400,7 +470,7 @@
             modoTropas.classList.remove('activo');
         });
 
-        // Personalización UI
+        // Personalización UI (colores)
         document.querySelectorAll('.color-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
@@ -410,6 +480,7 @@
         });
         document.querySelector('.color-btn[data-color="#f33"]').classList.add('selected');
 
+        // Formas
         document.querySelectorAll('.shape-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('selected'));
@@ -419,6 +490,7 @@
         });
         document.querySelector('.shape-btn[data-shape="sphere"]').classList.add('selected');
 
+        // Sliders
         const speedSlider = document.getElementById('speed-slider');
         const speedSpan = document.getElementById('speed-val');
         speedSlider.addEventListener('input', (e) => {
@@ -431,6 +503,57 @@
         sizeSlider.addEventListener('input', (e) => {
             customState.size = parseFloat(e.target.value);
             sizeSpan.textContent = customState.size.toFixed(1);
+        });
+
+        // --- GUARDADO EN LOCALSTORAGE ---
+        let savedTroops = JSON.parse(localStorage.getItem('tabs2008_complete')) || [];
+
+        function renderSavedList() {
+            const container = document.getElementById('saved-list');
+            container.innerHTML = '';
+            savedTroops.forEach((troop, index) => {
+                const div = document.createElement('div');
+                div.className = 'saved-item';
+                div.innerHTML = `<span class="load">📁 ${troop.name}</span> <span class="delete">❌</span>`;
+                div.querySelector('.load').addEventListener('click', () => {
+                    // Cargar configuración
+                    customState.color = troop.color;
+                    customState.shape = troop.shape;
+                    customState.speed = troop.speed;
+                    customState.size = troop.size;
+                    // Actualizar UI
+                    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelector(`.color-btn[data-color="${troop.color}"]`).classList.add('selected');
+                    document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelector(`.shape-btn[data-shape="${troop.shape}"]`).classList.add('selected');
+                    speedSlider.value = troop.speed;
+                    speedSpan.textContent = troop.speed.toFixed(2);
+                    sizeSlider.value = troop.size;
+                    sizeSpan.textContent = troop.size.toFixed(1);
+                });
+                div.querySelector('.delete').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    savedTroops.splice(index, 1);
+                    localStorage.setItem('tabs2008_complete', JSON.stringify(savedTroops));
+                    renderSavedList();
+                });
+                container.appendChild(div);
+            });
+        }
+        renderSavedList();
+
+        document.getElementById('save-troop').addEventListener('click', () => {
+            const name = document.getElementById('troop-name').value.trim() || 'Sin nombre';
+            const troop = {
+                name: name,
+                color: customState.color,
+                shape: customState.shape,
+                speed: customState.speed,
+                size: customState.size
+            };
+            savedTroops.push(troop);
+            localStorage.setItem('tabs2008_complete', JSON.stringify(savedTroops));
+            renderSavedList();
         });
 
         // --- FUNCIONES DE CREACIÓN ---
@@ -484,7 +607,6 @@
             cube.receiveShadow = true;
             scene.add(cube);
             
-            // Borde neón
             const edges = new THREE.EdgesGeometry(geo);
             const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00ffff }));
             line.position.copy(cube.position);
@@ -600,7 +722,7 @@
             
             batallaIniciada = false;
             btnIniciar.disabled = false;
-            document.getElementById('info').innerHTML = '⚡ BATTLE 2008 · TERRENO ⚡';
+            document.getElementById('info').innerHTML = '⚡ BATTLE 2008 · GUARDADO + TERRENO ⚡';
             actualizarContador();
         });
 
@@ -626,7 +748,7 @@
         }
 
         function moverUnidad(unit, direccion, velocidad) {
-            const nuevaPos = unit.mesh.position.clone().add(direccion.multiplyScalar(velocidad));
+            const nuevaPos = unit.mesh.position.clone().add(direccion.clone().multiplyScalar(velocidad));
             if (!hayObstaculoEn(nuevaPos)) {
                 unit.mesh.position.copy(nuevaPos);
                 return true;
@@ -670,7 +792,6 @@
                 for (let j = armyBlue.length - 1; j >= 0; j--) {
                     const blue = armyBlue[j];
                     if (red.mesh.position.distanceTo(blue.mesh.position) < 1.5) {
-                        // Iniciar salto
                         iniciarSalto(red, blue);
                         armyRed.splice(i, 1);
                         armyBlue.splice(j, 1);
