@@ -3,250 +3,562 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PVZ Creator - Crea tus plantas, zombies y niveles</title>
+    <title>PVZ Classic Creator</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
+        
         body {
-            background: linear-gradient(145deg, #1a4d2a 0%, #2e7d32 100%);
-            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             min-height: 100vh;
+            background: #1a1a1a;
+            font-family: 'Courier New', 'VT323', 'Press Start 2P', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 16px;
+            background-image: radial-gradient(circle at 20% 30%, #3a5e3a 2px, transparent 2px), 
+                              radial-gradient(circle at 80% 70%, #4a7a4a 1px, transparent 2px);
+            background-size: 40px 40px;
+            background-color: #1f3a1f;
         }
+
+        /* Pantalla de inicio estilo PVZ1 */
+        .menu-screen {
+            background: linear-gradient(145deg, #7b5e3b 0%, #5a3f25 100%);
+            border: 8px solid #b89b6e;
+            border-radius: 60px 60px 30px 30px;
+            padding: 30px 40px;
+            box-shadow: 0 20px 0 #3a2c1a, inset 0 -5px 10px #ffecb0;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            image-rendering: pixelated;
+        }
+
+        .title-pvz {
+            text-align: center;
+            font-size: 64px;
+            font-weight: 900;
+            color: #f9d77e;
+            text-shadow: 6px 6px 0 #7b4f2b, 8px 8px 0 #3f2c14, 0 12px 10px rgba(0,0,0,0.4);
+            letter-spacing: 4px;
+            margin: 0 0 10px 0;
+            font-family: 'Courier New', monospace;
+            transform: rotate(-1deg);
+            background: #8b6b41;
+            display: inline-block;
+            padding: 10px 40px;
+            border-radius: 100px;
+            border: 4px solid #ffd78c;
+            box-shadow: inset 0 -8px 0 #61421c;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #efd29e;
+            font-size: 22px;
+            text-shadow: 3px 3px 0 #4f3a1e;
+            margin-top: -15px;
+            margin-bottom: 30px;
+            background: #3d2e17;
+            display: inline-block;
+            padding: 8px 30px;
+            border-radius: 40px;
+            border: 3px solid #b58f4a;
+        }
+
+        .menu-buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .menu-btn {
+            background: #edc27a;
+            border: none;
+            border-radius: 60px;
+            padding: 22px 35px;
+            font-size: 36px;
+            font-weight: 900;
+            color: #3a280e;
+            box-shadow: 0 12px 0 #8b5e2c, 0 8px 15px black;
+            cursor: pointer;
+            transition: 0.07s linear;
+            border: 4px solid #ffde9e;
+            text-shadow: 2px 2px 0 #b58b48;
+            font-family: 'Courier New', monospace;
+            min-width: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .menu-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 4px 0 #6b431e;
+        }
+
+        .menu-btn:hover {
+            background: #ffd98c;
+            border-color: #fff3c9;
+        }
+
+        .menu-btn.small {
+            font-size: 28px;
+            padding: 16px 25px;
+            min-width: 200px;
+        }
+
+        /* Estilo vintage para el creador */
         .game-container {
-            background: #5b8c5a;
-            border-radius: 32px;
-            padding: 24px;
-            box-shadow: 0 20px 30px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,200,0.4);
-            border: 5px solid #7b5e3b;
+            background: #6b4f2b;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 20px 0 #3f2e18, inset 0 0 0 4px #b59b63;
+            border: 6px solid #dbb679;
+            image-rendering: pixelated;
         }
+
         .main-panel {
             display: flex;
-            gap: 24px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
         }
+
         .grid-area {
-            background: #3e6b3e;
-            padding: 16px;
-            border-radius: 24px;
-            border: 4px solid #9b7e4b;
-            box-shadow: inset 0 0 0 2px #2d4d2d;
+            background: #4f703f;
+            padding: 20px 20px 15px 20px;
+            border-radius: 30px;
+            border: 5px solid #b68f4b;
+            box-shadow: inset 0 -8px 0 #2d4d1f, inset 0 8px 10px #b1cf98;
         }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(9, 64px);
-            grid-template-rows: repeat(5, 64px);
+            grid-template-columns: repeat(9, 70px);
+            grid-template-rows: repeat(5, 70px);
             gap: 6px;
-            background: #5f8b4b;
-            padding: 8px;
-            border-radius: 16px;
+            background: #688f4a;
+            padding: 12px;
+            border-radius: 25px;
+            border: 3px solid #e2bc7c;
         }
+
         .cell {
-            background: #8bb56a;
-            border-radius: 12px;
-            box-shadow: inset 0 -4px 0 #4b6e3a, 0 2px 5px black;
+            background: #a5cf7c;
+            border-radius: 18px;
+            box-shadow: inset 0 -8px 0 #4f7737, 0 5px 0 #1f3a1a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: 40px;
             cursor: pointer;
-            transition: 0.1s ease;
+            transition: 0.05s linear;
             position: relative;
+            border: 2px solid #e9f0b0;
+            image-rendering: pixelated;
         }
-        .cell.planta { background: #7ec850; box-shadow: inset 0 -4px 0 #3f7a23, 0 2px 0 #1f3f1f; }
-        .cell.zombie { background: #6d4c3d; box-shadow: inset 0 -4px 0 #3f2c1f, 0 2px 0 #2d1e15; }
-        .cell:hover { filter: brightness(1.1); transform: scale(0.98); }
-        .plant-emoji { font-size: 36px; filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.4)); }
-        .zombie-emoji { font-size: 34px; filter: drop-shadow(2px 4px 2px #301f12); }
-        
+
+        .cell.planta { 
+            background: #7ec850; 
+            box-shadow: inset 0 -8px 0 #3f7a23, 0 5px 0 #1f3f1f;
+        }
+        .cell.zombie { 
+            background: #8b5a3c; 
+            box-shadow: inset 0 -8px 0 #553a24, 0 5px 0 #2f1e14;
+        }
+        .cell:hover { filter: brightness(1.1); transform: scale(0.96); }
+        .plant-emoji { font-size: 48px; filter: drop-shadow(4px 6px 0 #2e5a1a); }
+        .zombie-emoji { font-size: 46px; filter: drop-shadow(4px 6px 0 #3e291b); }
+
         .toolbar {
-            background: #c9a87c;
-            border-radius: 30px;
+            background: #caa76b;
+            border-radius: 40px;
             padding: 20px;
-            min-width: 260px;
-            border: 5px solid #9b7e4b;
-            box-shadow: inset 0 2px 10px #efd9a8, 0 8px 0 #6b4f2b;
-            color: #2d2d0a;
+            min-width: 300px;
+            border: 6px solid #b1863b;
+            box-shadow: inset 0 0 0 4px #eedbaa, 0 12px 0 #6b4f2b;
+            color: #261c09;
         }
+
         h2 {
-            margin: 0 0 12px 0;
+            margin: 0 0 15px 0;
             text-align: center;
-            font-family: 'Courier New', monospace;
+            font-size: 32px;
             font-weight: 900;
-            text-shadow: 2px 2px 0 #b98f47;
+            text-shadow: 4px 4px 0 #b47d3f;
+            background: #ebc47e;
+            padding: 10px;
+            border-radius: 60px;
+            border: 4px solid #fff0b5;
+            box-shadow: inset 0 -5px 0 #997d42;
+            font-family: 'Courier New', monospace;
         }
+
         .section {
-            background: #b58b54;
-            border-radius: 20px;
-            padding: 12px;
+            background: #bc9146;
+            border-radius: 30px;
+            padding: 15px;
             margin-bottom: 20px;
-            border: 2px solid #eedbaa;
+            border: 4px solid #f0cb8b;
+            box-shadow: inset 0 0 0 3px #6f4f24;
         }
+
         .item-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            margin: 10px 0;
+            margin: 12px 0;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
+
         .creator-item {
-            background: #f7e3b1;
-            border-radius: 40px;
-            padding: 8px 16px;
+            background: #eddbba;
+            border-radius: 50px;
+            padding: 8px 18px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border: 3px solid #8f6b3e;
+            gap: 12px;
+            border: 4px solid #876f3d;
             font-weight: bold;
-            box-shadow: 0 4px 0 #6b4f2b;
+            font-size: 20px;
+            box-shadow: 0 6px 0 #6b4f2b;
+            cursor: pointer;
+            transition: 0.05s linear;
         }
+
+        .creator-item.selected {
+            background: #f5e664;
+            border-color: #caa53b;
+            transform: scale(1.02);
+            box-shadow: 0 6px 0 #9e762a;
+        }
+
         .creator-item button {
             margin-left: auto;
-            background: #a75252;
+            background: #b33f3f;
             border: none;
             color: white;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 36px;
+            height: 36px;
             font-weight: bold;
+            font-size: 20px;
             cursor: pointer;
-            box-shadow: 0 3px 0 #5f3232;
+            box-shadow: 0 5px 0 #712727;
+            border: 2px solid #ffa3a3;
         }
-        .creator-item button:hover { background: #c55454; }
+
         input, select {
-            background: #faf0cf;
-            border: 3px solid #8b6a40;
-            border-radius: 40px;
-            padding: 8px 16px;
+            background: #f7e8c4;
+            border: 5px solid #997e47;
+            border-radius: 50px;
+            padding: 12px 18px;
             font-weight: bold;
+            font-size: 18px;
             width: 100%;
-            margin: 5px 0;
+            margin: 6px 0;
             outline: none;
+            font-family: 'Courier New', monospace;
+            box-shadow: inset 0 3px 5px #9e8b5c;
         }
+
         .btn {
-            background: #fedb7a;
+            background: #efc267;
             border: none;
-            border-radius: 40px;
-            padding: 10px 16px;
+            border-radius: 50px;
+            padding: 14px 18px;
             font-weight: 900;
-            box-shadow: 0 5px 0 #b37b3a;
+            font-size: 22px;
+            box-shadow: 0 8px 0 #a07331;
             cursor: pointer;
             width: 100%;
-            font-size: 16px;
-            transition: 0.07s linear;
-            margin: 4px 0;
-            border: 2px solid #ffeab3;
+            transition: 0.05s linear;
+            margin: 6px 0;
+            border: 4px solid #ffdf9c;
+            font-family: 'Courier New', monospace;
+            color: #2d1d06;
         }
-        .btn:active { transform: translateY(5px); box-shadow: none; }
-        .btn.play { background: #6fbf4c; box-shadow: 0 5px 0 #2f6b1f; color: white; }
-        .share-bar {
-            display: flex;
-            gap: 8px;
-            margin-top: 16px;
-        }
-        .share-bar input {
-            flex: 1;
-            background: #e6d8b5;
-            font-size: 12px;
-            border-radius: 40px;
-        }
-        .lawn-mower { font-size: 22px; position: absolute; left: 2px; bottom: 0px; filter: drop-shadow(0 4px 2px #333); }
+
+        .btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #7a561f; }
+        .btn.play { background: #8fc96b; box-shadow: 0 8px 0 #3e7323; border-color: #c6ff9b; }
+        .btn.back { background: #b5875a; box-shadow: 0 8px 0 #624929; }
+
         .sun-counter { 
-            background: #f5c542; padding: 4px 12px; border-radius: 40px; font-weight: bold;
-            display: inline-block; border: 3px solid #a67c1e; margin-bottom: 8px; box-shadow: 0 4px 0 #7b5e2a;
+            background: #f5c542; 
+            padding: 10px 25px; 
+            border-radius: 60px; 
+            font-weight: bold;
+            font-size: 26px;
+            border: 5px solid #b47d2e; 
+            box-shadow: 0 7px 0 #7b5e2a;
+            display: inline-block;
+        }
+
+        .lawn-mower { font-size: 30px; position: absolute; left: 5px; bottom: -5px; filter: drop-shadow(4px 6px 0 #392e1e); }
+
+        /* Estilo infinito */
+        .infinity-mode {
+            background: #3a2819;
+            color: #efd6a8;
+            padding: 30px;
+            text-align: center;
+            border-radius: 80px;
+            border: 8px solid #b79a5e;
+        }
+
+        .back-to-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ca9f5a;
+            border: 5px solid #ffd58c;
+            border-radius: 60px;
+            padding: 15px 25px;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 8px 0 #7b5627;
+            cursor: pointer;
+            z-index: 100;
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #ecd59b; padding: 8px 20px; border-radius: 60px; border: 4px solid #a48144;">
-        <span class="sun-counter">☀️ <span id="sunDisplay">150</span></span>
-        <span style="font-weight: 900; font-size: 22px;">🌱 CREADOR PVZ 🌱</span>
-        <span id="waveDisplay" style="background: #3f2530; color: #efc6a0; padding: 6px 14px; border-radius: 30px;">🌊 1/3</span>
+
+<!-- Pantalla de inicio -->
+<div id="menuScreen" class="menu-screen" style="display: block;">
+    <div style="text-align: center;">
+        <div class="title-pvz">🌱 PVZ CLASSIC</div>
+        <div class="subtitle">✧ CREADOR Y MODO INFINITO ✧</div>
     </div>
-    <div class="main-panel">
-        <div class="grid-area">
-            <div class="grid" id="gameGrid"></div>
+    
+    <div class="menu-buttons">
+        <button class="menu-btn" id="menuInfinitoBtn">
+            <span>♾️</span> MODO INFINITO
+        </button>
+        <button class="menu-btn" id="menuCrearBtn">
+            <span>🔧</span> MODO CREACIÓN
+        </button>
+    </div>
+    
+    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+        <button class="menu-btn small" id="menuPlantasBtn">
+            <span>🌻</span> GALERÍA PLANTAS
+        </button>
+        <button class="menu-btn small" id="menuZombiesBtn">
+            <span>🧟</span> GALERÍA ZOMBIES
+        </button>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; font-size: 18px; color: #ecd59c;">
+        Ⓒ 2009 - 2026 • CREADOR VINTAGE
+    </div>
+</div>
+
+<!-- Contenedor del juego (se oculta al inicio) -->
+<div id="gameContainer" style="display: none; width: 100%;">
+    <button class="back-to-menu" id="backToMenuBtn">🏠 VOLVER AL MENÚ</button>
+    <div class="game-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #dbb16a; padding: 10px 25px; border-radius: 60px; border: 6px solid #b1863b;">
+            <span class="sun-counter">☀️ <span id="sunDisplay">150</span></span>
+            <span style="font-size: 36px; font-weight: 900; text-shadow: 4px 4px 0 #b47d3f;">🧪 LABORATORIO</span>
+            <span id="waveDisplay" style="background: #442e23; color: #eecaa2; padding: 8px 20px; border-radius: 40px; font-size: 22px; border: 3px solid #b48648;">🌊 1/3</span>
         </div>
-        <div class="toolbar" id="toolbar">
-            <h2>🧪 LABORATORIO</h2>
-            <div class="section">
-                <strong>🌻 PLANTAS CREADAS</strong>
-                <div id="plantList" class="item-list"></div>
-                <div style="display: flex; gap: 5px;">
-                    <input type="text" id="newPlantName" placeholder="ej: Petacereza" maxlength="12" value="Exploto">
-                    <input type="text" id="newPlantEmoji" placeholder="🥦" maxlength="3" value="🍒" style="width: 60px;">
+        
+        <div class="main-panel">
+            <div class="grid-area">
+                <div class="grid" id="gameGrid"></div>
+            </div>
+            
+            <div class="toolbar" id="toolbar">
+                <h2>🌿 CREACIÓN</h2>
+                
+                <!-- Sección de creación rápida -->
+                <div class="section" id="plantCreatorSection">
+                    <strong style="font-size: 24px;">🌻 MIS PLANTAS</strong>
+                    <div id="plantList" class="item-list"></div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="newPlantName" placeholder="Nombre" value="Petacereza" maxlength="12">
+                        <input type="text" id="newPlantEmoji" placeholder="🌱" value="🍒" maxlength="3" style="width: 80px;">
+                    </div>
+                    <button class="btn" id="addPlantBtn">➕ CREAR PLANTA</button>
                 </div>
-                <button class="btn" id="addPlantBtn">➕ CREAR PLANTA</button>
-            </div>
-            <div class="section">
-                <strong>🧟 ZOMBIES CREADOS</strong>
-                <div id="zombieList" class="item-list"></div>
-                <div style="display: flex; gap: 5px;">
-                    <input type="text" id="newZombieName" placeholder="ej: Zombiestrella" value="Rapero">
-                    <input type="text" id="newZombieEmoji" placeholder="🧟" maxlength="3" value="🧟‍♂️" style="width: 60px;">
+                
+                <div class="section" id="zombieCreatorSection">
+                    <strong style="font-size: 24px;">🧟 MIS ZOMBIES</strong>
+                    <div id="zombieList" class="item-list"></div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="newZombieName" placeholder="Nombre" value="Zombie Viejo">
+                        <input type="text" id="newZombieEmoji" placeholder="🧟" value="🧟‍♂️" maxlength="3" style="width: 80px;">
+                    </div>
+                    <button class="btn" id="addZombieBtn">➕ CREAR ZOMBIE</button>
                 </div>
-                <button class="btn" id="addZombieBtn">➕ CREAR ZOMBIE</button>
+                
+                <div class="section">
+                    <strong style="font-size: 24px;">⚙️ CONTROLES</strong>
+                    <button class="btn" id="saveLevelBtn">💾 GUARDAR NIVEL</button>
+                    <button class="btn" id="loadLevelBtn">📂 CARGAR NIVEL</button>
+                    <button class="btn play" id="nextWaveBtn">🌊 SIGUIENTE OLEADA</button>
+                    <button class="btn" id="resetGameBtn">🔄 REINICIAR</button>
+                </div>
+                
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                    <input type="text" id="shareUrl" readonly placeholder="Enlace del nivel" value="🎮 Comparte tu nivel">
+                    <button class="btn" id="copyBtn" style="width: auto;">📋</button>
+                </div>
+                <p style="font-size: 16px; text-align: center; margin: 10px 0 0; background: #b58b54; padding: 5px; border-radius: 30px;">
+                    Click: planta • Ctrl+Click: zombie • Alt+Click: borrar
+                </p>
             </div>
-            <div class="section">
-                <strong>⚙️ CONTROLES</strong>
-                <button class="btn" id="saveLevelBtn">💾 GUARDAR NIVEL</button>
-                <button class="btn" id="loadLevelBtn">📂 CARGAR NIVEL</button>
-                <button class="btn play" id="nextWaveBtn">🌊 SIGUIENTE OLEADA</button>
-                <button class="btn" id="resetGameBtn">🔄 REINICIAR</button>
-            </div>
-            <div class="share-bar">
-                <input type="text" id="shareUrl" readonly placeholder="Comparte tu nivel..." value="🎮 Listo para compartir">
-                <button class="btn" id="copyBtn" style="width: auto;">📋</button>
-            </div>
-            <p style="font-size: 12px; text-align: center;">Click: planta · Ctrl+Click: zombie · Delete: borra</p>
         </div>
+    </div>
+</div>
+
+<!-- Modal de galería (simple) -->
+<div id="galleryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;">
+    <div style="background: #b98f54; border: 12px solid #eac882; border-radius: 80px; padding: 40px; max-width: 600px;">
+        <h2 style="font-size: 48px;" id="galleryTitle">🌻 PLANTAS</h2>
+        <div id="galleryContent" style="font-size: 30px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 30px 0;"></div>
+        <button class="btn" id="closeGalleryBtn" style="font-size: 30px;">CERRAR</button>
     </div>
 </div>
 
 <script>
     (function() {
-        // ---------- Estado Global ----------
+        // ---------- CONSTANTES ----------
         const ROWS = 5, COLS = 9;
-
-        // gridData: cada celda: { type: 'planta'|'zombie'|null, emoji: string, nombre: string, idCustom?: string }
+        
+        // Estado del juego
         let gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-
-        // colecciones personalizables
         let plantas = JSON.parse(localStorage.getItem('pvz_plantas')) || [
             { nombre: 'Girasol', emoji: '🌻' },
             { nombre: 'LanzaGuisantes', emoji: '🟢' },
             { nombre: 'Nuez', emoji: '🥥' }
         ];
         let zombies = JSON.parse(localStorage.getItem('pvz_zombies')) || [
-            { nombre: 'Zombie básico', emoji: '🧟' },
-            { nombre: 'Zombie cono', emoji: '🧟‍♂️' },
-            { nombre: 'Zombie cubo', emoji: '🧟‍♀️' }
+            { nombre: 'Zombie Raro', emoji: '🧟' },
+            { nombre: 'Zombie Cono', emoji: '🧟‍♂️' },
+            { nombre: 'Zombie Cubo', emoji: '🧟‍♀️' }
         ];
-
-        // oleadas
-        let waves = [ [], [], [] ];  // cada wave: array de { row, col, zombieEmoji, zombieName }
-        let currentWave = 0;  // 0,1,2
+        
+        let waves = [[], [], []];
+        let currentWave = 0;
         let sun = 150;
-        let selectedTool = 'planta'; // 'planta' o 'zombie'
-
-        // elemento seleccionado para colocar (índice en la lista)
+        let selectedTool = 'planta';
         let selectedPlantIndex = 0;
         let selectedZombieIndex = 0;
-
-        // ---------- Utilidades ----------
-        function saveToStorage() {
-            localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
-            localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
+        
+        // Modo actual: 'menu', 'creator', 'infinity'
+        let currentMode = 'menu';
+        
+        // Modo infinito
+        let infinityInterval = null;
+        let infinityScore = 0;
+        
+        // ---------- FUNCIONES DE RENDERIZADO ----------
+        function showMenu() {
+            document.getElementById('menuScreen').style.display = 'block';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('galleryModal').style.display = 'none';
+            if (infinityInterval) {
+                clearInterval(infinityInterval);
+                infinityInterval = null;
+            }
+            currentMode = 'menu';
         }
-
-        // Renderiza grid completo
+        
+        function showCreator() {
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('galleryModal').style.display = 'none';
+            if (infinityInterval) {
+                clearInterval(infinityInterval);
+                infinityInterval = null;
+            }
+            currentMode = 'creator';
+            renderGrid();
+            renderLists();
+        }
+        
+        function showInfinity() {
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('galleryModal').style.display = 'none';
+            currentMode = 'infinity';
+            
+            // Reset para infinito
+            gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+            sun = 200;
+            infinityScore = 0;
+            renderGrid();
+            renderLists();
+            
+            // Iniciar oleadas infinitas
+            if (infinityInterval) clearInterval(infinityInterval);
+            infinityInterval = setInterval(() => {
+                // Spawnear zombie aleatorio cada 5 segundos
+                if (currentMode === 'infinity') {
+                    spawnRandomZombie();
+                }
+            }, 5000);
+        }
+        
+        function spawnRandomZombie() {
+            const row = Math.floor(Math.random() * ROWS);
+            const col = COLS - 1; // siempre por la derecha
+            if (!gridData[row][col] || gridData[row][col].type !== 'zombie') {
+                const randomZombie = zombies[Math.floor(Math.random() * zombies.length)];
+                gridData[row][col] = { 
+                    type: 'zombie', 
+                    emoji: randomZombie.emoji, 
+                    nombre: randomZombie.nombre 
+                };
+                renderGrid();
+                
+                // Incrementar puntuación cada zombie
+                infinityScore += 10;
+                document.getElementById('waveDisplay').innerHTML = `🏆 ${infinityScore}`;
+            }
+        }
+        
+        function showGallery(type) {
+            const gallery = document.getElementById('galleryModal');
+            const title = document.getElementById('galleryTitle');
+            const content = document.getElementById('galleryContent');
+            
+            title.textContent = type === 'plant' ? '🌻 PLANTAS CREADAS' : '🧟 ZOMBIES CREADOS';
+            content.innerHTML = '';
+            
+            const items = type === 'plant' ? plantas : zombies;
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.style.background = '#edc89e';
+                div.style.padding = '20px';
+                div.style.borderRadius = '40px';
+                div.style.border = '5px solid #936f2e';
+                div.style.display = 'flex';
+                div.style.flexDirection = 'column';
+                div.style.alignItems = 'center';
+                div.style.minWidth = '140px';
+                div.innerHTML = `<span style="font-size: 70px;">${item.emoji}</span><span style="font-size: 22px;">${item.nombre}</span>`;
+                content.appendChild(div);
+            });
+            
+            gallery.style.display = 'flex';
+        }
+        
+        // Funciones del grid
         function renderGrid() {
             const gridEl = document.getElementById('gameGrid');
             gridEl.innerHTML = '';
@@ -273,7 +585,6 @@
                             cell.appendChild(span);
                         }
                     }
-                    // agregar cortadora (opcional, solo primera columna)
                     if (c === 0 && !content) {
                         const mower = document.createElement('span');
                         mower.className = 'lawn-mower';
@@ -284,17 +595,64 @@
                 }
             }
             updateSunDisplay();
-            updateWaveDisplay();
+            if (currentMode !== 'infinity') updateWaveDisplay();
+            attachGridEvents();
         }
-
+        
+        function attachGridEvents() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.removeEventListener('click', handleCellClick);
+                cell.addEventListener('click', handleCellClick);
+            });
+        }
+        
+        function handleCellClick(e) {
+            if (currentMode === 'infinity') {
+                // En modo infinito solo se pueden poner plantas
+                if (!e.ctrlKey && !e.altKey) {
+                    placePlant(e);
+                }
+                return;
+            }
+            
+            const row = parseInt(e.currentTarget.dataset.row);
+            const col = parseInt(e.currentTarget.dataset.col);
+            
+            if (e.altKey) {
+                gridData[row][col] = null;
+                renderGrid();
+                return;
+            }
+            
+            if (e.ctrlKey) { // zombie
+                const zombie = zombies[selectedZombieIndex];
+                gridData[row][col] = { type: 'zombie', emoji: zombie.emoji, nombre: zombie.nombre };
+            } else { // planta
+                const planta = plantas[selectedPlantIndex];
+                gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
+            }
+            renderGrid();
+        }
+        
+        function placePlant(e) {
+            const row = parseInt(e.currentTarget.dataset.row);
+            const col = parseInt(e.currentTarget.dataset.col);
+            if (!gridData[row][col] && sun >= 50) {
+                const planta = plantas[selectedPlantIndex];
+                gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
+                sun -= 50;
+                renderGrid();
+            }
+        }
+        
         function updateSunDisplay() {
             document.getElementById('sunDisplay').innerText = sun;
         }
+        
         function updateWaveDisplay() {
             document.getElementById('waveDisplay').innerHTML = `🌊 ${currentWave+1}/${waves.length}`;
         }
-
-        // poblar listas en toolbar
+        
         function renderLists() {
             const plantListDiv = document.getElementById('plantList');
             const zombieListDiv = document.getElementById('zombieList');
@@ -303,8 +661,7 @@
             plantas.forEach((p, idx) => {
                 const div = document.createElement('div');
                 div.className = `creator-item ${selectedPlantIndex === idx ? 'selected' : ''}`;
-                div.style.background = selectedPlantIndex === idx ? '#f5e57a' : '#f7e3b1';
-                div.innerHTML = `<span style="font-size:26px;">${p.emoji}</span> ${p.nombre}`;
+                div.innerHTML = `<span style="font-size:36px;">${p.emoji}</span> ${p.nombre}`;
                 const delBtn = document.createElement('button');
                 delBtn.textContent = '✕';
                 delBtn.onclick = (e) => {
@@ -312,7 +669,7 @@
                     if (plantas.length > 1) {
                         plantas.splice(idx, 1);
                         if (selectedPlantIndex >= plantas.length) selectedPlantIndex = plantas.length-1;
-                        saveToStorage();
+                        localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
                         renderLists();
                     } else alert('Debe haber al menos 1 planta');
                 };
@@ -329,8 +686,7 @@
             zombies.forEach((z, idx) => {
                 const div = document.createElement('div');
                 div.className = `creator-item ${selectedZombieIndex === idx ? 'selected' : ''}`;
-                div.style.background = selectedZombieIndex === idx ? '#d68b6b' : '#f7e3b1';
-                div.innerHTML = `<span style="font-size:26px;">${z.emoji}</span> ${z.nombre}`;
+                div.innerHTML = `<span style="font-size:36px;">${z.emoji}</span> ${z.nombre}`;
                 const delBtn = document.createElement('button');
                 delBtn.textContent = '✕';
                 delBtn.onclick = (e) => {
@@ -338,7 +694,7 @@
                     if (zombies.length > 1) {
                         zombies.splice(idx, 1);
                         if (selectedZombieIndex >= zombies.length) selectedZombieIndex = zombies.length-1;
-                        saveToStorage();
+                        localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
                         renderLists();
                     } else alert('Debe haber al menos 1 zombie');
                 };
@@ -351,50 +707,7 @@
                 zombieListDiv.appendChild(div);
             });
         }
-
-        // Colocar en grid
-        function handleCellClick(e) {
-            const row = parseInt(e.currentTarget.dataset.row);
-            const col = parseInt(e.currentTarget.dataset.col);
-            const isCtrl = e.ctrlKey || e.metaKey;
-
-            // delete: si se hace click con tecla delete (usamos Alt+Click para simular delete)
-            if (e.altKey) {
-                gridData[row][col] = null;
-                renderGrid();
-                return;
-            }
-
-            if (isCtrl) { // zombie
-                if (selectedTool === 'zombie') {
-                    const zombie = zombies[selectedZombieIndex];
-                    gridData[row][col] = { type: 'zombie', emoji: zombie.emoji, nombre: zombie.nombre };
-                } else {
-                    // si no hay zombie seleccionado explícitamente, usar zombie indice actual
-                    const zombie = zombies[selectedZombieIndex];
-                    gridData[row][col] = { type: 'zombie', emoji: zombie.emoji, nombre: zombie.nombre };
-                }
-            } else { // planta
-                if (selectedTool === 'planta') {
-                    const planta = plantas[selectedPlantIndex];
-                    gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
-                } else {
-                    const planta = plantas[selectedPlantIndex];
-                    gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
-                }
-            }
-            renderGrid();
-        }
-
-        // Inicializar eventos en celdas
-        function attachGridEvents() {
-            document.querySelectorAll('.cell').forEach(cell => {
-                cell.removeEventListener('click', handleCellClick);
-                cell.addEventListener('click', handleCellClick);
-            });
-        }
-
-        // Guardar wave actual en waves[currentWave] a partir de grid zombies
+        
         function captureCurrentWave() {
             const waveZombies = [];
             for (let r=0; r<ROWS; r++) {
@@ -407,10 +720,8 @@
             }
             waves[currentWave] = waveZombies;
         }
-
-        // Cargar wave actual en grid (solo zombies, las plantas no se sobrescriben, pero cuidado: normalmente se mezcla)
+        
         function loadWaveIntoGrid() {
-            // Primero quitamos todos los zombies del grid
             for (let r=0; r<ROWS; r++) {
                 for (let c=0; c<COLS; c++) {
                     if (gridData[r][c] && gridData[r][c].type === 'zombie') {
@@ -418,7 +729,6 @@
                     }
                 }
             }
-            // Cargar zombies de la wave actual
             const wave = waves[currentWave] || [];
             wave.forEach(z => {
                 if (z.row < ROWS && z.col < COLS) {
@@ -427,8 +737,7 @@
             });
             renderGrid();
         }
-
-        // Generar URL para compartir
+        
         function generateShareUrl() {
             const data = {
                 plantas: plantas,
@@ -437,12 +746,10 @@
                 grid: gridData.map(row => row.map(cell => cell ? { type: cell.type, emoji: cell.emoji, nombre: cell.nombre } : null))
             };
             const json = JSON.stringify(data);
-            const compressed = btoa(encodeURIComponent(json)); // base64
-            const url = new URL(window.location.href);
-            url.hash = compressed;
-            return url.toString();
+            const compressed = btoa(encodeURIComponent(json));
+            return window.location.href.split('#')[0] + '#' + compressed;
         }
-
+        
         function loadFromHash() {
             if (window.location.hash.length > 1) {
                 try {
@@ -452,35 +759,37 @@
                     if (data.plantas) plantas = data.plantas;
                     if (data.zombies) zombies = data.zombies;
                     if (data.waves) waves = data.waves;
-                    if (data.grid) {
-                        gridData = data.grid;
-                    }
-                    // asegurar waves
+                    if (data.grid) gridData = data.grid;
                     while (waves.length < 3) waves.push([]);
                     currentWave = 0;
-                    saveToStorage();
+                    localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
+                    localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
                     renderLists();
-                    loadWaveIntoGrid(); // Esto actualiza grid con zombies de wave0 (plantas se preservan)
-                    renderGrid();
+                    loadWaveIntoGrid();
                 } catch (e) {
                     alert('Error al cargar nivel');
                 }
             }
         }
-
-        // ---------- Event Listeners ----------
+        
+        // ---------- EVENTOS ----------
         document.addEventListener('DOMContentLoaded', () => {
-            renderGrid();
-            attachGridEvents();
-            renderLists();
-            loadFromHash(); // si hay hash lo carga
-
-            // Botones
+            // Menú principal
+            document.getElementById('menuInfinitoBtn').addEventListener('click', showInfinity);
+            document.getElementById('menuCrearBtn').addEventListener('click', showCreator);
+            document.getElementById('menuPlantasBtn').addEventListener('click', () => showGallery('plant'));
+            document.getElementById('menuZombiesBtn').addEventListener('click', () => showGallery('zombie'));
+            document.getElementById('backToMenuBtn').addEventListener('click', showMenu);
+            document.getElementById('closeGalleryBtn').addEventListener('click', () => {
+                document.getElementById('galleryModal').style.display = 'none';
+            });
+            
+            // Botones del creador
             document.getElementById('addPlantBtn').addEventListener('click', () => {
                 const name = document.getElementById('newPlantName').value.trim() || 'Planta';
                 const emoji = document.getElementById('newPlantEmoji').value.trim() || '🌿';
                 plantas.push({ nombre: name, emoji: emoji });
-                saveToStorage();
+                localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
                 renderLists();
             });
 
@@ -488,12 +797,12 @@
                 const name = document.getElementById('newZombieName').value.trim() || 'Zombie';
                 const emoji = document.getElementById('newZombieEmoji').value.trim() || '🧟';
                 zombies.push({ nombre: name, emoji: emoji });
-                saveToStorage();
+                localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
                 renderLists();
             });
 
             document.getElementById('saveLevelBtn').addEventListener('click', () => {
-                captureCurrentWave(); // guarda wave actual
+                captureCurrentWave();
                 const url = generateShareUrl();
                 document.getElementById('shareUrl').value = url;
             });
@@ -512,26 +821,20 @@
             });
 
             document.getElementById('nextWaveBtn').addEventListener('click', () => {
-                captureCurrentWave(); // guarda wave actual antes de cambiar
-                if (currentWave < waves.length-1) {
-                    currentWave++;
-                } else {
-                    // opcional: añadir otra wave, pero lo dejamos en ciclo 0
-                    currentWave = 0;
-                }
+                captureCurrentWave();
+                currentWave = (currentWave + 1) % waves.length;
                 loadWaveIntoGrid();
                 sun += 50;
                 updateSunDisplay();
             });
 
             document.getElementById('resetGameBtn').addEventListener('click', () => {
-                if (confirm('Reiniciar nivel?')) {
+                if (confirm('¿Reiniciar el nivel?')) {
                     gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-                    waves = [ [], [], [] ];
+                    waves = [[], [], []];
                     currentWave = 0;
                     sun = 150;
                     renderGrid();
-                    updateSunDisplay();
                 }
             });
 
@@ -539,13 +842,12 @@
                 const shareInput = document.getElementById('shareUrl');
                 shareInput.select();
                 document.execCommand('copy');
-                alert('Enlace copiado!');
+                alert('¡Enlace copiado al portapapeles!');
             });
+            
+            // Cargar desde hash si existe
+            loadFromHash();
         });
-
-        // Reattached después de cada render
-        const observer = new MutationObserver(() => attachGridEvents());
-        observer.observe(document.getElementById('gameGrid'), { childList: true, subtree: true });
     })();
 </script>
 </body>
