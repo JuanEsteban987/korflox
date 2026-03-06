@@ -3,852 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PVZ Classic Creator</title>
+    <title>BATTLE SIMULATOR 2008 · TABS estilo retro</title>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-        
         body {
             margin: 0;
-            min-height: 100vh;
-            background: #1a1a1a;
-            font-family: 'Courier New', 'VT323', 'Press Start 2P', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-            background-image: radial-gradient(circle at 20% 30%, #3a5e3a 2px, transparent 2px), 
-                              radial-gradient(circle at 80% 70%, #4a7a4a 1px, transparent 2px);
-            background-size: 40px 40px;
-            background-color: #1f3a1f;
-        }
-
-        /* Pantalla de inicio estilo PVZ1 */
-        .menu-screen {
-            background: linear-gradient(145deg, #7b5e3b 0%, #5a3f25 100%);
-            border: 8px solid #b89b6e;
-            border-radius: 60px 60px 30px 30px;
-            padding: 30px 40px;
-            box-shadow: 0 20px 0 #3a2c1a, inset 0 -5px 10px #ffecb0;
-            max-width: 900px;
-            width: 100%;
-            position: relative;
-            image-rendering: pixelated;
-        }
-
-        .title-pvz {
-            text-align: center;
-            font-size: 64px;
-            font-weight: 900;
-            color: #f9d77e;
-            text-shadow: 6px 6px 0 #7b4f2b, 8px 8px 0 #3f2c14, 0 12px 10px rgba(0,0,0,0.4);
-            letter-spacing: 4px;
-            margin: 0 0 10px 0;
+            overflow: hidden;
             font-family: 'Courier New', monospace;
-            transform: rotate(-1deg);
-            background: #8b6b41;
-            display: inline-block;
-            padding: 10px 40px;
-            border-radius: 100px;
-            border: 4px solid #ffd78c;
-            box-shadow: inset 0 -8px 0 #61421c;
+            background-color: black;
+            color: #0f0; /* verde neón clásico */
         }
-
-        .subtitle {
-            text-align: center;
-            color: #efd29e;
-            font-size: 22px;
-            text-shadow: 3px 3px 0 #4f3a1e;
-            margin-top: -15px;
-            margin-bottom: 30px;
-            background: #3d2e17;
-            display: inline-block;
-            padding: 8px 30px;
-            border-radius: 40px;
-            border: 3px solid #b58f4a;
-        }
-
-        .menu-buttons {
-            display: flex;
-            gap: 25px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 30px 0;
-        }
-
-        .menu-btn {
-            background: #edc27a;
-            border: none;
-            border-radius: 60px;
-            padding: 22px 35px;
-            font-size: 36px;
-            font-weight: 900;
-            color: #3a280e;
-            box-shadow: 0 12px 0 #8b5e2c, 0 8px 15px black;
-            cursor: pointer;
-            transition: 0.07s linear;
-            border: 4px solid #ffde9e;
-            text-shadow: 2px 2px 0 #b58b48;
-            font-family: 'Courier New', monospace;
-            min-width: 260px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .menu-btn:active {
-            transform: translateY(8px);
-            box-shadow: 0 4px 0 #6b431e;
-        }
-
-        .menu-btn:hover {
-            background: #ffd98c;
-            border-color: #fff3c9;
-        }
-
-        .menu-btn.small {
-            font-size: 28px;
-            padding: 16px 25px;
-            min-width: 200px;
-        }
-
-        /* Estilo vintage para el creador */
-        .game-container {
-            background: #6b4f2b;
-            border-radius: 40px;
-            padding: 20px;
-            box-shadow: 0 20px 0 #3f2e18, inset 0 0 0 4px #b59b63;
-            border: 6px solid #dbb679;
-            image-rendering: pixelated;
-        }
-
-        .main-panel {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .grid-area {
-            background: #4f703f;
-            padding: 20px 20px 15px 20px;
-            border-radius: 30px;
-            border: 5px solid #b68f4b;
-            box-shadow: inset 0 -8px 0 #2d4d1f, inset 0 8px 10px #b1cf98;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(9, 70px);
-            grid-template-rows: repeat(5, 70px);
-            gap: 6px;
-            background: #688f4a;
-            padding: 12px;
-            border-radius: 25px;
-            border: 3px solid #e2bc7c;
-        }
-
-        .cell {
-            background: #a5cf7c;
-            border-radius: 18px;
-            box-shadow: inset 0 -8px 0 #4f7737, 0 5px 0 #1f3a1a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            cursor: pointer;
-            transition: 0.05s linear;
-            position: relative;
-            border: 2px solid #e9f0b0;
-            image-rendering: pixelated;
-        }
-
-        .cell.planta { 
-            background: #7ec850; 
-            box-shadow: inset 0 -8px 0 #3f7a23, 0 5px 0 #1f3f1f;
-        }
-        .cell.zombie { 
-            background: #8b5a3c; 
-            box-shadow: inset 0 -8px 0 #553a24, 0 5px 0 #2f1e14;
-        }
-        .cell:hover { filter: brightness(1.1); transform: scale(0.96); }
-        .plant-emoji { font-size: 48px; filter: drop-shadow(4px 6px 0 #2e5a1a); }
-        .zombie-emoji { font-size: 46px; filter: drop-shadow(4px 6px 0 #3e291b); }
-
-        .toolbar {
-            background: #caa76b;
-            border-radius: 40px;
-            padding: 20px;
-            min-width: 300px;
-            border: 6px solid #b1863b;
-            box-shadow: inset 0 0 0 4px #eedbaa, 0 12px 0 #6b4f2b;
-            color: #261c09;
-        }
-
-        h2 {
-            margin: 0 0 15px 0;
-            text-align: center;
-            font-size: 32px;
-            font-weight: 900;
-            text-shadow: 4px 4px 0 #b47d3f;
-            background: #ebc47e;
-            padding: 10px;
-            border-radius: 60px;
-            border: 4px solid #fff0b5;
-            box-shadow: inset 0 -5px 0 #997d42;
-            font-family: 'Courier New', monospace;
-        }
-
-        .section {
-            background: #bc9146;
-            border-radius: 30px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 4px solid #f0cb8b;
-            box-shadow: inset 0 0 0 3px #6f4f24;
-        }
-
-        .item-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin: 12px 0;
-            max-height: 180px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .creator-item {
-            background: #eddbba;
-            border-radius: 50px;
-            padding: 8px 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 4px solid #876f3d;
-            font-weight: bold;
-            font-size: 20px;
-            box-shadow: 0 6px 0 #6b4f2b;
-            cursor: pointer;
-            transition: 0.05s linear;
-        }
-
-        .creator-item.selected {
-            background: #f5e664;
-            border-color: #caa53b;
-            transform: scale(1.02);
-            box-shadow: 0 6px 0 #9e762a;
-        }
-
-        .creator-item button {
-            margin-left: auto;
-            background: #b33f3f;
-            border: none;
-            color: white;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            font-weight: bold;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #712727;
-            border: 2px solid #ffa3a3;
-        }
-
-        input, select {
-            background: #f7e8c4;
-            border: 5px solid #997e47;
-            border-radius: 50px;
-            padding: 12px 18px;
-            font-weight: bold;
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 15px;
+            border: 2px solid #0f0;
+            border-radius: 0px; /* bordes duros retro */
+            box-shadow: 0 0 15px #0f0;
+            z-index: 100;
             font-size: 18px;
-            width: 100%;
-            margin: 6px 0;
-            outline: none;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px #0f0;
+        }
+        #contador {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 15px;
+            border: 2px solid #0ff;
+            color: #0ff;
+            border-radius: 0px;
+            box-shadow: 0 0 15px #0ff;
+            z-index: 100;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+        #btn-reiniciar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: black;
+            border: 3px solid #ff00ff; /* magenta neón */
+            color: #ff00ff;
             font-family: 'Courier New', monospace;
-            box-shadow: inset 0 3px 5px #9e8b5c;
-        }
-
-        .btn {
-            background: #efc267;
-            border: none;
-            border-radius: 50px;
-            padding: 14px 18px;
-            font-weight: 900;
-            font-size: 22px;
-            box-shadow: 0 8px 0 #a07331;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.05s linear;
-            margin: 6px 0;
-            border: 4px solid #ffdf9c;
-            font-family: 'Courier New', monospace;
-            color: #2d1d06;
-        }
-
-        .btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #7a561f; }
-        .btn.play { background: #8fc96b; box-shadow: 0 8px 0 #3e7323; border-color: #c6ff9b; }
-        .btn.back { background: #b5875a; box-shadow: 0 8px 0 #624929; }
-
-        .sun-counter { 
-            background: #f5c542; 
-            padding: 10px 25px; 
-            border-radius: 60px; 
-            font-weight: bold;
-            font-size: 26px;
-            border: 5px solid #b47d2e; 
-            box-shadow: 0 7px 0 #7b5e2a;
-            display: inline-block;
-        }
-
-        .lawn-mower { font-size: 30px; position: absolute; left: 5px; bottom: -5px; filter: drop-shadow(4px 6px 0 #392e1e); }
-
-        /* Estilo infinito */
-        .infinity-mode {
-            background: #3a2819;
-            color: #efd6a8;
-            padding: 30px;
-            text-align: center;
-            border-radius: 80px;
-            border: 8px solid #b79a5e;
-        }
-
-        .back-to-menu {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #ca9f5a;
-            border: 5px solid #ffd58c;
-            border-radius: 60px;
-            padding: 15px 25px;
             font-size: 24px;
             font-weight: bold;
-            box-shadow: 0 8px 0 #7b5627;
+            padding: 12px 30px;
             cursor: pointer;
-            z-index: 100;
+            z-index: 200;
+            box-shadow: 0 0 25px #ff00ff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            transition: 0.2s;
+        }
+        #btn-reiniciar:hover {
+            background: #ff00ff;
+            color: black;
+            box-shadow: 0 0 40px #ff00ff;
+            border-color: black;
+        }
+        #btn-reiniciar:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+        /* Efecto scanlines retro (opcional) */
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,255,0,0.03) 0px, rgba(0,0,0,0.3) 2px, transparent 3px);
+            pointer-events: none;
+            z-index: 999;
+        }
+        /* Fondo de estrellas tipo 2008 (lo hace el three, pero añadimos textito) */
+        .versus {
+            position: absolute;
+            top: 20%;
+            right: 5%;
+            color: yellow;
+            font-size: 40px;
+            opacity: 0.2;
+            font-weight: bold;
+            transform: rotate(15deg);
+            text-shadow: 4px 4px 0 red;
+            z-index: 50;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
+    <div id="info">⚡ BATTLE SIMULATOR 2008 ⚡</div>
+    <div id="contador">ROJO: <span id="rojo-count">10</span> | AZUL: <span id="azul-count">10</span></div>
+    <button id="btn-reiniciar">REINICIAR BATALLA</button>
+    <div class="versus">VS</div>
 
-<!-- Pantalla de inicio -->
-<div id="menuScreen" class="menu-screen" style="display: block;">
-    <div style="text-align: center;">
-        <div class="title-pvz">🌱 PVZ CLASSIC</div>
-        <div class="subtitle">✧ CREADOR Y MODO INFINITO ✧</div>
-    </div>
-    
-    <div class="menu-buttons">
-        <button class="menu-btn" id="menuInfinitoBtn">
-            <span>♾️</span> MODO INFINITO
-        </button>
-        <button class="menu-btn" id="menuCrearBtn">
-            <span>🔧</span> MODO CREACIÓN
-        </button>
-    </div>
-    
-    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
-        <button class="menu-btn small" id="menuPlantasBtn">
-            <span>🌻</span> GALERÍA PLANTAS
-        </button>
-        <button class="menu-btn small" id="menuZombiesBtn">
-            <span>🧟</span> GALERÍA ZOMBIES
-        </button>
-    </div>
-    
-    <div style="text-align: center; margin-top: 40px; font-size: 18px; color: #ecd59c;">
-        Ⓒ 2009 - 2026 • CREADOR VINTAGE
-    </div>
-</div>
-
-<!-- Contenedor del juego (se oculta al inicio) -->
-<div id="gameContainer" style="display: none; width: 100%;">
-    <button class="back-to-menu" id="backToMenuBtn">🏠 VOLVER AL MENÚ</button>
-    <div class="game-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #dbb16a; padding: 10px 25px; border-radius: 60px; border: 6px solid #b1863b;">
-            <span class="sun-counter">☀️ <span id="sunDisplay">150</span></span>
-            <span style="font-size: 36px; font-weight: 900; text-shadow: 4px 4px 0 #b47d3f;">🧪 LABORATORIO</span>
-            <span id="waveDisplay" style="background: #442e23; color: #eecaa2; padding: 8px 20px; border-radius: 40px; font-size: 22px; border: 3px solid #b48648;">🌊 1/3</span>
-        </div>
-        
-        <div class="main-panel">
-            <div class="grid-area">
-                <div class="grid" id="gameGrid"></div>
-            </div>
-            
-            <div class="toolbar" id="toolbar">
-                <h2>🌿 CREACIÓN</h2>
-                
-                <!-- Sección de creación rápida -->
-                <div class="section" id="plantCreatorSection">
-                    <strong style="font-size: 24px;">🌻 MIS PLANTAS</strong>
-                    <div id="plantList" class="item-list"></div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="newPlantName" placeholder="Nombre" value="Petacereza" maxlength="12">
-                        <input type="text" id="newPlantEmoji" placeholder="🌱" value="🍒" maxlength="3" style="width: 80px;">
-                    </div>
-                    <button class="btn" id="addPlantBtn">➕ CREAR PLANTA</button>
-                </div>
-                
-                <div class="section" id="zombieCreatorSection">
-                    <strong style="font-size: 24px;">🧟 MIS ZOMBIES</strong>
-                    <div id="zombieList" class="item-list"></div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="newZombieName" placeholder="Nombre" value="Zombie Viejo">
-                        <input type="text" id="newZombieEmoji" placeholder="🧟" value="🧟‍♂️" maxlength="3" style="width: 80px;">
-                    </div>
-                    <button class="btn" id="addZombieBtn">➕ CREAR ZOMBIE</button>
-                </div>
-                
-                <div class="section">
-                    <strong style="font-size: 24px;">⚙️ CONTROLES</strong>
-                    <button class="btn" id="saveLevelBtn">💾 GUARDAR NIVEL</button>
-                    <button class="btn" id="loadLevelBtn">📂 CARGAR NIVEL</button>
-                    <button class="btn play" id="nextWaveBtn">🌊 SIGUIENTE OLEADA</button>
-                    <button class="btn" id="resetGameBtn">🔄 REINICIAR</button>
-                </div>
-                
-                <div style="display: flex; gap: 8px; margin-top: 12px;">
-                    <input type="text" id="shareUrl" readonly placeholder="Enlace del nivel" value="🎮 Comparte tu nivel">
-                    <button class="btn" id="copyBtn" style="width: auto;">📋</button>
-                </div>
-                <p style="font-size: 16px; text-align: center; margin: 10px 0 0; background: #b58b54; padding: 5px; border-radius: 30px;">
-                    Click: planta • Ctrl+Click: zombie • Alt+Click: borrar
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de galería (simple) -->
-<div id="galleryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;">
-    <div style="background: #b98f54; border: 12px solid #eac882; border-radius: 80px; padding: 40px; max-width: 600px;">
-        <h2 style="font-size: 48px;" id="galleryTitle">🌻 PLANTAS</h2>
-        <div id="galleryContent" style="font-size: 30px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 30px 0;"></div>
-        <button class="btn" id="closeGalleryBtn" style="font-size: 30px;">CERRAR</button>
-    </div>
-</div>
-
-<script>
-    (function() {
-        // ---------- CONSTANTES ----------
-        const ROWS = 5, COLS = 9;
-        
-        // Estado del juego
-        let gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-        let plantas = JSON.parse(localStorage.getItem('pvz_plantas')) || [
-            { nombre: 'Girasol', emoji: '🌻' },
-            { nombre: 'LanzaGuisantes', emoji: '🟢' },
-            { nombre: 'Nuez', emoji: '🥥' }
-        ];
-        let zombies = JSON.parse(localStorage.getItem('pvz_zombies')) || [
-            { nombre: 'Zombie Raro', emoji: '🧟' },
-            { nombre: 'Zombie Cono', emoji: '🧟‍♂️' },
-            { nombre: 'Zombie Cubo', emoji: '🧟‍♀️' }
-        ];
-        
-        let waves = [[], [], []];
-        let currentWave = 0;
-        let sun = 150;
-        let selectedTool = 'planta';
-        let selectedPlantIndex = 0;
-        let selectedZombieIndex = 0;
-        
-        // Modo actual: 'menu', 'creator', 'infinity'
-        let currentMode = 'menu';
-        
-        // Modo infinito
-        let infinityInterval = null;
-        let infinityScore = 0;
-        
-        // ---------- FUNCIONES DE RENDERIZADO ----------
-        function showMenu() {
-            document.getElementById('menuScreen').style.display = 'block';
-            document.getElementById('gameContainer').style.display = 'none';
-            document.getElementById('galleryModal').style.display = 'none';
-            if (infinityInterval) {
-                clearInterval(infinityInterval);
-                infinityInterval = null;
+    <!-- Importamos Three.js desde CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
             }
-            currentMode = 'menu';
         }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+
+        // --- CONFIGURACIÓN INICIAL ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a2a); // azul noche profundo
         
-        function showCreator() {
-            document.getElementById('menuScreen').style.display = 'none';
-            document.getElementById('gameContainer').style.display = 'block';
-            document.getElementById('galleryModal').style.display = 'none';
-            if (infinityInterval) {
-                clearInterval(infinityInterval);
-                infinityInterval = null;
-            }
-            currentMode = 'creator';
-            renderGrid();
-            renderLists();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(15, 12, 20);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: false }); // sin antialias para look más retro
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // sombras duras, retro pero chulas
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // no muy suave
+        document.body.appendChild(renderer.domElement);
+
+        // Controles para que el usuario pueda mover la cámara como en TABS (opcional)
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2.3; // evitar ver bajo el suelo
+        controls.target.set(0, 2, 0);
+
+        // --- LUCES (con colores ligeramente saturados para ese toque 2008) ---
+        // Luz ambiental suave
+        const ambientLight = new THREE.AmbientLight(0x404060);
+        scene.add(ambientLight);
+
+        // Luz principal (sombra)
+        const dirLight = new THREE.DirectionalLight(0xffeedd, 1);
+        dirLight.position.set(5, 15, 10);
+        dirLight.castShadow = true;
+        dirLight.receiveShadow = true;
+        dirLight.shadow.mapSize.width = 1024;
+        dirLight.shadow.mapSize.height = 1024;
+        const d = 20;
+        dirLight.shadow.camera.left = -d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = -d;
+        dirLight.shadow.camera.near = 1;
+        dirLight.shadow.camera.far = 30;
+        scene.add(dirLight);
+
+        // Luces de colores para ambiente retro
+        const lightRed = new THREE.PointLight(0xff3333, 0.6, 30);
+        lightRed.position.set(-8, 3, 5);
+        scene.add(lightRed);
+        
+        const lightBlue = new THREE.PointLight(0x3333ff, 0.6, 30);
+        lightBlue.position.set(8, 3, -5);
+        scene.add(lightBlue);
+
+        // --- SUELO (con grid retro y textura simple) ---
+        const groundGeometry = new THREE.PlaneGeometry(30, 30);
+        const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x224422, roughness: 0.7, metalness: 0.1 });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = 0;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Grid decorativo (muy 2008)
+        const gridHelper = new THREE.GridHelper(30, 20, 0xff00ff, 0x00ffff);
+        gridHelper.position.y = 0.01;
+        scene.add(gridHelper);
+
+        // Fondo de estrellas o neones (cubos flotantes)
+        for (let i = 0; i < 30; i++) {
+            const starMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff, emissive: 0x222222 });
+            const starGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+            const star = new THREE.Mesh(starGeo, starMat);
+            star.position.set((Math.random() - 0.5) * 50, Math.random() * 15 + 5, (Math.random() - 0.5) * 50);
+            star.castShadow = true;
+            scene.add(star);
         }
+
+        // --- EJÉRCITOS ---
+        // Unidades: cada una es un grupo (cuerpo cilíndrico + cabeza esférica)
+        const armyRed = [];
+        const armyBlue = [];
         
-        function showInfinity() {
-            document.getElementById('menuScreen').style.display = 'none';
-            document.getElementById('gameContainer').style.display = 'block';
-            document.getElementById('galleryModal').style.display = 'none';
-            currentMode = 'infinity';
+        const teamSize = 12; // 12 por equipo
+
+        // Colores neón
+        const redColor = 0xff3333;
+        const blueColor = 0x3366ff;
+
+        // Crear unidades rojas (lado izquierdo)
+        for (let i = 0; i < teamSize; i++) {
+            const group = new THREE.Group();
             
-            // Reset para infinito
-            gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-            sun = 200;
-            infinityScore = 0;
-            renderGrid();
-            renderLists();
+            // Cuerpo
+            const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: redColor, emissive: 0x330000 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.6;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
             
-            // Iniciar oleadas infinitas
-            if (infinityInterval) clearInterval(infinityInterval);
-            infinityInterval = setInterval(() => {
-                // Spawnear zombie aleatorio cada 5 segundos
-                if (currentMode === 'infinity') {
-                    spawnRandomZombie();
+            // Cabeza
+            const headGeo = new THREE.SphereGeometry(0.4, 6, 4); // pocos polígonos para look retro
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffaa66, emissive: 0x331100 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.4;
+            head.castShadow = true;
+            head.receiveShadow = true;
+            group.add(head);
+            
+            // Ojos (puntos negros)
+            const eyeGeo = new THREE.SphereGeometry(0.1, 4);
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.15, 1.5, 0.35);
+            group.add(eyeL);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeR.position.set(0.15, 1.5, 0.35);
+            group.add(eyeR);
+            
+            // Posición aleatoria en el lado rojo (x negativo)
+            const angle = (i / teamSize) * Math.PI * 2;
+            const radius = 3 + Math.random() * 2;
+            group.position.x = -8 + Math.random() * 3;
+            group.position.z = (Math.random() - 0.5) * 8;
+            group.position.y = 0;
+            
+            // Pequeña rotación aleatoria
+            group.rotation.y = Math.random() * Math.PI;
+            
+            scene.add(group);
+            armyRed.push({ mesh: group, health: 1, speed: 0.05 + Math.random() * 0.02 });
+        }
+
+        // Crear unidades azules (lado derecho)
+        for (let i = 0; i < teamSize; i++) {
+            const group = new THREE.Group();
+            
+            const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: blueColor, emissive: 0x001133 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.6;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
+            
+            const headGeo = new THREE.SphereGeometry(0.4, 6, 4);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, emissive: 0x332200 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.4;
+            head.castShadow = true;
+            head.receiveShadow = true;
+            group.add(head);
+            
+            const eyeGeo = new THREE.SphereGeometry(0.1, 4);
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.15, 1.5, 0.35);
+            group.add(eyeL);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeR.position.set(0.15, 1.5, 0.35);
+            group.add(eyeR);
+            
+            group.position.x = 8 - Math.random() * 3;
+            group.position.z = (Math.random() - 0.5) * 8;
+            group.position.y = 0;
+            
+            group.rotation.y = Math.random() * Math.PI;
+            
+            scene.add(group);
+            armyBlue.push({ mesh: group, health: 1, speed: 0.05 + Math.random() * 0.02 });
+        }
+
+        // Actualizar contador HTML
+        function updateCounter() {
+            document.getElementById('rojo-count').innerText = armyRed.length;
+            document.getElementById('azul-count').innerText = armyBlue.length;
+        }
+        updateCounter();
+
+        // --- LÓGICA DE BATALLA (detección simple de distancia) ---
+        function checkCollisionsAndMove() {
+            // Mover rojos hacia el centro (o hacia el azul más cercano? lo hacemos simple: hacia el centro y un poco aleatorio)
+            for (let i = armyRed.length - 1; i >= 0; i--) {
+                const unit = armyRed[i];
+                // Dirección hacia el centro (x=0) pero con un poco de偏移 para que no vayan todos en línea recta
+                let dirX = -unit.mesh.position.x; // hacia el centro
+                let dirZ = -unit.mesh.position.z * 0.5; // también convergen en Z
+                // Normalizar y mover
+                const len = Math.sqrt(dirX*dirX + dirZ*dirZ);
+                if (len > 0.1) {
+                    unit.mesh.position.x += (dirX / len) * unit.speed;
+                    unit.mesh.position.z += (dirZ / len) * unit.speed;
                 }
-            }, 5000);
-        }
-        
-        function spawnRandomZombie() {
-            const row = Math.floor(Math.random() * ROWS);
-            const col = COLS - 1; // siempre por la derecha
-            if (!gridData[row][col] || gridData[row][col].type !== 'zombie') {
-                const randomZombie = zombies[Math.floor(Math.random() * zombies.length)];
-                gridData[row][col] = { 
-                    type: 'zombie', 
-                    emoji: randomZombie.emoji, 
-                    nombre: randomZombie.nombre 
-                };
-                renderGrid();
-                
-                // Incrementar puntuación cada zombie
-                infinityScore += 10;
-                document.getElementById('waveDisplay').innerHTML = `🏆 ${infinityScore}`;
-            }
-        }
-        
-        function showGallery(type) {
-            const gallery = document.getElementById('galleryModal');
-            const title = document.getElementById('galleryTitle');
-            const content = document.getElementById('galleryContent');
-            
-            title.textContent = type === 'plant' ? '🌻 PLANTAS CREADAS' : '🧟 ZOMBIES CREADOS';
-            content.innerHTML = '';
-            
-            const items = type === 'plant' ? plantas : zombies;
-            items.forEach(item => {
-                const div = document.createElement('div');
-                div.style.background = '#edc89e';
-                div.style.padding = '20px';
-                div.style.borderRadius = '40px';
-                div.style.border = '5px solid #936f2e';
-                div.style.display = 'flex';
-                div.style.flexDirection = 'column';
-                div.style.alignItems = 'center';
-                div.style.minWidth = '140px';
-                div.innerHTML = `<span style="font-size: 70px;">${item.emoji}</span><span style="font-size: 22px;">${item.nombre}</span>`;
-                content.appendChild(div);
-            });
-            
-            gallery.style.display = 'flex';
-        }
-        
-        // Funciones del grid
-        function renderGrid() {
-            const gridEl = document.getElementById('gameGrid');
-            gridEl.innerHTML = '';
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-
-                    const content = gridData[r][c];
-                    if (content) {
-                        if (content.type === 'planta') {
-                            cell.classList.add('planta');
-                            const span = document.createElement('span');
-                            span.className = 'plant-emoji';
-                            span.textContent = content.emoji || '🌱';
-                            cell.appendChild(span);
-                        } else if (content.type === 'zombie') {
-                            cell.classList.add('zombie');
-                            const span = document.createElement('span');
-                            span.className = 'zombie-emoji';
-                            span.textContent = content.emoji || '🧟';
-                            cell.appendChild(span);
-                        }
-                    }
-                    if (c === 0 && !content) {
-                        const mower = document.createElement('span');
-                        mower.className = 'lawn-mower';
-                        mower.textContent = '🛻';
-                        cell.appendChild(mower);
-                    }
-                    gridEl.appendChild(cell);
+                // Rotar hacia la dirección (opcional, para que miren hacia donde van)
+                if (len > 0.1) {
+                    unit.mesh.rotation.y = Math.atan2(dirX, dirZ);
                 }
             }
-            updateSunDisplay();
-            if (currentMode !== 'infinity') updateWaveDisplay();
-            attachGridEvents();
-        }
-        
-        function attachGridEvents() {
-            document.querySelectorAll('.cell').forEach(cell => {
-                cell.removeEventListener('click', handleCellClick);
-                cell.addEventListener('click', handleCellClick);
-            });
-        }
-        
-        function handleCellClick(e) {
-            if (currentMode === 'infinity') {
-                // En modo infinito solo se pueden poner plantas
-                if (!e.ctrlKey && !e.altKey) {
-                    placePlant(e);
-                }
-                return;
-            }
-            
-            const row = parseInt(e.currentTarget.dataset.row);
-            const col = parseInt(e.currentTarget.dataset.col);
-            
-            if (e.altKey) {
-                gridData[row][col] = null;
-                renderGrid();
-                return;
-            }
-            
-            if (e.ctrlKey) { // zombie
-                const zombie = zombies[selectedZombieIndex];
-                gridData[row][col] = { type: 'zombie', emoji: zombie.emoji, nombre: zombie.nombre };
-            } else { // planta
-                const planta = plantas[selectedPlantIndex];
-                gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
-            }
-            renderGrid();
-        }
-        
-        function placePlant(e) {
-            const row = parseInt(e.currentTarget.dataset.row);
-            const col = parseInt(e.currentTarget.dataset.col);
-            if (!gridData[row][col] && sun >= 50) {
-                const planta = plantas[selectedPlantIndex];
-                gridData[row][col] = { type: 'planta', emoji: planta.emoji, nombre: planta.nombre };
-                sun -= 50;
-                renderGrid();
-            }
-        }
-        
-        function updateSunDisplay() {
-            document.getElementById('sunDisplay').innerText = sun;
-        }
-        
-        function updateWaveDisplay() {
-            document.getElementById('waveDisplay').innerHTML = `🌊 ${currentWave+1}/${waves.length}`;
-        }
-        
-        function renderLists() {
-            const plantListDiv = document.getElementById('plantList');
-            const zombieListDiv = document.getElementById('zombieList');
-            
-            plantListDiv.innerHTML = '';
-            plantas.forEach((p, idx) => {
-                const div = document.createElement('div');
-                div.className = `creator-item ${selectedPlantIndex === idx ? 'selected' : ''}`;
-                div.innerHTML = `<span style="font-size:36px;">${p.emoji}</span> ${p.nombre}`;
-                const delBtn = document.createElement('button');
-                delBtn.textContent = '✕';
-                delBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (plantas.length > 1) {
-                        plantas.splice(idx, 1);
-                        if (selectedPlantIndex >= plantas.length) selectedPlantIndex = plantas.length-1;
-                        localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
-                        renderLists();
-                    } else alert('Debe haber al menos 1 planta');
-                };
-                div.appendChild(delBtn);
-                div.onclick = () => {
-                    selectedPlantIndex = idx;
-                    selectedTool = 'planta';
-                    renderLists();
-                };
-                plantListDiv.appendChild(div);
-            });
 
-            zombieListDiv.innerHTML = '';
-            zombies.forEach((z, idx) => {
-                const div = document.createElement('div');
-                div.className = `creator-item ${selectedZombieIndex === idx ? 'selected' : ''}`;
-                div.innerHTML = `<span style="font-size:36px;">${z.emoji}</span> ${z.nombre}`;
-                const delBtn = document.createElement('button');
-                delBtn.textContent = '✕';
-                delBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (zombies.length > 1) {
-                        zombies.splice(idx, 1);
-                        if (selectedZombieIndex >= zombies.length) selectedZombieIndex = zombies.length-1;
-                        localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
-                        renderLists();
-                    } else alert('Debe haber al menos 1 zombie');
-                };
-                div.appendChild(delBtn);
-                div.onclick = () => {
-                    selectedZombieIndex = idx;
-                    selectedTool = 'zombie';
-                    renderLists();
-                };
-                zombieListDiv.appendChild(div);
-            });
-        }
-        
-        function captureCurrentWave() {
-            const waveZombies = [];
-            for (let r=0; r<ROWS; r++) {
-                for (let c=0; c<COLS; c++) {
-                    const cell = gridData[r][c];
-                    if (cell && cell.type === 'zombie') {
-                        waveZombies.push({ row: r, col: c, emoji: cell.emoji, nombre: cell.nombre });
+            // Mover azules hacia el centro (negativo)
+            for (let i = armyBlue.length - 1; i >= 0; i--) {
+                const unit = armyBlue[i];
+                let dirX = -unit.mesh.position.x; // hacia el centro
+                let dirZ = -unit.mesh.position.z * 0.5;
+                const len = Math.sqrt(dirX*dirX + dirZ*dirZ);
+                if (len > 0.1) {
+                    unit.mesh.position.x += (dirX / len) * unit.speed;
+                    unit.mesh.position.z += (dirZ / len) * unit.speed;
+                }
+                if (len > 0.1) {
+                    unit.mesh.rotation.y = Math.atan2(dirX, dirZ);
+                }
+            }
+
+            // Detectar colisiones entre rojos y azules (distancia entre sus posiciones)
+            for (let i = armyRed.length - 1; i >= 0; i--) {
+                const redUnit = armyRed[i];
+                for (let j = armyBlue.length - 1; j >= 0; j--) {
+                    const blueUnit = armyBlue[j];
+                    const dist = redUnit.mesh.position.distanceTo(blueUnit.mesh.position);
+                    if (dist < 1.5) { // distancia de combate
+                        // Ambos mueren (simulacro de lucha)
+                        // Efecto visual: desaparecen y creamos una pequeña explosión de cubos
+                        createDeathEffect(redUnit.mesh.position.clone().lerp(blueUnit.mesh.position, 0.5));
+                        
+                        // Eliminar del escenario y de los arrays
+                        scene.remove(redUnit.mesh);
+                        scene.remove(blueUnit.mesh);
+                        armyRed.splice(i, 1);
+                        armyBlue.splice(j, 1);
+                        
+                        // Importante: romper el bucle interior y retroceder índice exterior
+                        // (como ya eliminamos red, salimos del bucle interior)
+                        break; 
                     }
                 }
             }
-            waves[currentWave] = waveZombies;
-        }
-        
-        function loadWaveIntoGrid() {
-            for (let r=0; r<ROWS; r++) {
-                for (let c=0; c<COLS; c++) {
-                    if (gridData[r][c] && gridData[r][c].type === 'zombie') {
-                        gridData[r][c] = null;
-                    }
-                }
-            }
-            const wave = waves[currentWave] || [];
-            wave.forEach(z => {
-                if (z.row < ROWS && z.col < COLS) {
-                    gridData[z.row][z.col] = { type: 'zombie', emoji: z.emoji, nombre: z.nombre };
-                }
-            });
-            renderGrid();
-        }
-        
-        function generateShareUrl() {
-            const data = {
-                plantas: plantas,
-                zombies: zombies,
-                waves: waves,
-                grid: gridData.map(row => row.map(cell => cell ? { type: cell.type, emoji: cell.emoji, nombre: cell.nombre } : null))
-            };
-            const json = JSON.stringify(data);
-            const compressed = btoa(encodeURIComponent(json));
-            return window.location.href.split('#')[0] + '#' + compressed;
-        }
-        
-        function loadFromHash() {
-            if (window.location.hash.length > 1) {
-                try {
-                    const compressed = window.location.hash.substring(1);
-                    const json = decodeURIComponent(atob(compressed));
-                    const data = JSON.parse(json);
-                    if (data.plantas) plantas = data.plantas;
-                    if (data.zombies) zombies = data.zombies;
-                    if (data.waves) waves = data.waves;
-                    if (data.grid) gridData = data.grid;
-                    while (waves.length < 3) waves.push([]);
-                    currentWave = 0;
-                    localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
-                    localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
-                    renderLists();
-                    loadWaveIntoGrid();
-                } catch (e) {
-                    alert('Error al cargar nivel');
-                }
+
+            // Actualizar contador
+            updateCounter();
+
+            // Si un equipo se queda vacío, mostramos mensaje (opcional, lo reinicia el botón)
+            if (armyRed.length === 0 || armyBlue.length === 0) {
+                // Mostrar texto flotante rápido (no implementado, se puede añadir)
+                // Pero el botón de reiniciar funciona.
             }
         }
-        
-        // ---------- EVENTOS ----------
-        document.addEventListener('DOMContentLoaded', () => {
-            // Menú principal
-            document.getElementById('menuInfinitoBtn').addEventListener('click', showInfinity);
-            document.getElementById('menuCrearBtn').addEventListener('click', showCreator);
-            document.getElementById('menuPlantasBtn').addEventListener('click', () => showGallery('plant'));
-            document.getElementById('menuZombiesBtn').addEventListener('click', () => showGallery('zombie'));
-            document.getElementById('backToMenuBtn').addEventListener('click', showMenu);
-            document.getElementById('closeGalleryBtn').addEventListener('click', () => {
-                document.getElementById('galleryModal').style.display = 'none';
-            });
+
+        // Efecto retro de muerte (lluvia de cubos pequeños)
+        function createDeathEffect(position) {
+            for (let k = 0; k < 6; k++) {
+                const boxGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+                const boxMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff, emissive: 0x442200 });
+                const box = new THREE.Mesh(boxGeo, boxMat);
+                box.position.copy(position);
+                box.position.y += 0.5;
+                box.castShadow = true;
+                scene.add(box);
+                
+                // Animación simple con velocidad (la haremos en el loop)
+                box.userData = { velocity: new THREE.Vector3((Math.random()-0.5)*0.2, Math.random()*0.3, (Math.random()-0.5)*0.2), life: 30 };
+                deathParticles.push(box);
+            }
+        }
+
+        // Array para partículas de muerte
+        const deathParticles = [];
+
+        // --- REINICIAR BATALLA ---
+        document.getElementById('btn-reiniciar').addEventListener('click', () => {
+            // Limpiar ejércitos actuales
+            armyRed.forEach(u => scene.remove(u.mesh));
+            armyBlue.forEach(u => scene.remove(u.mesh));
+            armyRed.length = 0;
+            armyBlue.length = 0;
             
-            // Botones del creador
-            document.getElementById('addPlantBtn').addEventListener('click', () => {
-                const name = document.getElementById('newPlantName').value.trim() || 'Planta';
-                const emoji = document.getElementById('newPlantEmoji').value.trim() || '🌿';
-                plantas.push({ nombre: name, emoji: emoji });
-                localStorage.setItem('pvz_plantas', JSON.stringify(plantas));
-                renderLists();
-            });
+            // Limpiar partículas
+            deathParticles.forEach(p => scene.remove(p));
+            deathParticles.length = 0;
 
-            document.getElementById('addZombieBtn').addEventListener('click', () => {
-                const name = document.getElementById('newZombieName').value.trim() || 'Zombie';
-                const emoji = document.getElementById('newZombieEmoji').value.trim() || '🧟';
-                zombies.push({ nombre: name, emoji: emoji });
-                localStorage.setItem('pvz_zombies', JSON.stringify(zombies));
-                renderLists();
-            });
+            // Volver a crear ejércitos (casi igual que arriba, pero podríamos refactorizar)
+            for (let i = 0; i < teamSize; i++) {
+                const group = new THREE.Group();
+                const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 8);
+                const bodyMat = new THREE.MeshStandardMaterial({ color: redColor, emissive: 0x330000 });
+                const body = new THREE.Mesh(bodyGeo, bodyMat);
+                body.position.y = 0.6;
+                body.castShadow = true;
+                body.receiveShadow = true;
+                group.add(body);
+                
+                const headGeo = new THREE.SphereGeometry(0.4, 6, 4);
+                const headMat = new THREE.MeshStandardMaterial({ color: 0xffaa66, emissive: 0x331100 });
+                const head = new THREE.Mesh(headGeo, headMat);
+                head.position.y = 1.4;
+                head.castShadow = true;
+                head.receiveShadow = true;
+                group.add(head);
+                
+                const eyeGeo = new THREE.SphereGeometry(0.1, 4);
+                const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+                eyeL.position.set(-0.15, 1.5, 0.35);
+                group.add(eyeL);
+                const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+                eyeR.position.set(0.15, 1.5, 0.35);
+                group.add(eyeR);
+                
+                group.position.x = -8 + Math.random() * 3;
+                group.position.z = (Math.random() - 0.5) * 8;
+                group.position.y = 0;
+                group.rotation.y = Math.random() * Math.PI;
+                
+                scene.add(group);
+                armyRed.push({ mesh: group, health: 1, speed: 0.05 + Math.random() * 0.02 });
+            }
 
-            document.getElementById('saveLevelBtn').addEventListener('click', () => {
-                captureCurrentWave();
-                const url = generateShareUrl();
-                document.getElementById('shareUrl').value = url;
-            });
-
-            document.getElementById('loadLevelBtn').addEventListener('click', () => {
-                const url = prompt('Pega la URL del nivel:');
-                if (url) {
-                    try {
-                        const hash = new URL(url).hash;
-                        if (hash) {
-                            window.location.hash = hash.substring(1);
-                            loadFromHash();
-                        }
-                    } catch { alert('URL inválida'); }
-                }
-            });
-
-            document.getElementById('nextWaveBtn').addEventListener('click', () => {
-                captureCurrentWave();
-                currentWave = (currentWave + 1) % waves.length;
-                loadWaveIntoGrid();
-                sun += 50;
-                updateSunDisplay();
-            });
-
-            document.getElementById('resetGameBtn').addEventListener('click', () => {
-                if (confirm('¿Reiniciar el nivel?')) {
-                    gridData = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-                    waves = [[], [], []];
-                    currentWave = 0;
-                    sun = 150;
-                    renderGrid();
-                }
-            });
-
-            document.getElementById('copyBtn').addEventListener('click', () => {
-                const shareInput = document.getElementById('shareUrl');
-                shareInput.select();
-                document.execCommand('copy');
-                alert('¡Enlace copiado al portapapeles!');
-            });
-            
-            // Cargar desde hash si existe
-            loadFromHash();
+            for (let i = 0; i < teamSize; i++) {
+                const group = new THREE.Group();
+                const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 8);
+                const bodyMat = new THREE.MeshStandardMaterial({ color: blueColor, emissive: 0x001133 });
+                const body = new THREE.Mesh(bodyGeo, bodyMat);
+                body.position.y = 0.6;
+                body.castShadow = true;
+                body.receiveShadow = true;
+                group.add(body);
+                
+                const headGeo = new THREE.SphereGeometry(0.4, 6, 4);
+                const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, emissive: 0x332200 });
+                const head = new THREE.Mesh(headGeo, headMat);
+                head.position.y = 1.4;
+                head.castShadow = true;
+                head.receiveShadow = true;
+                group.add(head);
+                
+                const eyeGeo = new THREE.SphereGeometry(0.1, 4);
+                const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+                eyeL.position.set(-0.15, 1.5, 0.35);
+                group.add(eyeL);
+                const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+                eyeR.position.set(0.15, 1.5, 0.35);
+                group.add(eyeR);
+                
+                group.position.x = 8 - Math.random() * 3;
+                group.position.z = (Math.random() - 0.5) * 8;
+                group.position.y = 0;
+                group.rotation.y = Math.random() * Math.PI;
+                
+                scene.add(group);
+                armyBlue.push({ mesh: group, health: 1, speed: 0.05 + Math.random() * 0.02 });
+            }
+            updateCounter();
         });
-    })();
-</script>
+
+        // --- ANIMACIÓN Y BUCLE ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Lógica de batalla
+            if (armyRed.length > 0 && armyBlue.length > 0) {
+                checkCollisionsAndMove();
+            }
+
+            // Animar partículas de muerte
+            for (let i = deathParticles.length - 1; i >= 0; i--) {
+                const p = deathParticles[i];
+                p.position.add(p.userData.velocity);
+                p.userData.velocity.y -= 0.01; // gravedad
+                p.userData.life--;
+                if (p.userData.life <= 0) {
+                    scene.remove(p);
+                    deathParticles.splice(i, 1);
+                }
+            }
+
+            controls.update(); // actualizar cámara si se mueve
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Manejar resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Añadir texto 3D retro simple (opcional, no necesario)
+        // Puede ser un cartel flotante, pero lo dejamos así.
+    </script>
 </body>
 </html>
