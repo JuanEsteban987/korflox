@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🗺️ NOOB EMPIRE · 120x120 · ROBLOX 2008 🗺️</title>
+    <title>🗺️ NOOB WAR · ZOOM & BATALLA CENTRAL · 2008 🗺️</title>
     <style>
-        /* --- ESTÉTICA ROBLOX 2008 (blocky, brillante, biseles) --- */
         * {
             box-sizing: border-box;
             image-rendering: pixelated;
@@ -79,27 +78,30 @@
             margin-left: 8px;
         }
 
-        /* --- MAPA CANVAS 120x120 (600x600 píxeles) --- */
-        .map-container {
-            display: flex;
-            justify-content: center;
+        .map-wrapper {
+            position: relative;
             margin: 20px 0;
             border: 8px ridge #5f8faf;
             background: #2f5f7a;
-            padding: 10px;
+            padding: 0;
+            overflow: hidden;
+            cursor: grab;
+            width: 100%;
+            height: 600px;
+        }
+
+        .map-wrapper:active {
+            cursor: grabbing;
         }
 
         canvas {
+            display: block;
             width: 100%;
-            height: auto;
-            max-width: 600px;
-            border: 6px inset #9fbfdf;
-            background: #3f7a5a; /* verde hierba */
-            box-shadow: 8px 8px 0px #1f3f4f;
+            height: 100%;
+            background: #3f7a5a;
             image-rendering: crisp-edges;
         }
 
-        /* botones de compra */
         .buildings-panel {
             display: flex;
             flex-wrap: wrap;
@@ -184,7 +186,7 @@
 <body>
     <div class="game-container">
         <div class="header">
-            🏰 NOOB EMPIRE · 120x120 · 2008 🏰
+            🏰 NOOB WAR · ZOOM & BATALLA CENTRAL 🏰
         </div>
 
         <!-- Panel de recursos -->
@@ -195,8 +197,8 @@
             <div class="stat-item">🔬 INVEST. <span id="investigatorCount">1</span></div>
         </div>
 
-        <!-- Mapa enorme de 120x120 casillas (canvas) -->
-        <div class="map-container">
+        <!-- Mapa con zoom y pan -->
+        <div class="map-wrapper" id="mapWrapper">
             <canvas id="gameCanvas" width="600" height="600"></canvas>
         </div>
 
@@ -213,11 +215,11 @@
 
         <!-- Log de eventos -->
         <div class="log-box" id="logMessages">
-            <p>🌍 2008: construye spawners (noobs) e investigadores (Tix). El mapa es 120x120.</p>
+            <p>🌍 2008: Zoom con rueda, arrastra el mapa. Los noobs luchan en el centro.</p>
         </div>
 
         <div class="footer-note">
-            🧱 ROBLOX 2008 · MAPA 120x120 · SPAWNERS + INVESTIGADORES 🧱
+            🧱 ROBLOX 2008 · MAPA 120x120 · BATALLA CENTRAL · ZOOM 🧱
         </div>
     </div>
 
@@ -227,39 +229,49 @@
             const MAP_SIZE = 120;            // 120x120 casillas
             const CELL_SIZE = 5;              // píxeles por casilla (canvas 600x600)
 
-            // --- Territorios (áreas donde se pueden colocar edificios) ---
-            // Territorio del jugador: filas 0-39, columnas 0-39 (40x40 = 1600 celdas)
+            // --- Territorios ---
             const PLAYER_ZONE = { rowMin: 0, rowMax: 39, colMin: 0, colMax: 39 };
-            // Territorio enemigo: filas 80-119, columnas 80-119 (40x40)
             const ENEMY_ZONE = { rowMin: 80, rowMax: 119, colMin: 80, colMax: 119 };
 
             // --- Estado del juego ---
             let playerTix = 300;
-            let playerNoobs = 0;               // noobs acumulados para atacar
-            let enemyNoobs = 5;                 // noobs enemigos
+            let playerNoobs = 0;
+            let enemyNoobs = 5;
 
-            // Edificios del jugador
-            let playerSpawners = [];             // array de {x, y} (fila, columna)
-            let playerInvestigators = [];         // array de {x, y}
+            let playerSpawners = [];          // {x, y}
+            let playerInvestigators = [];
+            let enemySpawners = [];
 
-            // Edificios del enemigo (solo spawners)
-            let enemySpawners = [];               // array de {x, y}
-
-            // Precios
             const SPAWNER_COST = 50;
             const INVESTIGATOR_COST = 30;
-            const REWARD = 50;                    // tix por victoria
+            const REWARD = 50;
+            const PRODUCTION_INTERVAL = 3000;  // 3 segundos
 
-            // Intervalos de producción (ms)
-            const PRODUCTION_INTERVAL = 3000;      // 3 segundos
+            // Variables para zoom y pan
+            let viewX = 300, viewY = 300;      // centro de la vista en coordenadas del mundo (píxeles)
+            let zoom = 1.0;
+            const MIN_ZOOM = 0.5;
+            const MAX_ZOOM = 3.0;
+
+            // Variables para arrastrar
+            let isDragging = false;
+            let lastMouseX, lastMouseY;
+
+            // Variables para animación de batalla
+            let isBattling = false;
+            let battleProgress = 0;             // 0 a 1
+            let battleResult = null;             // { playerWon, playerLoss, enemyLoss, reward }
+            let battleAnimationFrame = null;
+            const BATTLE_DURATION = 1000;        // 1 segundo
 
             // Elementos DOM
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const mapWrapper = document.getElementById('mapWrapper');
             const tixSpan = document.getElementById('tixDisplay');
             const noobsSpan = document.getElementById('noobsDisplay');
             const spawnerCountSpan = document.getElementById('spawnerCount');
             const investigatorCountSpan = document.getElementById('investigatorCount');
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
             const logDiv = document.getElementById('logMessages');
             const buySpawnerBtn = document.getElementById('buySpawnerBtn');
             const buyInvestigatorBtn = document.getElementById('buyInvestigatorBtn');
@@ -276,29 +288,35 @@
                 logDiv.scrollTop = logDiv.scrollHeight;
             }
 
-            // --- Dibujar el mapa completo ---
+            // --- Dibujar mapa completo con transformaciones ---
             function dibujarMapa() {
                 ctx.clearRect(0, 0, 600, 600);
+                ctx.save();
+                // Aplicar zoom y pan (centrado en viewX, viewY)
+                ctx.translate(300, 300);
+                ctx.scale(zoom, zoom);
+                ctx.translate(-viewX, -viewY);
 
-                // Dibujar fondo de cuadrícula (césped)
+                // Fondo de césped
                 ctx.fillStyle = '#3f7a5a';
                 ctx.fillRect(0, 0, 600, 600);
-                // Dibujar líneas de cuadrícula (opcional, para dar efecto parcelas)
+
+                // Dibujar líneas de cuadrícula (cada 5 píxeles = 1 casilla)
                 ctx.strokeStyle = '#2f5f4f';
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 1 / zoom; // ajustar grosor para que no desaparezca con zoom
                 for (let i = 0; i <= MAP_SIZE; i++) {
                     ctx.beginPath();
-                    ctx.strokeStyle = '#2f5f4f';
-                    ctx.lineWidth = 0.5;
                     ctx.moveTo(i * CELL_SIZE, 0);
                     ctx.lineTo(i * CELL_SIZE, 600);
+                    ctx.strokeStyle = '#2f5f4f';
                     ctx.stroke();
+                    ctx.beginPath();
                     ctx.moveTo(0, i * CELL_SIZE);
                     ctx.lineTo(600, i * CELL_SIZE);
                     ctx.stroke();
                 }
 
-                // Dibujar territorios con un sombreado suave (bordes)
+                // Sombras de territorios
                 ctx.fillStyle = '#ffffff20';
                 ctx.fillRect(PLAYER_ZONE.colMin * CELL_SIZE, PLAYER_ZONE.rowMin * CELL_SIZE, 
                             (PLAYER_ZONE.colMax - PLAYER_ZONE.colMin + 1) * CELL_SIZE, 
@@ -308,74 +326,119 @@
                             (ENEMY_ZONE.colMax - ENEMY_ZONE.colMin + 1) * CELL_SIZE, 
                             (ENEMY_ZONE.rowMax - ENEMY_ZONE.rowMin + 1) * CELL_SIZE);
 
-                // Dibujar spawners del jugador (azul)
+                // Dibujar edificios del jugador
                 playerSpawners.forEach(s => {
                     ctx.fillStyle = '#3a7aff';
                     ctx.fillRect(s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 4px monospace';
-                    ctx.fillText('🏭', s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 4); // pequeño icono
+                    ctx.font = `bold ${4 * (1/zoom)}px monospace`; // ajustar texto al zoom
+                    ctx.fillText('🏭', s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 4);
                 });
-
-                // Dibujar investigadores del jugador (verde)
                 playerInvestigators.forEach(s => {
                     ctx.fillStyle = '#3aff3a';
                     ctx.fillRect(s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
                     ctx.fillStyle = '#000000';
-                    ctx.font = 'bold 4px monospace';
+                    ctx.font = `bold ${4 * (1/zoom)}px monospace`;
                     ctx.fillText('🔬', s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 4);
                 });
-
-                // Dibujar spawners enemigos (rojo)
                 enemySpawners.forEach(s => {
                     ctx.fillStyle = '#ff3a3a';
                     ctx.fillRect(s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 4px monospace';
+                    ctx.font = `bold ${4 * (1/zoom)}px monospace`;
                     ctx.fillText('🏭', s.y * CELL_SIZE + 1, s.x * CELL_SIZE + 4);
                 });
+
+                // --- Dibujar animación de batalla (tropas moviéndose al centro) ---
+                if (isBattling && battleProgress < 1.0) {
+                    const centroX = 300; // centro del canvas en coordenadas mundiales
+                    const centroY = 300;
+
+                    // Calculamos posiciones interpoladas para grupos de noobs
+                    const numPlayerMarkers = Math.min(playerNoobs, 30); // límite para no saturar
+                    const numEnemyMarkers = Math.min(enemyNoobs, 30);
+
+                    // Posición de origen de los marcadores: un punto aleatorio dentro del territorio del jugador/enemigo
+                    for (let i = 0; i < numPlayerMarkers; i++) {
+                        // Origen aleatorio en zona jugador
+                        const row = PLAYER_ZONE.rowMin + Math.random() * (PLAYER_ZONE.rowMax - PLAYER_ZONE.rowMin);
+                        const col = PLAYER_ZONE.colMin + Math.random() * (PLAYER_ZONE.colMax - PLAYER_ZONE.colMin);
+                        const startX = col * CELL_SIZE + CELL_SIZE/2;
+                        const startY = row * CELL_SIZE + CELL_SIZE/2;
+                        const currentX = startX + (centroX - startX) * battleProgress;
+                        const currentY = startY + (centroY - startY) * battleProgress;
+                        ctx.beginPath();
+                        ctx.arc(currentX, currentY, 3, 0, 2*Math.PI);
+                        ctx.fillStyle = '#ffff00';
+                        ctx.shadowColor = '#ffaa00';
+                        ctx.shadowBlur = 5;
+                        ctx.fill();
+                    }
+                    for (let i = 0; i < numEnemyMarkers; i++) {
+                        const row = ENEMY_ZONE.rowMin + Math.random() * (ENEMY_ZONE.rowMax - ENEMY_ZONE.rowMin);
+                        const col = ENEMY_ZONE.colMin + Math.random() * (ENEMY_ZONE.colMax - ENEMY_ZONE.colMin);
+                        const startX = col * CELL_SIZE + CELL_SIZE/2;
+                        const startY = row * CELL_SIZE + CELL_SIZE/2;
+                        const currentX = startX + (centroX - startX) * battleProgress;
+                        const currentY = startY + (centroY - startY) * battleProgress;
+                        ctx.beginPath();
+                        ctx.arc(currentX, currentY, 3, 0, 2*Math.PI);
+                        ctx.fillStyle = '#ff4444';
+                        ctx.shadowColor = '#aa0000';
+                        ctx.shadowBlur = 5;
+                        ctx.fill();
+                    }
+                    ctx.shadowBlur = 0; // reset
+                }
+
+                ctx.restore();
             }
 
-            // --- Actualizar UI (contadores y canvas) ---
+            // --- Actualizar UI y canvas ---
             function actualizarUI() {
                 tixSpan.textContent = playerTix;
                 noobsSpan.textContent = playerNoobs;
                 spawnerCountSpan.textContent = playerSpawners.length;
                 investigatorCountSpan.textContent = playerInvestigators.length;
 
-                // Habilitar/deshabilitar botones
-                buySpawnerBtn.disabled = (playerTix < SPAWNER_COST);
-                buyInvestigatorBtn.disabled = (playerTix < INVESTIGATOR_COST);
+                // Habilitar botones solo si no estamos en batalla
+                if (!isBattling) {
+                    buySpawnerBtn.disabled = (playerTix < SPAWNER_COST);
+                    buyInvestigatorBtn.disabled = (playerTix < INVESTIGATOR_COST);
+                    attackBtn.disabled = false;
+                } else {
+                    buySpawnerBtn.disabled = true;
+                    buyInvestigatorBtn.disabled = true;
+                    attackBtn.disabled = true;
+                }
 
                 dibujarMapa();
             }
 
-            // --- Función para obtener una celda libre aleatoria en una zona ---
+            // --- Obtener celda libre aleatoria en zona ---
             function getRandomFreeCell(zone, existingBuildings) {
                 const maxAttempts = 1000;
                 for (let attempt = 0; attempt < maxAttempts; attempt++) {
                     const row = Math.floor(Math.random() * (zone.rowMax - zone.rowMin + 1)) + zone.rowMin;
                     const col = Math.floor(Math.random() * (zone.colMax - zone.colMin + 1)) + zone.colMin;
-                    // Verificar si la celda está ocupada por algún edificio (jugador o enemigo)
                     const ocupado = existingBuildings.some(b => b.x === row && b.y === col);
                     if (!ocupado) {
                         return { x: row, y: col };
                     }
                 }
-                return null; // no hay espacio
+                return null;
             }
 
-            // --- Comprar spawner (jugador) ---
+            // --- Comprar spawner ---
             function comprarSpawner() {
                 if (playerTix < SPAWNER_COST) {
-                    agregarLog(`❌ Necesitas ${SPAWNER_COST} TIX para comprar un spawner.`);
+                    agregarLog(`❌ Necesitas ${SPAWNER_COST} TIX.`);
                     return;
                 }
-                // Reunir todos los edificios del jugador para verificar ocupación
-                const edificiosJugador = [...playerSpawners, ...playerInvestigators];
-                const pos = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
+                const edificios = [...playerSpawners, ...playerInvestigators];
+                const pos = getRandomFreeCell(PLAYER_ZONE, edificios);
                 if (!pos) {
-                    agregarLog(`⚠️ No hay espacio en tu territorio para más edificios.`);
+                    agregarLog('⚠️ No hay espacio en tu territorio.');
                     return;
                 }
                 playerTix -= SPAWNER_COST;
@@ -384,16 +447,15 @@
                 actualizarUI();
             }
 
-            // --- Comprar investigador (jugador) ---
             function comprarInvestigador() {
                 if (playerTix < INVESTIGATOR_COST) {
-                    agregarLog(`❌ Necesitas ${INVESTIGATOR_COST} TIX para comprar un investigador.`);
+                    agregarLog(`❌ Necesitas ${INVESTIGATOR_COST} TIX.`);
                     return;
                 }
-                const edificiosJugador = [...playerSpawners, ...playerInvestigators];
-                const pos = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
+                const edificios = [...playerSpawners, ...playerInvestigators];
+                const pos = getRandomFreeCell(PLAYER_ZONE, edificios);
                 if (!pos) {
-                    agregarLog(`⚠️ No hay espacio en tu territorio para más edificios.`);
+                    agregarLog('⚠️ No hay espacio en tu territorio.');
                     return;
                 }
                 playerTix -= INVESTIGATOR_COST;
@@ -402,109 +464,163 @@
                 actualizarUI();
             }
 
-            // --- Producción de recursos (cada 3 segundos) ---
+            // --- Producción ---
             function producir() {
-                // Los spawners del jugador generan noobs
                 if (playerSpawners.length > 0) {
                     playerNoobs += playerSpawners.length;
-                    agregarLog(`🏭 Spawners producen ${playerSpawners.length} noob(s). Total: ${playerNoobs}`);
+                    agregarLog(`🏭 Spawners producen ${playerSpawners.length} noob(s).`);
                 }
-                // Los investigadores generan Tix
                 if (playerInvestigators.length > 0) {
-                    playerTix += playerInvestigators.length * 5;  // 5 tix por investigador
+                    playerTix += playerInvestigators.length * 5;
                     agregarLog(`🔬 Investigadores generan ${playerInvestigators.length * 5} Tix.`);
                 }
-                // Los spawners enemigos generan noobs enemigos
                 if (enemySpawners.length > 0) {
                     enemyNoobs += enemySpawners.length;
-                    agregarLog(`👾 Enemigo gana ${enemySpawners.length} noob(s). Ahora tiene ${enemyNoobs}`);
+                    agregarLog(`👾 Enemigo gana ${enemySpawners.length} noob(s).`);
                 }
                 actualizarUI();
             }
 
-            // --- El enemigo construye un spawner cada 30 segundos (hasta 20) ---
+            // --- Enemigo construye ---
             function enemigoConstruye() {
-                if (enemySpawners.length >= 40) return; // límite, hay espacio de sobra
+                if (enemySpawners.length >= 40) return;
                 const pos = getRandomFreeCell(ENEMY_ZONE, enemySpawners);
                 if (pos) {
                     enemySpawners.push(pos);
-                    agregarLog(`⚠️ El enemigo construyó un spawner en (${pos.x}, ${pos.y}). Total: ${enemySpawners.length}`);
-                } else {
-                    agregarLog(`⚠️ El enemigo no tiene espacio para más spawners.`);
+                    agregarLog(`⚠️ Enemigo construyó spawner. Total: ${enemySpawners.length}`);
                 }
                 actualizarUI();
             }
 
-            // --- Batalla ---
-            function atacar() {
+            // --- Iniciar batalla (animación) ---
+            function iniciarBatalla() {
+                if (isBattling) return;
                 if (playerNoobs === 0 && enemyNoobs === 0) {
                     agregarLog('🤷 Nadie tiene noobs para pelear.');
                     return;
                 }
 
-                // Animación flash (cambiamos borde del canvas)
-                canvas.style.border = '6px inset #ffff00';
-                setTimeout(() => {
-                    canvas.style.border = '6px inset #9fbfdf';
-                }, 200);
-
-                // Comparar ejércitos
+                // Calcular resultado
+                let playerWon, playerLoss, enemyLoss, reward = 0;
                 if (playerNoobs > enemyNoobs) {
-                    let bajas = enemyNoobs;
-                    playerNoobs -= bajas;
-                    enemyNoobs = 0;
-                    playerTix += REWARD;
-                    agregarLog(`🎉 VICTORIA! Eliminas al enemigo. +${REWARD} TIX. Te quedan ${playerNoobs} noobs.`);
+                    playerLoss = enemyNoobs;
+                    enemyLoss = enemyNoobs;
+                    playerWon = true;
+                    reward = REWARD;
                 } else if (enemyNoobs > playerNoobs) {
-                    let bajas = playerNoobs;
-                    enemyNoobs -= bajas;
-                    playerNoobs = 0;
-                    agregarLog(`💔 DERROTA... El enemigo aniquila tus tropas. Le quedan ${enemyNoobs} noobs.`);
+                    playerLoss = playerNoobs;
+                    enemyLoss = playerNoobs;
+                    playerWon = false;
                 } else {
-                    playerNoobs = 0;
-                    enemyNoobs = 0;
-                    agregarLog(`⚖️ EMPATE! Ambos ejércitos se destruyen.`);
+                    playerLoss = playerNoobs;
+                    enemyLoss = enemyNoobs;
+                    playerWon = null; // empate
                 }
+
+                battleResult = {
+                    playerWon,
+                    playerLoss,
+                    enemyLoss,
+                    reward
+                };
+
+                // Iniciar animación
+                isBattling = true;
+                battleProgress = 0;
                 actualizarUI();
+
+                const startTime = performance.now();
+                function animar(now) {
+                    const elapsed = now - startTime;
+                    battleProgress = Math.min(elapsed / BATTLE_DURATION, 1.0);
+                    dibujarMapa();
+
+                    if (battleProgress < 1.0) {
+                        battleAnimationFrame = requestAnimationFrame(animar);
+                    } else {
+                        // Terminar batalla, aplicar resultado
+                        if (battleResult.playerWon === true) {
+                            playerNoobs -= battleResult.playerLoss;
+                            enemyNoobs = 0;
+                            playerTix += battleResult.reward;
+                            agregarLog(`🎉 VICTORIA! +${battleResult.reward} TIX. Te quedan ${playerNoobs} noobs.`);
+                        } else if (battleResult.playerWon === false) {
+                            enemyNoobs -= battleResult.enemyLoss;
+                            playerNoobs = 0;
+                            agregarLog(`💔 DERROTA... Enemigo queda con ${enemyNoobs} noobs.`);
+                        } else {
+                            playerNoobs = 0;
+                            enemyNoobs = 0;
+                            agregarLog(`⚖️ EMPATE! Ambos ejércitos destruidos.`);
+                        }
+                        isBattling = false;
+                        battleAnimationFrame = null;
+                        actualizarUI();
+                    }
+                }
+                battleAnimationFrame = requestAnimationFrame(animar);
             }
 
-            // --- Inicializar edificios iniciales ---
+            // --- Eventos de zoom y pan ---
+            mapWrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = -Math.sign(e.deltaY) * 0.1;
+                zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom + delta));
+                dibujarMapa();
+            });
+
+            mapWrapper.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                mapWrapper.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = (e.clientX - lastMouseX) / zoom;
+                const dy = (e.clientY - lastMouseY) / zoom;
+                viewX = Math.max(0, Math.min(600, viewX - dx));
+                viewY = Math.max(0, Math.min(600, viewY - dy));
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                dibujarMapa();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                mapWrapper.style.cursor = 'grab';
+            });
+
+            // --- Inicializar ---
             function inicializarEdificios() {
-                // Jugador: 1 spawner y 1 investigador en posiciones aleatorias
-                let edificiosJugador = [];
-                let posSpawner = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
-                if (posSpawner) {
-                    playerSpawners.push(posSpawner);
-                    edificiosJugador.push(posSpawner);
-                }
-                let posInv = getRandomFreeCell(PLAYER_ZONE, edificiosJugador);
-                if (posInv) {
-                    playerInvestigators.push(posInv);
-                    edificiosJugador.push(posInv);
-                }
-                // Enemigo: 2 spawners
+                let edificios = [];
+                let pos = getRandomFreeCell(PLAYER_ZONE, edificios);
+                if (pos) { playerSpawners.push(pos); edificios.push(pos); }
+                pos = getRandomFreeCell(PLAYER_ZONE, edificios);
+                if (pos) { playerInvestigators.push(pos); edificios.push(pos); }
                 for (let i = 0; i < 2; i++) {
-                    let posEnemy = getRandomFreeCell(ENEMY_ZONE, enemySpawners);
-                    if (posEnemy) enemySpawners.push(posEnemy);
+                    pos = getRandomFreeCell(ENEMY_ZONE, enemySpawners);
+                    if (pos) enemySpawners.push(pos);
                 }
             }
 
-            // --- Event listeners ---
+            // Event listeners
             buySpawnerBtn.addEventListener('click', comprarSpawner);
             buyInvestigatorBtn.addEventListener('click', comprarInvestigador);
-            attackBtn.addEventListener('click', atacar);
+            attackBtn.addEventListener('click', iniciarBatalla);
 
-            // Inicializar
             inicializarEdificios();
             actualizarUI();
-            agregarLog('🌟 Imperio iniciado. Tienes 1 spawner y 1 investigador. El enemigo tiene 2 spawners.');
+            agregarLog('🌟 Imperio con zoom. Arrastra para mover, rueda para zoom.');
 
-            // Intervalos de producción
             setInterval(producir, PRODUCTION_INTERVAL);
-            // Intervalo para que el enemigo construya (cada 30 segundos)
             setInterval(enemigoConstruye, 30000);
 
-            // Dibujar mapa inicial
+            // Inicializar vista centrada
+            viewX = 300;
+            viewY = 300;
             dibujarMapa();
         })();
     </script>
