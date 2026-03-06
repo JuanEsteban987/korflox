@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2008 · CAJA DE TROPAS</title>
+    <title>2008 · DEFENSA POR OLEADAS</title>
     <style>
         /* ESTÉTICA 2008 — GLOSS, BORDES REDONDEADOS, SOMBRAS, DEGRADÉS */
         * {
@@ -23,11 +23,10 @@
             padding: 16px;
         }
 
-        /* ventana principal — como un widget de escritorio vintage */
         .ventana {
             max-width: 800px;
             width: 100%;
-            background: #eae3d7;  /* fondo crema antiguo */
+            background: #eae3d7;
             background: linear-gradient(145deg, #f2ecdf 0%, #d9cfbc 100%);
             border: 3px solid #5d4b3a;
             border-radius: 24px 24px 20px 20px;
@@ -36,7 +35,6 @@
             position: relative;
         }
 
-        /* brillo superpuesto "glass" */
         .ventana::after {
             content: '';
             position: absolute;
@@ -83,7 +81,7 @@
             letter-spacing: 1px;
         }
 
-        /* Caja de madera artesanal (estética crate) */
+        /* Caja de madera */
         .crate-wrapper {
             display: flex;
             justify-content: center;
@@ -126,12 +124,6 @@
             box-shadow: inset 0 0 0 2px #f3ca9c, 0 14px 0 #3e2e1d, 0 22px 20px rgba(0,0,0,0.6);
         }
 
-        .crate:active:not(.shake) {
-            transform: translateY(6px);
-            box-shadow: inset 0 0 0 2px #f3ca9c, 0 8px 0 #3e2e1d, 0 16px 18px rgba(0,0,0,0.6);
-        }
-
-        /* flejes metálicos */
         .stripe {
             position: absolute;
             background: #2d2d2d;
@@ -182,7 +174,7 @@
             line-height: 1;
         }
 
-        /* área de la tropa actual */
+        /* tropa actual (apertura) */
         .current-troop {
             background: #3d3329;
             border: 6px ridge #8b735b;
@@ -195,7 +187,6 @@
             color: white;
             text-shadow: 3px 3px 0 #1f1f1f, 1px 1px 10px black;
             box-shadow: inset 0 0 30px #1f1712, 0 10px 10px rgba(0,0,0,0.5);
-            background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="2" fill="%23ffeecc" fill-opacity="0.1"/></svg>');
             word-break: break-word;
         }
 
@@ -212,7 +203,7 @@
             display: inline-block;
         }
 
-        /* botón gigante gloss 2k8 */
+        /* botón gigante */
         .open-btn {
             display: block;
             width: 100%;
@@ -244,22 +235,31 @@
             box-shadow: inset 0 -2px 0 #5f401f, inset 0 6px 8px #ffefcd, 0 8px 6px rgba(0,0,0,0.5);
         }
 
-        .stats {
-            background: #48412e;
-            color: #faeacb;
-            padding: 10px 24px;
-            border-radius: 40px 40px 10px 10px;
-            font-size: 1.4rem;
+        /* panel de oleadas */
+        .wave-panel {
+            background: #322c1f;
+            border: 6px ridge #a3825a;
+            border-radius: 30px 8px 30px 8px;
+            padding: 16px 20px;
+            margin: 20px 0 20px 0;
+            display: flex;
+            justify-content: space-between;
+            color: #fadfaa;
             font-weight: bold;
-            text-align: center;
-            display: inline-block;
-            margin: 10px auto 20px auto;
-            border: 3px solid #7f6a48;
-            box-shadow: inset 0 0 0 2px #b79f72, 0 4px 0 #2a1f12;
+            font-size: 1.3rem;
+            text-shadow: 2px 2px 0 #2c1e0f;
+            box-shadow: inset 0 0 0 3px #cbaa7a, 0 8px 0 #4a3824;
         }
 
-        /* TERRENO (grid 3x3) donde se colocan las tropas */
-        .terrain-title {
+        .wave-panel span {
+            background: #1e1a10;
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 3px solid #b49462;
+        }
+
+        /* MAPA: 3 puestos de defensa */
+        .map-title {
             font-size: 1.5rem;
             font-weight: bold;
             color: #2b2b1a;
@@ -269,53 +269,62 @@
             padding-bottom: 6px;
         }
 
-        .terrain-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-            background: #6c8e5a;  /* verde campo */
+        .defense-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            background: #6c8e5a;
             background: linear-gradient(145deg, #5b7e49, #3e632a);
             border: 8px ridge #7a613f;
-            padding: 24px 18px;
-            border-radius: 50px 12px 50px 12px;
+            padding: 30px 20px;
+            border-radius: 80px 20px 80px 20px;
             box-shadow: inset 0 0 0 4px #b1a07b, 0 10px 0 #3a4f2a, 0 15px 15px black;
             margin-bottom: 30px;
         }
 
-        .terrain-cell {
+        .defense-post {
             background: #4b6333;
             background: radial-gradient(circle at 30% 30%, #7c9e60, #2e4d1e);
-            aspect-ratio: 1 / 1;
-            border: 5px groove #af8f5a;
-            border-radius: 24px 6px 24px 6px;
-            box-shadow: inset 0 -4px 0 #1d2e0e, 0 8px 0 #1e2e12, 0 10px 10px black;
+            width: 120px;
+            height: 140px;
+            border: 6px groove #af8f5a;
+            border-radius: 30px 8px 30px 8px;
+            box-shadow: inset 0 -4px 0 #1d2e0e, 0 10px 0 #1e2e12, 0 10px 10px black;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
             color: white;
             text-shadow: 3px 3px 0 #1a1a1a;
+            font-weight: bold;
             font-size: 1rem;
-            padding: 6px;
-            transition: 0.2s ease;
+            padding: 10px 5px;
             text-align: center;
-            line-height: 1.2;
-            word-break: break-word;
+            transition: 0.2s;
         }
 
-        .terrain-cell span.rarity-tag {
+        .defense-post span.name {
+            font-size: 1.2rem;
+            display: block;
+            background: rgba(0,0,0,0.5);
+            width: 100%;
+            border-radius: 10px;
+            padding: 4px 0;
+        }
+
+        .defense-post span.rarity-tag {
             font-size: 0.7rem;
             background: black;
-            padding: 2px 6px;
-            border-radius: 20px;
-            margin-top: 4px;
-            max-width: 90%;
-            text-overflow: ellipsis;
+            padding: 4px 8px;
+            border-radius: 30px;
+            margin-top: 6px;
+            max-width: 100%;
             overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
         }
 
+        /* historial */
         .history-title {
             font-size: 1.5rem;
             font-weight: bold;
@@ -377,12 +386,26 @@
             border-radius: 50px;
             border: 2px solid #8f754b;
         }
+
+        .game-over {
+            background: #aa2b2b;
+            color: white;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 40px;
+            text-align: center;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
 <div class="ventana">
-    <h1>★ TROPA CRATE 2OO8 ★</h1>
-    <div class="subhead">recluta · coloca · combate</div>
+    <h1>★ OLEADAS TROPAS 2OO8 ★</h1>
+    <div class="subhead">abre cajas · defiende el mapa</div>
 
     <!-- crate clickeable con animación -->
     <div class="crate-wrapper" id="crateClick">
@@ -394,7 +417,7 @@
         </div>
     </div>
 
-    <!-- tropa actual -->
+    <!-- tropa actual (apertura) -->
     <div class="current-troop" id="currentTroop">
         HAZ CLICK EN LA CAJA
         <span class="troop-rarity" id="currentRarity"></span>
@@ -405,196 +428,192 @@
         <button id="openBtn">ABRIR CAJA</button>
     </div>
 
-    <!-- contador -->
-    <div class="stats">
-        📦 CAJAS ABIERTAS: <span id="caseCounter">0</span>
+    <!-- panel de oleadas -->
+    <div class="wave-panel">
+        <span>🌊 OLEADA <span id="waveNumber">0</span></span>
+        <span>❤️ VIDAS <span id="lives">5</span></span>
+        <span>💀 ENEMIGOS <span id="enemiesDefeated">0</span></span>
     </div>
 
-    <!-- TERRENO (grid 3x3) donde se colocan las tropas obtenidas -->
-    <div class="terrain-title">⚔️ TERRENO · POSICIONES ⚔️</div>
-    <div class="terrain-grid" id="terrainGrid">
-        <!-- Se generarán 9 celdas vacías con JS -->
+    <!-- MAPA: 3 puestos de defensa -->
+    <div class="map-title">🗺️ PUESTOS DE DEFENSA</div>
+    <div class="defense-grid" id="defenseGrid">
+        <!-- 3 puestos generados por JS -->
     </div>
 
-    <!-- historial últimos reclutas -->
-    <div class="history-title">ÚLTIMAS TROPAS</div>
-    <div class="history-list" id="historyList">
-        <!-- se llena con JS -->
-    </div>
+    <!-- historial últimas tropas -->
+    <div class="history-title">ÚLTIMAS TROPAS RECLUTADAS</div>
+    <div class="history-list" id="historyList"></div>
 
     <footer>
-        ⚡ abre cajas · consigue tropas · ocupa el terreno ⚡
+        ⚡ cada 8 segundos oleada · consigue tropas para cubrir puestos ⚡
     </footer>
 </div>
 
 <script>
     (function() {
-        // ---------- BASE DE DATOS DE TROPAS (estilo rarezas CS) ----------
+        // ---------- BASE DE DATOS DE TROPAS (misma rareza) ----------
         const troopsByRarity = [
-            {
-                rarity: "CONSCRIPT (GRIS)",
-                color: "#b0c3d9",
-                weight: 50,
-                items: ["Recluta", "Miliano", "Infante", "Soldado raso", "Centinela novato"]
-            },
-            {
-                rarity: "REGULAR (AZUL CLARO)",
-                color: "#5e98d9",
-                weight: 20,
-                items: ["Fusilero", "Granadero", "Ametrallador", "Explorador", "Sanitario"]
-            },
-            {
-                rarity: "VETERANO (AZUL)",
-                color: "#4b69ff",
-                weight: 15,
-                items: ["Cabo", "Sargento", "Francotirador", "Bombardero", "Ingeniero"]
-            },
-            {
-                rarity: "ÉLITE (PÚRPURA)",
-                color: "#8847ff",
-                weight: 8,
-                items: ["Comando", "Boinas Verdes", "Paracaidista", "Fuerza Delta", "Lancero"]
-            },
-            {
-                rarity: "HÉROE (ROSA)",
-                color: "#d32ce6",
-                weight: 4,
-                items: ["Capitán", "Comandante", "Guerrillero", "Mercenario", "Justiciero"]
-            },
-            {
-                rarity: "LEYENDA (ROJO)",
-                color: "#eb4b4b",
-                weight: 2,
-                items: ["General", "Héroe de guerra", "Señor de la guerra", "Inmortal", "Cacique"]
-            },
-            {
-                rarity: "MITO (ORO)",
-                color: "#ffd700",
-                weight: 1,
-                items: ["Semidiós", "Emperador", "Elegido", "Fénix", "Titán"]
-            }
+            { rarity: "CONSCRIPT (GRIS)",   color: "#b0c3d9", weight: 50, items: ["Recluta", "Miliano", "Infante", "Soldado raso", "Centinela"] },
+            { rarity: "REGULAR (AZUL CLARO)",color: "#5e98d9", weight: 20, items: ["Fusilero", "Granadero", "Ametrallador", "Explorador", "Sanitario"] },
+            { rarity: "VETERANO (AZUL)",     color: "#4b69ff", weight: 15, items: ["Cabo", "Sargento", "Francotirador", "Bombardero", "Ingeniero"] },
+            { rarity: "ÉLITE (PÚRPURA)",     color: "#8847ff", weight: 8,  items: ["Comando", "Boinas Verdes", "Paracaidista", "Fuerza Delta", "Lancero"] },
+            { rarity: "HÉROE (ROSA)",        color: "#d32ce6", weight: 4,  items: ["Capitán", "Comandante", "Guerrillero", "Mercenario", "Justiciero"] },
+            { rarity: "LEYENDA (ROJO)",      color: "#eb4b4b", weight: 2,  items: ["General", "Héroe", "Señor de la guerra", "Inmortal", "Cacique"] },
+            { rarity: "MITO (ORO)",           color: "#ffd700", weight: 1,  items: ["Semidiós", "Emperador", "Elegido", "Fénix", "Titán"] }
         ];
 
-        // Variables de estado
-        let openedCount = 0;
-        const lastItems = [];   // guarda hasta 5 tropas { name, rarity, color }
+        // Variables de juego
+        let lives = 5;
+        let wave = 0;
+        let enemiesDefeated = 0;
+        let gameActive = true;
+        let waveInterval = null;
 
-        // Terreno: array de 9 posiciones (inicialmente vacías = null)
-        let terrain = new Array(9).fill(null);
+        // Puestos de defensa (array de 3 elementos, cada uno = tropa o null)
+        let defensePosts = [null, null, null];
+
+        // Historial últimos 5 reclutas
+        let lastItems = [];
 
         // Elementos DOM
         const currentTroopDiv = document.getElementById('currentTroop');
         const currentRaritySpan = document.getElementById('currentRarity');
-        const caseCounterSpan = document.getElementById('caseCounter');
+        const waveSpan = document.getElementById('waveNumber');
+        const livesSpan = document.getElementById('lives');
+        const enemiesSpan = document.getElementById('enemiesDefeated');
+        const defenseGridDiv = document.getElementById('defenseGrid');
         const historyListDiv = document.getElementById('historyList');
-        const terrainGridDiv = document.getElementById('terrainGrid');
         const openBtn = document.getElementById('openBtn');
         const crateClick = document.getElementById('crateClick');
         const crateElement = document.getElementById('crate');
 
-        // Función para obtener una tropa aleatoria según pesos
+        // Función para obtener tropa aleatoria
         function getRandomTroop() {
             const totalWeight = troopsByRarity.reduce((acc, curr) => acc + curr.weight, 0);
             let rand = Math.random() * totalWeight;
-
             for (let i = 0; i < troopsByRarity.length; i++) {
                 const tier = troopsByRarity[i];
                 if (rand < tier.weight) {
                     const randomIndex = Math.floor(Math.random() * tier.items.length);
-                    const troopName = tier.items[randomIndex];
                     return {
-                        name: troopName,
+                        name: tier.items[randomIndex],
                         rarity: tier.rarity,
-                        color: tier.color
+                        color: tier.color,
+                        rarityIndex: i  // para comparar calidad (0 peor, 6 mejor)
                     };
                 }
                 rand -= tier.weight;
             }
-            // fallback
-            return {
-                name: "Mercenario",
-                rarity: "ÉLITE (PÚRPURA)",
-                color: "#8847ff"
-            };
+            return { name: "Mercenario", rarity: "ÉLITE (PÚRPURA)", color: "#8847ff", rarityIndex: 3 };
         }
 
-        // Añadir la tropa al terreno (primer celda vacía, si no hay vacía sobreescribe la más antigua? decidimos desplazar circular)
-        function addTroopToTerrain(troop) {
-            // Buscar primera celda vacía (null)
-            const emptyIndex = terrain.findIndex(cell => cell === null);
+        // Colocar tropa en un puesto (mejora si es mejor que la existente o puesto vacío)
+        function placeTroopInDefense(troop) {
+            // Buscar primer puesto vacío
+            let emptyIndex = defensePosts.findIndex(p => p === null);
             if (emptyIndex !== -1) {
-                terrain[emptyIndex] = troop;
+                defensePosts[emptyIndex] = troop;
             } else {
-                // Si todas están ocupadas, hacemos shift (eliminamos la primera y agregamos al final)
-                terrain.shift();
-                terrain.push(troop);
+                // Si no hay vacío, reemplazar la tropa de menor rareza (menor índice)
+                let worstIndex = 0;
+                for (let i = 1; i < defensePosts.length; i++) {
+                    if (defensePosts[i].rarityIndex < defensePosts[worstIndex].rarityIndex) {
+                        worstIndex = i;
+                    }
+                }
+                // Si la nueva tropa es mejor (o igual) que la peor, reemplazar
+                if (troop.rarityIndex >= defensePosts[worstIndex].rarityIndex) {
+                    defensePosts[worstIndex] = troop;
+                } // si no, no se coloca (se pierde)
             }
-            renderTerrain();
+            renderDefense();
         }
 
-        // Renderizar el grid del terreno
-        function renderTerrain() {
-            terrainGridDiv.innerHTML = '';
-            terrain.forEach((troop, index) => {
-                const cell = document.createElement('div');
-                cell.className = 'terrain-cell';
+        // Renderizar los puestos de defensa
+        function renderDefense() {
+            defenseGridDiv.innerHTML = '';
+            defensePosts.forEach((troop, index) => {
+                const post = document.createElement('div');
+                post.className = 'defense-post';
                 if (troop) {
-                    cell.style.backgroundColor = troop.color;
-                    cell.style.color = '#111';
-                    cell.style.textShadow = '1px 1px 0 rgba(255,255,255,0.5)';
-                    // Mostrar nombre corto y rareza abreviada
-                    const nameSpan = document.createElement('div');
+                    post.style.backgroundColor = troop.color;
+                    post.style.color = '#111';
+                    post.style.textShadow = '1px 1px 0 rgba(255,255,255,0.5)';
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'name';
                     nameSpan.innerText = troop.name.length > 8 ? troop.name.substring(0,6)+'…' : troop.name;
-                    nameSpan.style.fontWeight = 'bold';
                     const raritySpan = document.createElement('span');
                     raritySpan.className = 'rarity-tag';
-                    raritySpan.innerText = troop.rarity.split(' ')[0]; // primera palabra
+                    raritySpan.innerText = troop.rarity.split(' ')[0];
                     raritySpan.style.background = 'rgba(0,0,0,0.7)';
                     raritySpan.style.color = 'white';
-                    cell.appendChild(nameSpan);
-                    cell.appendChild(raritySpan);
+                    post.appendChild(nameSpan);
+                    post.appendChild(raritySpan);
                 } else {
-                    cell.innerHTML = '⛔<br><span style="font-size:0.7rem;">vacío</span>';
-                    cell.style.background = '#3b552b';
-                    cell.style.color = '#aaa';
+                    post.innerHTML = '<span class="name">🛡️ VACÍO</span><span class="rarity-tag">—</span>';
+                    post.style.background = '#3b552b';
+                    post.style.color = '#aaa';
                 }
-                terrainGridDiv.appendChild(cell);
+                defenseGridDiv.appendChild(post);
             });
         }
 
-        // Actualizar display de la tropa actual y contador/historial/terreno
-        function openCrateWithAnimation() {
-            // Activar animación en la caja
-            crateElement.classList.add('shake');
-            setTimeout(() => {
-                crateElement.classList.remove('shake');
-            }, 300); // duración de la animación
+        // Procesar una oleada: aparece un enemigo en puesto aleatorio
+        function processWave() {
+            if (!gameActive) return;
+            wave++;
+            waveSpan.innerText = wave;
 
-            // Pequeño retardo para que la animación se note antes de cambiar el contenido (opcional)
-            setTimeout(() => {
-                const newTroop = getRandomTroop();
-
-                // Mostrar tropa actual con su color
-                currentTroopDiv.innerHTML = `${newTroop.name} <span class="troop-rarity" id="currentRarity" style="background: ${newTroop.color}; color: #111; text-shadow: 1px 1px 0 white;">${newTroop.rarity}</span>`;
-                currentTroopDiv.style.backgroundColor = newTroop.color;
-                currentTroopDiv.style.color = '#111';
-                currentTroopDiv.style.textShadow = '2px 2px 0 rgba(255,255,255,0.5)';
-
-                // Incrementar contador
-                openedCount++;
-                caseCounterSpan.innerText = openedCount;
-
-                // Actualizar historial (últimos 5)
-                lastItems.unshift({ name: newTroop.name, rarity: newTroop.rarity, color: newTroop.color });
-                if (lastItems.length > 5) lastItems.pop();
-                renderHistory();
-
-                // COLOCAR LA TROPA EN EL TERRENO
-                addTroopToTerrain(newTroop);
-            }, 30); // pequeño offset para que la animación se vea
+            // Elige un puesto al azar (0,1,2)
+            const attackPos = Math.floor(Math.random() * 3);
+            if (defensePosts[attackPos] !== null) {
+                // Hay tropa defendiendo: el enemigo muere, la tropa permanece
+                enemiesDefeated++;
+                enemiesSpan.innerText = enemiesDefeated;
+            } else {
+                // Puesto vacío: perdemos una vida
+                lives--;
+                livesSpan.innerText = lives;
+                if (lives <= 0) {
+                    lives = 0;
+                    gameActive = false;
+                    livesSpan.innerText = lives;
+                    // Mostrar game over y detener interval
+                    if (waveInterval) {
+                        clearInterval(waveInterval);
+                        waveInterval = null;
+                    }
+                    alert('¡GAME OVER! Has perdido todas tus vidas. Recarga la página para empezar de nuevo.');
+                }
+            }
         }
 
-        // Renderizar historial
+        // Iniciar oleadas automáticas (cada 8 segundos)
+        function startWaves() {
+            if (waveInterval) clearInterval(waveInterval);
+            waveInterval = setInterval(() => {
+                processWave();
+            }, 8000); // 8 segundos
+        }
+
+        // Reiniciar juego (lo llamamos al cargar)
+        function initGame() {
+            lives = 5;
+            wave = 0;
+            enemiesDefeated = 0;
+            gameActive = true;
+            defensePosts = [null, null, null];
+            lastItems = [];
+            livesSpan.innerText = lives;
+            waveSpan.innerText = wave;
+            enemiesSpan.innerText = enemiesDefeated;
+            renderDefense();
+            renderHistory();
+            startWaves();
+        }
+
+        // Actualizar historial
         function renderHistory() {
             historyListDiv.innerHTML = '';
             if (lastItems.length === 0) {
@@ -631,25 +650,43 @@
             });
         }
 
-        // Inicializar terreno con 9 celdas vacías
-        function initTerrain() {
-            terrain = new Array(9).fill(null);
-            renderTerrain();
+        // Abrir caja con animación
+        function openCrate() {
+            if (!gameActive) {
+                alert('La partida ha terminado. Recarga para empezar de nuevo.');
+                return;
+            }
+
+            crateElement.classList.add('shake');
+            setTimeout(() => {
+                crateElement.classList.remove('shake');
+            }, 300);
+
+            setTimeout(() => {
+                const newTroop = getRandomTroop();
+
+                // Mostrar en current
+                currentTroopDiv.innerHTML = `${newTroop.name} <span class="troop-rarity" style="background: ${newTroop.color}; color: #111; text-shadow: 1px 1px 0 white;">${newTroop.rarity}</span>`;
+                currentTroopDiv.style.backgroundColor = newTroop.color;
+                currentTroopDiv.style.color = '#111';
+                currentTroopDiv.style.textShadow = '2px 2px 0 rgba(255,255,255,0.5)';
+
+                // Agregar a historial
+                lastItems.unshift({ name: newTroop.name, rarity: newTroop.rarity, color: newTroop.color });
+                if (lastItems.length > 5) lastItems.pop();
+                renderHistory();
+
+                // Colocar en defensa
+                placeTroopInDefense(newTroop);
+            }, 50);
         }
 
-        // Asignar eventos
-        openBtn.addEventListener('click', openCrateWithAnimation);
-        crateClick.addEventListener('click', openCrateWithAnimation);
+        // Eventos
+        openBtn.addEventListener('click', openCrate);
+        crateClick.addEventListener('click', openCrate);
 
-        // Inicializar todo
-        initTerrain();
-        renderHistory();
-
-        // Mensaje inicial con color neutro
-        currentTroopDiv.style.backgroundColor = '#3d3329';
-        currentTroopDiv.style.color = 'white';
-        currentTroopDiv.style.textShadow = '3px 3px 0 #1f1f1f';
-        currentRaritySpan.innerText = '';
+        // Inicializar
+        initGame();
     })();
 </script>
 </body>
