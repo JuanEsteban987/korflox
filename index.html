@@ -3,421 +3,528 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✧ PLAZA 2008 ✧ – coloca robloxianos, zombies y más</title>
+    <title>✧ NOOBS VS ZOMBIES 2008 ✧</title>
     <style>
         * {
             box-sizing: border-box;
-            user-select: none; /* estilo retro, todo se siente más "duro" */
+            user-select: none;
         }
         body {
-            background: #4a6c2f; /* verde militar añejo, como fondo de juegos viejos */
+            background: #2f4f2f;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Courier New', Courier, monospace; /* tipografía pixel/terminal */
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 12px;
             image-rendering: pixelated;
-            image-rendering: crisp-edges; /* para ese toque 2008 */
         }
         .game-wrapper {
-            background: #8b9a6e;
-            padding: 20px 20px 25px;
-            border: 6px solid #5d6d3f;
-            border-radius: 16px 16px 8px 8px;
-            box-shadow: 8px 8px 0 #2f3a1f, inset 2px 2px 0 #cbd9aa;
+            background: #6b8e4b;
+            padding: 20px;
+            border: 6px solid #4a6130;
+            border-radius: 20px;
+            box-shadow: 8px 8px 0 #2b3a1f;
         }
         h1 {
-            margin: 0 0 12px 0;
+            margin: 0 0 12px;
             font-size: 28px;
-            font-weight: bold;
-            color: #ffffb0;
-            text-shadow: 3px 3px 0 #6f4f1f, 1px 1px 0 #000;
-            letter-spacing: 2px;
+            color: #ffffaa;
+            text-shadow: 3px 3px 0 #7f5f30;
             text-align: center;
-            word-break: break-word;
         }
         .canvas-container {
-            border: 4px solid #6b4f2a;
-            background: #a1b385;
+            border: 4px solid #7b5f3a;
+            background: #9bb87f;
             display: inline-block;
-            box-shadow: inset 0 0 0 2px #3f5028, 5px 5px 0 #1f2a0e;
+            box-shadow: inset 0 0 0 2px #4f6730, 5px 5px 0 #2f3e1f;
         }
         canvas {
             display: block;
             width: 800px;
             height: 400px;
-            background: #b6cf9c; /* fondo pasto claro retro */
+            background: #c2d9ad;
             cursor: crosshair;
-            image-rendering: crisp-edges; /* pixel art */
+            image-rendering: crisp-edges;
         }
         .toolbar {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             margin-top: 18px;
             justify-content: center;
-            background: #6f8253;
-            padding: 15px 12px;
-            border: 4px solid #4b6130;
-            border-radius: 30px 30px 15px 15px;
-            box-shadow: inset 1px 1px 0 #b5cf95, 4px 4px 0 #2f3a1f;
+            background: #798e5c;
+            padding: 15px;
+            border: 4px solid #5b733c;
+            border-radius: 40px;
+            box-shadow: inset 2px 2px 0 #b2cf92;
         }
         .tool-btn {
-            background: #ead7a8;
+            background: #eedbaa;
             border: 4px solid #b48b4b;
-            color: #2f2a1a;
             font-family: 'Courier New', monospace;
             font-weight: bold;
             font-size: 18px;
-            padding: 8px 15px;
+            padding: 8px 14px;
             cursor: pointer;
-            box-shadow: 3px 3px 0 #6f4f2e, inset -2px -2px 0 #ccb077, inset 2px 2px 0 #fff5d0;
+            box-shadow: 3px 3px 0 #6f4f2e, inset -2px -2px 0 #d4b886, inset 2px 2px 0 #fff2cc;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.07s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            image-rendering: pixelated;
+            transition: 0.07s;
         }
         .tool-btn:active {
             transform: translate(3px, 3px);
-            box-shadow: 1px 1px 0 #6f4f2e, inset -1px -1px 0 #ccb077, inset 1px 1px 0 #fff5d0;
+            box-shadow: 1px 1px 0 #6f4f2e;
         }
         .tool-btn.selected {
-            background: #fcefa0;
-            border-color: #e0a050;
-            box-shadow: 1px 1px 0 #6f4f2e, inset -2px -2px 0 #aa9f60, inset 2px 2px 0 #ffffda;
+            background: #fff3b8;
+            border-color: #e5a84b;
             transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #6f4f2e, inset -2px -2px 0 #ccb477;
         }
         .clear-btn {
-            background: #d1a185;
+            background: #cfaa8a;
             border-color: #9f6f50;
-            box-shadow: 3px 3px 0 #593e2a, inset -2px -2px 0 #b48668, inset 2px 2px 0 #ffdec2;
             margin-left: auto;
         }
         .status-area {
-            background: #2a331b;
-            color: #bdde9e;
-            padding: 8px 20px;
-            font-size: 18px;
+            background: #283a1c;
+            color: #d1f0b0;
+            padding: 8px 22px;
+            font-size: 20px;
             border-radius: 40px;
-            border: 3px solid #4f6738;
-            display: inline-block;
-            box-shadow: inset 1px 1px 0 #67834b, 2px 2px 0 #1f2a0e;
+            border: 3px solid #5b8040;
             font-weight: bold;
-            margin-right: 10px;
+            margin-right: 12px;
+            box-shadow: inset 1px 1px 0 #769a52;
         }
         .footer-info {
             display: flex;
-            align-items: center;
             justify-content: space-between;
             margin-top: 12px;
-            color: #ffffbb;
-            text-shadow: 2px 2px 0 #3b4d1e;
-        }
-        .footer-info span {
-            background: #536b38;
-            padding: 5px 15px;
-            border-radius: 30px;
-            border: 2px solid #6e9452;
+            color: #efffc9;
+            text-shadow: 2px 2px 0 #3d5925;
         }
     </style>
 </head>
 <body>
 <div class="game-wrapper">
-    <h1>⚡ ZONA 2008 ⚡</h1>
+    <h1>⚡ NOOBS VS ZOMBIES 2K8 ⚡</h1>
     <div class="canvas-container">
         <canvas id="gameCanvas" width="800" height="400"></canvas>
     </div>
 
     <div class="toolbar">
-        <div class="status-area" id="selectedDisplay">🤖 ROBLOXIANO</div>
-        <button class="tool-btn" data-type="robloxian" id="btnRoblox">🧱 ROBLOX</button>
+        <div class="status-area" id="selectedDisplay">🤖 NOOB</div>
+        <button class="tool-btn" data-type="robloxian" id="btnRoblox">🧱 NOOB</button>
         <button class="tool-btn" data-type="zombie" id="btnZombie">🧟 ZOMBIE</button>
         <button class="tool-btn" data-type="spawner" id="btnSpawner">🌀 SPAWNER</button>
         <button class="tool-btn" data-type="weapon" id="btnWeapon">🔫 ARMA</button>
         <button class="tool-btn" data-type="block" id="btnBlock">📦 BLOQUE</button>
-        <button class="tool-btn clear-btn" id="clearBtn">✖ BORRAR TODO</button>
+        <button class="tool-btn clear-btn" id="clearBtn">✖ LIMPIAR</button>
     </div>
 
     <div class="footer-info">
-        <span>🖱️ clic en el mapa para colocar</span>
-        <span>🎮 estilo 2k8 · arrastra para muchas figuras</span>
+        <span>🖱️ Izq: colocar | Derecho: borrar</span>
+        <span>💡 Spawner: clic encima cambia modo N/Z</span>
     </div>
 </div>
 
 <script>
-    (function() {
-        // ----- configuración retro 2008 -----
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = false;   // para que no desdibuje, mantiene bordes duros
+(function() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
 
-        // array donde guardamos todos los objetos colocados
-        let objetos = [];
+    // ---- lista de entidades ----
+    let entidades = [];
 
-        // tipo seleccionado por defecto
-        let tipoSeleccionado = 'robloxian';
+    // ---- tipo seleccionado para colocar ----
+    let tipoSeleccionado = 'robloxian';
 
-        // ----- elementos de UI -----
-        const selectedDisplay = document.getElementById('selectedDisplay');
-        const btnRoblox = document.getElementById('btnRoblox');
-        const btnZombie = document.getElementById('btnZombie');
-        const btnSpawner = document.getElementById('btnSpawner');
-        const btnWeapon = document.getElementById('btnWeapon');
-        const btnBlock = document.getElementById('btnBlock');
-        const clearBtn = document.getElementById('clearBtn');
+    // ---- UI elements ----
+    const selectedDisplay = document.getElementById('selectedDisplay');
+    const btnRoblox = document.getElementById('btnRoblox');
+    const btnZombie = document.getElementById('btnZombie');
+    const btnSpawner = document.getElementById('btnSpawner');
+    const btnWeapon = document.getElementById('btnWeapon');
+    const btnBlock = document.getElementById('btnBlock');
+    const clearBtn = document.getElementById('clearBtn');
+    const botones = [btnRoblox, btnZombie, btnSpawner, btnWeapon, btnBlock];
 
-        // lista de botones para marcar/desmarcar
-        const botones = [btnRoblox, btnZombie, btnSpawner, btnWeapon, btnBlock];
+    // ---- helpers de UI ----
+    function setSelectedType(tipo) {
+        tipoSeleccionado = tipo;
+        let texto = '';
+        if (tipo === 'robloxian') texto = '🤖 NOOB';
+        else if (tipo === 'zombie') texto = '🧟 ZOMBIE';
+        else if (tipo === 'spawner') texto = '🌀 SPAWNER';
+        else if (tipo === 'weapon') texto = '🔫 ARMA';
+        else if (tipo === 'block') texto = '📦 BLOQUE';
+        selectedDisplay.innerText = texto;
 
-        // función para actualizar UI del botón seleccionado
-        function setSelectedType(tipo) {
-            tipoSeleccionado = tipo;
-            // actualizar texto de display
-            let texto = '';
-            switch(tipo) {
-                case 'robloxian': texto = '🤖 ROBLOXIANO'; break;
-                case 'zombie': texto = '🧟 ZOMBIE'; break;
-                case 'spawner': texto = '🌀 SPAWNER'; break;
-                case 'weapon': texto = '🔫 ARMA'; break;
-                case 'block': texto = '📦 BLOQUE'; break;
-                default: texto = '🤖 ROBLOXIANO';
-            }
-            selectedDisplay.innerText = texto;
+        botones.forEach(btn => btn.classList.remove('selected'));
+        if (tipo === 'robloxian') btnRoblox.classList.add('selected');
+        else if (tipo === 'zombie') btnZombie.classList.add('selected');
+        else if (tipo === 'spawner') btnSpawner.classList.add('selected');
+        else if (tipo === 'weapon') btnWeapon.classList.add('selected');
+        else if (tipo === 'block') btnBlock.classList.add('selected');
+    }
 
-            // quitar clase 'selected' de todos y ponerla al correspondiente
-            botones.forEach(btn => btn.classList.remove('selected'));
-            switch(tipo) {
-                case 'robloxian': btnRoblox.classList.add('selected'); break;
-                case 'zombie': btnZombie.classList.add('selected'); break;
-                case 'spawner': btnSpawner.classList.add('selected'); break;
-                case 'weapon': btnWeapon.classList.add('selected'); break;
-                case 'block': btnBlock.classList.add('selected'); break;
+    btnRoblox.addEventListener('click', () => setSelectedType('robloxian'));
+    btnZombie.addEventListener('click', () => setSelectedType('zombie'));
+    btnSpawner.addEventListener('click', () => setSelectedType('spawner'));
+    btnWeapon.addEventListener('click', () => setSelectedType('weapon'));
+    btnBlock.addEventListener('click', () => setSelectedType('block'));
+
+    clearBtn.addEventListener('click', () => {
+        entidades = [];
+    });
+
+    // ---- crear entidad base ----
+    function crearEntidad(tipo, x, y, extra = {}) {
+        let ent = {
+            type: tipo,
+            x: Math.min(780, Math.max(20, x)),
+            y: Math.min(380, Math.max(20, y)),
+            ...extra
+        };
+        // asignar defaults según tipo
+        if (tipo === 'robloxian') {
+            ent.armed = false;
+            ent.vx = 0; ent.vy = 0;
+        } else if (tipo === 'zombie') {
+            ent.vx = 0; ent.vy = 0;
+        } else if (tipo === 'spawner') {
+            ent.spawnType = extra.spawnType || 'noob'; // 'noob' o 'zombie'
+            ent.spawnCounter = 0; // contador de frames para spawn
+        }
+        // armas y bloques no necesitan más
+        return ent;
+    }
+
+    // ---- inicializar con algunos objetos ----
+    entidades.push(crearEntidad('robloxian', 150, 200));
+    entidades.push(crearEntidad('robloxian', 220, 320));
+    entidades.push(crearEntidad('zombie', 300, 150));
+    entidades.push(crearEntidad('spawner', 500, 250, { spawnType: 'noob' }));
+    entidades.push(crearEntidad('weapon', 400, 90));
+    entidades.push(crearEntidad('block', 600, 100));
+    entidades.push(crearEntidad('zombie', 80, 90));
+
+    // ---- game loop y físicas ----
+    const ZOMBIE_SPEED = 1.3;
+    const NOOB_SPEED = 1.9;        // huyen más rápido
+    const DETECT_RADIUS = 140;      // distancia para decidir huir/perseguir
+    const PICKUP_DIST = 25;         // distancia para recoger arma
+    const ATTACK_DIST = 30;         // distancia para ataque (noob armado mata zombie)
+    const EAT_DIST = 25;            // zombie mata noob desarmado
+    const SPAWN_FRAMES = 120;       // cada 120 frames (~2 seg a 60fps)
+
+    function actualizarMovimientos() {
+        // primero separamos listas para búsquedas rápidas
+        const noobs = entidades.filter(e => e.type === 'robloxian');
+        const zombies = entidades.filter(e => e.type === 'zombie');
+        const armas = entidades.filter(e => e.type === 'weapon');
+        const spawners = entidades.filter(e => e.type === 'spawner');
+
+        // ---- recoger armas (noobs) ----
+        for (let noob of noobs) {
+            if (noob.armed) continue; // ya armado
+            for (let i = 0; i < armas.length; i++) {
+                const arma = armas[i];
+                const dx = noob.x - arma.x;
+                const dy = noob.y - arma.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist < PICKUP_DIST) {
+                    // recoger arma: eliminar arma, marcar noob como armado
+                    entidades.splice(entidades.indexOf(arma), 1);
+                    noob.armed = true;
+                    break; // solo un arma a la vez
+                }
             }
         }
 
-        // eventos de botones
-        btnRoblox.addEventListener('click', () => setSelectedType('robloxian'));
-        btnZombie.addEventListener('click', () => setSelectedType('zombie'));
-        btnSpawner.addEventListener('click', () => setSelectedType('spawner'));
-        btnWeapon.addEventListener('click', () => setSelectedType('weapon'));
-        btnBlock.addEventListener('click', () => setSelectedType('block'));
-
-        // botón clear: vacía array y redibuja
-        clearBtn.addEventListener('click', () => {
-            objetos = [];
-            dibujarCanvas();
-        });
-
-        // ----- dibujar objetos (estilo 2008 puro, trazos gruesos) -----
-        function dibujarCanvas() {
-            ctx.clearRect(0, 0, 800, 400);
-
-            // dibujar una cuadrícula muy sutil estilo juegos viejos (opcional)
-            ctx.strokeStyle = '#98b27a';
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i < 800; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, 400);
-                ctx.strokeStyle = '#a7bf8a';
-                ctx.stroke();
+        // ---- comportamiento zombies: perseguir noob más cercano ----
+        for (let z of zombies) {
+            let target = null;
+            let minDist = Infinity;
+            for (let n of noobs) {
+                const d = Math.hypot(z.x - n.x, z.y - n.y);
+                if (d < minDist) {
+                    minDist = d;
+                    target = n;
+                }
             }
-            for (let i = 0; i < 400; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(800, i);
-                ctx.strokeStyle = '#a7bf8a';
-                ctx.stroke();
+            if (target) {
+                const dx = target.x - z.x;
+                const dy = target.y - z.y;
+                const len = Math.hypot(dx, dy);
+                if (len > 1) {
+                    z.vx = (dx / len) * ZOMBIE_SPEED;
+                    z.vy = (dy / len) * ZOMBIE_SPEED;
+                } else {
+                    z.vx = z.vy = 0;
+                }
+            } else {
+                z.vx = z.vy = 0; // no hay noobs
             }
-
-            // dibujar cada objeto según su tipo
-            objetos.forEach(obj => {
-                const { type, x, y } = obj;
-
-                // asegurar que no se salga del canvas pero respetamos posición
-                // (podemos dibujar aunque esté en el borde)
-
-                if (type === 'robloxian') {
-                    // Robloxiano clásico: cabeza cuadrada amarilla, torso azul
-                    ctx.fillStyle = '#fadf32'; // cabeza amarilla
-                    ctx.fillRect(x-15, y-20, 30, 25);
-                    ctx.fillStyle = '#2a6fdb'; // torso azul
-                    ctx.fillRect(x-12, y+5, 24, 20);
-                    ctx.fillStyle = '#000';
-                    ctx.fillRect(x-8, y-10, 5, 5); // ojo izquierdo
-                    ctx.fillRect(x+3, y-10, 5, 5); // ojo derecho
-                    // sonrisa
-                    ctx.beginPath();
-                    ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 2;
-                    ctx.arc(x, y-2, 6, 0.1, Math.PI - 0.1);
-                    ctx.stroke();
-                    // extremidades simples
-                    ctx.fillStyle = '#fadf32';
-                    ctx.fillRect(x-18, y+8, 6, 15); // brazo izq
-                    ctx.fillRect(x+12, y+8, 6, 15); // brazo der
-                }
-                else if (type === 'zombie') {
-                    // zombie verde, ojos rojos, ropa rota
-                    ctx.fillStyle = '#3f8433';
-                    ctx.fillRect(x-15, y-20, 30, 25);
-                    ctx.fillStyle = '#2b5e1f';
-                    ctx.fillRect(x-12, y+5, 24, 20);
-                    ctx.fillStyle = '#a00';
-                    ctx.fillRect(x-8, y-10, 5, 5);
-                    ctx.fillRect(x+3, y-10, 5, 5);
-                    // boca sangrante
-                    ctx.fillStyle = '#5f1f1f';
-                    ctx.fillRect(x-5, y-2, 10, 5);
-                    // manchas
-                    ctx.fillStyle = '#1f4a1a';
-                    ctx.fillRect(x-20, y-5, 5, 8);
-                    ctx.fillRect(x+15, y-5, 5, 8);
-                }
-                else if (type === 'spawner') {
-                    // spawner: púrpura con una "S" y un brillo
-                    ctx.fillStyle = '#b87cd9';
-                    ctx.fillRect(x-20, y-20, 40, 40);
-                    ctx.fillStyle = '#6b3f8c';
-                    ctx.fillRect(x-16, y-16, 32, 32);
-                    ctx.font = 'bold 26px "Courier New", monospace';
-                    ctx.fillStyle = '#ffecb0';
-                    ctx.fillText('S', x-12, y+12);
-                    // pequeños círculos alrededor
-                    ctx.fillStyle = '#f5c6ff';
-                    ctx.beginPath();
-                    ctx.arc(x-25, y-25, 5, 0, 2*Math.PI);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(x+25, y+20, 5, 0, 2*Math.PI);
-                    ctx.fill();
-                }
-                else if (type === 'weapon') {
-                    // arma: rifle de clavos / futurista 2008
-                    ctx.fillStyle = '#3f3f3f';
-                    ctx.fillRect(x-10, y-5, 40, 12);
-                    ctx.fillStyle = '#6f6f6f';
-                    ctx.fillRect(x+20, y-10, 10, 20);
-                    ctx.fillStyle = '#272727';
-                    ctx.fillRect(x, y-2, 25, 6);
-                    ctx.fillStyle = '#ac7339';
-                    ctx.fillRect(x-15, y-3, 8, 8); // culata
-                }
-                else if (type === 'block') {
-                    // bloque ladrillo / caja
-                    ctx.fillStyle = '#b57d4a';
-                    ctx.fillRect(x-20, y-20, 40, 40);
-                    ctx.fillStyle = '#7b562e';
-                    ctx.fillRect(x-18, y-18, 36, 36);
-                    // líneas de bloque
-                    ctx.strokeStyle = '#4f3a20';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(x-20, y-5);
-                    ctx.lineTo(x+20, y-5);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(x-20, y+5);
-                    ctx.lineTo(x+20, y+5);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(x-5, y-20);
-                    ctx.lineTo(x-5, y+20);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(x+5, y-20);
-                    ctx.lineTo(x+5, y+20);
-                    ctx.stroke();
-                }
-
-                // dibujar un pequeño contorno blanco/negro retro para todos
-                ctx.strokeStyle = '#2f2f2f';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(x-21, y-21, 42, 42); // solo para que resalte
-            });
         }
 
-        // ----- agregar objeto con el clic -----
-        canvas.addEventListener('click', (e) => {
-            // obtener coordenadas relativas al canvas
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;   // normalmente 800/width
-            const scaleY = canvas.height / rect.height; // 400/height
-
-            const mouseX = (e.clientX - rect.left) * scaleX;
-            const mouseY = (e.clientY - rect.top) * scaleY;
-
-            // limitar dentro del canvas (opcional)
-            const clampedX = Math.min(780, Math.max(20, mouseX));
-            const clampedY = Math.min(380, Math.max(20, mouseY));
-
-            // agregar objeto
-            objetos.push({
-                type: tipoSeleccionado,
-                x: clampedX,
-                y: clampedY
-            });
-
-            // redibujar
-            dibujarCanvas();
-        });
-
-        // Opción extra: hacer click derecho para eliminar? no es necesario, pero le da un toque.
-        // Activamos eliminar el objeto más cercano con click derecho (estilo 2008 rústico)
-        canvas.addEventListener('contextmenu', (e) => {
-            e.preventDefault(); // evitar menú contextual
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const mouseX = (e.clientX - rect.left) * scaleX;
-            const mouseY = (e.clientY - rect.top) * scaleY;
-
-            // buscar objeto a menos de 30px (para borrar)
-            let indiceBorrar = -1;
-            let distMin = 40; // distancia máxima
-            for (let i = 0; i < objetos.length; i++) {
-                const obj = objetos[i];
-                const dx = obj.x - mouseX;
-                const dy = obj.y - mouseY;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < distMin) {
-                    distMin = dist;
-                    indiceBorrar = i;
+        // ---- comportamiento noobs: huir del zombie más cercano (si no armados) ----
+        for (let n of noobs) {
+            if (n.armed) {
+                // noob armado: se queda quieto (o podría atacar, ya se maneja en colisiones)
+                n.vx = n.vy = 0;
+                continue;
+            }
+            // buscar zombie más cercano
+            let closestZ = null;
+            let minDist = Infinity;
+            for (let z of zombies) {
+                const d = Math.hypot(n.x - z.x, n.y - z.y);
+                if (d < minDist) {
+                    minDist = d;
+                    closestZ = z;
                 }
             }
-            if (indiceBorrar !== -1) {
-                objetos.splice(indiceBorrar, 1);
-                dibujarCanvas();
+            if (closestZ && minDist < DETECT_RADIUS) {
+                // huir: dirección opuesta al zombie
+                const dx = n.x - closestZ.x;
+                const dy = n.y - closestZ.y;
+                const len = Math.hypot(dx, dy);
+                if (len > 1) {
+                    n.vx = (dx / len) * NOOB_SPEED;
+                    n.vy = (dy / len) * NOOB_SPEED;
+                } else {
+                    n.vx = n.vy = 0;
+                }
+            } else {
+                n.vx = n.vy = 0; // no hay peligro
             }
-        });
+        }
 
-        // inicializar dibujo (vacío por ahora)
-        dibujarCanvas();
+        // ---- aplicar movimiento a todos los móviles (zombies y noobs) ----
+        for (let e of entidades) {
+            if (e.type === 'zombie' || e.type === 'robloxian') {
+                e.x += e.vx;
+                e.y += e.vy;
+                // límites del canvas
+                e.x = Math.min(780, Math.max(20, e.x));
+                e.y = Math.min(380, Math.max(20, e.y));
+            }
+        }
 
-        // agregamos algunos objetos de ejemplo para que no esté vacío (alegre 2008)
-        objetos.push({ type: 'robloxian', x: 150, y: 200 });
-        objetos.push({ type: 'zombie', x: 300, y: 150 });
-        objetos.push({ type: 'spawner', x: 500, y: 250 });
-        objetos.push({ type: 'weapon', x: 650, y: 300 });
-        objetos.push({ type: 'block', x: 400, y: 80 });
-        objetos.push({ type: 'robloxian', x: 220, y: 320 });
-        objetos.push({ type: 'zombie', x: 80, y: 90 });
-        dibujarCanvas();
+        // ---- colisiones: ataques ----
+        // Noobs armados matan zombies
+        for (let n of noobs) {
+            if (!n.armed) continue;
+            for (let i = zombies.length - 1; i >= 0; i--) {
+                const z = zombies[i];
+                const d = Math.hypot(n.x - z.x, n.y - z.y);
+                if (d < ATTACK_DIST) {
+                    entidades.splice(entidades.indexOf(z), 1);
+                }
+            }
+        }
+        // Zombies matan noobs desarmados
+        for (let z of zombies) {
+            for (let i = noobs.length - 1; i >= 0; i--) {
+                const n = noobs[i];
+                if (n.armed) continue; // no pueden con armados
+                const d = Math.hypot(z.x - n.x, z.y - n.y);
+                if (d < EAT_DIST) {
+                    entidades.splice(entidades.indexOf(n), 1);
+                }
+            }
+        }
 
-        // setear estado inicial del botón
-        setSelectedType('robloxian');
+        // ---- spawners: generar criaturas ----
+        for (let s of spawners) {
+            s.spawnCounter = (s.spawnCounter || 0) + 1;
+            if (s.spawnCounter >= SPAWN_FRAMES) {
+                s.spawnCounter = 0;
+                // crear nueva criatura cerca del spawner
+                let angle = Math.random() * 2 * Math.PI;
+                let dist = 40 + Math.random() * 30;
+                let nx = s.x + Math.cos(angle) * dist;
+                let ny = s.y + Math.sin(angle) * dist;
+                nx = Math.min(780, Math.max(20, nx));
+                ny = Math.min(380, Math.max(20, ny));
+                if (s.spawnType === 'noob') {
+                    entidades.push(crearEntidad('robloxian', nx, ny));
+                } else {
+                    entidades.push(crearEntidad('zombie', nx, ny));
+                }
+            }
+        }
 
-        // opcional: redibujar si la ventana cambia (pero no, todo fijo)
-        // por si acaso, forzamos buena pinta
-        window.addEventListener('resize', () => {
-            // no cambiamos dimensiones, solo aseguramos que no se deforme
-        });
-    })();
+        // actualizar listas después de muertes (no es necesario reasignar, todo por referencia)
+    }
+
+    // ---- dibujado ----
+    function dibujar() {
+        ctx.clearRect(0, 0, 800, 400);
+        // cuadrícula sutil
+        ctx.strokeStyle = '#a7bf8a';
+        ctx.lineWidth = 0.6;
+        for (let i = 0; i < 800; i += 40) {
+            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 400); ctx.stroke();
+        }
+        for (let i = 0; i < 400; i += 40) {
+            ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(800, i); ctx.stroke();
+        }
+
+        for (let e of entidades) {
+            const { type, x, y } = e;
+
+            if (type === 'robloxian') {
+                // Noob base amarillo
+                ctx.fillStyle = '#fadf32';
+                ctx.fillRect(x-15, y-20, 30, 25);
+                ctx.fillStyle = '#2a6fdb';
+                ctx.fillRect(x-12, y+5, 24, 20);
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x-8, y-10, 5, 5);
+                ctx.fillRect(x+3, y-10, 5, 5);
+                ctx.beginPath(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+                ctx.arc(x, y-2, 6, 0.1, Math.PI - 0.1); ctx.stroke();
+                ctx.fillStyle = '#fadf32';
+                ctx.fillRect(x-18, y+8, 6, 15);
+                ctx.fillRect(x+12, y+8, 6, 15);
+                // si está armado, estrella
+                if (e.armed) {
+                    ctx.fillStyle = '#ff3333';
+                    ctx.beginPath(); ctx.arc(x-8, y-28, 6, 0, 2*Math.PI); ctx.fill();
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = 'bold 14px monospace'; ctx.fillText('⭐', x-15, y-23);
+                }
+            }
+            else if (type === 'zombie') {
+                ctx.fillStyle = '#3f8433';
+                ctx.fillRect(x-15, y-20, 30, 25);
+                ctx.fillStyle = '#2b5e1f';
+                ctx.fillRect(x-12, y+5, 24, 20);
+                ctx.fillStyle = '#a00';
+                ctx.fillRect(x-8, y-10, 5, 5);
+                ctx.fillRect(x+3, y-10, 5, 5);
+                ctx.fillStyle = '#5f1f1f';
+                ctx.fillRect(x-5, y-2, 10, 5);
+                ctx.fillStyle = '#1f4a1a';
+                ctx.fillRect(x-20, y-5, 5, 8);
+                ctx.fillRect(x+15, y-5, 5, 8);
+            }
+            else if (type === 'spawner') {
+                // color base según tipo
+                ctx.fillStyle = e.spawnType === 'noob' ? '#b87cd9' : '#7d4283';
+                ctx.fillRect(x-20, y-20, 40, 40);
+                ctx.fillStyle = '#6b3f8c';
+                ctx.fillRect(x-16, y-16, 32, 32);
+                ctx.font = 'bold 26px "Courier New"';
+                ctx.fillStyle = '#ffecb0';
+                ctx.fillText(e.spawnType === 'noob' ? 'N' : 'Z', x-10, y+12);
+                ctx.fillStyle = '#f5c6ff';
+                ctx.beginPath(); ctx.arc(x-25, y-25, 5, 0, 2*Math.PI); ctx.fill();
+                ctx.beginPath(); ctx.arc(x+25, y+20, 5, 0, 2*Math.PI); ctx.fill();
+            }
+            else if (type === 'weapon') {
+                ctx.fillStyle = '#3f3f3f';
+                ctx.fillRect(x-10, y-5, 40, 12);
+                ctx.fillStyle = '#6f6f6f';
+                ctx.fillRect(x+20, y-10, 10, 20);
+                ctx.fillStyle = '#272727';
+                ctx.fillRect(x, y-2, 25, 6);
+                ctx.fillStyle = '#ac7339';
+                ctx.fillRect(x-15, y-3, 8, 8);
+            }
+            else if (type === 'block') {
+                ctx.fillStyle = '#b57d4a';
+                ctx.fillRect(x-20, y-20, 40, 40);
+                ctx.fillStyle = '#7b562e';
+                ctx.fillRect(x-18, y-18, 36, 36);
+                ctx.strokeStyle = '#4f3a20';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(x-20, y-5); ctx.lineTo(x+20, y-5); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x-20, y+5); ctx.lineTo(x+20, y+5); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x-5, y-20); ctx.lineTo(x-5, y+20); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x+5, y-20); ctx.lineTo(x+5, y+20); ctx.stroke();
+            }
+            // borde de selección tenue
+            ctx.strokeStyle = '#2f2f2f';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x-21, y-21, 42, 42);
+        }
+    }
+
+    // ---- interacción: clic izquierdo para colocar ----
+    canvas.addEventListener('click', (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (e.clientX - rect.left) * scaleX;
+        const my = (e.clientY - rect.top) * scaleY;
+        const x = Math.min(780, Math.max(20, mx));
+        const y = Math.min(380, Math.max(20, my));
+
+        // Si el tipo es spawner y hacemos clic sobre un spawner existente, cambiar modo
+        if (tipoSeleccionado === 'spawner') {
+            const spawnerExistente = entidades.find(e => e.type === 'spawner' && Math.hypot(e.x - x, e.y - y) < 30);
+            if (spawnerExistente) {
+                // alternar tipo
+                spawnerExistente.spawnType = spawnerExistente.spawnType === 'noob' ? 'zombie' : 'noob';
+                return; // no crear nuevo
+            }
+        }
+
+        // Crear nueva entidad
+        if (tipoSeleccionado === 'robloxian') {
+            entidades.push(crearEntidad('robloxian', x, y));
+        } else if (tipoSeleccionado === 'zombie') {
+            entidades.push(crearEntidad('zombie', x, y));
+        } else if (tipoSeleccionado === 'spawner') {
+            entidades.push(crearEntidad('spawner', x, y, { spawnType: 'noob', spawnCounter: 0 }));
+        } else if (tipoSeleccionado === 'weapon') {
+            entidades.push(crearEntidad('weapon', x, y));
+        } else if (tipoSeleccionado === 'block') {
+            entidades.push(crearEntidad('block', x, y));
+        }
+    });
+
+    // ---- clic derecho: borrar entidad más cercana ----
+    canvas.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (e.clientX - rect.left) * scaleX;
+        const my = (e.clientY - rect.top) * scaleY;
+
+        let closestIdx = -1;
+        let minDist = 50;
+        for (let i = 0; i < entidades.length; i++) {
+            const d = Math.hypot(entidades[i].x - mx, entidades[i].y - my);
+            if (d < minDist) {
+                minDist = d;
+                closestIdx = i;
+            }
+        }
+        if (closestIdx !== -1) {
+            entidades.splice(closestIdx, 1);
+        }
+    });
+
+    // ---- bucle de animación ----
+    function gameLoop() {
+        actualizarMovimientos();
+        dibujar();
+        requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+
+    // ---- estado inicial UI ----
+    setSelectedType('robloxian');
+})();
 </script>
 </body>
 </html>
