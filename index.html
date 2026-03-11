@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌱 PvZ Maker · Creador completo</title>
-    <!-- Font Awesome para iconos humanos -->
+    <title>🌱 PvZ Maker · Creador completo con sprites 16x16</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Estilos generales (se mantienen los anteriores y se añaden nuevos) */
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 0;
         }
@@ -22,7 +22,7 @@
             padding: 16px;
         }
         .game-box {
-            max-width: 1300px;
+            max-width: 1400px;
             width: 100%;
             background: #fef7e6;
             border-radius: 50px 50px 30px 30px;
@@ -38,11 +38,6 @@
             color: #fdf8e7;
             text-shadow: 5px 5px 0 #3f6b33, 7px 7px 0 #1f451f;
             margin: 0 0 15px 15px;
-        }
-        h1 i {
-            font-size: 3rem;
-            color: #ffd966;
-            text-shadow: 3px 3px 0 #b87c2e;
         }
         .tabs {
             display: flex;
@@ -69,10 +64,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            flex: 0 1 auto;
-        }
-        .tab-btn i {
-            font-size: 1.5rem;
         }
         .tab-btn.active {
             transform: translateY(4px);
@@ -92,7 +83,7 @@
         }
         .maker-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
         }
         .card {
@@ -201,45 +192,84 @@
             padding: 12px 20px;
             font-size: 1.1rem;
         }
-        .wave-list {
-            background: #a7c8a0;
-            border-radius: 40px;
+        .collection {
+            background: #b8d9a8;
+            border-radius: 50px;
             padding: 20px;
-            min-height: 150px;
-            border: 4px solid #dcedc4;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
+            min-height: 150px;
+            border: 4px solid #dbf0c7;
             align-items: center;
         }
-        .zombie-tag {
-            background: #4b3d33;
-            color: #daf5b5;
-            padding: 10px 18px;
+        .collection-item {
+            background: #4f7a4f;
+            color: #ffefc0;
+            padding: 12px 18px;
             border-radius: 40px;
+            font-size: 1.2rem;
             font-weight: bold;
-            font-size: 1.1rem;
-            border: 3px solid #ab8e6d;
-            box-shadow: 0 3px 0 #584434;
-        }
-        .map-cell {
-            width: 50px;
-            height: 50px;
-            background: #86bf6f;
-            border-radius: 20px;
-            border: 3px solid #c0f0a0;
+            border: 3px solid #b1d893;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin: 3px;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.1s;
         }
-        .export-area {
-            background: #cfb694;
+        .collection-item:hover {
+            transform: scale(1.05);
+            background: #5f8e5f;
+        }
+        .collection-item i {
+            font-size: 1.5rem;
+        }
+        /* Editor de sprites */
+        .sprite-editor {
+            background: #cfb28b;
             border-radius: 60px;
             padding: 25px;
-            margin-top: 30px;
+            margin-top: 25px;
             border: 5px solid #f2dbb6;
+        }
+        .sprite-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 30px);
+            grid-template-rows: repeat(16, 30px);
+            gap: 2px;
+            justify-content: center;
+            background: #aaa;
+            padding: 10px;
+            border-radius: 20px;
+        }
+        .pixel-cell {
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            border: 1px solid #888;
+            cursor: pointer;
+            image-rendering: crisp-edges;
+        }
+        .pixel-cell.selected {
+            border: 3px solid gold;
+        }
+        .color-palette {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        .color-swatch {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid #444;
+            cursor: pointer;
+        }
+        .color-swatch.selected {
+            border: 4px solid white;
+            box-shadow: 0 0 0 3px black;
         }
         .footer {
             margin-top: 30px;
@@ -253,7 +283,7 @@
 </head>
 <body>
 <div class="game-box">
-    <h1><i class="fas fa-seedling"></i> PvZ MAKER · EDICIÓN COMPLETA <i class="fas fa-skull"></i></h1>
+    <h1><i class="fas fa-seedling"></i> PvZ MAKER · SPRITE EDITOR <i class="fas fa-paint-brush"></i></h1>
 
     <!-- Pestañas -->
     <div class="tabs">
@@ -261,11 +291,12 @@
         <button class="tab-btn" data-tab="zombie"><i class="fas fa-skull"></i> Zombis</button>
         <button class="tab-btn" data-tab="wave"><i class="fas fa-water"></i> Oleadas</button>
         <button class="tab-btn" data-tab="map"><i class="fas fa-map"></i> Mapas</button>
+        <button class="tab-btn" data-tab="sprite"><i class="fas fa-draw-polygon"></i> Sprite 16x16</button>
         <button class="tab-btn" data-tab="play"><i class="fas fa-gamepad"></i> Jugar</button>
         <button class="tab-btn" data-tab="export"><i class="fas fa-file-export"></i> Mods</button>
     </div>
 
-    <!-- ================== PANEL PLANTAS ================== -->
+    <!-- ================== PANEL PLANTAS (con guardado múltiple) ================== -->
     <div id="plantPanel" class="panel">
         <div class="maker-grid">
             <div class="card">
@@ -299,45 +330,41 @@
                             <input type="range" id="plantHpSlider" min="30" max="500" value="100" step="10">
                         </div>
                         <div style="margin-top:10px;">
-                            <label><i class="fas fa-bolt"></i> Efecto especial:</label>
+                            <label><i class="fas fa-bolt"></i> Efecto:</label>
                             <select id="plantEffectSelect" class="select-field">
                                 <option value="none">Ninguno</option>
                                 <option value="slow">Ralentizador</option>
-                                <option value="fire">Fuego (daño extra)</option>
+                                <option value="fire">Fuego</option>
                                 <option value="poison">Veneno</option>
-                                <option value="splash">Área pequeña</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div style="margin-top:20px;">
-                    <label><i class="fas fa-project-diagram"></i> Tipo de ataque:</label>
+                <div>
+                    <label><i class="fas fa-project-diagram"></i> Ataque:</label>
                     <select id="attackTypeSelect" class="select-field">
-                        <option value="pea">🔫 Proyectil (guisante)</option>
-                        <option value="cabbage">🥬 Col (rebote)</option>
-                        <option value="melon">🍉 Melón (área)</option>
-                        <option value="bean">🫘 Judía (fila)</option>
+                        <option value="pea">🔫 Guisante</option>
+                        <option value="cabbage">🥬 Col</option>
+                        <option value="melon">🍉 Melón</option>
+                        <option value="bean">🫘 Judía</option>
                     </select>
+                </div>
+                <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-small" id="savePlantBtn"><i class="fas fa-save"></i> Guardar planta</button>
+                    <button class="btn btn-small" id="loadSpriteToPlantBtn"><i class="fas fa-image"></i> Usar sprite actual</button>
                 </div>
             </div>
             <div class="card">
-                <h2><i class="fas fa-paint-brush"></i> Apariencia</h2>
-                <div style="background:#e2cfaa; border-radius:40px; padding:20px;">
-                    <label><i class="fas fa-face-smile"></i> Cabeza:</label>
-                    <select id="headSelect" class="select-field">
-                        <option value="pea">Guisante</option>
-                        <option value="sunflower">Girasol</option>
-                        <option value="nut">Nuez</option>
-                        <option value="cherry">Cereza</option>
-                    </select>
-                    <label style="margin-top:15px; display:block;"><i class="fas fa-palette"></i> Color:</label>
-                    <input type="color" id="plantColor" value="#5aaf5a" style="width:100%; height:50px; border-radius:40px;">
+                <h2><i class="fas fa-folder-open"></i> Mis plantas guardadas</h2>
+                <div class="collection" id="savedPlantsCollection">
+                    <!-- Aquí se listarán las plantas guardadas -->
                 </div>
+                <p><i class="fas fa-info-circle"></i> Haz clic en una planta para cargarla en el editor.</p>
             </div>
         </div>
     </div>
 
-    <!-- ================== PANEL ZOMBIS ================== -->
+    <!-- ================== PANEL ZOMBIS (guardado múltiple) ================== -->
     <div id="zombiePanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
@@ -367,16 +394,24 @@
                             <option value="basic">Básico</option>
                             <option value="cone">Cono</option>
                             <option value="bucket">Cubo</option>
-                            <option value="newspaper">Periodico</option>
                         </select>
-                        <label style="margin-top:15px;"><i class="fas fa-mask"></i> Habilidad:</label>
+                        <label><i class="fas fa-mask"></i> Habilidad:</label>
                         <select id="zombieAbilitySelect" class="select-field">
                             <option value="none">Ninguna</option>
                             <option value="fast">Rápido</option>
                             <option value="tough">Resistente</option>
-                            <option value="regenerate">Regenera</option>
                         </select>
                     </div>
+                </div>
+                <div style="margin-top:20px;">
+                    <button class="btn btn-small" id="saveZombieBtn"><i class="fas fa-save"></i> Guardar zombi</button>
+                    <button class="btn btn-small" id="loadSpriteToZombieBtn"><i class="fas fa-image"></i> Usar sprite actual</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-folder-open"></i> Mis zombis guardados</h2>
+                <div class="collection" id="savedZombiesCollection">
+                    <!-- Lista de zombis guardados -->
                 </div>
             </div>
         </div>
@@ -387,28 +422,19 @@
         <div class="maker-grid">
             <div class="card">
                 <h2><i class="fas fa-water"></i> Editor de oleadas</h2>
-                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus-circle"></i> Añadir zombi actual</button>
                     <button class="btn btn-small" id="clearWaveBtn"><i class="fas fa-trash-alt"></i> Limpiar oleada</button>
                 </div>
-                <div class="wave-list" id="waveContainer">
-                    <!-- Los tags se generan aquí -->
-                </div>
-                <p style="margin-top:15px;"><i class="fas fa-info-circle"></i> Los zombis se añaden con las estadísticas actuales del creador de zombis.</p>
-            </div>
-            <div class="card">
-                <h2><i class="fas fa-list"></i> Configuración de oleada</h2>
-                <label><i class="fas fa-stopwatch"></i> Tiempo entre zombis (s):</label>
+                <div class="collection" id="waveContainer"></div>
+                <label><i class="fas fa-stopwatch"></i> Intervalo: <span id="waveIntervalVal">1.0 s</span></label>
                 <input type="range" id="waveIntervalSlider" min="0.5" max="5" value="1" step="0.1" style="width:100%;">
-                <span class="value-badge" id="waveIntervalVal">1.0 s</span>
-                <br><br>
-                <label><i class="fas fa-random"></i> Modo de spawn:</label>
+                <label>Modo spawn:</label>
                 <select id="spawnModeSelect" class="select-field">
-                    <option value="random">Aleatorio por carril</option>
-                    <option value="lane0">Solo carril 0</option>
-                    <option value="lane1">Solo carril 1</option>
-                    <option value="lane2">Solo carril 2</option>
-                    <option value="all">Todos los carriles</option>
+                    <option value="random">Aleatorio</option>
+                    <option value="lane0">Carril 0</option>
+                    <option value="lane1">Carril 1</option>
+                    <option value="lane2">Carril 2</option>
                 </select>
             </div>
         </div>
@@ -419,110 +445,95 @@
         <div class="maker-grid">
             <div class="card">
                 <h2><i class="fas fa-map"></i> Creador de mapas</h2>
-                <div style="background:#90b883; border-radius:40px; padding:20px; text-align:center;">
-                    <div id="mapPreview" style="display:flex; flex-direction:column; gap:5px; align-items:center;">
-                        <!-- Mapa generado dinámicamente -->
-                    </div>
-                </div>
+                <div id="mapPreview" style="display:flex; flex-direction:column; gap:5px; align-items:center;"></div>
             </div>
             <div class="card">
-                <h2><i class="fas fa-sliders-h"></i> Propiedades</h2>
-                <label>Filas:</label>
-                <input type="number" id="mapRows" min="3" max="6" value="3" class="select-field">
-                <label>Columnas:</label>
-                <input type="number" id="mapCols" min="4" max="9" value="5" class="select-field">
-                <label>Tipo de césped:</label>
+                <h2>Propiedades</h2>
+                <label>Filas:</label><input type="number" id="mapRows" min="3" max="6" value="3" class="select-field">
+                <label>Columnas:</label><input type="number" id="mapCols" min="4" max="9" value="5" class="select-field">
+                <label>Tipo césped:</label>
                 <select id="grassType" class="select-field">
-                    <option value="normal">Normal 🌿</option>
-                    <option value="pool">Piscina 💧</option>
-                    <option value="roof">Tejado 🏠</option>
+                    <option value="normal">🌿 Normal</option>
+                    <option value="pool">💧 Piscina</option>
+                    <option value="roof">🏠 Tejado</option>
                 </select>
-                <button class="btn btn-small" id="updateMapBtn" style="margin-top:20px;"><i class="fas fa-sync-alt"></i> Actualizar mapa</button>
+                <button class="btn btn-small" id="updateMapBtn"><i class="fas fa-sync-alt"></i> Actualizar</button>
             </div>
         </div>
     </div>
 
-    <!-- ================== PANEL JUGAR ================== -->
+    <!-- ================== PANEL SPRITE EDITOR 16x16 ================== -->
+    <div id="spritePanel" class="panel hidden-panel">
+        <div class="sprite-editor">
+            <h2><i class="fas fa-draw-polygon"></i> Editor de sprites 16x16</h2>
+            <div style="display:flex; gap:40px; flex-wrap:wrap; justify-content:center;">
+                <div>
+                    <div class="sprite-grid" id="spriteGrid"></div>
+                    <div class="color-palette" id="colorPalette"></div>
+                </div>
+                <div style="min-width:200px;">
+                    <h3>Herramientas</h3>
+                    <button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button>
+                    <button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button>
+                    <p>Color actual: <span id="currentColorDisplay" style="display:inline-block; width:40px; height:40px; background:black; border-radius:10px;"></span></p>
+                    <p><i class="fas fa-mouse-pointer"></i> Haz clic en los píxeles para pintar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================== PANEL JUGAR (con todas las plantas) ================== -->
     <div id="playPanel" class="panel hidden-panel">
         <div style="display:flex; gap:30px; flex-wrap:wrap;">
             <div style="flex:2;">
                 <h2><i class="fas fa-gamepad"></i> Campo de batalla</h2>
-                <div id="playMapContainer" style="background:#569b56; border-radius:60px; padding:20px;">
-                    <!-- Mapa dinámico -->
+                <div id="playMapContainer" style="background:#569b56; border-radius:60px; padding:20px;"></div>
+                <div style="margin-top:20px;">
+                    <h3><i class="fas fa-leaf"></i> Coloca tus plantas</h3>
+                    <div class="collection" id="playPlantPalette"></div>
+                    <p>Haz clic en una planta de la paleta y luego en una celda del mapa para colocarla.</p>
                 </div>
             </div>
             <div style="flex:1;">
                 <div class="card">
-                    <h3><i class="fas fa-leaf"></i> Planta activa</h3>
-                    <p id="playPlantStats">Daño:2, Vel:1.5s</p>
+                    <h3>Controles</h3>
                     <button class="btn btn-small" id="startWaveBtn"><i class="fas fa-play"></i> Iniciar oleada</button>
                     <button class="btn btn-small" id="resetGameBtn"><i class="fas fa-undo-alt"></i> Reiniciar</button>
                 </div>
                 <div class="card" style="margin-top:15px;">
                     <h3><i class="fas fa-skull"></i> Log</h3>
-                    <div id="gameLog" style="background:#3f623f; color:#f5eab0; border-radius:40px; padding:15px; min-height:100px;">
-                        ⏳ Listo para jugar
-                    </div>
+                    <div id="gameLog" style="background:#3f623f; color:#f5eab0; border-radius:40px; padding:15px; min-height:100px;">⏳ Listo</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================== PANEL EXPORT/IMPORT ================== -->
+    <!-- ================== PANEL EXPORT ================== -->
     <div id="exportPanel" class="panel hidden-panel">
         <div class="export-area">
-            <h2 style="color:#2b4f2b;"><i class="fas fa-file-export"></i> Exportar / Importar Mod</h2>
-            <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
-                <button class="btn" id="exportBtn"><i class="fas fa-download"></i> Exportar mod (.json)</button>
-                <label class="btn">
-                    <i class="fas fa-upload"></i> Importar mod
-                    <input type="file" id="importFile" accept=".json" style="display:none;">
-                </label>
-                <button class="btn" id="resetModBtn"><i class="fas fa-broom"></i> Nuevo mod (limpiar)</button>
+            <h2><i class="fas fa-file-export"></i> Exportar / Importar Mod</h2>
+            <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                <button class="btn" id="exportBtn"><i class="fas fa-download"></i> Exportar mod</button>
+                <label class="btn"><i class="fas fa-upload"></i> Importar mod <input type="file" id="importFile" accept=".json" style="display:none;"></label>
+                <button class="btn" id="resetModBtn"><i class="fas fa-broom"></i> Nuevo mod</button>
             </div>
-            <p style="margin-top:30px; background:#ecdbaa; border-radius:50px; padding:20px;">
-                <i class="fas fa-info-circle"></i> El archivo guardará todas las plantas, zombis, oleadas y mapas creados.
-            </p>
         </div>
     </div>
 
-    <div class="footer">
-        <i class="fas fa-heart"></i> Creador con mucho humanismo · inspirado en PvZ Maker de Romanian Meat Boy
-    </div>
+    <div class="footer"><i class="fas fa-heart"></i> Creador con editor de sprites 16x16</div>
 </div>
 
 <script>
     (function() {
-        // ---------- ESTADO GLOBAL DEL MOD ----------
+        // ---------- ESTADO GLOBAL ----------
         let modData = {
-            plant: {
-                damage: 2,
-                speed: 1.5,
-                range: 3,
-                sunCost: 50,
-                hp: 100,
-                effect: 'none',
-                attackType: 'pea',
-                head: 'pea',
-                color: '#5aaf5a'
-            },
-            zombie: {
-                hp: 5,
-                speed: 1,
-                armor: 0,
-                type: 'basic',
-                ability: 'none'
-            },
-            wave: {
-                zombies: [],            // array de {hp, speed, armor, type, ability}
-                interval: 1.0,
-                spawnMode: 'random'
-            },
-            map: {
-                rows: 3,
-                cols: 5,
-                grass: 'normal'
-            }
+            plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', head:'pea', color:'#5aaf5a', sprite:null },
+            zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null },
+            savedPlants: [],   // array de plantas completas (copia de modData.plant pero con nombre)
+            savedZombies: [],  // array de zombis guardados
+            wave: { zombies:[], interval:1.0, spawnMode:'random' },
+            map: { rows:3, cols:5, grass:'normal' },
+            currentSprite: Array(16).fill().map(() => Array(16).fill('#ffffff')) // sprite 16x16 blanco
         };
 
         // ---------- REFERENCIAS DOM ----------
@@ -539,14 +550,16 @@
         const plantHpSlider = document.getElementById('plantHpSlider');
         const plantEffectSelect = document.getElementById('plantEffectSelect');
         const attackTypeSelect = document.getElementById('attackTypeSelect');
-        const headSelect = document.getElementById('headSelect');
-        const plantColor = document.getElementById('plantColor');
+        const plantColor = document.getElementById('plantColor'); // puede ser redundante con sprite
         const damageVal = document.getElementById('damageVal');
         const speedVal = document.getElementById('speedVal');
         const rangeVal = document.getElementById('rangeVal');
         const sunCostVal = document.getElementById('sunCostVal');
         const plantHpVal = document.getElementById('plantHpVal');
         const plantNameDisplay = document.getElementById('plantNameDisplay');
+        const savePlantBtn = document.getElementById('savePlantBtn');
+        const savedPlantsCollection = document.getElementById('savedPlantsCollection');
+        const loadSpriteToPlantBtn = document.getElementById('loadSpriteToPlantBtn');
 
         // Zombie panel
         const zombieHpSlider = document.getElementById('zombieHpSlider');
@@ -558,6 +571,9 @@
         const zombieSpeedVal = document.getElementById('zombieSpeedVal');
         const armorVal = document.getElementById('armorVal');
         const zombieNameDisplay = document.getElementById('zombieNameDisplay');
+        const saveZombieBtn = document.getElementById('saveZombieBtn');
+        const savedZombiesCollection = document.getElementById('savedZombiesCollection');
+        const loadSpriteToZombieBtn = document.getElementById('loadSpriteToZombieBtn');
 
         // Wave panel
         const addZombieBtn = document.getElementById('addZombieToWave');
@@ -574,9 +590,16 @@
         const mapPreview = document.getElementById('mapPreview');
         const updateMapBtn = document.getElementById('updateMapBtn');
 
+        // Sprite panel
+        const spriteGrid = document.getElementById('spriteGrid');
+        const colorPalette = document.getElementById('colorPalette');
+        const clearSpriteBtn = document.getElementById('clearSpriteBtn');
+        const fillSpriteBtn = document.getElementById('fillSpriteBtn');
+        const currentColorDisplay = document.getElementById('currentColorDisplay');
+
         // Play panel
         const playMapContainer = document.getElementById('playMapContainer');
-        const playPlantStats = document.getElementById('playPlantStats');
+        const playPlantPalette = document.getElementById('playPlantPalette');
         const startWaveBtn = document.getElementById('startWaveBtn');
         const resetGameBtn = document.getElementById('resetGameBtn');
         const gameLog = document.getElementById('gameLog');
@@ -593,77 +616,98 @@
             zombie: document.getElementById('zombiePanel'),
             wave: document.getElementById('wavePanel'),
             map: document.getElementById('mapPanel'),
+            sprite: document.getElementById('spritePanel'),
             play: document.getElementById('playPanel'),
             export: document.getElementById('exportPanel')
         };
 
-        // ---------- FUNCIONES DE DIBUJO ----------
+        // ---------- FUNCIONES DE DIBUJO (con soporte de sprite) ----------
         function drawPlant() {
             ctxPlant.clearRect(0,0,180,180);
-            ctxPlant.fillStyle = modData.plant.color;
-            ctxPlant.beginPath();
-            ctxPlant.ellipse(90, 100, 40, 30, 0, 0, Math.PI*2);
-            ctxPlant.fill();
-            ctxPlant.fillStyle = '#3d8c40';
-            ctxPlant.beginPath();
-            ctxPlant.ellipse(90, 60, 25, 35, 0, 0, Math.PI*2);
-            ctxPlant.fill();
-            // Ojos
-            ctxPlant.fillStyle = '#fff';
-            ctxPlant.beginPath();
-            ctxPlant.arc(70, 50, 8, 0, Math.PI*2);
-            ctxPlant.arc(110, 50, 8, 0, Math.PI*2);
-            ctxPlant.fill();
+            if (modData.plant.sprite) {
+                // Dibujar sprite 16x16 escalado
+                let cellSize = 10; // 16*10=160, centrado en 180
+                let offset = 10;
+                for (let y=0; y<16; y++) {
+                    for (let x=0; x<16; x++) {
+                        ctxPlant.fillStyle = modData.plant.sprite[y][x];
+                        ctxPlant.fillRect(offset + x*cellSize, offset + y*cellSize, cellSize, cellSize);
+                    }
+                }
+            } else {
+                // dibujo por defecto
+                ctxPlant.fillStyle = modData.plant.color;
+                ctxPlant.beginPath();
+                ctxPlant.ellipse(90, 100, 40, 30, 0, 0, Math.PI*2);
+                ctxPlant.fill();
+                ctxPlant.fillStyle = '#3d8c40';
+                ctxPlant.beginPath();
+                ctxPlant.ellipse(90, 60, 25, 35, 0, 0, Math.PI*2);
+                ctxPlant.fill();
+                ctxPlant.fillStyle = '#fff';
+                ctxPlant.beginPath();
+                ctxPlant.arc(70, 50, 8, 0, Math.PI*2);
+                ctxPlant.arc(110, 50, 8, 0, Math.PI*2);
+                ctxPlant.fill();
+                ctxPlant.fillStyle = '#000';
+                ctxPlant.beginPath();
+                ctxPlant.arc(67, 47, 4, 0, Math.PI*2);
+                ctxPlant.arc(107, 47, 4, 0, Math.PI*2);
+                ctxPlant.fill();
+            }
+            ctxPlant.font = '20px Arial';
             ctxPlant.fillStyle = '#000';
-            ctxPlant.beginPath();
-            ctxPlant.arc(67, 47, 4, 0, Math.PI*2);
-            ctxPlant.arc(107, 47, 4, 0, Math.PI*2);
-            ctxPlant.fill();
-            // icono de ataque
-            ctxPlant.font = '25px "Segoe UI"';
-            ctxPlant.fillStyle = '#222';
-            if (modData.plant.attackType === 'pea') ctxPlant.fillText('🔫', 140, 40);
-            else if (modData.plant.attackType === 'cabbage') ctxPlant.fillText('🥬', 140, 40);
-            else if (modData.plant.attackType === 'melon') ctxPlant.fillText('🍉', 140, 40);
-            else if (modData.plant.attackType === 'bean') ctxPlant.fillText('🫘', 140, 40);
+            ctxPlant.fillText(modData.plant.attackType, 140, 30);
         }
 
         function drawZombie() {
             ctxZombie.clearRect(0,0,180,180);
             ctxZombie.fillStyle = '#4f704f';
             ctxZombie.fillRect(0,0,180,180);
-            ctxZombie.fillStyle = '#3f6132';
-            ctxZombie.beginPath();
-            ctxZombie.ellipse(90, 80, 30, 40, 0, 0, Math.PI*2);
-            ctxZombie.fill();
-            ctxZombie.fillStyle = '#8b5a2b';
-            ctxZombie.fillRect(70, 110, 40, 30);
-            ctxZombie.fillStyle = '#b77b3c';
-            ctxZombie.beginPath();
-            ctxZombie.arc(70, 60, 10, 0, Math.PI*2);
-            ctxZombie.arc(110, 60, 10, 0, Math.PI*2);
-            ctxZombie.fill();
-            ctxZombie.fillStyle = '#a00';
-            ctxZombie.beginPath();
-            ctxZombie.arc(80, 70, 5, 0, Math.PI*2);
-            ctxZombie.arc(100, 70, 5, 0, Math.PI*2);
-            ctxZombie.fill();
-            if (modData.zombie.type === 'cone') {
-                ctxZombie.fillStyle = '#f90';
+            if (modData.zombie.sprite) {
+                let cellSize = 10;
+                let offset = 10;
+                for (let y=0; y<16; y++) {
+                    for (let x=0; x<16; x++) {
+                        ctxZombie.fillStyle = modData.zombie.sprite[y][x];
+                        ctxZombie.fillRect(offset + x*cellSize, offset + y*cellSize, cellSize, cellSize);
+                    }
+                }
+            } else {
+                // dibujo por defecto
+                ctxZombie.fillStyle = '#3f6132';
                 ctxZombie.beginPath();
-                ctxZombie.moveTo(60, 35);
-                ctxZombie.lineTo(120, 35);
-                ctxZombie.lineTo(90, 10);
+                ctxZombie.ellipse(90, 80, 30, 40, 0, 0, Math.PI*2);
                 ctxZombie.fill();
-            } else if (modData.zombie.type === 'bucket') {
-                ctxZombie.fillStyle = '#c0c0c0';
+                ctxZombie.fillStyle = '#8b5a2b';
+                ctxZombie.fillRect(70, 110, 40, 30);
+                ctxZombie.fillStyle = '#b77b3c';
                 ctxZombie.beginPath();
-                ctxZombie.ellipse(90, 30, 20, 12, 0, 0, Math.PI*2);
+                ctxZombie.arc(70, 60, 10, 0, Math.PI*2);
+                ctxZombie.arc(110, 60, 10, 0, Math.PI*2);
                 ctxZombie.fill();
+                ctxZombie.fillStyle = '#a00';
+                ctxZombie.beginPath();
+                ctxZombie.arc(80, 70, 5, 0, Math.PI*2);
+                ctxZombie.arc(100, 70, 5, 0, Math.PI*2);
+                ctxZombie.fill();
+                if (modData.zombie.type === 'cone') {
+                    ctxZombie.fillStyle = '#f90';
+                    ctxZombie.beginPath();
+                    ctxZombie.moveTo(60, 35);
+                    ctxZombie.lineTo(120, 35);
+                    ctxZombie.lineTo(90, 10);
+                    ctxZombie.fill();
+                } else if (modData.zombie.type === 'bucket') {
+                    ctxZombie.fillStyle = '#c0c0c0';
+                    ctxZombie.beginPath();
+                    ctxZombie.ellipse(90, 30, 20, 12, 0, 0, Math.PI*2);
+                    ctxZombie.fill();
+                }
             }
         }
 
-        // Actualizar UI de plantas
+        // Actualizar UI
         function updatePlantUI() {
             damageVal.textContent = modData.plant.damage;
             speedVal.textContent = modData.plant.speed;
@@ -678,23 +722,87 @@
             zombieHpVal.textContent = modData.zombie.hp;
             zombieSpeedVal.textContent = modData.zombie.speed;
             armorVal.textContent = modData.zombie.armor;
-            let typeName = {basic:'Básico', cone:'Cono', bucket:'Cubo', newspaper:'Periodico'}[modData.zombie.type] || 'Zombi';
-            zombieNameDisplay.innerHTML = `🧟 ${typeName}`;
+            zombieNameDisplay.innerHTML = `🧟 ${modData.zombie.type}`;
             drawZombie();
         }
 
-        function updateWaveUI() {
-            waveContainer.innerHTML = '';
-            if (modData.wave.zombies.length === 0) waveContainer.innerHTML = '<span style="color:#6a4f2e;">⚡ No hay zombis en la oleada</span>';
-            modData.wave.zombies.forEach((z, idx) => {
-                let tag = document.createElement('span');
-                tag.className = 'zombie-tag';
-                tag.innerHTML = `🧟 ${z.type} ♥️${z.hp} 👟${z.speed}`;
-                waveContainer.appendChild(tag);
+        // Guardar planta actual en la colección
+        savePlantBtn.addEventListener('click', () => {
+            let plantCopy = JSON.parse(JSON.stringify(modData.plant));
+            plantCopy.name = `Planta ${modData.savedPlants.length+1}`;
+            modData.savedPlants.push(plantCopy);
+            renderSavedPlants();
+        });
+
+        function renderSavedPlants() {
+            savedPlantsCollection.innerHTML = '';
+            modData.savedPlants.forEach((p, idx) => {
+                let item = document.createElement('span');
+                item.className = 'collection-item';
+                item.innerHTML = `<i class="fas fa-leaf"></i> ${p.name || 'Planta'}`;
+                item.addEventListener('click', () => {
+                    modData.plant = JSON.parse(JSON.stringify(p));
+                    bindPlantSliders();
+                    updatePlantUI();
+                });
+                savedPlantsCollection.appendChild(item);
             });
-            waveIntervalVal.textContent = modData.wave.interval.toFixed(1) + ' s';
         }
 
+        saveZombieBtn.addEventListener('click', () => {
+            let zombieCopy = JSON.parse(JSON.stringify(modData.zombie));
+            zombieCopy.name = `Zombi ${modData.savedZombies.length+1}`;
+            modData.savedZombies.push(zombieCopy);
+            renderSavedZombies();
+        });
+
+        function renderSavedZombies() {
+            savedZombiesCollection.innerHTML = '';
+            modData.savedZombies.forEach((z, idx) => {
+                let item = document.createElement('span');
+                item.className = 'collection-item';
+                item.innerHTML = `<i class="fas fa-skull"></i> ${z.name || 'Zombi'}`;
+                item.addEventListener('click', () => {
+                    modData.zombie = JSON.parse(JSON.stringify(z));
+                    bindZombieSliders();
+                    updateZombieUI();
+                });
+                savedZombiesCollection.appendChild(item);
+            });
+        }
+
+        // Cargar sprite actual a planta/zombi
+        loadSpriteToPlantBtn.addEventListener('click', () => {
+            modData.plant.sprite = modData.currentSprite.map(row => [...row]);
+            drawPlant();
+        });
+        loadSpriteToZombieBtn.addEventListener('click', () => {
+            modData.zombie.sprite = modData.currentSprite.map(row => [...row]);
+            drawZombie();
+        });
+
+        // Oleada
+        function updateWaveUI() {
+            waveContainer.innerHTML = '';
+            modData.wave.zombies.forEach((z, idx) => {
+                let tag = document.createElement('span');
+                tag.className = 'collection-item';
+                tag.innerHTML = `🧟 ${z.type} ♥${z.hp}`;
+                waveContainer.appendChild(tag);
+            });
+            waveIntervalVal.textContent = modData.wave.interval.toFixed(1)+' s';
+        }
+
+        addZombieBtn.addEventListener('click', () => {
+            modData.wave.zombies.push({...modData.zombie});
+            updateWaveUI();
+        });
+        clearWaveBtn.addEventListener('click', () => {
+            modData.wave.zombies = [];
+            updateWaveUI();
+        });
+
+        // Mapa
         function updateMapPreview() {
             let rows = parseInt(mapRowsInput.value);
             let cols = parseInt(mapColsInput.value);
@@ -703,34 +811,158 @@
             modData.map.grass = grassTypeSelect.value;
             let html = '';
             for (let r=0; r<rows; r++) {
-                let rowDiv = '<div style="display:flex; gap:5px; justify-content:center;">';
+                html += '<div style="display:flex; gap:5px; justify-content:center;">';
                 for (let c=0; c<cols; c++) {
-                    let cellType = modData.map.grass === 'pool' ? '💧' : (modData.map.grass === 'roof' ? '🏠' : '🌿');
-                    rowDiv += `<div class="map-cell">${cellType}</div>`;
+                    let cellType = modData.map.grass==='pool'?'💧':(modData.map.grass==='roof'?'🏠':'🌿');
+                    html += `<div class="map-cell">${cellType}</div>`;
                 }
-                rowDiv += '</div>';
-                html += rowDiv;
+                html += '</div>';
             }
             mapPreview.innerHTML = html;
         }
 
-        // Cargar mapa en el panel jugar
-        function loadPlayMap() {
-            let rows = modData.map.rows;
-            let cols = modData.map.cols;
-            let html = '<div style="display:flex; flex-direction:column; gap:10px;">';
-            for (let r=0; r<rows; r++) {
-                html += '<div style="display:flex; gap:8px; justify-content:center;">';
-                for (let c=0; c<cols; c++) {
-                    html += `<div style="width:70px; height:70px; background:#6ca56c; border-radius:30px; border:4px solid #b0e0a0; display:flex; align-items:center; justify-content:center; font-size:24px;">🌱</div>`;
+        updateMapBtn.addEventListener('click', updateMapPreview);
+
+        // Sprite editor
+        const colors = ['#000000','#ffffff','#ff0000','#00ff00','#0000ff','#ffff00','#ff8800','#8800ff','#a52a2a','#808080'];
+        let currentColor = '#000000';
+        let painting = false;
+
+        function buildSpriteGrid() {
+            spriteGrid.innerHTML = '';
+            for (let y=0; y<16; y++) {
+                for (let x=0; x<16; x++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'pixel-cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    cell.style.backgroundColor = modData.currentSprite[y][x];
+                    cell.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        painting = true;
+                        setPixel(parseInt(e.target.dataset.x), parseInt(e.target.dataset.y));
+                    });
+                    cell.addEventListener('mouseenter', (e) => {
+                        if (painting) setPixel(parseInt(e.target.dataset.x), parseInt(e.target.dataset.y));
+                    });
+                    spriteGrid.appendChild(cell);
                 }
-                html += '</div>';
             }
-            html += '</div>';
-            playMapContainer.innerHTML = html;
+            document.addEventListener('mouseup', () => painting = false);
         }
 
-        // ---------- SINCRONIZAR SLIDERS CON MODDATA ----------
+        function setPixel(x, y) {
+            modData.currentSprite[y][x] = currentColor;
+            let cell = spriteGrid.children[y*16 + x];
+            if (cell) cell.style.backgroundColor = currentColor;
+        }
+
+        function buildPalette() {
+            colorPalette.innerHTML = '';
+            colors.forEach(c => {
+                let swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = c;
+                swatch.addEventListener('click', () => {
+                    currentColor = c;
+                    currentColorDisplay.style.backgroundColor = c;
+                });
+                colorPalette.appendChild(swatch);
+            });
+        }
+
+        clearSpriteBtn.addEventListener('click', () => {
+            modData.currentSprite = Array(16).fill().map(() => Array(16).fill('#ffffff'));
+            buildSpriteGrid();
+        });
+        fillSpriteBtn.addEventListener('click', () => {
+            modData.currentSprite = Array(16).fill().map(() => Array(16).fill(currentColor));
+            buildSpriteGrid();
+        });
+
+        // Play panel: cargar paleta de plantas guardadas
+        function loadPlayPalette() {
+            playPlantPalette.innerHTML = '';
+            modData.savedPlants.forEach((p, idx) => {
+                let btn = document.createElement('span');
+                btn.className = 'collection-item';
+                btn.innerHTML = `<i class="fas fa-leaf"></i> ${p.name || 'Planta'}`;
+                btn.addEventListener('click', () => {
+                    // Aquí se selecciona la planta para colocar (se puede implementar luego)
+                    gameLog.innerHTML = `Planta "${p.name}" seleccionada. Haz clic en una celda.`;
+                    window.selectedPlant = p;
+                });
+                playPlantPalette.appendChild(btn);
+            });
+        }
+
+        // Simulación de juego simple
+        startWaveBtn.addEventListener('click', () => {
+            if (modData.wave.zombies.length === 0) {
+                alert('Crea una oleada primero');
+                return;
+            }
+            gameLog.innerHTML = '⚔️ Oleada iniciada. Los zombis atacan! (simulación)';
+        });
+        resetGameBtn.addEventListener('click', () => {
+            gameLog.innerHTML = '⏳ Juego reiniciado';
+        });
+
+        // Export/Import
+        exportBtn.addEventListener('click', () => {
+            const dataStr = JSON.stringify(modData, null, 2);
+            const blob = new Blob([dataStr], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pvzmaker_mod.json';
+            a.click();
+        });
+
+        importFile.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        modData = JSON.parse(ev.target.result);
+                        // restaurar todo
+                        bindPlantSliders();
+                        bindZombieSliders();
+                        updatePlantUI();
+                        updateZombieUI();
+                        renderSavedPlants();
+                        renderSavedZombies();
+                        updateWaveUI();
+                        updateMapPreview();
+                        buildSpriteGrid();
+                        alert('Mod importado');
+                    } catch(ex) { alert('Archivo inválido'); }
+                };
+                reader.readAsText(e.target.files[0]);
+            }
+        });
+
+        resetModBtn.addEventListener('click', () => {
+            modData = {
+                plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', head:'pea', color:'#5aaf5a', sprite:null },
+                zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null },
+                savedPlants: [],
+                savedZombies: [],
+                wave: { zombies:[], interval:1.0, spawnMode:'random' },
+                map: { rows:3, cols:5, grass:'normal' },
+                currentSprite: Array(16).fill().map(() => Array(16).fill('#ffffff'))
+            };
+            bindPlantSliders();
+            bindZombieSliders();
+            updatePlantUI();
+            updateZombieUI();
+            renderSavedPlants();
+            renderSavedZombies();
+            updateWaveUI();
+            updateMapPreview();
+            buildSpriteGrid();
+        });
+
         function bindPlantSliders() {
             damageSlider.value = modData.plant.damage;
             speedSlider.value = modData.plant.speed;
@@ -739,7 +971,6 @@
             plantHpSlider.value = modData.plant.hp;
             plantEffectSelect.value = modData.plant.effect;
             attackTypeSelect.value = modData.plant.attackType;
-            headSelect.value = modData.plant.head;
             plantColor.value = modData.plant.color;
         }
 
@@ -751,55 +982,24 @@
             zombieAbilitySelect.value = modData.zombie.ability;
         }
 
-        function bindWaveUI() {
-            waveIntervalSlider.value = modData.wave.interval;
-            spawnModeSelect.value = modData.wave.spawnMode;
-            updateWaveUI();
-        }
-
-        // Event listeners para actualizar modData
+        // Event listeners de sliders
         damageSlider.addEventListener('input', (e) => { modData.plant.damage = parseFloat(e.target.value); updatePlantUI(); });
         speedSlider.addEventListener('input', (e) => { modData.plant.speed = parseFloat(e.target.value); updatePlantUI(); });
         rangeSlider.addEventListener('input', (e) => { modData.plant.range = parseInt(e.target.value); updatePlantUI(); });
         sunCostSlider.addEventListener('input', (e) => { modData.plant.sunCost = parseInt(e.target.value); updatePlantUI(); });
         plantHpSlider.addEventListener('input', (e) => { modData.plant.hp = parseInt(e.target.value); updatePlantUI(); });
-        plantEffectSelect.addEventListener('change', (e) => { modData.plant.effect = e.target.value; updatePlantUI(); });
+        plantEffectSelect.addEventListener('change', (e) => { modData.plant.effect = e.target.value; });
         attackTypeSelect.addEventListener('change', (e) => { modData.plant.attackType = e.target.value; updatePlantUI(); });
-        headSelect.addEventListener('change', (e) => { modData.plant.head = e.target.value; drawPlant(); });
         plantColor.addEventListener('input', (e) => { modData.plant.color = e.target.value; drawPlant(); });
 
         zombieHpSlider.addEventListener('input', (e) => { modData.zombie.hp = parseInt(e.target.value); updateZombieUI(); });
         zombieSpeedSlider.addEventListener('input', (e) => { modData.zombie.speed = parseFloat(e.target.value); updateZombieUI(); });
         armorSlider.addEventListener('input', (e) => { modData.zombie.armor = parseInt(e.target.value); updateZombieUI(); });
         zombieTypeSelect.addEventListener('change', (e) => { modData.zombie.type = e.target.value; updateZombieUI(); });
-        zombieAbilitySelect.addEventListener('change', (e) => { modData.zombie.ability = e.target.value; updateZombieUI(); });
+        zombieAbilitySelect.addEventListener('change', (e) => { modData.zombie.ability = e.target.value; });
 
-        waveIntervalSlider.addEventListener('input', (e) => { modData.wave.interval = parseFloat(e.target.value); waveIntervalVal.textContent = modData.wave.interval.toFixed(1) + ' s'; });
+        waveIntervalSlider.addEventListener('input', (e) => { modData.wave.interval = parseFloat(e.target.value); waveIntervalVal.textContent = modData.wave.interval.toFixed(1)+' s'; });
         spawnModeSelect.addEventListener('change', (e) => { modData.wave.spawnMode = e.target.value; });
-
-        addZombieBtn.addEventListener('click', () => {
-            modData.wave.zombies.push({
-                hp: modData.zombie.hp,
-                speed: modData.zombie.speed,
-                armor: modData.zombie.armor,
-                type: modData.zombie.type,
-                ability: modData.zombie.ability
-            });
-            updateWaveUI();
-        });
-
-        clearWaveBtn.addEventListener('click', () => {
-            modData.wave.zombies = [];
-            updateWaveUI();
-        });
-
-        updateMapBtn.addEventListener('click', () => {
-            modData.map.rows = parseInt(mapRowsInput.value);
-            modData.map.cols = parseInt(mapColsInput.value);
-            modData.map.grass = grassTypeSelect.value;
-            updateMapPreview();
-            loadPlayMap(); // actualizar también el mapa de juego
-        });
 
         // Tabs
         tabBtns.forEach(btn => {
@@ -809,105 +1009,24 @@
                 const tab = btn.dataset.tab;
                 Object.values(panels).forEach(p => p.classList.add('hidden-panel'));
                 panels[tab].classList.remove('hidden-panel');
-                if (tab === 'play') {
-                    playPlantStats.innerText = `Daño:${modData.plant.damage} Vel:${modData.plant.speed}s`;
-                    loadPlayMap();
-                }
+                if (tab === 'play') loadPlayPalette();
                 if (tab === 'map') updateMapPreview();
-                if (tab === 'wave') updateWaveUI();
+                if (tab === 'sprite') buildSpriteGrid();
             });
-        });
-
-        // ---------- EXPORTAR / IMPORTAR ----------
-        function downloadMod() {
-            const dataStr = JSON.stringify(modData, null, 2);
-            const blob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pvzmaker_mod.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function importModFromFile(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    // Validación básica
-                    if (imported.plant && imported.zombie && imported.wave && imported.map) {
-                        modData = imported;
-                        // Actualizar todos los sliders y vistas
-                        bindPlantSliders();
-                        bindZombieSliders();
-                        bindWaveUI();
-                        updatePlantUI();
-                        updateZombieUI();
-                        updateMapPreview();
-                        loadPlayMap();
-                        alert('✅ Mod importado correctamente');
-                    } else {
-                        alert('❌ Archivo inválido');
-                    }
-                } catch (error) {
-                    alert('❌ Error al leer archivo');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        exportBtn.addEventListener('click', downloadMod);
-
-        importFile.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                importModFromFile(e.target.files[0]);
-            }
-            e.target.value = ''; // reset
-        });
-
-        resetModBtn.addEventListener('click', () => {
-            modData = {
-                plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', head:'pea', color:'#5aaf5a' },
-                zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none' },
-                wave: { zombies:[], interval:1.0, spawnMode:'random' },
-                map: { rows:3, cols:5, grass:'normal' }
-            };
-            bindPlantSliders();
-            bindZombieSliders();
-            bindWaveUI();
-            updatePlantUI();
-            updateZombieUI();
-            updateMapPreview();
-            loadPlayMap();
-            alert('🔄 Nuevo mod creado');
-        });
-
-        // Simulación de juego simple (solo para demostración)
-        startWaveBtn.addEventListener('click', () => {
-            if (modData.wave.zombies.length === 0) {
-                alert('Primero crea una oleada con zombies');
-                return;
-            }
-            gameLog.innerHTML = '⚔️ Oleada iniciada (simulación básica)... Los zombis atacan!';
-            // Aquí se podría implementar un loop real, pero es un demo
-        });
-
-        resetGameBtn.addEventListener('click', () => {
-            gameLog.innerHTML = '⏳ Juego reiniciado';
         });
 
         // Inicialización
         bindPlantSliders();
         bindZombieSliders();
-        bindWaveUI();
         updatePlantUI();
         updateZombieUI();
+        renderSavedPlants();
+        renderSavedZombies();
+        updateWaveUI();
         updateMapPreview();
-        loadPlayMap();
-
-        // Mostrar panel inicial
-        panels.plant.classList.remove('hidden-panel');
+        buildPalette();
+        buildSpriteGrid();
+        panels.plant.classList.remove('hidden-panel'); // Mostrar plant por defecto
     })();
 </script>
 </body>
