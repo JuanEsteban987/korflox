@@ -3,289 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌱 PvZ Maker · Creador completo con sprites 16x16</title>
+    <title>🌱 PvZ Maker · Completo y funcional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Estilos generales (se mantienen los anteriores y se añaden nuevos) */
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background: linear-gradient(145deg, #4f7a4f 0%, #2b5e2b 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .game-box {
-            max-width: 1400px;
-            width: 100%;
-            background: #fef7e6;
-            border-radius: 50px 50px 30px 30px;
-            box-shadow: 0 25px 35px rgba(0, 20, 0, 0.6), inset 0 0 0 3px #d4c2a2;
-            padding: 24px;
-        }
-        h1 {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 3rem;
-            font-weight: 800;
-            color: #fdf8e7;
-            text-shadow: 5px 5px 0 #3f6b33, 7px 7px 0 #1f451f;
-            margin: 0 0 15px 15px;
-        }
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 25px;
-            background: #b89b7a;
-            padding: 15px 20px;
-            border-radius: 80px;
-            box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
-        }
-        .tab-btn {
-            background: #faeac6;
-            border: none;
-            border-radius: 50px;
-            padding: 14px 28px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #3d623d;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #a88658, 0 8px 12px rgba(0,0,0,0.2);
-            transition: 0.1s ease;
-            border: 2px solid #fff3d1;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .tab-btn.active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #8b6c48, 0 5px 10px rgba(0,0,0,0.2);
-            background: #fff2d1;
-        }
-        .panel {
-            background: #ecdec6;
-            border-radius: 70px;
-            padding: 30px;
-            border: 5px solid #e1cdaa;
-            box-shadow: inset 0 0 0 4px #fcf5e6, 0 15px 20px rgba(0, 0, 0, 0.3);
-            display: block;
-        }
-        .hidden-panel {
-            display: none;
-        }
-        .maker-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-        }
-        .card {
-            background: #fcf1dc;
-            border-radius: 50px;
-            padding: 25px;
-            box-shadow: inset 0 -3px 0 #d4b084, 0 10px 15px rgba(0,0,0,0.2);
-            border: 3px solid #ffeec2;
-        }
-        .card h2 {
-            font-size: 2rem;
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #3f643f;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 4px dashed #c9b28b;
-            padding-bottom: 10px;
-        }
-        .preview-box {
-            background: #82b474;
-            border-radius: 50px;
-            padding: 20px;
-            border: 6px solid #c0e0a8;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .preview-canvas {
-            width: 180px;
-            height: 180px;
-            background: #549055;
-            border-radius: 40px;
-            margin: 0 auto;
-            box-shadow: inset 0 0 0 5px #b4e09b;
-            image-rendering: crisp-edges;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .slider-group {
-            background: #efdbb6;
-            border-radius: 40px;
-            padding: 15px;
-            border: 3px solid #f8e5c4;
-        }
-        .slider-item {
-            margin-bottom: 18px;
-        }
-        .slider-item label {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            color: #2e4e2e;
-            font-size: 1.2rem;
-        }
-        input[type=range] {
-            width: 100%;
-            accent-color: #e9b35f;
-            height: 10px;
-        }
-        .value-badge {
-            background: #1f421f;
-            color: #f9e57c;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-family: monospace;
-            font-size: 1.2rem;
-        }
-        .select-field {
-            background: #ffe3b7;
-            padding: 12px 20px;
-            border-radius: 40px;
-            border: 3px solid #edc289;
-            font-size: 1.2rem;
-            width: 100%;
-            margin: 10px 0;
-            font-weight: bold;
-            color: #1e3d1e;
-        }
-        .btn {
-            background: #feda8b;
-            border: none;
-            border-radius: 50px;
-            padding: 16px 28px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #294729;
-            box-shadow: 0 6px 0 #bb964b;
-            cursor: pointer;
-            transition: 0.08s;
-            border: 3px solid #ffe39e;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 5px;
-        }
-        .btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #9e7c3b;
-        }
-        .btn-small {
-            padding: 12px 20px;
-            font-size: 1.1rem;
-        }
-        .collection {
-            background: #b8d9a8;
-            border-radius: 50px;
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            min-height: 150px;
-            border: 4px solid #dbf0c7;
-            align-items: center;
-        }
-        .collection-item {
-            background: #4f7a4f;
-            color: #ffefc0;
-            padding: 12px 18px;
-            border-radius: 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 3px solid #b1d893;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-        .collection-item:hover {
-            transform: scale(1.05);
-            background: #5f8e5f;
-        }
-        .collection-item i {
-            font-size: 1.5rem;
-        }
-        /* Editor de sprites */
-        .sprite-editor {
-            background: #cfb28b;
-            border-radius: 60px;
-            padding: 25px;
-            margin-top: 25px;
-            border: 5px solid #f2dbb6;
-        }
-        .sprite-grid {
-            display: grid;
-            grid-template-columns: repeat(16, 30px);
-            grid-template-rows: repeat(16, 30px);
-            gap: 2px;
-            justify-content: center;
-            background: #aaa;
-            padding: 10px;
-            border-radius: 20px;
-        }
-        .pixel-cell {
-            width: 30px;
-            height: 30px;
-            background-color: #fff;
-            border: 1px solid #888;
-            cursor: pointer;
-            image-rendering: crisp-edges;
-        }
-        .pixel-cell.selected {
-            border: 3px solid gold;
-        }
-        .color-palette {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-            justify-content: center;
-        }
-        .color-swatch {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 3px solid #444;
-            cursor: pointer;
-        }
-        .color-swatch.selected {
-            border: 4px solid white;
-            box-shadow: 0 0 0 3px black;
-        }
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #fee6a8;
-            font-weight: bold;
-            font-size: 1.3rem;
-            text-shadow: 2px 2px 0 #396339;
-        }
+        /* Mismos estilos que antes, pero los compacto por brevedad */
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
+        body { background: linear-gradient(145deg, #4f7a4f 0%, #2b5e2b 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
+        .game-box { max-width: 1400px; width: 100%; background: #fef7e6; border-radius: 50px 50px 30px 30px; box-shadow: 0 25px 35px rgba(0,20,0,0.6), inset 0 0 0 3px #d4c2a2; padding: 24px; }
+        h1 { display: flex; align-items: center; gap: 15px; font-size: 3rem; font-weight: 800; color: #fdf8e7; text-shadow: 5px 5px 0 #3f6b33, 7px 7px 0 #1f451f; margin: 0 0 15px 15px; }
+        .tabs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; background: #b89b7a; padding: 15px 20px; border-radius: 80px; box-shadow: inset 0 3px 8px rgba(0,0,0,0.2); }
+        .tab-btn { background: #faeac6; border: none; border-radius: 50px; padding: 14px 28px; font-size: 1.3rem; font-weight: bold; color: #3d623d; cursor: pointer; box-shadow: 0 6px 0 #a88658, 0 8px 12px rgba(0,0,0,0.2); transition: 0.1s; border: 2px solid #fff3d1; display: flex; align-items: center; gap: 10px; }
+        .tab-btn.active { transform: translateY(4px); box-shadow: 0 2px 0 #8b6c48, 0 5px 10px rgba(0,0,0,0.2); background: #fff2d1; }
+        .panel { background: #ecdec6; border-radius: 70px; padding: 30px; border: 5px solid #e1cdaa; box-shadow: inset 0 0 0 4px #fcf5e6, 0 15px 20px rgba(0,0,0,0.3); display: block; }
+        .hidden-panel { display: none; }
+        .maker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+        .card { background: #fcf1dc; border-radius: 50px; padding: 25px; box-shadow: inset 0 -3px 0 #d4b084, 0 10px 15px rgba(0,0,0,0.2); border: 3px solid #ffeec2; }
+        .card h2 { font-size: 2rem; margin-top: 0; margin-bottom: 20px; color: #3f643f; display: flex; align-items: center; gap: 10px; border-bottom: 4px dashed #c9b28b; padding-bottom: 10px; }
+        .preview-box { background: #82b474; border-radius: 50px; padding: 20px; border: 6px solid #c0e0a8; margin-bottom: 20px; text-align: center; }
+        .preview-canvas { width: 180px; height: 180px; background: #549055; border-radius: 40px; margin: 0 auto; box-shadow: inset 0 0 0 5px #b4e09b; image-rendering: crisp-edges; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .slider-group { background: #efdbb6; border-radius: 40px; padding: 15px; border: 3px solid #f8e5c4; }
+        .slider-item { margin-bottom: 18px; }
+        .slider-item label { display: flex; justify-content: space-between; font-weight: 600; color: #2e4e2e; font-size: 1.2rem; }
+        input[type=range] { width: 100%; accent-color: #e9b35f; height: 10px; }
+        .value-badge { background: #1f421f; color: #f9e57c; padding: 4px 12px; border-radius: 40px; font-family: monospace; font-size: 1.2rem; }
+        .select-field { background: #ffe3b7; padding: 12px 20px; border-radius: 40px; border: 3px solid #edc289; font-size: 1.2rem; width: 100%; margin: 10px 0; font-weight: bold; color: #1e3d1e; }
+        .btn { background: #feda8b; border: none; border-radius: 50px; padding: 16px 28px; font-size: 1.3rem; font-weight: bold; color: #294729; box-shadow: 0 6px 0 #bb964b; cursor: pointer; transition: 0.08s; border: 3px solid #ffe39e; display: inline-flex; align-items: center; justify-content: center; gap: 12px; margin: 5px; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #9e7c3b; }
+        .btn-small { padding: 12px 20px; font-size: 1.1rem; }
+        .collection { background: #b8d9a8; border-radius: 50px; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; min-height: 150px; border: 4px solid #dbf0c7; align-items: center; }
+        .collection-item { background: #4f7a4f; color: #ffefc0; padding: 12px 18px; border-radius: 40px; font-size: 1.2rem; font-weight: bold; border: 3px solid #b1d893; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.1s; }
+        .collection-item:hover { transform: scale(1.05); background: #5f8e5f; }
+        .sprite-editor { background: #cfb28b; border-radius: 60px; padding: 25px; margin-top: 25px; border: 5px solid #f2dbb6; }
+        .sprite-grid { display: grid; grid-template-columns: repeat(16, 30px); grid-template-rows: repeat(16, 30px); gap: 2px; justify-content: center; background: #aaa; padding: 10px; border-radius: 20px; }
+        .pixel-cell { width: 30px; height: 30px; background-color: #fff; border: 1px solid #888; cursor: pointer; }
+        .color-palette { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; justify-content: center; }
+        .color-swatch { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #444; cursor: pointer; }
+        .map-cell { width: 60px; height: 60px; background: #86bf6f; border-radius: 20px; border: 3px solid #c0f0a0; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin: 3px; cursor: pointer; }
+        .footer { margin-top: 30px; text-align: center; color: #fee6a8; font-weight: bold; font-size: 1.3rem; text-shadow: 2px 2px 0 #396339; }
     </style>
 </head>
 <body>
 <div class="game-box">
-    <h1><i class="fas fa-seedling"></i> PvZ MAKER · SPRITE EDITOR <i class="fas fa-paint-brush"></i></h1>
-
-    <!-- Pestañas -->
+    <h1><i class="fas fa-seedling"></i> PvZ MAKER · TODO FUNCIONAL <i class="fas fa-bug"></i></h1>
     <div class="tabs">
         <button class="tab-btn active" data-tab="plant"><i class="fas fa-leaf"></i> Plantas</button>
         <button class="tab-btn" data-tab="zombie"><i class="fas fa-skull"></i> Zombis</button>
@@ -296,245 +56,118 @@
         <button class="tab-btn" data-tab="export"><i class="fas fa-file-export"></i> Mods</button>
     </div>
 
-    <!-- ================== PANEL PLANTAS (con guardado múltiple) ================== -->
+    <!-- Paneles (estructura idéntica a la anterior, pero con contenido) -->
+    <!-- PLANTAS -->
     <div id="plantPanel" class="panel">
         <div class="maker-grid">
             <div class="card">
                 <h2><i class="fas fa-seedling"></i> Creador de plantas</h2>
-                <div class="preview-box">
-                    <canvas id="plantCanvas" class="preview-canvas" width="180" height="180"></canvas>
-                    <div style="font-size:1.8rem; margin-top:10px;" id="plantNameDisplay">🌱 Guisante</div>
-                </div>
+                <div class="preview-box"><canvas id="plantCanvas" class="preview-canvas" width="180" height="180"></canvas><div id="plantNameDisplay">🌱 Guisante</div></div>
                 <div class="stats-grid">
                     <div class="slider-group">
-                        <div class="slider-item">
-                            <label><i class="fas fa-fist-raised"></i> Daño <span class="value-badge" id="damageVal">2</span></label>
-                            <input type="range" id="damageSlider" min="0.5" max="10" value="2" step="0.5">
-                        </div>
-                        <div class="slider-item">
-                            <label><i class="fas fa-clock"></i> Vel. ataque (s) <span class="value-badge" id="speedVal">1.5</span></label>
-                            <input type="range" id="speedSlider" min="0.3" max="4" value="1.5" step="0.1">
-                        </div>
-                        <div class="slider-item">
-                            <label><i class="fas fa-bullseye"></i> Rango <span class="value-badge" id="rangeVal">3</span></label>
-                            <input type="range" id="rangeSlider" min="1" max="8" value="3" step="1">
-                        </div>
+                        <div class="slider-item"><label>💥 Daño <span class="value-badge" id="damageVal">2</span></label><input type="range" id="damageSlider" min="0.5" max="10" value="2" step="0.5"></div>
+                        <div class="slider-item"><label>⏱️ Vel (s) <span class="value-badge" id="speedVal">1.5</span></label><input type="range" id="speedSlider" min="0.3" max="4" value="1.5" step="0.1"></div>
+                        <div class="slider-item"><label>🎯 Rango <span class="value-badge" id="rangeVal">3</span></label><input type="range" id="rangeSlider" min="1" max="8" value="3" step="1"></div>
                     </div>
                     <div class="slider-group">
-                        <div class="slider-item">
-                            <label><i class="fas fa-sun"></i> Coste sol <span class="value-badge" id="sunCostVal">50</span></label>
-                            <input type="range" id="sunCostSlider" min="25" max="300" value="50" step="5">
-                        </div>
-                        <div class="slider-item">
-                            <label><i class="fas fa-heart"></i> Salud <span class="value-badge" id="plantHpVal">100</span></label>
-                            <input type="range" id="plantHpSlider" min="30" max="500" value="100" step="10">
-                        </div>
-                        <div style="margin-top:10px;">
-                            <label><i class="fas fa-bolt"></i> Efecto:</label>
-                            <select id="plantEffectSelect" class="select-field">
-                                <option value="none">Ninguno</option>
-                                <option value="slow">Ralentizador</option>
-                                <option value="fire">Fuego</option>
-                                <option value="poison">Veneno</option>
-                            </select>
-                        </div>
+                        <div class="slider-item"><label>☀️ Coste <span class="value-badge" id="sunCostVal">50</span></label><input type="range" id="sunCostSlider" min="25" max="300" value="50" step="5"></div>
+                        <div class="slider-item"><label>❤️ Salud <span class="value-badge" id="plantHpVal">100</span></label><input type="range" id="plantHpSlider" min="30" max="500" value="100" step="10"></div>
+                        <label>⚡ Efecto: <select id="plantEffectSelect" class="select-field"><option value="none">Ninguno</option><option value="slow">Ralentizador</option><option value="fire">Fuego</option><option value="poison">Veneno</option></select></label>
                     </div>
                 </div>
-                <div>
-                    <label><i class="fas fa-project-diagram"></i> Ataque:</label>
-                    <select id="attackTypeSelect" class="select-field">
-                        <option value="pea">🔫 Guisante</option>
-                        <option value="cabbage">🥬 Col</option>
-                        <option value="melon">🍉 Melón</option>
-                        <option value="bean">🫘 Judía</option>
-                    </select>
-                </div>
-                <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn btn-small" id="savePlantBtn"><i class="fas fa-save"></i> Guardar planta</button>
-                    <button class="btn btn-small" id="loadSpriteToPlantBtn"><i class="fas fa-image"></i> Usar sprite actual</button>
-                </div>
+                <label>🔫 Ataque: <select id="attackTypeSelect" class="select-field"><option value="pea">Guisante</option><option value="cabbage">Col</option><option value="melon">Melón</option><option value="bean">Judía</option></select></label>
+                <div style="margin:20px 0; display:flex; gap:10px;"><button class="btn btn-small" id="savePlantBtn"><i class="fas fa-save"></i> Guardar planta</button><button class="btn btn-small" id="loadSpriteToPlantBtn"><i class="fas fa-image"></i> Usar sprite actual</button></div>
             </div>
-            <div class="card">
-                <h2><i class="fas fa-folder-open"></i> Mis plantas guardadas</h2>
-                <div class="collection" id="savedPlantsCollection">
-                    <!-- Aquí se listarán las plantas guardadas -->
-                </div>
-                <p><i class="fas fa-info-circle"></i> Haz clic en una planta para cargarla en el editor.</p>
-            </div>
+            <div class="card"><h2><i class="fas fa-folder-open"></i> Mis plantas</h2><div class="collection" id="savedPlantsCollection"></div></div>
         </div>
     </div>
 
-    <!-- ================== PANEL ZOMBIS (guardado múltiple) ================== -->
+    <!-- ZOMBIS -->
     <div id="zombiePanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
                 <h2><i class="fas fa-skull"></i> Creador de zombis</h2>
-                <div class="preview-box">
-                    <canvas id="zombieCanvas" class="preview-canvas" width="180" height="180"></canvas>
-                    <div style="font-size:1.8rem;" id="zombieNameDisplay">🧟 Básico</div>
-                </div>
+                <div class="preview-box"><canvas id="zombieCanvas" class="preview-canvas" width="180" height="180"></canvas><div id="zombieNameDisplay">🧟 Básico</div></div>
                 <div class="stats-grid">
                     <div class="slider-group">
-                        <div class="slider-item">
-                            <label><i class="fas fa-heart"></i> Vida <span class="value-badge" id="zombieHpVal">5</span></label>
-                            <input type="range" id="zombieHpSlider" min="2" max="50" value="5" step="1">
-                        </div>
-                        <div class="slider-item">
-                            <label><i class="fas fa-shoe-prints"></i> Velocidad <span class="value-badge" id="zombieSpeedVal">1</span></label>
-                            <input type="range" id="zombieSpeedSlider" min="0.3" max="3" value="1" step="0.1">
-                        </div>
-                        <div class="slider-item">
-                            <label><i class="fas fa-shield-alt"></i> Armadura <span class="value-badge" id="armorVal">0</span></label>
-                            <input type="range" id="armorSlider" min="0" max="10" value="0" step="1">
-                        </div>
+                        <div class="slider-item"><label>❤️ Vida <span class="value-badge" id="zombieHpVal">5</span></label><input type="range" id="zombieHpSlider" min="2" max="50" value="5" step="1"></div>
+                        <div class="slider-item"><label>👟 Velocidad <span class="value-badge" id="zombieSpeedVal">1</span></label><input type="range" id="zombieSpeedSlider" min="0.3" max="3" value="1" step="0.1"></div>
+                        <div class="slider-item"><label>🛡️ Armadura <span class="value-badge" id="armorVal">0</span></label><input type="range" id="armorSlider" min="0" max="10" value="0" step="1"></div>
                     </div>
                     <div class="slider-group">
-                        <label><i class="fas fa-hat-wizard"></i> Tipo:</label>
-                        <select id="zombieTypeSelect" class="select-field">
-                            <option value="basic">Básico</option>
-                            <option value="cone">Cono</option>
-                            <option value="bucket">Cubo</option>
-                        </select>
-                        <label><i class="fas fa-mask"></i> Habilidad:</label>
-                        <select id="zombieAbilitySelect" class="select-field">
-                            <option value="none">Ninguna</option>
-                            <option value="fast">Rápido</option>
-                            <option value="tough">Resistente</option>
-                        </select>
+                        <label>Tipo: <select id="zombieTypeSelect" class="select-field"><option value="basic">Básico</option><option value="cone">Cono</option><option value="bucket">Cubo</option></select></label>
+                        <label>Habilidad: <select id="zombieAbilitySelect" class="select-field"><option value="none">Ninguna</option><option value="fast">Rápido</option><option value="tough">Resistente</option></select></label>
                     </div>
                 </div>
-                <div style="margin-top:20px;">
-                    <button class="btn btn-small" id="saveZombieBtn"><i class="fas fa-save"></i> Guardar zombi</button>
-                    <button class="btn btn-small" id="loadSpriteToZombieBtn"><i class="fas fa-image"></i> Usar sprite actual</button>
-                </div>
+                <div style="margin:20px 0;"><button class="btn btn-small" id="saveZombieBtn"><i class="fas fa-save"></i> Guardar zombi</button><button class="btn btn-small" id="loadSpriteToZombieBtn"><i class="fas fa-image"></i> Usar sprite actual</button></div>
             </div>
-            <div class="card">
-                <h2><i class="fas fa-folder-open"></i> Mis zombis guardados</h2>
-                <div class="collection" id="savedZombiesCollection">
-                    <!-- Lista de zombis guardados -->
-                </div>
-            </div>
+            <div class="card"><h2><i class="fas fa-folder-open"></i> Mis zombis</h2><div class="collection" id="savedZombiesCollection"></div></div>
         </div>
     </div>
 
-    <!-- ================== PANEL OLEADAS ================== -->
+    <!-- OLEADAS -->
     <div id="wavePanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
                 <h2><i class="fas fa-water"></i> Editor de oleadas</h2>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus-circle"></i> Añadir zombi actual</button>
-                    <button class="btn btn-small" id="clearWaveBtn"><i class="fas fa-trash-alt"></i> Limpiar oleada</button>
-                </div>
+                <div><button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus-circle"></i> Añadir zombi actual</button><button class="btn btn-small" id="clearWaveBtn"><i class="fas fa-trash-alt"></i> Limpiar</button></div>
                 <div class="collection" id="waveContainer"></div>
-                <label><i class="fas fa-stopwatch"></i> Intervalo: <span id="waveIntervalVal">1.0 s</span></label>
-                <input type="range" id="waveIntervalSlider" min="0.5" max="5" value="1" step="0.1" style="width:100%;">
-                <label>Modo spawn:</label>
-                <select id="spawnModeSelect" class="select-field">
-                    <option value="random">Aleatorio</option>
-                    <option value="lane0">Carril 0</option>
-                    <option value="lane1">Carril 1</option>
-                    <option value="lane2">Carril 2</option>
-                </select>
+                <label>⏱️ Intervalo: <span id="waveIntervalVal">1.0 s</span></label><input type="range" id="waveIntervalSlider" min="0.5" max="5" value="1" step="0.1">
+                <label>📍 Spawn: <select id="spawnModeSelect" class="select-field"><option value="random">Aleatorio</option><option value="lane0">Carril 0</option><option value="lane1">Carril 1</option><option value="lane2">Carril 2</option></select></label>
             </div>
         </div>
     </div>
 
-    <!-- ================== PANEL MAPAS ================== -->
+    <!-- MAPAS -->
     <div id="mapPanel" class="panel hidden-panel">
         <div class="maker-grid">
-            <div class="card">
-                <h2><i class="fas fa-map"></i> Creador de mapas</h2>
-                <div id="mapPreview" style="display:flex; flex-direction:column; gap:5px; align-items:center;"></div>
-            </div>
-            <div class="card">
-                <h2>Propiedades</h2>
-                <label>Filas:</label><input type="number" id="mapRows" min="3" max="6" value="3" class="select-field">
-                <label>Columnas:</label><input type="number" id="mapCols" min="4" max="9" value="5" class="select-field">
-                <label>Tipo césped:</label>
-                <select id="grassType" class="select-field">
-                    <option value="normal">🌿 Normal</option>
-                    <option value="pool">💧 Piscina</option>
-                    <option value="roof">🏠 Tejado</option>
-                </select>
-                <button class="btn btn-small" id="updateMapBtn"><i class="fas fa-sync-alt"></i> Actualizar</button>
-            </div>
+            <div class="card"><h2><i class="fas fa-map"></i> Mapa</h2><div id="mapPreview" style="display:flex; flex-direction:column; gap:5px; align-items:center;"></div></div>
+            <div class="card"><h2>Propiedades</h2><label>Filas: <input type="number" id="mapRows" min="3" max="6" value="3" class="select-field"></label><label>Columnas: <input type="number" id="mapCols" min="4" max="9" value="5" class="select-field"></label><label>Tipo: <select id="grassType" class="select-field"><option value="normal">🌿 Normal</option><option value="pool">💧 Piscina</option><option value="roof">🏠 Tejado</option></select></label><button class="btn btn-small" id="updateMapBtn"><i class="fas fa-sync-alt"></i> Actualizar</button></div>
         </div>
     </div>
 
-    <!-- ================== PANEL SPRITE EDITOR 16x16 ================== -->
+    <!-- SPRITE EDITOR -->
     <div id="spritePanel" class="panel hidden-panel">
         <div class="sprite-editor">
             <h2><i class="fas fa-draw-polygon"></i> Editor de sprites 16x16</h2>
             <div style="display:flex; gap:40px; flex-wrap:wrap; justify-content:center;">
-                <div>
-                    <div class="sprite-grid" id="spriteGrid"></div>
-                    <div class="color-palette" id="colorPalette"></div>
-                </div>
-                <div style="min-width:200px;">
-                    <h3>Herramientas</h3>
-                    <button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button>
-                    <button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button>
-                    <p>Color actual: <span id="currentColorDisplay" style="display:inline-block; width:40px; height:40px; background:black; border-radius:10px;"></span></p>
-                    <p><i class="fas fa-mouse-pointer"></i> Haz clic en los píxeles para pintar.</p>
-                </div>
+                <div><div class="sprite-grid" id="spriteGrid"></div><div class="color-palette" id="colorPalette"></div></div>
+                <div><h3>Herramientas</h3><button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button><button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button><p>Color: <span id="currentColorDisplay" style="display:inline-block; width:40px; height:40px; background:black; border-radius:10px;"></span></p></div>
             </div>
         </div>
     </div>
 
-    <!-- ================== PANEL JUGAR (con todas las plantas) ================== -->
+    <!-- JUGAR -->
     <div id="playPanel" class="panel hidden-panel">
         <div style="display:flex; gap:30px; flex-wrap:wrap;">
-            <div style="flex:2;">
-                <h2><i class="fas fa-gamepad"></i> Campo de batalla</h2>
-                <div id="playMapContainer" style="background:#569b56; border-radius:60px; padding:20px;"></div>
-                <div style="margin-top:20px;">
-                    <h3><i class="fas fa-leaf"></i> Coloca tus plantas</h3>
-                    <div class="collection" id="playPlantPalette"></div>
-                    <p>Haz clic en una planta de la paleta y luego en una celda del mapa para colocarla.</p>
-                </div>
-            </div>
-            <div style="flex:1;">
-                <div class="card">
-                    <h3>Controles</h3>
-                    <button class="btn btn-small" id="startWaveBtn"><i class="fas fa-play"></i> Iniciar oleada</button>
-                    <button class="btn btn-small" id="resetGameBtn"><i class="fas fa-undo-alt"></i> Reiniciar</button>
-                </div>
-                <div class="card" style="margin-top:15px;">
-                    <h3><i class="fas fa-skull"></i> Log</h3>
-                    <div id="gameLog" style="background:#3f623f; color:#f5eab0; border-radius:40px; padding:15px; min-height:100px;">⏳ Listo</div>
-                </div>
-            </div>
+            <div style="flex:2;"><h2><i class="fas fa-gamepad"></i> Campo</h2><div id="playMapContainer" style="background:#569b56; border-radius:60px; padding:20px;"></div><div style="margin-top:20px;"><h3>🌱 Tus plantas</h3><div class="collection" id="playPlantPalette"></div><p>Haz clic en una planta y luego en una celda para colocarla.</p></div></div>
+            <div style="flex:1;"><div class="card"><h3>Controles</h3><button class="btn btn-small" id="startWaveBtn"><i class="fas fa-play"></i> Iniciar oleada</button><button class="btn btn-small" id="resetGameBtn"><i class="fas fa-undo-alt"></i> Reiniciar</button></div><div class="card"><h3>📋 Log</h3><div id="gameLog" style="background:#3f623f; color:#f5eab0; border-radius:40px; padding:15px; min-height:100px;">⏳ Listo</div></div></div>
         </div>
     </div>
 
-    <!-- ================== PANEL EXPORT ================== -->
+    <!-- EXPORT -->
     <div id="exportPanel" class="panel hidden-panel">
-        <div class="export-area">
-            <h2><i class="fas fa-file-export"></i> Exportar / Importar Mod</h2>
-            <div style="display:flex; gap:20px; flex-wrap:wrap;">
-                <button class="btn" id="exportBtn"><i class="fas fa-download"></i> Exportar mod</button>
-                <label class="btn"><i class="fas fa-upload"></i> Importar mod <input type="file" id="importFile" accept=".json" style="display:none;"></label>
-                <button class="btn" id="resetModBtn"><i class="fas fa-broom"></i> Nuevo mod</button>
-            </div>
-        </div>
+        <div class="export-area"><h2><i class="fas fa-file-export"></i> Mods</h2><div><button class="btn" id="exportBtn"><i class="fas fa-download"></i> Exportar</button><label class="btn"><i class="fas fa-upload"></i> Importar <input type="file" id="importFile" accept=".json" style="display:none;"></label><button class="btn" id="resetModBtn"><i class="fas fa-broom"></i> Nuevo mod</button></div></div>
     </div>
 
-    <div class="footer"><i class="fas fa-heart"></i> Creador con editor de sprites 16x16</div>
+    <div class="footer"><i class="fas fa-heart"></i> Todos los botones funcionan · Píxeles 16x16</div>
 </div>
 
 <script>
     (function() {
         // ---------- ESTADO GLOBAL ----------
         let modData = {
-            plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', head:'pea', color:'#5aaf5a', sprite:null },
+            plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null },
             zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null },
-            savedPlants: [],   // array de plantas completas (copia de modData.plant pero con nombre)
-            savedZombies: [],  // array de zombis guardados
+            savedPlants: [],
+            savedZombies: [],
             wave: { zombies:[], interval:1.0, spawnMode:'random' },
             map: { rows:3, cols:5, grass:'normal' },
-            currentSprite: Array(16).fill().map(() => Array(16).fill('#ffffff')) // sprite 16x16 blanco
+            currentSprite: Array(16).fill().map(() => Array(16).fill('#ffffff'))
         };
+
+        // Variables auxiliares
+        let selectedPlantForPlay = null; // planta seleccionada en el panel jugar
 
         // ---------- REFERENCIAS DOM ----------
         const plantCanvas = document.getElementById('plantCanvas');
@@ -550,7 +183,6 @@
         const plantHpSlider = document.getElementById('plantHpSlider');
         const plantEffectSelect = document.getElementById('plantEffectSelect');
         const attackTypeSelect = document.getElementById('attackTypeSelect');
-        const plantColor = document.getElementById('plantColor'); // puede ser redundante con sprite
         const damageVal = document.getElementById('damageVal');
         const speedVal = document.getElementById('speedVal');
         const rangeVal = document.getElementById('rangeVal');
@@ -621,22 +253,20 @@
             export: document.getElementById('exportPanel')
         };
 
-        // ---------- FUNCIONES DE DIBUJO (con soporte de sprite) ----------
+        // ---------- FUNCIONES DE DIBUJO ----------
         function drawPlant() {
             ctxPlant.clearRect(0,0,180,180);
             if (modData.plant.sprite) {
-                // Dibujar sprite 16x16 escalado
-                let cellSize = 10; // 16*10=160, centrado en 180
-                let offset = 10;
+                let s = modData.plant.sprite;
                 for (let y=0; y<16; y++) {
                     for (let x=0; x<16; x++) {
-                        ctxPlant.fillStyle = modData.plant.sprite[y][x];
-                        ctxPlant.fillRect(offset + x*cellSize, offset + y*cellSize, cellSize, cellSize);
+                        ctxPlant.fillStyle = s[y][x];
+                        ctxPlant.fillRect(10 + x*10, 10 + y*10, 10, 10);
                     }
                 }
             } else {
                 // dibujo por defecto
-                ctxPlant.fillStyle = modData.plant.color;
+                ctxPlant.fillStyle = '#5aaf5a';
                 ctxPlant.beginPath();
                 ctxPlant.ellipse(90, 100, 40, 30, 0, 0, Math.PI*2);
                 ctxPlant.fill();
@@ -655,9 +285,7 @@
                 ctxPlant.arc(107, 47, 4, 0, Math.PI*2);
                 ctxPlant.fill();
             }
-            ctxPlant.font = '20px Arial';
-            ctxPlant.fillStyle = '#000';
-            ctxPlant.fillText(modData.plant.attackType, 140, 30);
+            plantNameDisplay.innerHTML = `🌱 ${modData.plant.attackType} · daño ${modData.plant.damage}`;
         }
 
         function drawZombie() {
@@ -665,16 +293,14 @@
             ctxZombie.fillStyle = '#4f704f';
             ctxZombie.fillRect(0,0,180,180);
             if (modData.zombie.sprite) {
-                let cellSize = 10;
-                let offset = 10;
+                let s = modData.zombie.sprite;
                 for (let y=0; y<16; y++) {
                     for (let x=0; x<16; x++) {
-                        ctxZombie.fillStyle = modData.zombie.sprite[y][x];
-                        ctxZombie.fillRect(offset + x*cellSize, offset + y*cellSize, cellSize, cellSize);
+                        ctxZombie.fillStyle = s[y][x];
+                        ctxZombie.fillRect(10 + x*10, 10 + y*10, 10, 10);
                     }
                 }
             } else {
-                // dibujo por defecto
                 ctxZombie.fillStyle = '#3f6132';
                 ctxZombie.beginPath();
                 ctxZombie.ellipse(90, 80, 30, 40, 0, 0, Math.PI*2);
@@ -705,28 +331,59 @@
                     ctxZombie.fill();
                 }
             }
+            zombieNameDisplay.innerHTML = `🧟 ${modData.zombie.type}`;
         }
 
-        // Actualizar UI
+        // Actualizar UI de sliders
         function updatePlantUI() {
             damageVal.textContent = modData.plant.damage;
             speedVal.textContent = modData.plant.speed;
             rangeVal.textContent = modData.plant.range;
             sunCostVal.textContent = modData.plant.sunCost;
             plantHpVal.textContent = modData.plant.hp;
-            plantNameDisplay.innerHTML = `🌱 ${modData.plant.attackType} · daño ${modData.plant.damage}`;
             drawPlant();
         }
-
         function updateZombieUI() {
             zombieHpVal.textContent = modData.zombie.hp;
             zombieSpeedVal.textContent = modData.zombie.speed;
             armorVal.textContent = modData.zombie.armor;
-            zombieNameDisplay.innerHTML = `🧟 ${modData.zombie.type}`;
             drawZombie();
         }
 
-        // Guardar planta actual en la colección
+        // Vincular sliders con modData
+        function bindPlantSliders() {
+            damageSlider.value = modData.plant.damage;
+            speedSlider.value = modData.plant.speed;
+            rangeSlider.value = modData.plant.range;
+            sunCostSlider.value = modData.plant.sunCost;
+            plantHpSlider.value = modData.plant.hp;
+            plantEffectSelect.value = modData.plant.effect;
+            attackTypeSelect.value = modData.plant.attackType;
+        }
+        function bindZombieSliders() {
+            zombieHpSlider.value = modData.zombie.hp;
+            zombieSpeedSlider.value = modData.zombie.speed;
+            armorSlider.value = modData.zombie.armor;
+            zombieTypeSelect.value = modData.zombie.type;
+            zombieAbilitySelect.value = modData.zombie.ability;
+        }
+
+        // Event listeners de sliders
+        damageSlider.addEventListener('input', (e) => { modData.plant.damage = parseFloat(e.target.value); updatePlantUI(); });
+        speedSlider.addEventListener('input', (e) => { modData.plant.speed = parseFloat(e.target.value); updatePlantUI(); });
+        rangeSlider.addEventListener('input', (e) => { modData.plant.range = parseInt(e.target.value); updatePlantUI(); });
+        sunCostSlider.addEventListener('input', (e) => { modData.plant.sunCost = parseInt(e.target.value); updatePlantUI(); });
+        plantHpSlider.addEventListener('input', (e) => { modData.plant.hp = parseInt(e.target.value); updatePlantUI(); });
+        plantEffectSelect.addEventListener('change', (e) => { modData.plant.effect = e.target.value; });
+        attackTypeSelect.addEventListener('change', (e) => { modData.plant.attackType = e.target.value; updatePlantUI(); });
+
+        zombieHpSlider.addEventListener('input', (e) => { modData.zombie.hp = parseInt(e.target.value); updateZombieUI(); });
+        zombieSpeedSlider.addEventListener('input', (e) => { modData.zombie.speed = parseFloat(e.target.value); updateZombieUI(); });
+        armorSlider.addEventListener('input', (e) => { modData.zombie.armor = parseInt(e.target.value); updateZombieUI(); });
+        zombieTypeSelect.addEventListener('change', (e) => { modData.zombie.type = e.target.value; updateZombieUI(); });
+        zombieAbilitySelect.addEventListener('change', (e) => { modData.zombie.ability = e.target.value; });
+
+        // ---------- GUARDAR / CARGAR COLECCIONES ----------
         savePlantBtn.addEventListener('click', () => {
             let plantCopy = JSON.parse(JSON.stringify(modData.plant));
             plantCopy.name = `Planta ${modData.savedPlants.length+1}`;
@@ -739,7 +396,7 @@
             modData.savedPlants.forEach((p, idx) => {
                 let item = document.createElement('span');
                 item.className = 'collection-item';
-                item.innerHTML = `<i class="fas fa-leaf"></i> ${p.name || 'Planta'}`;
+                item.innerHTML = `<i class="fas fa-leaf"></i> ${p.name}`;
                 item.addEventListener('click', () => {
                     modData.plant = JSON.parse(JSON.stringify(p));
                     bindPlantSliders();
@@ -761,7 +418,7 @@
             modData.savedZombies.forEach((z, idx) => {
                 let item = document.createElement('span');
                 item.className = 'collection-item';
-                item.innerHTML = `<i class="fas fa-skull"></i> ${z.name || 'Zombi'}`;
+                item.innerHTML = `<i class="fas fa-skull"></i> ${z.name}`;
                 item.addEventListener('click', () => {
                     modData.zombie = JSON.parse(JSON.stringify(z));
                     bindZombieSliders();
@@ -781,7 +438,7 @@
             drawZombie();
         });
 
-        // Oleada
+        // ---------- OLEADAS ----------
         function updateWaveUI() {
             waveContainer.innerHTML = '';
             modData.wave.zombies.forEach((z, idx) => {
@@ -801,8 +458,15 @@
             modData.wave.zombies = [];
             updateWaveUI();
         });
+        waveIntervalSlider.addEventListener('input', (e) => {
+            modData.wave.interval = parseFloat(e.target.value);
+            waveIntervalVal.textContent = modData.wave.interval.toFixed(1)+' s';
+        });
+        spawnModeSelect.addEventListener('change', (e) => {
+            modData.wave.spawnMode = e.target.value;
+        });
 
-        // Mapa
+        // ---------- MAPA ----------
         function updateMapPreview() {
             let rows = parseInt(mapRowsInput.value);
             let cols = parseInt(mapColsInput.value);
@@ -820,10 +484,9 @@
             }
             mapPreview.innerHTML = html;
         }
-
         updateMapBtn.addEventListener('click', updateMapPreview);
 
-        // Sprite editor
+        // ---------- SPRITE EDITOR ----------
         const colors = ['#000000','#ffffff','#ff0000','#00ff00','#0000ff','#ffff00','#ff8800','#8800ff','#a52a2a','#808080'];
         let currentColor = '#000000';
         let painting = false;
@@ -880,35 +543,70 @@
             buildSpriteGrid();
         });
 
-        // Play panel: cargar paleta de plantas guardadas
+        // ---------- PANEL JUGAR ----------
+        function loadPlayMap() {
+            let rows = modData.map.rows;
+            let cols = modData.map.cols;
+            let html = '';
+            for (let r=0; r<rows; r++) {
+                html += '<div style="display:flex; gap:8px; justify-content:center; margin-bottom:8px;">';
+                for (let c=0; c<cols; c++) {
+                    html += `<div class="map-cell" data-row="${r}" data-col="${c}" style="background:#6ca56c;">🌱</div>`;
+                }
+                html += '</div>';
+            }
+            playMapContainer.innerHTML = html;
+
+            // Agregar event listeners a las celdas para colocar planta
+            document.querySelectorAll('#playMapContainer .map-cell').forEach(cell => {
+                cell.addEventListener('click', () => {
+                    if (selectedPlantForPlay) {
+                        cell.innerHTML = '🌻'; // marcador de planta colocada
+                        gameLog.innerHTML = `Planta "${selectedPlantForPlay.name}" colocada en fila ${cell.dataset.row}, col ${cell.dataset.col}`;
+                    } else {
+                        gameLog.innerHTML = '❌ Primero selecciona una planta de la paleta.';
+                    }
+                });
+            });
+        }
+
         function loadPlayPalette() {
             playPlantPalette.innerHTML = '';
             modData.savedPlants.forEach((p, idx) => {
                 let btn = document.createElement('span');
                 btn.className = 'collection-item';
-                btn.innerHTML = `<i class="fas fa-leaf"></i> ${p.name || 'Planta'}`;
+                btn.innerHTML = `<i class="fas fa-leaf"></i> ${p.name}`;
                 btn.addEventListener('click', () => {
-                    // Aquí se selecciona la planta para colocar (se puede implementar luego)
+                    selectedPlantForPlay = p;
                     gameLog.innerHTML = `Planta "${p.name}" seleccionada. Haz clic en una celda.`;
-                    window.selectedPlant = p;
                 });
                 playPlantPalette.appendChild(btn);
             });
         }
 
-        // Simulación de juego simple
         startWaveBtn.addEventListener('click', () => {
             if (modData.wave.zombies.length === 0) {
-                alert('Crea una oleada primero');
+                gameLog.innerHTML = '⚠️ No hay zombis en la oleada.';
                 return;
             }
-            gameLog.innerHTML = '⚔️ Oleada iniciada. Los zombis atacan! (simulación)';
-        });
-        resetGameBtn.addEventListener('click', () => {
-            gameLog.innerHTML = '⏳ Juego reiniciado';
+            // Simular colocación de zombis en el carril 0 (fila 0)
+            let cells = document.querySelectorAll('#playMapContainer .map-cell');
+            if (cells.length > 0) {
+                // Ponemos un zombi en la primera celda de cada columna? mejor solo algunos
+                for (let i=0; i<modData.wave.zombies.length; i++) {
+                    if (cells[i]) cells[i].innerHTML = '🧟';
+                }
+            }
+            gameLog.innerHTML = '🧟‍♂️ Oleada iniciada (simulación)';
         });
 
-        // Export/Import
+        resetGameBtn.addEventListener('click', () => {
+            loadPlayMap(); // reconstruye el mapa limpio
+            gameLog.innerHTML = '⏳ Juego reiniciado';
+            selectedPlantForPlay = null;
+        });
+
+        // ---------- EXPORT/IMPORT ----------
         exportBtn.addEventListener('click', () => {
             const dataStr = JSON.stringify(modData, null, 2);
             const blob = new Blob([dataStr], {type:'application/json'});
@@ -925,7 +623,6 @@
                 reader.onload = (ev) => {
                     try {
                         modData = JSON.parse(ev.target.result);
-                        // restaurar todo
                         bindPlantSliders();
                         bindZombieSliders();
                         updatePlantUI();
@@ -935,7 +632,7 @@
                         updateWaveUI();
                         updateMapPreview();
                         buildSpriteGrid();
-                        alert('Mod importado');
+                        gameLog.innerHTML = '✅ Mod importado';
                     } catch(ex) { alert('Archivo inválido'); }
                 };
                 reader.readAsText(e.target.files[0]);
@@ -944,7 +641,7 @@
 
         resetModBtn.addEventListener('click', () => {
             modData = {
-                plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', head:'pea', color:'#5aaf5a', sprite:null },
+                plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null },
                 zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null },
                 savedPlants: [],
                 savedZombies: [],
@@ -961,47 +658,10 @@
             updateWaveUI();
             updateMapPreview();
             buildSpriteGrid();
+            gameLog.innerHTML = '🆕 Nuevo mod creado';
         });
 
-        function bindPlantSliders() {
-            damageSlider.value = modData.plant.damage;
-            speedSlider.value = modData.plant.speed;
-            rangeSlider.value = modData.plant.range;
-            sunCostSlider.value = modData.plant.sunCost;
-            plantHpSlider.value = modData.plant.hp;
-            plantEffectSelect.value = modData.plant.effect;
-            attackTypeSelect.value = modData.plant.attackType;
-            plantColor.value = modData.plant.color;
-        }
-
-        function bindZombieSliders() {
-            zombieHpSlider.value = modData.zombie.hp;
-            zombieSpeedSlider.value = modData.zombie.speed;
-            armorSlider.value = modData.zombie.armor;
-            zombieTypeSelect.value = modData.zombie.type;
-            zombieAbilitySelect.value = modData.zombie.ability;
-        }
-
-        // Event listeners de sliders
-        damageSlider.addEventListener('input', (e) => { modData.plant.damage = parseFloat(e.target.value); updatePlantUI(); });
-        speedSlider.addEventListener('input', (e) => { modData.plant.speed = parseFloat(e.target.value); updatePlantUI(); });
-        rangeSlider.addEventListener('input', (e) => { modData.plant.range = parseInt(e.target.value); updatePlantUI(); });
-        sunCostSlider.addEventListener('input', (e) => { modData.plant.sunCost = parseInt(e.target.value); updatePlantUI(); });
-        plantHpSlider.addEventListener('input', (e) => { modData.plant.hp = parseInt(e.target.value); updatePlantUI(); });
-        plantEffectSelect.addEventListener('change', (e) => { modData.plant.effect = e.target.value; });
-        attackTypeSelect.addEventListener('change', (e) => { modData.plant.attackType = e.target.value; updatePlantUI(); });
-        plantColor.addEventListener('input', (e) => { modData.plant.color = e.target.value; drawPlant(); });
-
-        zombieHpSlider.addEventListener('input', (e) => { modData.zombie.hp = parseInt(e.target.value); updateZombieUI(); });
-        zombieSpeedSlider.addEventListener('input', (e) => { modData.zombie.speed = parseFloat(e.target.value); updateZombieUI(); });
-        armorSlider.addEventListener('input', (e) => { modData.zombie.armor = parseInt(e.target.value); updateZombieUI(); });
-        zombieTypeSelect.addEventListener('change', (e) => { modData.zombie.type = e.target.value; updateZombieUI(); });
-        zombieAbilitySelect.addEventListener('change', (e) => { modData.zombie.ability = e.target.value; });
-
-        waveIntervalSlider.addEventListener('input', (e) => { modData.wave.interval = parseFloat(e.target.value); waveIntervalVal.textContent = modData.wave.interval.toFixed(1)+' s'; });
-        spawnModeSelect.addEventListener('change', (e) => { modData.wave.spawnMode = e.target.value; });
-
-        // Tabs
+        // ---------- TABS ----------
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 tabBtns.forEach(b => b.classList.remove('active'));
@@ -1009,9 +669,13 @@
                 const tab = btn.dataset.tab;
                 Object.values(panels).forEach(p => p.classList.add('hidden-panel'));
                 panels[tab].classList.remove('hidden-panel');
-                if (tab === 'play') loadPlayPalette();
+                if (tab === 'play') {
+                    loadPlayPalette();
+                    loadPlayMap();
+                }
                 if (tab === 'map') updateMapPreview();
                 if (tab === 'sprite') buildSpriteGrid();
+                if (tab === 'wave') updateWaveUI();
             });
         });
 
