@@ -3,368 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌱 PvZ Maker · Edición Extendida (1200+ líneas)</title>
+    <title>🌱 PvZ Maker · Estilo 2008</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ========== ESTILOS GENERALES ========== */
+        /* ========== ESTILO 2008 ========== */
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 0;
+            font-family: 'Courier New', Courier, monospace; /* Tipografía pixelada */
         }
-
         body {
-            background: linear-gradient(145deg, #2a5a2a 0%, #1e4a1e 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
+            background: #008000; /* Verde hierba fuerte */
+            padding: 10px;
+            image-rendering: pixelated;
         }
-
         .game-box {
-            max-width: 1500px;
-            width: 100%;
-            background: #faf3e0;
-            border-radius: 60px 60px 40px 40px;
-            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.7), inset 0 0 0 4px #cfbc93;
-            padding: 28px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #C0C0C0; /* Gris plata */
+            border: 6px ridge #FFFFFF;
+            padding: 15px;
+            box-shadow: 8px 8px 0 #404040;
         }
-
         h1 {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: #fcf5d8;
-            text-shadow: 6px 6px 0 #3f6b33, 9px 9px 0 #1f451f;
-            margin: 0 0 20px 20px;
+            background: #000080; /* Azul marino */
+            color: #FFFF00; /* Amarillo */
+            padding: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            border: 4px groove #FFD700;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #000000;
             letter-spacing: 2px;
         }
-
         .tabs {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 25px;
-            background: #b4926a;
-            padding: 18px 25px;
-            border-radius: 90px;
-            box-shadow: inset 0 3px 10px rgba(0,0,0,0.3);
+            gap: 5px;
+            background: #808080;
+            padding: 10px;
+            border: 4px inset #FFFFFF;
+            margin-bottom: 15px;
         }
-
         .tab-btn {
-            background: #fbebc5;
-            border: none;
-            border-radius: 60px;
-            padding: 16px 32px;
-            font-size: 1.4rem;
+            background: #DDDDDD;
+            border: 3px outset #FFFFFF;
+            padding: 10px 20px;
+            font-size: 18px;
             font-weight: bold;
-            color: #2d5a2d;
+            color: #000000;
             cursor: pointer;
-            box-shadow: 0 7px 0 #9f7e58, 0 10px 15px rgba(0,0,0,0.3);
-            transition: all 0.1s ease;
-            border: 3px solid #fff3d1;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            box-shadow: 2px 2px 0 #000000;
+            font-family: inherit;
+            flex: 1 0 auto;
         }
-
         .tab-btn.active {
-            transform: translateY(5px);
-            box-shadow: 0 2px 0 #8b6c48, 0 8px 12px rgba(0,0,0,0.3);
-            background: #ffedc9;
+            background: #FFFFAA;
+            border: 3px inset #FFFFFF;
+            transform: translate(2px, 2px);
+            box-shadow: none;
         }
-
         .panel {
-            background: #ecdbba;
-            border-radius: 80px;
-            padding: 35px;
-            border: 6px solid #dfc9a0;
-            box-shadow: inset 0 0 0 5px #fcf5e6, 0 18px 25px rgba(0, 0, 0, 0.4);
-            display: block;
+            background: #A9A9A9; /* Gris oscuro */
+            border: 4px ridge #FFFFFF;
+            padding: 15px;
+            margin-bottom: 15px;
         }
-
         .hidden-panel {
             display: none;
         }
-
         .maker-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 35px;
-        }
-
-        .card {
-            background: #fef5e3;
-            border-radius: 60px;
-            padding: 30px;
-            box-shadow: inset 0 -4px 0 #d4b084, 0 12px 18px rgba(0,0,0,0.25);
-            border: 4px solid #ffeec2;
-        }
-
-        .card h2 {
-            font-size: 2.3rem;
-            margin-bottom: 25px;
-            color: #2e5a2e;
-            display: flex;
-            align-items: center;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 15px;
-            border-bottom: 4px dashed #c9b28b;
-            padding-bottom: 15px;
         }
-
+        .card {
+            background: #DDDDDD;
+            border: 4px ridge #FFFFFF;
+            padding: 15px;
+            box-shadow: 4px 4px 0 #404040;
+        }
+        .card h2 {
+            background: #000080;
+            color: #FFFF00;
+            padding: 10px;
+            border: 2px groove #FFD700;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
         .preview-box {
-            background: #7fb074;
-            border-radius: 60px;
-            padding: 25px;
-            border: 7px solid #c0e0a8;
-            margin-bottom: 25px;
+            background: #4F794F;
+            border: 4px inset #FFFFFF;
+            padding: 15px;
             text-align: center;
         }
-
         .preview-canvas {
             width: 200px;
             height: 200px;
-            background: #4f8a4f;
-            border-radius: 45px;
-            margin: 0 auto;
-            box-shadow: inset 0 0 0 6px #b4e09b;
+            background: #2E5A2E;
+            border: 4px ridge #FFFFFF;
             image-rendering: crisp-edges;
+            margin: 0 auto;
         }
-
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 10px;
         }
-
         .slider-group {
-            background: #eed9b0;
-            border-radius: 45px;
-            padding: 20px;
-            border: 4px solid #f8e5c4;
+            background: #B0B0B0;
+            border: 3px inset #FFFFFF;
+            padding: 10px;
         }
-
         .slider-item {
-            margin-bottom: 22px;
+            margin-bottom: 15px;
         }
-
         .slider-item label {
             display: flex;
             justify-content: space-between;
-            font-weight: 700;
-            color: #235023;
-            font-size: 1.3rem;
+            font-weight: bold;
+            color: #000000;
+            font-size: 16px;
         }
-
         input[type=range] {
             width: 100%;
-            accent-color: #e9b35f;
-            height: 12px;
+            background: #C0C0C0;
+            height: 15px;
+            border: 2px inset #FFFFFF;
         }
-
         .value-badge {
-            background: #1f421f;
-            color: #f9e57c;
-            padding: 6px 16px;
-            border-radius: 50px;
+            background: #000000;
+            color: #00FF00;
+            padding: 2px 8px;
+            border: 2px solid #00FF00;
             font-family: monospace;
-            font-size: 1.3rem;
         }
-
         .select-field {
-            background: #ffe3b7;
-            padding: 14px 24px;
-            border-radius: 50px;
-            border: 4px solid #edc289;
-            font-size: 1.3rem;
+            background: #FFFFFF;
+            border: 3px inset #000000;
+            padding: 5px;
+            font-size: 16px;
             width: 100%;
-            margin: 12px 0;
-            font-weight: bold;
-            color: #1a3d1a;
+            margin: 5px 0;
+            font-family: inherit;
         }
-
         .btn {
-            background: #feda8b;
-            border: none;
-            border-radius: 60px;
-            padding: 18px 32px;
-            font-size: 1.4rem;
+            background: #DDDDDD;
+            border: 4px outset #FFFFFF;
+            padding: 10px 20px;
+            font-size: 18px;
             font-weight: bold;
-            color: #1f421f;
-            box-shadow: 0 7px 0 #bb964b;
+            color: #000000;
             cursor: pointer;
-            transition: 0.08s;
-            border: 4px solid #ffe39e;
+            box-shadow: 3px 3px 0 #404040;
+            font-family: inherit;
+            margin: 5px;
+        }
+        .btn:active {
+            border: 4px inset #FFFFFF;
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .collection {
+            background: #808080;
+            border: 4px inset #FFFFFF;
+            padding: 10px;
+            min-height: 100px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .collection-item {
+            background: #FFFFAA;
+            border: 3px outset #FFFFFF;
+            padding: 5px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .sprite-editor {
+            background: #808080;
+            border: 4px ridge #FFFFFF;
+            padding: 15px;
+        }
+        .sprite-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 20px);
+            grid-template-rows: repeat(16, 20px);
+            gap: 1px;
+            justify-content: center;
+            background: #000;
+            padding: 10px;
+            border: 4px inset #FFFFFF;
+        }
+        .pixel-cell {
+            width: 20px;
+            height: 20px;
+            background-color: #FFFFFF;
+            border: 1px solid #888;
+            cursor: pointer;
+        }
+        .color-palette {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border: 3px outset #FFFFFF;
+            cursor: pointer;
+        }
+        .map-cell {
+            width: 70px;
+            height: 70px;
+            background: #7BB56B;
+            border: 4px ridge #FFFFFF;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin: 8px;
+            margin: 2px;
+            cursor: pointer;
+            position: relative;
         }
-
-        .btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 2px 0 #9e7c3b;
+        .map-cell canvas {
+            width: 100%;
+            height: 100%;
+            image-rendering: crisp-edges;
         }
-
-        .btn-small {
-            padding: 14px 24px;
-            font-size: 1.2rem;
-        }
-
-        .collection {
-            background: #b2d4a2;
-            border-radius: 60px;
-            padding: 25px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            min-height: 180px;
-            border: 5px solid #dbf0c7;
-            align-items: center;
-        }
-
-        .collection-item {
-            background: #3f6e3f;
-            color: #fff3c9;
-            padding: 14px 22px;
-            border-radius: 50px;
-            font-size: 1.3rem;
+        .sun-counter {
+            background: #FFD700;
+            border: 4px ridge #FFFFFF;
+            padding: 10px 20px;
+            font-size: 24px;
             font-weight: bold;
-            border: 4px solid #b1d893;
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            cursor: pointer;
-            transition: 0.15s;
         }
-
-        .collection-item:hover {
-            transform: scale(1.07);
-            background: #4f844f;
-        }
-
-        .sprite-editor {
-            background: #cfb28b;
-            border-radius: 70px;
-            padding: 30px;
-            border: 6px solid #f2dbb6;
-        }
-
-        .sprite-grid {
-            display: grid;
-            grid-template-columns: repeat(16, 35px);
-            grid-template-rows: repeat(16, 35px);
-            gap: 3px;
-            justify-content: center;
-            background: #aaa;
-            padding: 15px;
-            border-radius: 25px;
-        }
-
-        .pixel-cell {
-            width: 35px;
-            height: 35px;
-            background-color: #fff;
-            border: 1px solid #888;
-            cursor: pointer;
-            image-rendering: crisp-edges;
-        }
-
-        .color-palette {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin: 25px 0;
-            justify-content: center;
-        }
-
-        .color-swatch {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            border: 4px solid #444;
-            cursor: pointer;
-        }
-
-        .map-cell {
-            width: 75px;
-            height: 75px;
-            background: #7bb56b;
-            border-radius: 25px;
-            border: 5px solid #c0f0a0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            margin: 5px;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-
-        .map-cell:hover {
-            background: #8fc87f;
-            transform: scale(1.02);
-        }
-
-        .sun-counter {
-            background: #f7d45a;
-            border-radius: 60px;
-            padding: 15px 30px;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1f3a1f;
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            border: 5px solid #e5b73b;
-            margin-bottom: 20px;
-        }
-
         .game-log {
-            background: #2f5a2f;
-            color: #f9f0b5;
-            border-radius: 50px;
-            padding: 20px;
-            font-size: 1.3rem;
-            min-height: 130px;
-            border: 4px solid #8bb37b;
+            background: #000000;
+            color: #00FF00;
+            border: 4px ridge #FFFFFF;
+            padding: 10px;
+            font-size: 14px;
+            min-height: 100px;
+            font-family: monospace;
         }
-
         .footer {
-            margin-top: 35px;
             text-align: center;
-            color: #fee6a8;
-            font-weight: bold;
-            font-size: 1.5rem;
-            text-shadow: 3px 3px 0 #2d5a2d;
+            color: #FFFF00;
+            background: #000080;
+            padding: 10px;
+            border: 4px ridge #FFD700;
+            font-size: 18px;
+            margin-top: 15px;
         }
-
-        /* Barra de salud de planta en el campo */
         .plant-hp-bar {
-            width: 60px;
-            height: 8px;
-            background: #a00;
-            border-radius: 10px;
-            margin-top: 2px;
+            width: 100%;
+            height: 5px;
+            background: #FF0000;
+            position: absolute;
+            bottom: 0;
+            left: 0;
         }
         .plant-hp-fill {
             height: 100%;
-            background: #0f0;
-            border-radius: 10px;
+            background: #00FF00;
         }
     </style>
 </head>
 <body>
 <div class="game-box">
-    <h1>
-        <i class="fas fa-seedling"></i> PvZ MAKER · EXTENDED 
-        <i class="fas fa-dragon"></i>
-    </h1>
+    <h1><i class="fas fa-seedling"></i> PvZ MAKER · RETRO 2008 <i class="fas fa-skull"></i></h1>
 
     <!-- Pestañas -->
     <div class="tabs">
@@ -384,7 +302,7 @@
                 <h2><i class="fas fa-seedling"></i> Creador de plantas</h2>
                 <div class="preview-box">
                     <canvas id="plantCanvas" class="preview-canvas" width="200" height="200"></canvas>
-                    <div style="font-size:2rem; margin-top:15px;" id="plantNameDisplay">🌱 Guisante</div>
+                    <div style="font-size:20px; margin-top:10px;" id="plantNameDisplay">🌱 Guisante</div>
                 </div>
                 <div class="stats-grid">
                     <div class="slider-group">
@@ -399,7 +317,7 @@
                     </div>
                 </div>
                 <label>🔫 Ataque: <select id="attackTypeSelect" class="select-field"><option value="pea">Guisante</option><option value="cabbage">Col</option><option value="melon">Melón</option><option value="bean">Judía</option><option value="corn">Maíz</option></select></label>
-                <div style="margin:25px 0; display:flex; gap:15px; flex-wrap:wrap;">
+                <div style="margin:15px 0; display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn btn-small" id="savePlantBtn"><i class="fas fa-save"></i> Guardar planta</button>
                     <button class="btn btn-small" id="loadSpriteToPlantBtn"><i class="fas fa-image"></i> Usar sprite</button>
                 </div>
@@ -407,7 +325,7 @@
             <div class="card">
                 <h2><i class="fas fa-folder-open"></i> Mis plantas</h2>
                 <div class="collection" id="savedPlantsCollection"></div>
-                <p style="margin-top:20px;"><i class="fas fa-info-circle"></i> Haz clic en una planta para cargarla.</p>
+                <p style="margin-top:10px;"><i class="fas fa-info-circle"></i> Haz clic en una planta para cargarla.</p>
             </div>
         </div>
     </div>
@@ -419,7 +337,7 @@
                 <h2><i class="fas fa-skull"></i> Creador de zombis</h2>
                 <div class="preview-box">
                     <canvas id="zombieCanvas" class="preview-canvas" width="200" height="200"></canvas>
-                    <div style="font-size:2rem;" id="zombieNameDisplay">🧟 Básico</div>
+                    <div style="font-size:20px;" id="zombieNameDisplay">🧟 Básico</div>
                 </div>
                 <div class="stats-grid">
                     <div class="slider-group">
@@ -432,7 +350,7 @@
                         <label>Habilidad: <select id="zombieAbilitySelect" class="select-field"><option value="none">Ninguna</option><option value="fast">Rápido</option><option value="tough">Resistente</option><option value="regenerate">Regenera</option><option value="fly">Vuela</option></select></label>
                     </div>
                 </div>
-                <div style="margin:25px 0;">
+                <div style="margin:15px 0;">
                     <button class="btn btn-small" id="saveZombieBtn"><i class="fas fa-save"></i> Guardar zombi</button>
                     <button class="btn btn-small" id="loadSpriteToZombieBtn"><i class="fas fa-image"></i> Usar sprite</button>
                 </div>
@@ -449,14 +367,14 @@
         <div class="maker-grid">
             <div class="card">
                 <h2><i class="fas fa-water"></i> Editor de oleadas</h2>
-                <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:20px;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
                     <button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus-circle"></i> Añadir zombi actual</button>
                     <button class="btn btn-small" id="clearWaveBtn"><i class="fas fa-trash-alt"></i> Limpiar todo</button>
                 </div>
                 <div class="collection" id="waveContainer"></div>
-                <label>⏱️ Intervalo entre zombis: <span class="value-badge" id="waveIntervalVal">1.0 s</span></label>
+                <label>⏱️ Intervalo: <span class="value-badge" id="waveIntervalVal">1.0 s</span></label>
                 <input type="range" id="waveIntervalSlider" min="0.3" max="5" value="1" step="0.1" style="width:100%;">
-                <label>📍 Modo spawn: <select id="spawnModeSelect" class="select-field"><option value="random">Aleatorio</option><option value="lane0">Solo carril 0</option><option value="lane1">Solo carril 1</option><option value="lane2">Solo carril 2</option><option value="all">Todos los carriles</option></select></label>
+                <label>📍 Spawn: <select id="spawnModeSelect" class="select-field"><option value="random">Aleatorio</option><option value="lane0">Carril 0</option><option value="lane1">Carril 1</option><option value="lane2">Carril 2</option><option value="all">Todos</option></select></label>
             </div>
         </div>
     </div>
@@ -465,94 +383,85 @@
     <div id="mapPanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
-                <h2><i class="fas fa-map"></i> Vista previa del mapa</h2>
-                <div id="mapPreview" style="display:flex; flex-direction:column; gap:8px; align-items:center;"></div>
+                <h2><i class="fas fa-map"></i> Vista previa</h2>
+                <div id="mapPreview" style="display:flex; flex-direction:column; gap:5px; align-items:center;"></div>
             </div>
             <div class="card">
                 <h2>Propiedades</h2>
                 <label>Filas: <input type="number" id="mapRows" min="3" max="6" value="3" class="select-field"></label>
                 <label>Columnas: <input type="number" id="mapCols" min="4" max="9" value="5" class="select-field"></label>
-                <label>Tipo de césped: <select id="grassType" class="select-field"><option value="normal">🌿 Normal</option><option value="pool">💧 Piscina</option><option value="roof">🏠 Tejado</option><option value="night">🌙 Noche</option></select></label>
-                <button class="btn btn-small" id="updateMapBtn"><i class="fas fa-sync-alt"></i> Actualizar mapa</button>
+                <label>Tipo: <select id="grassType" class="select-field"><option value="normal">🌿 Normal</option><option value="pool">💧 Piscina</option><option value="roof">🏠 Tejado</option><option value="night">🌙 Noche</option></select></label>
+                <button class="btn btn-small" id="updateMapBtn"><i class="fas fa-sync-alt"></i> Actualizar</button>
             </div>
         </div>
     </div>
 
-    <!-- ========== PANEL SPRITE 16x16 ========== -->
+    <!-- ========== PANEL SPRITE ========== -->
     <div id="spritePanel" class="panel hidden-panel">
         <div class="sprite-editor">
             <h2><i class="fas fa-draw-polygon"></i> Editor de sprites 16x16</h2>
-            <div style="display:flex; gap:50px; flex-wrap:wrap; justify-content:center;">
+            <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
                 <div>
                     <div class="sprite-grid" id="spriteGrid"></div>
                     <div class="color-palette" id="colorPalette"></div>
                 </div>
-                <div style="min-width:250px;">
+                <div style="min-width:200px;">
                     <h3>Herramientas</h3>
-                    <button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar todo</button>
+                    <button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button>
                     <button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button>
-                    <p style="margin:20px 0; font-size:1.4rem;">Color actual: <span id="currentColorDisplay" style="display:inline-block; width:50px; height:50px; background:black; border-radius:15px; vertical-align:middle;"></span></p>
-                    <p><i class="fas fa-mouse-pointer"></i> Haz clic y arrastra para pintar.</p>
+                    <p style="margin:10px 0;">Color: <span id="currentColorDisplay" style="display:inline-block; width:30px; height:30px; background:black; border:2px solid white;"></span></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ========== PANEL JUGAR (con sistema de soles y salud) ========== -->
+    <!-- ========== PANEL JUGAR ========== -->
     <div id="playPanel" class="panel hidden-panel">
-        <div style="display:flex; gap:35px; flex-wrap:wrap;">
-            <!-- Área izquierda: campo de batalla -->
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
             <div style="flex:3;">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px;">
                     <div class="sun-counter"><i class="fas fa-sun"></i> <span id="sunAmount">150</span></div>
                     <div><button class="btn btn-small" id="pauseGameBtn"><i class="fas fa-pause"></i> Pausa</button></div>
                 </div>
-                <div id="playMapContainer" style="background:#4d8f4d; border-radius:70px; padding:25px;"></div>
-                <div style="margin-top:25px;">
-                    <h3><i class="fas fa-leaf"></i> Tus plantas guardadas</h3>
+                <div id="playMapContainer" style="background:#4F794F; border:4px ridge #FFFFFF; padding:15px;"></div>
+                <div style="margin-top:15px;">
+                    <h3><i class="fas fa-leaf"></i> Tus plantas</h3>
                     <div class="collection" id="playPlantPalette"></div>
-                    <p style="margin-top:10px;">Haz clic en una planta para seleccionarla, luego en una celda del mapa para plantarla (coste de soles).</p>
                 </div>
             </div>
-            <!-- Área derecha: controles y log -->
             <div style="flex:1;">
                 <div class="card">
                     <h3>Controles</h3>
                     <button class="btn btn-small" id="startWaveBtn"><i class="fas fa-play"></i> Iniciar oleada</button>
-                    <button class="btn btn-small" id="resetGameBtn"><i class="fas fa-undo-alt"></i> Reiniciar partida</button>
+                    <button class="btn btn-small" id="resetGameBtn"><i class="fas fa-undo-alt"></i> Reiniciar</button>
                     <button class="btn btn-small" id="addSunBtn"><i class="fas fa-plus-circle"></i> +50 soles</button>
                 </div>
-                <div class="card" style="margin-top:20px;">
+                <div class="card" style="margin-top:15px;">
                     <h3><i class="fas fa-skull"></i> Registro</h3>
-                    <div class="game-log" id="gameLog">
-                        ⏳ Bienvenido. Selecciona una planta y colócala.
-                    </div>
+                    <div class="game-log" id="gameLog">⏳ Listo</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ========== PANEL EXPORT/IMPORT ========== -->
+    <!-- ========== PANEL EXPORT ========== -->
     <div id="exportPanel" class="panel hidden-panel">
-        <div style="background:#cfb694; border-radius:70px; padding:35px;">
-            <h2><i class="fas fa-file-export"></i> Exportar / Importar mod completo</h2>
-            <div style="display:flex; gap:25px; flex-wrap:wrap; justify-content:center; margin:30px 0;">
-                <button class="btn" id="exportBtn"><i class="fas fa-download"></i> Exportar mod (.json)</button>
-                <label class="btn"><i class="fas fa-upload"></i> Importar mod <input type="file" id="importFile" accept=".json" style="display:none;"></label>
-                <button class="btn" id="resetModBtn"><i class="fas fa-broom"></i> Nuevo mod (reset)</button>
+        <div style="background:#A9A9A9; border:4px ridge #FFFFFF; padding:20px;">
+            <h2><i class="fas fa-file-export"></i> Exportar / Importar</h2>
+            <div style="display:flex; gap:15px; flex-wrap:wrap; margin:20px 0;">
+                <button class="btn" id="exportBtn"><i class="fas fa-download"></i> Exportar .json</button>
+                <label class="btn"><i class="fas fa-upload"></i> Importar <input type="file" id="importFile" accept=".json" style="display:none;"></label>
+                <button class="btn" id="resetModBtn"><i class="fas fa-broom"></i> Nuevo mod</button>
             </div>
-            <p><i class="fas fa-info-circle"></i> El archivo guarda todas las plantas, zombis, oleadas, mapas y sprites.</p>
         </div>
     </div>
 
-    <div class="footer">
-        <i class="fas fa-heart"></i> Más de 1200 líneas de código · Sistema de juego mejorado
-    </div>
+    <div class="footer"><i class="fas fa-heart"></i> Estilo 2008 · Todos los zombies aparecen</div>
 </div>
 
 <script>
     (function() {
-        // ========== ESTADO GLOBAL EXTENDIDO ==========
+        // ========== ESTADO GLOBAL ==========
         let modData = {
             plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null },
             zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null },
@@ -563,15 +472,14 @@
             currentSprite: Array(16).fill().map(() => Array(16).fill('#ffffff'))
         };
 
-        // Variables de juego
         let gameState = {
             sun: 150,
-            plants: [],           // { row, col, plantData, currentHp, id }
-            zombies: [],           // { row, col, zombieData, currentHp, id, progress }
+            plants: [],
+            zombies: [],
             gameLoop: null,
             paused: false,
             nextId: 0,
-            selectedPlant: null,   // planta guardada seleccionada para colocar
+            selectedPlant: null,
         };
 
         // ========== REFERENCIAS DOM ==========
@@ -673,7 +581,6 @@
                     }
                 }
             } else {
-                // dibujo por defecto con color
                 ctxPlant.fillStyle = '#5aaf5a';
                 ctxPlant.beginPath();
                 ctxPlant.ellipse(100, 110, 45, 35, 0, 0, Math.PI*2);
@@ -742,7 +649,6 @@
             zombieNameDisplay.innerHTML = `🧟 ${modData.zombie.type}`;
         }
 
-        // ========== ACTUALIZAR UI DE SLIDERS ==========
         function updatePlantUI() {
             damageVal.textContent = modData.plant.damage;
             speedVal.textContent = modData.plant.speed;
@@ -887,7 +793,7 @@
             modData.map.grass = grassTypeSelect.value;
             let html = '';
             for (let r=0; r<rows; r++) {
-                html += '<div style="display:flex; gap:8px; justify-content:center;">';
+                html += '<div style="display:flex; gap:5px; justify-content:center;">';
                 for (let c=0; c<cols; c++) {
                     let cellType = modData.map.grass==='pool'?'💧':(modData.map.grass==='roof'?'🏠':(modData.map.grass==='night'?'🌙':'🌿'));
                     html += `<div class="map-cell">${cellType}</div>`;
@@ -956,40 +862,37 @@
             buildSpriteGrid();
         });
 
-        // ========== PANEL JUGAR (LÓGICA COMPLETA) ==========
+        // ========== PANEL JUGAR (con sprites en mapa) ==========
         function loadPlayMap() {
             let rows = modData.map.rows;
             let cols = modData.map.cols;
             let html = '';
             for (let r=0; r<rows; r++) {
-                html += '<div style="display:flex; gap:8px; justify-content:center; margin-bottom:8px;">';
+                html += '<div style="display:flex; gap:5px; justify-content:center; margin-bottom:5px;">';
                 for (let c=0; c<cols; c++) {
-                    html += `<div class="map-cell" data-row="${r}" data-col="${c}" style="background:#6ca56c;"></div>`;
+                    html += `<div class="map-cell" data-row="${r}" data-col="${c}"><canvas width="70" height="70"></canvas></div>`;
                 }
                 html += '</div>';
             }
             playMapContainer.innerHTML = html;
 
-            // Agregar event listeners a las celdas
+            // Asignar eventos a las celdas
             document.querySelectorAll('#playMapContainer .map-cell').forEach(cell => {
                 cell.addEventListener('click', () => {
                     if (!gameState.selectedPlant) {
-                        gameLog.innerHTML = '❌ Selecciona una planta de la paleta primero.';
+                        gameLog.innerHTML = '❌ Selecciona una planta primero.';
                         return;
                     }
                     let row = parseInt(cell.dataset.row);
                     let col = parseInt(cell.dataset.col);
-                    // Verificar si ya hay una planta
                     if (gameState.plants.some(p => p.row === row && p.col === col)) {
-                        gameLog.innerHTML = '❌ Ya hay una planta en esa celda.';
+                        gameLog.innerHTML = '❌ Ya hay una planta.';
                         return;
                     }
-                    // Verificar soles
                     if (gameState.sun < gameState.selectedPlant.sunCost) {
-                        gameLog.innerHTML = '❌ No tienes suficientes soles.';
+                        gameLog.innerHTML = '❌ No tienes soles suficientes.';
                         return;
                     }
-                    // Colocar planta
                     gameState.sun -= gameState.selectedPlant.sunCost;
                     updateSunDisplay();
                     let newPlant = {
@@ -1004,20 +907,57 @@
                     gameLog.innerHTML = `🌱 Planta "${gameState.selectedPlant.name}" colocada.`;
                 });
             });
+            renderPlayField();
         }
 
         function renderPlayField() {
-            // Actualizar cada celda con la planta y su salud
             let cells = document.querySelectorAll('#playMapContainer .map-cell');
             cells.forEach(cell => {
                 let row = parseInt(cell.dataset.row);
                 let col = parseInt(cell.dataset.col);
+                let canvas = cell.querySelector('canvas');
+                let ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 70, 70);
+                
+                // Buscar planta
                 let plant = gameState.plants.find(p => p.row === row && p.col === col);
                 if (plant) {
+                    // Dibujar sprite si existe
+                    if (plant.plantData.sprite) {
+                        let s = plant.plantData.sprite;
+                        for (let y=0; y<16; y++) {
+                            for (let x=0; x<16; x++) {
+                                ctx.fillStyle = s[y][x];
+                                ctx.fillRect(x*4, y*4, 4, 4); // 16*4 = 64, centrado en 70
+                            }
+                        }
+                    } else {
+                        ctx.fillStyle = '#5aaf5a';
+                        ctx.fillRect(10, 10, 50, 50);
+                    }
+                    // Barra de vida
                     let healthPercent = (plant.currentHp / plant.plantData.hp) * 100;
-                    cell.innerHTML = `🌱<div class="plant-hp-bar"><div class="plant-hp-fill" style="width:${healthPercent}%;"></div></div>`;
-                } else {
-                    cell.innerHTML = ''; // vacío
+                    ctx.fillStyle = '#ff0000';
+                    ctx.fillRect(5, 65, 60, 5);
+                    ctx.fillStyle = '#00ff00';
+                    ctx.fillRect(5, 65, 60 * (healthPercent/100), 5);
+                }
+
+                // Buscar zombi en esta celda (aproximado por columna entera)
+                let zombie = gameState.zombies.find(z => z.row === row && Math.floor(z.col) === col);
+                if (zombie) {
+                    if (zombie.zombieData.sprite) {
+                        let s = zombie.zombieData.sprite;
+                        for (let y=0; y<16; y++) {
+                            for (let x=0; x<16; x++) {
+                                ctx.fillStyle = s[y][x];
+                                ctx.fillRect(35 + x*2, y*2, 2, 2); // pequeño
+                            }
+                        }
+                    } else {
+                        ctx.fillStyle = '#8b5a2b';
+                        ctx.fillRect(40, 20, 20, 30);
+                    }
                 }
             });
         }
@@ -1040,18 +980,15 @@
             });
         }
 
-        // Iniciar oleada (simulación avanzada)
         function startWave() {
             if (modData.wave.zombies.length === 0) {
                 gameLog.innerHTML = '⚠️ No hay zombis en la oleada.';
                 return;
             }
-            // Colocar zombis según el modo
             let rows = modData.map.rows;
             let cols = modData.map.cols;
-            let spawnCol = cols - 1; // borde derecho
+            let spawnCol = cols - 1;
             let zombiesToSpawn = [...modData.wave.zombies];
-            // Asignar carriles
             zombiesToSpawn.forEach((z, index) => {
                 let row = 0;
                 if (modData.wave.spawnMode === 'random') row = Math.floor(Math.random() * rows);
@@ -1065,14 +1002,12 @@
                     col: spawnCol,
                     zombieData: JSON.parse(JSON.stringify(z)),
                     currentHp: z.hp,
-                    progress: 1.0 // 1 = en la columna col, 0 = llegó a la casa
                 });
             });
             renderPlayField();
             gameLog.innerHTML = `🧟‍♂️ ¡Oleada iniciada con ${zombiesToSpawn.length} zombis!`;
         }
 
-        // Reiniciar juego
         function resetGame() {
             gameState.sun = 150;
             gameState.plants = [];
@@ -1083,41 +1018,38 @@
             gameLog.innerHTML = '⏳ Partida reiniciada.';
         }
 
-        // Bucle de juego (simulación por ticks)
         function gameTick() {
             if (gameState.paused) return;
-            // 1. Las plantas disparan a los zombis en su misma fila y dentro del rango
+            // Plantas disparan
             gameState.plants.forEach(plant => {
                 let zombiesInRow = gameState.zombies.filter(z => z.row === plant.row && z.col <= plant.col + plant.plantData.range);
                 if (zombiesInRow.length > 0) {
-                    // Atacar al primero (más cercano)
-                    let target = zombiesInRow.sort((a,b) => b.col - a.col)[0]; // el de mayor col (más cerca)
+                    let target = zombiesInRow.sort((a,b) => b.col - a.col)[0];
                     target.currentHp -= plant.plantData.damage;
                     if (target.currentHp <= 0) {
                         gameState.zombies = gameState.zombies.filter(z => z.id !== target.id);
-                        gameLog.innerHTML = `💀 Zombi eliminado en fila ${plant.row}.`;
+                        gameLog.innerHTML = `💀 Zombi eliminado.`;
                     }
                 }
             });
 
-            // 2. Los zombis avanzan (disminuyen col) según su velocidad
+            // Zombis avanzan
             gameState.zombies.forEach(z => {
-                z.col -= z.zombieData.speed * 0.1; // velocidad por tick (cada segundo)
+                z.col -= z.zombieData.speed * 0.1;
                 if (z.col < 0) {
-                    // Llega a la casa
-                    gameLog.innerHTML = `🏠 ¡Zombi llegó a la casa! Pérdida.`;
+                    gameLog.innerHTML = `🏠 Zombi llegó a la casa.`;
                     gameState.zombies = gameState.zombies.filter(z2 => z2.id !== z.id);
                 }
             });
 
-            // 3. Los zombis atacan a las plantas en su misma celda
+            // Zombis atacan plantas
             gameState.zombies.forEach(z => {
                 let plantHere = gameState.plants.find(p => p.row === z.row && Math.floor(p.col) === Math.floor(z.col));
                 if (plantHere) {
-                    plantHere.currentHp -= 10; // daño base del zombi (podría ser variable)
+                    plantHere.currentHp -= 10;
                     if (plantHere.currentHp <= 0) {
                         gameState.plants = gameState.plants.filter(p => p.id !== plantHere.id);
-                        gameLog.innerHTML = `🥀 Planta destruida en fila ${plantHere.row}.`;
+                        gameLog.innerHTML = `🥀 Planta destruida.`;
                     }
                 }
             });
@@ -1125,7 +1057,6 @@
             renderPlayField();
         }
 
-        // Iniciar bucle de juego (cada 1 segundo)
         function startGameLoop() {
             if (gameState.gameLoop) clearInterval(gameState.gameLoop);
             gameState.gameLoop = setInterval(() => gameTick(), 1000);
@@ -1145,7 +1076,7 @@
         pauseGameBtn.addEventListener('click', () => {
             gameState.paused = !gameState.paused;
             pauseGameBtn.innerHTML = gameState.paused ? '<i class="fas fa-play"></i> Reanudar' : '<i class="fas fa-pause"></i> Pausa';
-            gameLog.innerHTML = gameState.paused ? '⏸️ Juego en pausa.' : '▶️ Juego reanudado.';
+            gameLog.innerHTML = gameState.paused ? '⏸️ Pausa' : '▶️ Reanudado';
         });
 
         addSunBtn.addEventListener('click', () => {
@@ -1180,7 +1111,7 @@
                         updateWaveUI();
                         updateMapPreview();
                         buildSpriteGrid();
-                        gameLog.innerHTML = '✅ Mod importado correctamente.';
+                        gameLog.innerHTML = '✅ Mod importado.';
                     } catch(ex) { alert('Archivo inválido'); }
                 };
                 reader.readAsText(e.target.files[0]);
@@ -1206,7 +1137,7 @@
             updateWaveUI();
             updateMapPreview();
             buildSpriteGrid();
-            gameLog.innerHTML = '🆕 Nuevo mod en blanco.';
+            gameLog.innerHTML = '🆕 Nuevo mod.';
         });
 
         // ========== TABS ==========
@@ -1239,7 +1170,7 @@
         updateMapPreview();
         buildPalette();
         buildSpriteGrid();
-        panels.plant.classList.remove('hidden-panel'); // Mostrar plant por defecto
+        panels.plant.classList.remove('hidden-panel');
     })();
 </script>
 </body>
