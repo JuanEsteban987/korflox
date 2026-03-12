@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌱 PvZ Maker · Estilo 2008 + Sprites</title>
+    <title>🌱 PvZ Maker · Mapa gigante + oleadas múltiples</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ========== ESTILOS RETRO 2008 ========== */
@@ -25,7 +25,7 @@
         }
 
         .game-box {
-            max-width: 1500px;
+            max-width: 1600px;
             width: 100%;
             background: #c0a86a;
             border-radius: 0;
@@ -255,7 +255,7 @@
         .pixel-cell {
             width: 35px;
             height: 35px;
-            background-color: #c0c0c0; /* Fondo neutro por defecto */
+            background-color: #c0c0c0;
             border: 1px solid #666;
             cursor: pointer;
         }
@@ -278,19 +278,45 @@
             border: 6px inset #ccc;
         }
 
-        .map-cell {
-            width: 80px;
-            height: 80px;
+        .map-preview-cell {
+            width: 60px;
+            height: 60px;
             background: #7bb56b;
-            border: 6px outset #a0d080;
+            border: 4px outset #a0d080;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .map-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-width: 100%;
+            max-height: 500px;
+            background: #4d8f4d;
+            border: 8px ridge #6fa86f;
+            padding: 15px;
+        }
+
+        .map-row {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+
+        .map-cell {
+            width: 70px;
+            height: 70px;
+            background: #7bb56b;
+            border: 4px outset #a0d080;
             display: inline-flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-            margin: 5px;
             cursor: pointer;
-            position: relative;
+            flex-shrink: 0;
         }
         .map-cell canvas {
             width: 100%;
@@ -344,11 +370,20 @@
             font-size: 1.4rem;
             text-shadow: 3px 3px 0 #2d5a2d;
         }
+
+        .quantity-input {
+            width: 80px;
+            padding: 10px;
+            font-size: 1.3rem;
+            background: #ffe3b7;
+            border: 6px inset #edc289;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 <div class="game-box">
-    <h1><i class="fas fa-skull"></i> PvZ MAKER 2008 <i class="fas fa-leaf"></i></h1>
+    <h1><i class="fas fa-skull"></i> PvZ MAKER 2008 · MAPA XXL <i class="fas fa-leaf"></i></h1>
 
     <div class="tabs">
         <button class="tab-btn active" data-tab="plant">🌱 Plantas</button>
@@ -414,12 +449,17 @@
         </div>
     </div>
 
-    <!-- PANEL OLEADAS -->
+    <!-- PANEL OLEADAS (mejorado con cantidad) -->
     <div id="wavePanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
                 <h2><i class="fas fa-water"></i> Oleadas</h2>
-                <div><button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus"></i> Añadir zombi</button><button class="btn btn-small" id="clearWaveBtn"><i class="fas fa-trash"></i> Limpiar</button></div>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
+                    <button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus"></i> Añadir</button>
+                    <input type="number" id="zombieQuantity" class="quantity-input" value="1" min="1" max="20">
+                    <span>veces</span>
+                    <button class="btn btn-small" id="clearWaveBtn"><i class="fas fa-trash"></i> Limpiar</button>
+                </div>
                 <div class="collection" id="waveContainer"></div>
                 <label>⏱️ Intervalo: <span class="value-badge" id="waveIntervalVal">1.0 s</span></label><input type="range" id="waveIntervalSlider" min="0.3" max="5" value="1" step="0.1">
                 <label>📍 Spawn: <select id="spawnModeSelect" class="select-field"><option value="random">Aleatorio</option><option value="lane0">Carril 0</option><option value="lane1">Carril 1</option><option value="lane2">Carril 2</option><option value="all">Todos</option></select></label>
@@ -427,15 +467,24 @@
         </div>
     </div>
 
-    <!-- PANEL MAPAS -->
+    <!-- PANEL MAPAS (con límites aumentados) -->
     <div id="mapPanel" class="panel hidden-panel">
         <div class="maker-grid">
-            <div class="card"><h2><i class="fas fa-map"></i> Vista</h2><div id="mapPreview" style="display:flex; flex-direction:column; gap:8px; align-items:center;"></div></div>
-            <div class="card"><h2>Propiedades</h2><label>Filas: <input type="number" id="mapRows" min="3" max="6" value="3" class="select-field"></label><label>Columnas: <input type="number" id="mapCols" min="4" max="9" value="5" class="select-field"></label><label>Tipo: <select id="grassType" class="select-field"><option value="normal">🌿 Normal</option><option value="pool">💧 Piscina</option><option value="roof">🏠 Tejado</option><option value="night">🌙 Noche</option></select></label><button class="btn btn-small" id="updateMapBtn">Actualizar</button></div>
+            <div class="card">
+                <h2><i class="fas fa-map"></i> Vista previa</h2>
+                <div id="mapPreview" style="display:flex; flex-direction:column; gap:5px; align-items:center; overflow-x:auto; padding:10px;"></div>
+            </div>
+            <div class="card">
+                <h2>Propiedades</h2>
+                <label>Filas: <input type="number" id="mapRows" min="3" max="8" value="3" class="select-field"></label>
+                <label>Columnas: <input type="number" id="mapCols" min="4" max="12" value="5" class="select-field"></label>
+                <label>Tipo: <select id="grassType" class="select-field"><option value="normal">🌿 Normal</option><option value="pool">💧 Piscina</option><option value="roof">🏠 Tejado</option><option value="night">🌙 Noche</option></select></label>
+                <button class="btn btn-small" id="updateMapBtn">Actualizar</button>
+            </div>
         </div>
     </div>
 
-    <!-- PANEL SPRITE 16x16 -->
+    <!-- PANEL SPRITE -->
     <div id="spritePanel" class="panel hidden-panel">
         <div class="sprite-editor">
             <h2><i class="fas fa-draw-polygon"></i> Editor 16x16</h2>
@@ -443,11 +492,11 @@
                 <div><div class="sprite-grid" id="spriteGrid"></div><div class="color-palette" id="colorPalette"></div></div>
                 <div><h3>Herramientas</h3><button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button><button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button><p>Color: <span id="currentColorDisplay" style="display:inline-block; width:50px; height:50px; background:black; border:4px outset #ccc;"></span></p></div>
             </div>
-            <p><i class="fas fa-info-circle"></i> El fondo gris no se dibuja en la planta. Pinta sobre él.</p>
+            <p><i class="fas fa-info-circle"></i> El fondo gris no se dibuja en la planta.</p>
         </div>
     </div>
 
-    <!-- PANEL JUGAR (con lista de zombies) -->
+    <!-- PANEL JUGAR (con contenedor con scroll) -->
     <div id="playPanel" class="panel hidden-panel">
         <div style="display:flex; gap:30px; flex-wrap:wrap;">
             <div style="flex:3;">
@@ -455,7 +504,7 @@
                     <div class="sun-counter"><i class="fas fa-sun"></i> <span id="sunAmount">150</span></div>
                     <div><button class="btn btn-small" id="pauseGameBtn"><i class="fas fa-pause"></i> Pausa</button></div>
                 </div>
-                <div id="playMapContainer" style="background:#4d8f4d; border:8px ridge #6fa86f; padding:20px; margin-top:15px;"></div>
+                <div class="map-container" id="playMapContainer"></div>
                 <div style="margin-top:20px;">
                     <h3><i class="fas fa-leaf"></i> Tus plantas</h3>
                     <div class="collection" id="playPlantPalette"></div>
@@ -488,7 +537,7 @@
         </div>
     </div>
 
-    <div class="footer"><i class="fas fa-heart"></i> 2008 Retro Style · Sprites sin fondo</div>
+    <div class="footer"><i class="fas fa-heart"></i> 2008 Retro Style · Hasta 8x12 · Oleadas múltiples</div>
 </div>
 
 <script>
@@ -501,7 +550,6 @@
             savedZombies: [],
             wave: { zombies:[], interval:1.0, spawnMode:'random' },
             map: { rows:3, cols:5, grass:'normal' },
-            // Inicializar sprite con color de fondo gris (no se dibujará)
             currentSprite: Array(16).fill().map(() => Array(16).fill('#c0c0c0'))
         };
 
@@ -553,13 +601,14 @@
         const savedZombiesCollection = document.getElementById('savedZombiesCollection');
         const loadSpriteToZombieBtn = document.getElementById('loadSpriteToZombieBtn');
 
-        // Wave panel
+        // Wave panel (con cantidad)
         const addZombieBtn = document.getElementById('addZombieToWave');
         const clearWaveBtn = document.getElementById('clearWaveBtn');
         const waveContainer = document.getElementById('waveContainer');
         const waveIntervalSlider = document.getElementById('waveIntervalSlider');
         const waveIntervalVal = document.getElementById('waveIntervalVal');
         const spawnModeSelect = document.getElementById('spawnModeSelect');
+        const zombieQuantity = document.getElementById('zombieQuantity');
 
         // Map panel
         const mapRowsInput = document.getElementById('mapRows');
@@ -603,13 +652,12 @@
             export: document.getElementById('exportPanel')
         };
 
-        // ========== FUNCIONES DE DIBUJO (ignoran color de fondo) ==========
+        // ========== FUNCIONES DE DIBUJO ==========
         function drawSpriteOnCanvas(ctx, sprite, xOffset, yOffset, cellSize, bgColor = '#c0c0c0') {
             if (!sprite) return;
             for (let y = 0; y < 16; y++) {
                 for (let x = 0; x < 16; x++) {
                     const color = sprite[y][x];
-                    // Si el color es el fondo, no se dibuja (se deja transparente)
                     if (color !== bgColor) {
                         ctx.fillStyle = color;
                         ctx.fillRect(xOffset + x * cellSize, yOffset + y * cellSize, cellSize, cellSize);
@@ -623,7 +671,6 @@
             if (modData.plant.sprite) {
                 drawSpriteOnCanvas(ctxPlant, modData.plant.sprite, 20, 20, 10, '#c0c0c0');
             } else {
-                // dibujo por defecto
                 ctxPlant.fillStyle = '#5aaf5a';
                 ctxPlant.beginPath();
                 ctxPlant.ellipse(100, 110, 45, 35, 0, 0, Math.PI*2);
@@ -653,7 +700,6 @@
             if (modData.zombie.sprite) {
                 drawSpriteOnCanvas(ctxZombie, modData.zombie.sprite, 20, 20, 10, '#c0c0c0');
             } else {
-                // dibujo por defecto
                 ctxZombie.fillStyle = '#3f6132';
                 ctxZombie.beginPath();
                 ctxZombie.ellipse(100, 85, 35, 45, 0, 0, Math.PI*2);
@@ -791,7 +837,7 @@
             drawZombie();
         });
 
-        // ========== OLEADAS ==========
+        // ========== OLEADAS (con cantidad) ==========
         function updateWaveUI() {
             waveContainer.innerHTML = '';
             modData.wave.zombies.forEach((z, idx) => {
@@ -804,7 +850,10 @@
         }
 
         addZombieBtn.addEventListener('click', () => {
-            modData.wave.zombies.push({...modData.zombie});
+            let qty = parseInt(zombieQuantity.value) || 1;
+            for (let i=0; i<qty; i++) {
+                modData.wave.zombies.push({...modData.zombie});
+            }
             updateWaveUI();
         });
 
@@ -822,7 +871,7 @@
             modData.wave.spawnMode = e.target.value;
         });
 
-        // ========== MAPA ==========
+        // ========== MAPA (con límites ampliados) ==========
         function updateMapPreview() {
             let rows = parseInt(mapRowsInput.value);
             let cols = parseInt(mapColsInput.value);
@@ -831,10 +880,10 @@
             modData.map.grass = grassTypeSelect.value;
             let html = '';
             for (let r=0; r<rows; r++) {
-                html += '<div style="display:flex; gap:8px; justify-content:center;">';
+                html += '<div style="display:flex; gap:5px; justify-content:center; margin-bottom:5px;">';
                 for (let c=0; c<cols; c++) {
                     let cellType = modData.map.grass==='pool'?'💧':(modData.map.grass==='roof'?'🏠':(modData.map.grass==='night'?'🌙':'🌿'));
-                    html += `<div class="map-cell">${cellType}</div>`;
+                    html += `<div class="map-preview-cell">${cellType}</div>`;
                 }
                 html += '</div>';
             }
@@ -906,7 +955,7 @@
             let cols = modData.map.cols;
             let html = '';
             for (let r=0; r<rows; r++) {
-                html += '<div style="display:flex; gap:8px; justify-content:center; margin-bottom:8px;">';
+                html += '<div class="map-row">';
                 for (let c=0; c<cols; c++) {
                     html += `<div class="map-cell" data-row="${r}" data-col="${c}"></div>`;
                 }
@@ -953,20 +1002,18 @@
                 let col = parseInt(cell.dataset.col);
                 let plant = gameState.plants.find(p => p.row === row && p.col === col);
                 if (plant) {
-                    // Crear canvas para dibujar el sprite
                     let canvas = document.createElement('canvas');
-                    canvas.width = 80;
-                    canvas.height = 80;
+                    canvas.width = 70;
+                    canvas.height = 70;
                     let ctx = canvas.getContext('2d');
                     if (plant.plantData.sprite) {
-                        drawSpriteOnCanvas(ctx, plant.plantData.sprite, 0, 0, 5, '#c0c0c0');
+                        drawSpriteOnCanvas(ctx, plant.plantData.sprite, 0, 0, 4, '#c0c0c0');
                     } else {
                         ctx.fillStyle = '#5aaf5a';
-                        ctx.fillRect(20, 20, 40, 40);
+                        ctx.fillRect(15, 15, 40, 40);
                     }
                     cell.innerHTML = '';
                     cell.appendChild(canvas);
-                    // Barra de vida
                     let healthPercent = (plant.currentHp / plant.plantData.hp) * 100;
                     let hpDiv = document.createElement('div');
                     hpDiv.style.width = '100%';
@@ -983,7 +1030,6 @@
                     cell.innerHTML = '';
                 }
             });
-            // Actualizar lista de zombies
             updateZombieList();
         }
 
@@ -1204,7 +1250,7 @@
         updateWaveUI();
         updateMapPreview();
         buildPalette();
-        buildSpriteGrid(); // Esto ya usa el color de fondo #c0c0c0
+        buildSpriteGrid();
         panels.plant.classList.remove('hidden-panel');
     })();
 </script>
