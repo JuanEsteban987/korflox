@@ -3,1579 +3,647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌱 PvZ Maker · Rústico + Importar Sprites + Block Coding</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Chess Empires · estrategia con ajedrez</title>
     <style>
-        /* ========== ESTILOS RÚSTICOS ========== */
         * {
             box-sizing: border-box;
-            font-family: 'Courier New', 'VT323', 'Segoe UI', monospace;
-            margin: 0;
-            padding: 0;
-            image-rendering: pixelated;
+            user-select: none;
         }
-
         body {
-            background: #3a2a1a;
-            min-height: 100vh;
+            background: #1e3c2c;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 10px;
-            background-image: radial-gradient(circle, #5a4a2a 1px, transparent 1px);
-            background-size: 20px 20px;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            margin: 0;
+            padding: 16px;
         }
-
-        .game-box {
-            max-width: 1700px;
-            width: 100%;
-            background: #c8b28b;
-            border-radius: 0;
-            box-shadow: 12px 12px 0 #4a3e2a, -6px -6px 0 #ecd9a8 inset;
-            padding: 25px;
-            border: 6px solid #7a5a3a;
-            background-image: linear-gradient(45deg, #d2b48c 25%, #c0a06b 25%, #c0a06b 50%, #d2b48c 50%, #d2b48c 75%, #c0a06b 75%);
-            background-size: 30px 30px;
+        .game-container {
+            background: #2d5a3a;
+            padding: 24px;
+            border-radius: 36px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.6);
+            border: 4px solid #b68b5c;
         }
-
-        h1 {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: #f0d88c;
-            text-shadow: 6px 6px 0 #3f5a2a, 9px 9px 0 #1f3a1a;
-            margin: 0 0 20px 10px;
-            letter-spacing: 4px;
-            font-family: 'Courier New', monospace;
-            background: #6b4e2a;
-            padding: 10px 30px;
-            display: inline-block;
-            border: 6px ridge #b09060;
-        }
-
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 25px;
-            background: #9b7a5a;
-            padding: 15px 20px;
-            border: 6px outset #c0a06b;
-            box-shadow: 6px 6px 0 #4a3e2a inset;
-        }
-
-        .tab-btn {
-            background: #c8a06b;
-            border: 6px outset #e0b080;
-            border-radius: 0;
-            padding: 15px 25px;
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #1f3a1f;
-            cursor: pointer;
-            box-shadow: 4px 4px 0 #6b4e2a;
-            transition: all 0.05s linear;
-            font-family: 'Courier New', monospace;
-            text-transform: uppercase;
-        }
-
-        .tab-btn.active {
-            background: #d8b080;
-            border: 6px inset #e0b080;
-            transform: translate(2px, 2px);
-            box-shadow: none;
-        }
-
-        .panel {
-            background: #e8d0a0;
-            border: 8px ridge #a88a5a;
-            padding: 30px;
-            box-shadow: 8px 8px 0 #5a4a2a inset;
-            display: block;
-            background-image: linear-gradient(rgba(200,180,140,0.3) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(200,180,140,0.3) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        .hidden-panel {
-            display: none;
-        }
-
-        .maker-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-        }
-
-        .card {
-            background: #f0d8b0;
-            border: 8px groove #b09060;
-            padding: 25px;
-            box-shadow: 6px 6px 0 #7a5a3a inset;
-            background-image: radial-gradient(circle at 10px 10px, #d8b88c 2px, transparent 2px);
-            background-size: 30px 30px;
-        }
-
-        .card h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #2e5a2e;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-bottom: 6px dotted #a88a5a;
-            padding-bottom: 10px;
-            font-family: 'Courier New', monospace;
-            text-shadow: 2px 2px 0 #b09060;
-        }
-
-        .preview-box {
-            background: #7fb074;
-            border: 8px inset #9fbf80;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .preview-canvas {
-            width: 200px;
-            height: 200px;
-            background: #4f8a4f;
-            border: 6px solid #b4e09b;
-            image-rendering: crisp-edges;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .slider-group {
-            background: #eed9b0;
-            border: 6px inset #c8a870;
-            padding: 20px;
-        }
-
-        .slider-item {
-            margin-bottom: 20px;
-        }
-
-        .slider-item label {
+        .header {
             display: flex;
             justify-content: space-between;
-            font-weight: 700;
-            color: #235023;
-            font-size: 1.4rem;
-        }
-
-        input[type=range] {
-            width: 100%;
-            accent-color: #e9b35f;
-            height: 15px;
-        }
-
-        .value-badge {
-            background: #1f421f;
-            color: #f9e57c;
-            padding: 5px 15px;
-            border: 4px solid #9e7c3b;
-            font-size: 1.4rem;
-        }
-
-        .select-field {
-            background: #ffe3b7;
-            padding: 12px 20px;
-            border: 6px inset #edc289;
-            font-size: 1.4rem;
-            width: 100%;
-            margin: 10px 0;
-            font-weight: bold;
-            color: #1a3d1a;
-        }
-
-        .btn {
-            background: #f0b060;
-            border: 6px outset #f0d090;
-            border-radius: 0;
-            padding: 16px 28px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1f421f;
-            box-shadow: 5px 5px 0 #9e7c3b;
-            cursor: pointer;
-            transition: 0.05s linear;
-            font-family: 'Courier New', monospace;
-            margin: 5px;
-        }
-
-        .btn:active {
-            border: 6px inset #f0d090;
-            transform: translate(2px, 2px);
-            box-shadow: none;
-        }
-
-        .btn-small {
-            padding: 12px 20px;
-            font-size: 1.4rem;
-        }
-
-        .collection {
-            background: #b2d4a2;
-            border: 6px inset #a0bf80;
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            min-height: 150px;
-        }
-
-        .collection-item {
-            background: #3f6e3f;
-            color: #fff3c9;
-            padding: 12px 20px;
-            border: 4px outset #b1d893;
-            font-size: 1.4rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.05s;
-        }
-
-        .collection-item:active {
-            border: 4px inset #b1d893;
-            transform: translate(2px, 2px);
-        }
-
-        .sprite-editor {
-            background: #cfb28b;
-            border: 8px ridge #b09060;
-            padding: 25px;
-        }
-
-        .sprite-grid {
-            display: grid;
-            grid-template-columns: repeat(16, 35px);
-            grid-template-rows: repeat(16, 35px);
-            gap: 2px;
-            justify-content: center;
-            background: #aaa;
-            padding: 15px;
-            border: 6px inset #8b6e4a;
-        }
-
-        .pixel-cell {
-            width: 35px;
-            height: 35px;
-            background-color: #c0c0c0;
-            border: 1px solid #666;
-            cursor: pointer;
-        }
-
-        .color-palette {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-            justify-content: center;
-        }
-
-        .color-swatch {
-            width: 50px;
-            height: 50px;
-            border: 6px outset #ccc;
-            cursor: pointer;
-        }
-        .color-swatch:active {
-            border: 6px inset #ccc;
-        }
-
-        .map-preview-cell {
-            width: 60px;
-            height: 60px;
-            background: #7bb56b;
-            border: 6px outset #a0d080;
-            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            font-size: 2rem;
+            background: #3b2e1e;
+            color: #f0e6d2;
+            padding: 12px 24px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            border: 2px solid #c9a87c;
+            font-weight: bold;
+            font-size: 1.2rem;
         }
-
-        .map-container {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-width: 100%;
-            max-height: 500px;
-            background: #4d8f4d;
-            border: 8px ridge #6fa86f;
-            padding: 15px;
-        }
-
-        .map-row {
+        .resources {
             display: flex;
-            gap: 5px;
-            justify-content: center;
-            margin-bottom: 5px;
+            gap: 32px;
         }
-
-        .map-cell {
-            width: 70px;
-            height: 70px;
-            background: #7bb56b;
-            border: 6px outset #a0d080;
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            position: relative;
+        .gold {
+            color: #ffd966;
         }
-        .map-cell canvas {
-            width: 100%;
-            height: 100%;
+        .turn-indicator {
+            background: #5e4b3c;
+            padding: 6px 18px;
+            border-radius: 40px;
+            text-transform: uppercase;
+        }
+        canvas {
             display: block;
-            image-rendering: crisp-edges;
+            margin: 0 auto;
+            border-radius: 24px;
+            box-shadow: 0 0 0 4px #b68b5c, 0 15px 25px black;
+            background: #ebd5b3;
+            cursor: pointer;
         }
-        .map-cell .object-overlay {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            font-size: 1.5rem;
-            text-shadow: 2px 2px 0 black;
-        }
-
-        .sun-counter {
-            background: #f7d45a;
-            border: 6px outset #e5b73b;
-            padding: 15px 30px;
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #1f3a1f;
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .zombie-list {
-            background: #4a6b4a;
-            border: 6px inset #2f4f2f;
-            padding: 15px;
-            color: #f0e68c;
-            font-size: 1.4rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .zombie-list-item {
-            background: #2f4f2f;
-            padding: 8px;
-            margin: 5px 0;
-            border: 2px solid #6b8e6b;
-        }
-
-        .game-log {
-            background: #2f5a2f;
-            color: #f9f0b5;
-            border: 6px inset #1f3f1f;
-            padding: 15px;
-            font-size: 1.4rem;
-            min-height: 120px;
-        }
-
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #f0d88c;
-            font-weight: bold;
-            font-size: 1.8rem;
-            text-shadow: 3px 3px 0 #2d5a2d;
-            background: #6b4e2a;
-            padding: 10px;
-            border: 6px ridge #b09060;
-        }
-
-        .quantity-input {
-            width: 80px;
-            padding: 10px;
-            font-size: 1.4rem;
-            background: #ffe3b7;
-            border: 6px inset #edc289;
-            text-align: center;
-        }
-
-        .object-palette {
+        .control-panel {
             display: flex;
-            gap: 10px;
-            margin: 10px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+            background: #3b2e1e;
+            padding: 20px;
+            border-radius: 50px;
+            border: 2px solid #c9a87c;
+            justify-content: center;
+        }
+        .shop {
+            display: flex;
+            gap: 12px;
             flex-wrap: wrap;
         }
-        .object-btn {
-            background: #a0a0a0;
-            border: 6px outset #d0d0d0;
-            padding: 10px 15px;
-            font-size: 1.5rem;
+        .btn {
+            background: #c9a87c;
+            border: none;
+            color: #2d2d2d;
+            font-weight: bold;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 1rem;
             cursor: pointer;
+            box-shadow: 0 5px 0 #7b623a;
+            transition: 0.07s ease;
+            border: 1px solid #f0dbb4;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .object-btn.selected {
-            border: 6px inset #d0d0d0;
-            background: #c0c0c0;
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #7b623a;
         }
-
-        /* Bloques de código rústicos */
-        .block-code {
-            background: #2a2a1a;
-            border: 8px ridge #7a6a4a;
-            padding: 15px;
-            color: #d0d0a0;
-            font-family: 'Courier New', monospace;
-            font-size: 1.3rem;
-            min-height: 150px;
-            white-space: pre-wrap;
-            margin-top: 10px;
+        .btn:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: 0 5px 0 #7b623a;
+            cursor: not-allowed;
         }
-        .block-btn {
-            background: #7a6a4a;
-            border: 4px outset #b0a080;
-            color: #f0e0a0;
-            padding: 8px 12px;
-            margin: 5px;
-            cursor: pointer;
-            display: inline-block;
+        .info-text {
+            color: #f0e6d2;
+            background: #1e3c2c;
+            padding: 10px 24px;
+            border-radius: 36px;
+            font-size: 0.95rem;
+            border: 1px solid #b68b5c;
+            min-width: 200px;
+            text-align: center;
         }
-        .block-btn:active {
-            border: 4px inset #b0a080;
+        .enemy-turn {
+            background: #a14a4a;
+            color: white;
+            animation: pulse 1s infinite;
         }
-        .import-area {
-            background: #7a6a4a;
-            border: 6px inset #b09060;
-            padding: 15px;
-            margin: 15px 0;
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
     </style>
 </head>
 <body>
-<div class="game-box">
-    <h1><i class="fas fa-skull"></i> PvZ MAKER RÚSTICO · IMPORTAR SPRITES · BLOCKS <i class="fas fa-leaf"></i></h1>
-
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="plant">🌱 Plantas</button>
-        <button class="tab-btn" data-tab="zombie">🧟 Zombis</button>
-        <button class="tab-btn" data-tab="wave">🌊 Oleadas</button>
-        <button class="tab-btn" data-tab="map">🗺️ Mapas</button>
-        <button class="tab-btn" data-tab="sprite">🎨 Sprite</button>
-        <button class="tab-btn" data-tab="play">🎮 Jugar</button>
-        <button class="tab-btn" data-tab="export">💾 Mods</button>
-    </div>
-
-    <!-- PANEL PLANTAS (con block coding) -->
-    <div id="plantPanel" class="panel">
-        <div class="maker-grid">
-            <div class="card">
-                <h2><i class="fas fa-leaf"></i> Creador de plantas</h2>
-                <div class="preview-box">
-                    <canvas id="plantCanvas" class="preview-canvas" width="200" height="200"></canvas>
-                    <div style="font-size:2rem;" id="plantNameDisplay">🌱 Planta</div>
-                </div>
-                <div class="stats-grid">
-                    <div class="slider-group">
-                        <div class="slider-item"><label>💥 Daño <span class="value-badge" id="damageVal">2</span></label><input type="range" id="damageSlider" min="0.5" max="15" value="2" step="0.5"></div>
-                        <div class="slider-item"><label>⏱️ Vel (s) <span class="value-badge" id="speedVal">1.5</span></label><input type="range" id="speedSlider" min="0.3" max="5" value="1.5" step="0.1"></div>
-                        <div class="slider-item"><label>🎯 Rango <span class="value-badge" id="rangeVal">3</span></label><input type="range" id="rangeSlider" min="1" max="10" value="3" step="1"></div>
-                    </div>
-                    <div class="slider-group">
-                        <div class="slider-item"><label>☀️ Coste <span class="value-badge" id="sunCostVal">50</span></label><input type="range" id="sunCostSlider" min="10" max="500" value="50" step="5"></div>
-                        <div class="slider-item"><label>❤️ Salud <span class="value-badge" id="plantHpVal">100</span></label><input type="range" id="plantHpSlider" min="20" max="800" value="100" step="10"></div>
-                    </div>
-                </div>
-                <label>⚡ Efecto rápido: <select id="plantEffectSelect" class="select-field">
-                    <option value="none">Ninguno</option>
-                    <option value="slow">Ralentizador</option>
-                    <option value="fire">Quemar</option>
-                    <option value="ice">Congelar</option>
-                    <option value="stun">Aturdir</option>
-                    <option value="poison">Veneno</option>
-                </select></label>
-                <label>🔫 Ataque: <select id="attackTypeSelect" class="select-field"><option value="pea">Guisante</option><option value="cabbage">Col</option><option value="melon">Melón</option><option value="bean">Judía</option><option value="corn">Maíz</option></select></label>
-                
-                <!-- Block coding para habilidad personalizada -->
-                <h3>🧩 Habilidad por bloques</h3>
-                <div style="background:#5a4a2a; padding:15px; border:6px inset #8b6e4a;">
-                    <div>
-                        <span class="block-btn" onclick="addPlantBlock('condition')">➕ Condición</span>
-                        <span class="block-btn" onclick="addPlantBlock('action')">➕ Acción</span>
-                        <span class="block-btn" onclick="clearPlantBlocks()">🗑️ Limpiar</span>
-                    </div>
-                    <div id="plantBlockCode" class="block-code">
-                        SIEMPRE: nada
-                    </div>
-                    <input type="hidden" id="plantCustomAbility" value="">
-                </div>
-
-                <div style="margin:20px 0;">
-                    <button class="btn btn-small" id="savePlantBtn"><i class="fas fa-save"></i> Guardar planta</button>
-                    <button class="btn btn-small" id="loadSpriteToPlantBtn"><i class="fas fa-image"></i> Usar sprite</button>
-                </div>
-            </div>
-            <div class="card"><h2><i class="fas fa-folder-open"></i> Mis plantas</h2><div class="collection" id="savedPlantsCollection"></div></div>
+<div class="game-container">
+    <div class="header">
+        <div class="resources">
+            <span>💰 <span class="gold" id="goldDisplay">100</span> de oro</span>
+            <span>🏰 <span id="baseHealth">10</span> ❤️</span>
         </div>
+        <div class="turn-indicator" id="turnIndicator">📌 Tu turno</div>
     </div>
 
-    <!-- PANEL ZOMBIS (con block coding) -->
-    <div id="zombiePanel" class="panel hidden-panel">
-        <div class="maker-grid">
-            <div class="card">
-                <h2><i class="fas fa-skull"></i> Creador de zombis</h2>
-                <div class="preview-box">
-                    <canvas id="zombieCanvas" class="preview-canvas" width="200" height="200"></canvas>
-                    <div style="font-size:2rem;" id="zombieNameDisplay">🧟 Básico</div>
-                </div>
-                <div class="stats-grid">
-                    <div class="slider-group">
-                        <div class="slider-item"><label>❤️ Vida <span class="value-badge" id="zombieHpVal">5</span></label><input type="range" id="zombieHpSlider" min="2" max="100" value="5" step="1"></div>
-                        <div class="slider-item"><label>👟 Velocidad <span class="value-badge" id="zombieSpeedVal">1</span></label><input type="range" id="zombieSpeedSlider" min="0.2" max="4" value="1" step="0.1"></div>
-                        <div class="slider-item"><label>🛡️ Armadura <span class="value-badge" id="armorVal">0</span></label><input type="range" id="armorSlider" min="0" max="20" value="0" step="1"></div>
-                    </div>
-                    <div class="slider-group">
-                        <label>Tipo: <select id="zombieTypeSelect" class="select-field"><option value="basic">Básico</option><option value="cone">Cono</option><option value="bucket">Cubo</option><option value="newspaper">Periodico</option><option value="football">Futbolista</option></select></label>
-                        <label>Habilidad rápida: <select id="zombieAbilitySelect" class="select-field">
-                            <option value="none">Ninguna</option>
-                            <option value="fast">Rápido</option>
-                            <option value="tough">Resistente</option>
-                            <option value="regenerate">Regenera</option>
-                            <option value="fly">Vuela</option>
-                            <option value="armored">Blindado</option>
-                            <option value="immune">Inmune</option>
-                        </select></label>
-                    </div>
-                </div>
+    <canvas id="chessCanvas" width="480" height="480"></canvas>
 
-                <!-- Block coding para habilidad personalizada de zombi -->
-                <h3>🧩 Habilidad por bloques</h3>
-                <div style="background:#5a4a2a; padding:15px; border:6px inset #8b6e4a;">
-                    <div>
-                        <span class="block-btn" onclick="addZombieBlock('condition')">➕ Condición</span>
-                        <span class="block-btn" onclick="addZombieBlock('action')">➕ Acción</span>
-                        <span class="block-btn" onclick="clearZombieBlocks()">🗑️ Limpiar</span>
-                    </div>
-                    <div id="zombieBlockCode" class="block-code">
-                        SIEMPRE: nada
-                    </div>
-                    <input type="hidden" id="zombieCustomAbility" value="">
-                </div>
-
-                <div style="margin:20px 0;">
-                    <button class="btn btn-small" id="saveZombieBtn"><i class="fas fa-save"></i> Guardar zombi</button>
-                    <button class="btn btn-small" id="loadSpriteToZombieBtn"><i class="fas fa-image"></i> Usar sprite</button>
-                </div>
-            </div>
-            <div class="card"><h2><i class="fas fa-folder-open"></i> Mis zombis</h2><div class="collection" id="savedZombiesCollection"></div></div>
+    <div class="control-panel">
+        <div class="shop">
+            <button class="btn" id="buyPawn" title="Peón · 5 de oro · mueve 1">♟️ Peón (5)</button>
+            <button class="btn" id="buyKnight" title="Caballo · 10 de oro · salta en L">♞ Caballo (10)</button>
+            <button class="btn" id="buyRook" title="Torre · 15 de oro · horizontal/vertical">♜ Torre (15)</button>
         </div>
+        <button class="btn" id="endTurnBtn">⏭️ Finalizar turno</button>
+        <div class="info-text" id="statusMessage">Coloca una unidad o mueve</div>
     </div>
-
-    <!-- PANEL OLEADAS (con cantidad) -->
-    <div id="wavePanel" class="panel hidden-panel">
-        <div class="maker-grid">
-            <div class="card">
-                <h2><i class="fas fa-water"></i> Editor de oleadas</h2>
-                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
-                    <button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus"></i> Añadir</button>
-                    <input type="number" id="zombieQuantity" class="quantity-input" value="1" min="1" max="20">
-                    <span>veces</span>
-                    <button class="btn btn-small" id="clearWaveBtn"><i class="fas fa-trash"></i> Limpiar</button>
-                </div>
-                <div class="collection" id="waveContainer"></div>
-                <label>⏱️ Intervalo: <span class="value-badge" id="waveIntervalVal">1.0 s</span></label><input type="range" id="waveIntervalSlider" min="0.3" max="5" value="1" step="0.1">
-                <label>📍 Spawn: <select id="spawnModeSelect" class="select-field"><option value="random">Aleatorio</option><option value="lane0">Carril 0</option><option value="lane1">Carril 1</option><option value="lane2">Carril 2</option><option value="all">Todos</option></select></label>
-            </div>
-        </div>
-    </div>
-
-    <!-- PANEL MAPAS -->
-    <div id="mapPanel" class="panel hidden-panel">
-        <div class="maker-grid">
-            <div class="card">
-                <h2><i class="fas fa-map"></i> Vista previa</h2>
-                <div id="mapPreview" style="display:flex; flex-direction:column; gap:5px; align-items:center; overflow-x:auto; padding:10px;"></div>
-            </div>
-            <div class="card">
-                <h2>Propiedades</h2>
-                <label>Filas: <input type="number" id="mapRows" min="3" max="8" value="3" class="select-field"></label>
-                <label>Columnas: <input type="number" id="mapCols" min="4" max="12" value="5" class="select-field"></label>
-                <label>Tipo de césped: 
-                    <select id="grassType" class="select-field">
-                        <option value="normal">🌿 Normal</option>
-                        <option value="pool">💧 Piscina</option>
-                        <option value="roof">🏠 Tejado</option>
-                        <option value="night">🌙 Noche</option>
-                        <option value="desert">🏜️ Desierto</option>
-                    </select>
-                </label>
-                <button class="btn btn-small" id="updateMapBtn">Actualizar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PANEL SPRITE (con importar desde PC) -->
-    <div id="spritePanel" class="panel hidden-panel">
-        <div class="sprite-editor">
-            <h2><i class="fas fa-draw-polygon"></i> Editor 16x16 + Importar</h2>
-            <div style="display:flex; gap:40px; flex-wrap:wrap; justify-content:center;">
-                <div><div class="sprite-grid" id="spriteGrid"></div><div class="color-palette" id="colorPalette"></div></div>
-                <div style="min-width:250px;">
-                    <h3>Herramientas</h3>
-                    <button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button>
-                    <button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button>
-                    <p>Color: <span id="currentColorDisplay" style="display:inline-block; width:50px; height:50px; background:black; border:6px outset #ccc;"></span></p>
-                    
-                    <!-- Importar imagen -->
-                    <div class="import-area">
-                        <h4>📷 Importar sprite desde PC</h4>
-                        <input type="file" id="spriteImportFile" accept="image/*">
-                        <button class="btn btn-small" id="importSpriteBtn">Cargar y convertir</button>
-                        <p style="font-size:1.2rem;">(La imagen se redimensionará a 16x16)</p>
-                    </div>
-                </div>
-            </div>
-            <p><i class="fas fa-info-circle"></i> El fondo gris no se dibuja en la planta.</p>
-        </div>
-    </div>
-
-    <!-- PANEL JUGAR (con objetos) -->
-    <div id="playPanel" class="panel hidden-panel">
-        <div style="display:flex; gap:30px; flex-wrap:wrap;">
-            <div style="flex:3;">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <div class="sun-counter"><i class="fas fa-sun"></i> <span id="sunAmount">150</span></div>
-                    <div><button class="btn btn-small" id="pauseGameBtn"><i class="fas fa-pause"></i> Pausa</button></div>
-                </div>
-                <div class="map-container" id="playMapContainer"></div>
-                
-                <div style="margin-top:15px;">
-                    <h3><i class="fas fa-cube"></i> Objetos del mapa</h3>
-                    <div class="object-palette">
-                        <div class="object-btn" data-object="rock">🪨 Roca</div>
-                        <div class="object-btn" data-object="water">💧 Agua</div>
-                        <div class="object-btn" data-object="fence">🪵 Valla</div>
-                        <div class="object-btn" data-object="spike">🔪 Pinchos</div>
-                        <button class="btn btn-small" id="clearObjectsBtn">Limpiar objetos</button>
-                    </div>
-                    <p>Haz clic en un objeto y luego en una celda.</p>
-                </div>
-
-                <div style="margin-top:20px;">
-                    <h3><i class="fas fa-leaf"></i> Tus plantas</h3>
-                    <div class="collection" id="playPlantPalette"></div>
-                </div>
-            </div>
-            <div style="flex:1;">
-                <div class="card">
-                    <h3>Controles</h3>
-                    <button class="btn btn-small" id="startWaveBtn"><i class="fas fa-play"></i> Iniciar oleada</button>
-                    <button class="btn btn-small" id="resetGameBtn"><i class="fas fa-undo-alt"></i> Reiniciar</button>
-                    <button class="btn btn-small" id="addSunBtn"><i class="fas fa-plus"></i> +50 soles</button>
-                </div>
-                <div class="card" style="margin-top:15px;">
-                    <h3><i class="fas fa-skull"></i> Zombis activos</h3>
-                    <div class="zombie-list" id="zombieListContainer"></div>
-                </div>
-                <div class="card" style="margin-top:15px;">
-                    <h3>Registro</h3>
-                    <div class="game-log" id="gameLog">⏳ Listo</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PANEL EXPORT -->
-    <div id="exportPanel" class="panel hidden-panel">
-        <div style="background:#cfa86a; border:8px ridge #b09060; padding:30px;">
-            <h2><i class="fas fa-file-export"></i> Mods</h2>
-            <div><button class="btn" id="exportBtn">Exportar</button><label class="btn">Importar <input type="file" id="importFile" accept=".json" style="display:none;"></label><button class="btn" id="resetModBtn">Nuevo mod</button></div>
-        </div>
-    </div>
-
-    <div class="footer"><i class="fas fa-heart"></i> Rústico · Importa sprites · Crea habilidades con bloques</div>
 </div>
 
 <script>
-    (function() {
-        // ========== ESTADO GLOBAL ==========
-        let modData = {
-            plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null, customAbility: '' },
-            zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null, customAbility: '' },
-            savedPlants: [],
-            savedZombies: [],
-            wave: { zombies:[], interval:1.0, spawnMode:'random' },
-            map: { rows:3, cols:5, grass:'normal' },
-            currentSprite: Array(16).fill().map(() => Array(16).fill('#c0c0c0'))
-        };
+(function() {
+    // ---------- CONSTANTES Y CONFIGURACIÓN ----------
+    const SIZE = 8;               // tablero 8x8
+    const CELL_SIZE = 60;          // 480/8
+    const GOLD_PER_TURN = 10;      // ingreso base por turno
+    const BASE_MAX_HEALTH = 20;     // salud máxima de la base
 
-        let gameState = {
-            sun: 150,
-            plants: [],
-            zombies: [],
-            objects: [],
-            gameLoop: null,
-            paused: false,
-            nextId: 0,
-            selectedPlant: null,
-            selectedObject: null,
-        };
+    // Colores / identidad
+    const PLAYER = 'player';
+    const ENEMY = 'enemy';
 
-        // ========== REFERENCIAS ==========
-        const plantCanvas = document.getElementById('plantCanvas');
-        const ctxPlant = plantCanvas.getContext('2d');
-        const zombieCanvas = document.getElementById('zombieCanvas');
-        const ctxZombie = zombieCanvas.getContext('2d');
+    // Tipos de unidad
+    const UNIT_TYPES = {
+        PAWN: { name: 'peón', cost: 5, attack: 2, defense: 1, moveRange: 1, symbol: '♟️', playerChar: '♙', enemyChar: '♟️' },
+        KNIGHT: { name: 'caballo', cost: 10, attack: 4, defense: 2, moveRange: 2, movePattern: 'L', symbol: '♞', playerChar: '♘', enemyChar: '♞' },
+        ROOK: { name: 'torre', cost: 15, attack: 5, defense: 4, moveRange: 7, movePattern: 'line', symbol: '♜', playerChar: '♖', enemyChar: '♜' }
+    };
 
-        // Plant panel
-        const damageSlider = document.getElementById('damageSlider');
-        const speedSlider = document.getElementById('speedSlider');
-        const rangeSlider = document.getElementById('rangeSlider');
-        const sunCostSlider = document.getElementById('sunCostSlider');
-        const plantHpSlider = document.getElementById('plantHpSlider');
-        const plantEffectSelect = document.getElementById('plantEffectSelect');
-        const attackTypeSelect = document.getElementById('attackTypeSelect');
-        const damageVal = document.getElementById('damageVal');
-        const speedVal = document.getElementById('speedVal');
-        const rangeVal = document.getElementById('rangeVal');
-        const sunCostVal = document.getElementById('sunCostVal');
-        const plantHpVal = document.getElementById('plantHpVal');
-        const plantNameDisplay = document.getElementById('plantNameDisplay');
-        const savePlantBtn = document.getElementById('savePlantBtn');
-        const savedPlantsCollection = document.getElementById('savedPlantsCollection');
-        const loadSpriteToPlantBtn = document.getElementById('loadSpriteToPlantBtn');
-        const plantBlockCode = document.getElementById('plantBlockCode');
-        const plantCustomAbility = document.getElementById('plantCustomAbility');
+    // ---------- ESTADO DEL JUEGO ----------
+    let board = [];                 // 8x8, cada celda: { type: 'base' | 'unit', owner, unitType? , health? }
+    let player = {
+        gold: 100,
+        basePos: { row: 7, col: 3 }, // abajo izquierda (fila 7, col 3)
+        baseHealth: BASE_MAX_HEALTH
+    };
+    let enemy = {
+        gold: 100,
+        basePos: { row: 0, col: 4 }, // arriba derecha (fila 0, col 4)
+        baseHealth: BASE_MAX_HEALTH
+    };
 
-        // Zombie panel
-        const zombieHpSlider = document.getElementById('zombieHpSlider');
-        const zombieSpeedSlider = document.getElementById('zombieSpeedSlider');
-        const armorSlider = document.getElementById('armorSlider');
-        const zombieTypeSelect = document.getElementById('zombieTypeSelect');
-        const zombieAbilitySelect = document.getElementById('zombieAbilitySelect');
-        const zombieHpVal = document.getElementById('zombieHpVal');
-        const zombieSpeedVal = document.getElementById('zombieSpeedVal');
-        const armorVal = document.getElementById('armorVal');
-        const zombieNameDisplay = document.getElementById('zombieNameDisplay');
-        const saveZombieBtn = document.getElementById('saveZombieBtn');
-        const savedZombiesCollection = document.getElementById('savedZombiesCollection');
-        const loadSpriteToZombieBtn = document.getElementById('loadSpriteToZombieBtn');
-        const zombieBlockCode = document.getElementById('zombieBlockCode');
-        const zombieCustomAbility = document.getElementById('zombieCustomAbility');
+    // Turno: true = jugador, false = IA (pero manejado con botón)
+    let playerTurn = true;
 
-        // Wave panel
-        const addZombieBtn = document.getElementById('addZombieToWave');
-        const clearWaveBtn = document.getElementById('clearWaveBtn');
-        const waveContainer = document.getElementById('waveContainer');
-        const waveIntervalSlider = document.getElementById('waveIntervalSlider');
-        const waveIntervalVal = document.getElementById('waveIntervalVal');
-        const spawnModeSelect = document.getElementById('spawnModeSelect');
-        const zombieQuantity = document.getElementById('zombieQuantity');
+    // Selección de unidad para mover (solo en turno jugador)
+    let selectedUnit = null; // { row, col }
 
-        // Map panel
-        const mapRowsInput = document.getElementById('mapRows');
-        const mapColsInput = document.getElementById('mapCols');
-        const grassTypeSelect = document.getElementById('grassType');
-        const mapPreview = document.getElementById('mapPreview');
-        const updateMapBtn = document.getElementById('updateMapBtn');
+    // Referencias DOM
+    const canvas = document.getElementById('chessCanvas');
+    const ctx = canvas.getContext('2d');
+    const goldSpan = document.getElementById('goldDisplay');
+    const baseHealthSpan = document.getElementById('baseHealth');
+    const turnIndicator = document.getElementById('turnIndicator');
+    const statusMsg = document.getElementById('statusMessage');
 
-        // Sprite panel
-        const spriteGrid = document.getElementById('spriteGrid');
-        const colorPalette = document.getElementById('colorPalette');
-        const clearSpriteBtn = document.getElementById('clearSpriteBtn');
-        const fillSpriteBtn = document.getElementById('fillSpriteBtn');
-        const currentColorDisplay = document.getElementById('currentColorDisplay');
-        const spriteImportFile = document.getElementById('spriteImportFile');
-        const importSpriteBtn = document.getElementById('importSpriteBtn');
+    // Botones
+    const buyPawnBtn = document.getElementById('buyPawn');
+    const buyKnightBtn = document.getElementById('buyKnight');
+    const buyRookBtn = document.getElementById('buyRook');
+    const endTurnBtn = document.getElementById('endTurnBtn');
 
-        // Play panel
-        const playMapContainer = document.getElementById('playMapContainer');
-        const playPlantPalette = document.getElementById('playPlantPalette');
-        const startWaveBtn = document.getElementById('startWaveBtn');
-        const resetGameBtn = document.getElementById('resetGameBtn');
-        const pauseGameBtn = document.getElementById('pauseGameBtn');
-        const addSunBtn = document.getElementById('addSunBtn');
-        const sunAmountSpan = document.getElementById('sunAmount');
-        const gameLog = document.getElementById('gameLog');
-        const zombieListContainer = document.getElementById('zombieListContainer');
-        const clearObjectsBtn = document.getElementById('clearObjectsBtn');
-        const objectBtns = document.querySelectorAll('.object-btn');
+    // Inicializar tablero vacío
+    function initBoard() {
+        board = Array(SIZE).fill().map(() => Array(SIZE).fill(null));
+        // Colocar bases
+        board[player.basePos.row][player.basePos.col] = { type: 'base', owner: PLAYER, health: player.baseHealth };
+        board[enemy.basePos.row][enemy.basePos.col] = { type: 'base', owner: ENEMY, health: enemy.baseHealth };
+    }
+    initBoard();
 
-        // Export
-        const exportBtn = document.getElementById('exportBtn');
-        const importFile = document.getElementById('importFile');
-        const resetModBtn = document.getElementById('resetModBtn');
+    // ---------- FUNCIONES DE DIBUJO ----------
+    function drawBoard() {
+        ctx.clearRect(0, 0, 480, 480);
+        // Dibujar celdas
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                let x = c * CELL_SIZE;
+                let y = r * CELL_SIZE;
+                // color ajedrez
+                ctx.fillStyle = (r + c) % 2 === 0 ? '#f0d9b5' : '#b58863';
+                ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+                // contorno sutil
+                ctx.strokeStyle = '#a17a5a';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+            }
+        }
 
-        // Tabs
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const panels = {
-            plant: document.getElementById('plantPanel'),
-            zombie: document.getElementById('zombiePanel'),
-            wave: document.getElementById('wavePanel'),
-            map: document.getElementById('mapPanel'),
-            sprite: document.getElementById('spritePanel'),
-            play: document.getElementById('playPanel'),
-            export: document.getElementById('exportPanel')
-        };
+        // Dibujar contenido
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                let cell = board[r][c];
+                if (!cell) continue;
+                let x = c * CELL_SIZE + CELL_SIZE/2;
+                let y = r * CELL_SIZE + CELL_SIZE/2;
+                ctx.font = 'bold 32px "Segoe UI", "Arial Unicode MS", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
 
-        // ========== FUNCIONES DE DIBUJO ==========
-        function drawSpriteOnCanvas(ctx, sprite, xOffset, yOffset, cellSize, bgColor = '#c0c0c0') {
-            if (!sprite) return;
-            for (let y = 0; y < 16; y++) {
-                for (let x = 0; x < 16; x++) {
-                    const color = sprite[y][x];
-                    if (color !== bgColor) {
-                        ctx.fillStyle = color;
-                        ctx.fillRect(xOffset + x * cellSize, yOffset + y * cellSize, cellSize, cellSize);
-                    }
+                if (cell.type === 'base') {
+                    // Dibujar castillo
+                    ctx.font = 'bold 36px sans-serif';
+                    ctx.fillStyle = cell.owner === PLAYER ? '#2e74b5' : '#b53b3b';
+                    ctx.fillText('🏰', x, y-4);
+                    // salud de la base
+                    ctx.font = 'bold 16px monospace';
+                    ctx.fillStyle = 'white';
+                    ctx.shadowColor = 'black';
+                    ctx.shadowBlur = 4;
+                    ctx.fillText(cell.health, x, y+20);
+                    ctx.shadowBlur = 0;
+                } else if (cell.type === 'unit') {
+                    // Unidad
+                    let unit = cell.unitType;
+                    let symbol = cell.owner === PLAYER ? unit.playerChar : unit.enemyChar;
+                    ctx.fillStyle = cell.owner === PLAYER ? '#1e4f8a' : '#aa3a3a';
+                    ctx.fillText(symbol, x, y-2);
+                    // pequeña indicación de salud (opcional)
+                    ctx.font = '14px monospace';
+                    ctx.fillStyle = '#ffffdd';
+                    ctx.shadowColor = '#000';
+                    ctx.shadowBlur = 3;
+                    ctx.fillText('❤️'+cell.health, x, y+20);
+                    ctx.shadowBlur = 0;
                 }
             }
         }
 
-        function drawPlant() {
-            ctxPlant.clearRect(0,0,200,200);
-            if (modData.plant.sprite) {
-                drawSpriteOnCanvas(ctxPlant, modData.plant.sprite, 20, 20, 10, '#c0c0c0');
-            } else {
-                ctxPlant.fillStyle = '#5aaf5a';
-                ctxPlant.beginPath();
-                ctxPlant.ellipse(100, 110, 45, 35, 0, 0, Math.PI*2);
-                ctxPlant.fill();
-                ctxPlant.fillStyle = '#3d8c40';
-                ctxPlant.beginPath();
-                ctxPlant.ellipse(100, 65, 30, 40, 0, 0, Math.PI*2);
-                ctxPlant.fill();
-                ctxPlant.fillStyle = '#fff';
-                ctxPlant.beginPath();
-                ctxPlant.arc(75, 50, 10, 0, Math.PI*2);
-                ctxPlant.arc(125, 50, 10, 0, Math.PI*2);
-                ctxPlant.fill();
-                ctxPlant.fillStyle = '#000';
-                ctxPlant.beginPath();
-                ctxPlant.arc(72, 47, 5, 0, Math.PI*2);
-                ctxPlant.arc(122, 47, 5, 0, Math.PI*2);
-                ctxPlant.fill();
-            }
-            plantNameDisplay.innerHTML = `🌱 ${modData.plant.attackType} · daño ${modData.plant.damage}`;
-        }
+        // Resaltar celda seleccionada si la hay
+        if (selectedUnit) {
+            let { row, col } = selectedUnit;
+            ctx.strokeStyle = '#f5d742';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            ctx.stroke();
 
-        function drawZombie() {
-            ctxZombie.clearRect(0,0,200,200);
-            ctxZombie.fillStyle = '#4f704f';
-            ctxZombie.fillRect(0,0,200,200);
-            if (modData.zombie.sprite) {
-                drawSpriteOnCanvas(ctxZombie, modData.zombie.sprite, 20, 20, 10, '#c0c0c0');
-            } else {
-                ctxZombie.fillStyle = '#3f6132';
-                ctxZombie.beginPath();
-                ctxZombie.ellipse(100, 85, 35, 45, 0, 0, Math.PI*2);
-                ctxZombie.fill();
-                ctxZombie.fillStyle = '#8b5a2b';
-                ctxZombie.fillRect(75, 120, 50, 40);
-                ctxZombie.fillStyle = '#b77b3c';
-                ctxZombie.beginPath();
-                ctxZombie.arc(75, 65, 12, 0, Math.PI*2);
-                ctxZombie.arc(125, 65, 12, 0, Math.PI*2);
-                ctxZombie.fill();
-                ctxZombie.fillStyle = '#a00';
-                ctxZombie.beginPath();
-                ctxZombie.arc(87, 75, 6, 0, Math.PI*2);
-                ctxZombie.arc(113, 75, 6, 0, Math.PI*2);
-                ctxZombie.fill();
-                if (modData.zombie.type === 'cone') {
-                    ctxZombie.fillStyle = '#f90';
-                    ctxZombie.beginPath();
-                    ctxZombie.moveTo(65, 35);
-                    ctxZombie.lineTo(135, 35);
-                    ctxZombie.lineTo(100, 10);
-                    ctxZombie.fill();
-                } else if (modData.zombie.type === 'bucket') {
-                    ctxZombie.fillStyle = '#c0c0c0';
-                    ctxZombie.beginPath();
-                    ctxZombie.ellipse(100, 30, 25, 15, 0, 0, Math.PI*2);
-                    ctxZombie.fill();
-                }
-            }
-            zombieNameDisplay.innerHTML = `🧟 ${modData.zombie.type}`;
-        }
-
-        function updatePlantUI() {
-            damageVal.textContent = modData.plant.damage;
-            speedVal.textContent = modData.plant.speed;
-            rangeVal.textContent = modData.plant.range;
-            sunCostVal.textContent = modData.plant.sunCost;
-            plantHpVal.textContent = modData.plant.hp;
-            drawPlant();
-        }
-
-        function updateZombieUI() {
-            zombieHpVal.textContent = modData.zombie.hp;
-            zombieSpeedVal.textContent = modData.zombie.speed;
-            armorVal.textContent = modData.zombie.armor;
-            drawZombie();
-        }
-
-        function bindPlantSliders() {
-            damageSlider.value = modData.plant.damage;
-            speedSlider.value = modData.plant.speed;
-            rangeSlider.value = modData.plant.range;
-            sunCostSlider.value = modData.plant.sunCost;
-            plantHpSlider.value = modData.plant.hp;
-            plantEffectSelect.value = modData.plant.effect;
-            attackTypeSelect.value = modData.plant.attackType;
-            plantBlockCode.innerText = modData.plant.customAbility || 'SIEMPRE: nada';
-        }
-
-        function bindZombieSliders() {
-            zombieHpSlider.value = modData.zombie.hp;
-            zombieSpeedSlider.value = modData.zombie.speed;
-            armorSlider.value = modData.zombie.armor;
-            zombieTypeSelect.value = modData.zombie.type;
-            zombieAbilitySelect.value = modData.zombie.ability;
-            zombieBlockCode.innerText = modData.zombie.customAbility || 'SIEMPRE: nada';
-        }
-
-        // Event listeners
-        damageSlider.addEventListener('input', (e) => { modData.plant.damage = parseFloat(e.target.value); updatePlantUI(); });
-        speedSlider.addEventListener('input', (e) => { modData.plant.speed = parseFloat(e.target.value); updatePlantUI(); });
-        rangeSlider.addEventListener('input', (e) => { modData.plant.range = parseInt(e.target.value); updatePlantUI(); });
-        sunCostSlider.addEventListener('input', (e) => { modData.plant.sunCost = parseInt(e.target.value); updatePlantUI(); });
-        plantHpSlider.addEventListener('input', (e) => { modData.plant.hp = parseInt(e.target.value); updatePlantUI(); });
-        plantEffectSelect.addEventListener('change', (e) => { modData.plant.effect = e.target.value; });
-        attackTypeSelect.addEventListener('change', (e) => { modData.plant.attackType = e.target.value; updatePlantUI(); });
-
-        zombieHpSlider.addEventListener('input', (e) => { modData.zombie.hp = parseInt(e.target.value); updateZombieUI(); });
-        zombieSpeedSlider.addEventListener('input', (e) => { modData.zombie.speed = parseFloat(e.target.value); updateZombieUI(); });
-        armorSlider.addEventListener('input', (e) => { modData.zombie.armor = parseInt(e.target.value); updateZombieUI(); });
-        zombieTypeSelect.addEventListener('change', (e) => { modData.zombie.type = e.target.value; updateZombieUI(); });
-        zombieAbilitySelect.addEventListener('change', (e) => { modData.zombie.ability = e.target.value; });
-
-        // ========== BLOCK CODING ==========
-        window.addPlantBlock = function(type) {
-            let code = plantBlockCode.innerText;
-            if (type === 'condition') {
-                code += '\nSI (zombie cerca) ENTONCES:';
-            } else {
-                code += '\nACCIÓN: daño extra';
-            }
-            plantBlockCode.innerText = code;
-            modData.plant.customAbility = code;
-        };
-        window.clearPlantBlocks = function() {
-            plantBlockCode.innerText = 'SIEMPRE: nada';
-            modData.plant.customAbility = '';
-        };
-        window.addZombieBlock = function(type) {
-            let code = zombieBlockCode.innerText;
-            if (type === 'condition') {
-                code += '\nSI (vida baja) ENTONCES:';
-            } else {
-                code += '\nACCIÓN: regenerar';
-            }
-            zombieBlockCode.innerText = code;
-            modData.zombie.customAbility = code;
-        };
-        window.clearZombieBlocks = function() {
-            zombieBlockCode.innerText = 'SIEMPRE: nada';
-            modData.zombie.customAbility = '';
-        };
-
-        // ========== GUARDAR / CARGAR ==========
-        savePlantBtn.addEventListener('click', () => {
-            let plantCopy = JSON.parse(JSON.stringify(modData.plant));
-            plantCopy.name = `Planta ${modData.savedPlants.length+1}`;
-            modData.savedPlants.push(plantCopy);
-            renderSavedPlants();
-        });
-
-        function renderSavedPlants() {
-            savedPlantsCollection.innerHTML = '';
-            modData.savedPlants.forEach((p, idx) => {
-                let item = document.createElement('span');
-                item.className = 'collection-item';
-                item.innerHTML = `<i class="fas fa-leaf"></i> ${p.name}`;
-                item.addEventListener('click', () => {
-                    modData.plant = JSON.parse(JSON.stringify(p));
-                    bindPlantSliders();
-                    updatePlantUI();
+            // Dibujar posibles movimientos (estilo simple)
+            let unit = board[row][col];
+            if (unit && unit.type === 'unit') {
+                let moves = getValidMovesForUnit(row, col, unit.unitType, unit.owner);
+                ctx.fillStyle = '#ffe68f66';
+                moves.forEach(m => {
+                    ctx.fillRect(m.col * CELL_SIZE, m.row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 });
-                savedPlantsCollection.appendChild(item);
-            });
-        }
-
-        saveZombieBtn.addEventListener('click', () => {
-            let zombieCopy = JSON.parse(JSON.stringify(modData.zombie));
-            zombieCopy.name = `Zombi ${modData.savedZombies.length+1}`;
-            modData.savedZombies.push(zombieCopy);
-            renderSavedZombies();
-        });
-
-        function renderSavedZombies() {
-            savedZombiesCollection.innerHTML = '';
-            modData.savedZombies.forEach((z, idx) => {
-                let item = document.createElement('span');
-                item.className = 'collection-item';
-                item.innerHTML = `<i class="fas fa-skull"></i> ${z.name}`;
-                item.addEventListener('click', () => {
-                    modData.zombie = JSON.parse(JSON.stringify(z));
-                    bindZombieSliders();
-                    updateZombieUI();
-                });
-                savedZombiesCollection.appendChild(item);
-            });
-        }
-
-        loadSpriteToPlantBtn.addEventListener('click', () => {
-            modData.plant.sprite = modData.currentSprite.map(row => [...row]);
-            drawPlant();
-        });
-
-        loadSpriteToZombieBtn.addEventListener('click', () => {
-            modData.zombie.sprite = modData.currentSprite.map(row => [...row]);
-            drawZombie();
-        });
-
-        // ========== IMPORTAR SPRITE ==========
-        importSpriteBtn.addEventListener('click', () => {
-            const file = spriteImportFile.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 16;
-                    canvas.height = 16;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, 16, 16);
-                    const imgData = ctx.getImageData(0, 0, 16, 16).data;
-                    const newSprite = [];
-                    for (let y = 0; y < 16; y++) {
-                        const row = [];
-                        for (let x = 0; x < 16; x++) {
-                            const i = (y * 16 + x) * 4;
-                            const r = imgData[i];
-                            const g = imgData[i+1];
-                            const b = imgData[i+2];
-                            const a = imgData[i+3];
-                            if (a < 128) {
-                                row.push('#c0c0c0'); // transparente se vuelve gris fondo
-                            } else {
-                                row.push('#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1));
-                            }
-                        }
-                        newSprite.push(row);
-                    }
-                    modData.currentSprite = newSprite;
-                    buildSpriteGrid();
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // ========== OLEADAS ==========
-        function updateWaveUI() {
-            waveContainer.innerHTML = '';
-            modData.wave.zombies.forEach((z, idx) => {
-                let tag = document.createElement('span');
-                tag.className = 'collection-item';
-                tag.innerHTML = `🧟 ${z.type} ♥${z.hp}`;
-                waveContainer.appendChild(tag);
-            });
-            waveIntervalVal.textContent = modData.wave.interval.toFixed(1)+' s';
-        }
-
-        addZombieBtn.addEventListener('click', () => {
-            let qty = parseInt(zombieQuantity.value) || 1;
-            for (let i=0; i<qty; i++) {
-                modData.wave.zombies.push({...modData.zombie});
             }
-            updateWaveUI();
-        });
+        }
+    }
 
-        clearWaveBtn.addEventListener('click', () => {
-            modData.wave.zombies = [];
-            updateWaveUI();
-        });
+    // ---------- LÓGICA DE MOVIMIENTO (estilo ajedrez simplificado) ----------
+    function getValidMovesForUnit(row, col, unitType, owner) {
+        let moves = [];
+        let pattern = unitType.movePattern;
+        let range = unitType.moveRange;
 
-        waveIntervalSlider.addEventListener('input', (e) => {
-            modData.wave.interval = parseFloat(e.target.value);
-            waveIntervalVal.textContent = modData.wave.interval.toFixed(1)+' s';
-        });
-
-        spawnModeSelect.addEventListener('change', (e) => {
-            modData.wave.spawnMode = e.target.value;
-        });
-
-        // ========== MAPA ==========
-        function updateMapPreview() {
-            let rows = parseInt(mapRowsInput.value);
-            let cols = parseInt(mapColsInput.value);
-            modData.map.rows = rows;
-            modData.map.cols = cols;
-            modData.map.grass = grassTypeSelect.value;
-            let html = '';
-            for (let r=0; r<rows; r++) {
-                html += '<div style="display:flex; gap:5px; justify-content:center; margin-bottom:5px;">';
-                for (let c=0; c<cols; c++) {
-                    let cellType = '';
-                    if (modData.map.grass === 'pool') cellType = '💧';
-                    else if (modData.map.grass === 'roof') cellType = '🏠';
-                    else if (modData.map.grass === 'night') cellType = '🌙';
-                    else if (modData.map.grass === 'desert') cellType = '🏜️';
-                    else cellType = '🌿';
-                    html += `<div class="map-preview-cell">${cellType}</div>`;
+        if (pattern === 'L') { // caballo
+            const offsets = [
+                [-2, -1], [-2, 1], [2, -1], [2, 1],
+                [-1, -2], [-1, 2], [1, -2], [1, 2]
+            ];
+            offsets.forEach(([dr, dc]) => {
+                let nr = row + dr, nc = col + dc;
+                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+                    let target = board[nr][nc];
+                    if (!target || (target.type === 'unit' && target.owner !== owner) || (target.type === 'base' && target.owner !== owner)) {
+                        moves.push({ row: nr, col: nc });
+                    }
                 }
-                html += '</div>';
-            }
-            mapPreview.innerHTML = html;
-        }
-        updateMapBtn.addEventListener('click', updateMapPreview);
-
-        // ========== SPRITE EDITOR ==========
-        const colors = ['#000000','#ffffff','#ff0000','#00ff00','#0000ff','#ffff00','#ff8800','#8800ff','#a52a2a','#808080','#ffc0cb','#00ffff'];
-        let currentColor = '#000000';
-        let painting = false;
-
-        function buildSpriteGrid() {
-            spriteGrid.innerHTML = '';
-            for (let y=0; y<16; y++) {
-                for (let x=0; x<16; x++) {
-                    let cell = document.createElement('div');
-                    cell.className = 'pixel-cell';
-                    cell.dataset.x = x;
-                    cell.dataset.y = y;
-                    cell.style.backgroundColor = modData.currentSprite[y][x];
-                    cell.addEventListener('mousedown', (e) => {
-                        e.preventDefault();
-                        painting = true;
-                        setPixel(parseInt(e.target.dataset.x), parseInt(e.target.dataset.y));
-                    });
-                    cell.addEventListener('mouseenter', (e) => {
-                        if (painting) setPixel(parseInt(e.target.dataset.x), parseInt(e.target.dataset.y));
-                    });
-                    spriteGrid.appendChild(cell);
-                }
-            }
-            document.addEventListener('mouseup', () => painting = false);
-        }
-
-        function setPixel(x, y) {
-            modData.currentSprite[y][x] = currentColor;
-            let cell = spriteGrid.children[y*16 + x];
-            if (cell) cell.style.backgroundColor = currentColor;
-        }
-
-        function buildPalette() {
-            colorPalette.innerHTML = '';
-            colors.forEach(c => {
-                let swatch = document.createElement('div');
-                swatch.className = 'color-swatch';
-                swatch.style.backgroundColor = c;
-                swatch.addEventListener('click', () => {
-                    currentColor = c;
-                    currentColorDisplay.style.backgroundColor = c;
-                });
-                colorPalette.appendChild(swatch);
             });
-        }
-
-        clearSpriteBtn.addEventListener('click', () => {
-            modData.currentSprite = Array(16).fill().map(() => Array(16).fill('#c0c0c0'));
-            buildSpriteGrid();
-        });
-
-        fillSpriteBtn.addEventListener('click', () => {
-            modData.currentSprite = Array(16).fill().map(() => Array(16).fill(currentColor));
-            buildSpriteGrid();
-        });
-
-        // ========== PANEL JUGAR ==========
-        function loadPlayMap() {
-            let rows = modData.map.rows;
-            let cols = modData.map.cols;
-            let html = '';
-            for (let r=0; r<rows; r++) {
-                html += '<div class="map-row">';
-                for (let c=0; c<cols; c++) {
-                    html += `<div class="map-cell" data-row="${r}" data-col="${c}"></div>`;
-                }
-                html += '</div>';
-            }
-            playMapContainer.innerHTML = html;
-            // Eventos a celdas
-            document.querySelectorAll('#playMapContainer .map-cell').forEach(cell => {
-                cell.addEventListener('click', () => {
-                    let row = parseInt(cell.dataset.row);
-                    let col = parseInt(cell.dataset.col);
-                    
-                    if (gameState.selectedObject) {
-                        if (gameState.objects.some(o => o.row === row && o.col === col)) {
-                            gameLog.innerHTML = '❌ Ya hay un objeto aquí.';
-                            return;
-                        }
-                        gameState.objects.push({ row, col, type: gameState.selectedObject });
-                        renderPlayField();
-                        gameLog.innerHTML = `🧱 Objeto ${gameState.selectedObject} colocado.`;
-                        return;
-                    }
-
-                    if (!gameState.selectedPlant) {
-                        gameLog.innerHTML = '❌ Selecciona una planta o un objeto.';
-                        return;
-                    }
-                    if (gameState.plants.some(p => p.row === row && p.col === col)) {
-                        gameLog.innerHTML = '❌ Ya hay una planta allí.';
-                        return;
-                    }
-                    if (gameState.objects.some(o => o.row === row && o.col === col)) {
-                        gameLog.innerHTML = '❌ Hay un objeto en esa celda.';
-                        return;
-                    }
-                    if (gameState.sun < gameState.selectedPlant.sunCost) {
-                        gameLog.innerHTML = '❌ No tienes soles.';
-                        return;
-                    }
-                    gameState.sun -= gameState.selectedPlant.sunCost;
-                    updateSunDisplay();
-                    let newPlant = {
-                        id: gameState.nextId++,
-                        row, col,
-                        plantData: JSON.parse(JSON.stringify(gameState.selectedPlant)),
-                        currentHp: gameState.selectedPlant.hp,
-                        effectTimer: 0
-                    };
-                    gameState.plants.push(newPlant);
-                    renderPlayField();
-                    gameLog.innerHTML = `🌱 Planta colocada.`;
-                });
-            });
-        }
-
-        function renderPlayField() {
-            let cells = document.querySelectorAll('#playMapContainer .map-cell');
-            cells.forEach(cell => {
-                let row = parseInt(cell.dataset.row);
-                let col = parseInt(cell.dataset.col);
-                let plant = gameState.plants.find(p => p.row === row && p.col === col);
-                let obj = gameState.objects.find(o => o.row === row && o.col === col);
-                cell.innerHTML = '';
-                
-                if (plant) {
-                    let canvas = document.createElement('canvas');
-                    canvas.width = 70;
-                    canvas.height = 70;
-                    let ctx = canvas.getContext('2d');
-                    if (plant.plantData.sprite) {
-                        drawSpriteOnCanvas(ctx, plant.plantData.sprite, 0, 0, 4, '#c0c0c0');
+        } else if (pattern === 'line') { // torre (horizontal/vertical)
+            const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+            dirs.forEach(([dr, dc]) => {
+                for (let step = 1; step <= range; step++) {
+                    let nr = row + dr*step, nc = col + dc*step;
+                    if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) break;
+                    let target = board[nr][nc];
+                    if (!target) {
+                        moves.push({ row: nr, col: nc });
                     } else {
-                        ctx.fillStyle = '#5aaf5a';
-                        ctx.fillRect(15, 15, 40, 40);
-                    }
-                    cell.appendChild(canvas);
-                    let healthPercent = (plant.currentHp / plant.plantData.hp) * 100;
-                    let hpDiv = document.createElement('div');
-                    hpDiv.style.width = '100%';
-                    hpDiv.style.height = '6px';
-                    hpDiv.style.background = '#a00';
-                    hpDiv.style.marginTop = '2px';
-                    let fill = document.createElement('div');
-                    fill.style.height = '100%';
-                    fill.style.width = healthPercent + '%';
-                    fill.style.background = '#0f0';
-                    hpDiv.appendChild(fill);
-                    cell.appendChild(hpDiv);
-                }
-                
-                if (obj) {
-                    let objDiv = document.createElement('div');
-                    objDiv.className = 'object-overlay';
-                    if (obj.type === 'rock') objDiv.textContent = '🪨';
-                    else if (obj.type === 'water') objDiv.textContent = '💧';
-                    else if (obj.type === 'fence') objDiv.textContent = '🪵';
-                    else if (obj.type === 'spike') objDiv.textContent = '🔪';
-                    cell.appendChild(objDiv);
-                }
-            });
-            updateZombieList();
-        }
-
-        function updateZombieList() {
-            if (!zombieListContainer) return;
-            zombieListContainer.innerHTML = '';
-            if (gameState.zombies.length === 0) {
-                zombieListContainer.innerHTML = '<p>No hay zombies</p>';
-                return;
-            }
-            gameState.zombies.forEach(z => {
-                let item = document.createElement('div');
-                item.className = 'zombie-list-item';
-                let extra = '';
-                if (z.zombieData.ability !== 'none') extra = ` [${z.zombieData.ability}]`;
-                item.innerHTML = `🧟 Fila:${z.row} Col:${z.col.toFixed(1)} ❤️${z.currentHp}${extra}`;
-                zombieListContainer.appendChild(item);
-            });
-        }
-
-        function updateSunDisplay() {
-            sunAmountSpan.textContent = gameState.sun;
-        }
-
-        function loadPlayPalette() {
-            playPlantPalette.innerHTML = '';
-            modData.savedPlants.forEach((p, idx) => {
-                let btn = document.createElement('span');
-                btn.className = 'collection-item';
-                btn.innerHTML = `<i class="fas fa-leaf"></i> ${p.name} (${p.sunCost}☀️)`;
-                btn.addEventListener('click', () => {
-                    gameState.selectedPlant = p;
-                    gameState.selectedObject = null;
-                    document.querySelectorAll('.object-btn').forEach(b => b.classList.remove('selected'));
-                    gameLog.innerHTML = `Planta "${p.name}" seleccionada.`;
-                });
-                playPlantPalette.appendChild(btn);
-            });
-        }
-
-        objectBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                objectBtns.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                gameState.selectedObject = btn.dataset.object;
-                gameState.selectedPlant = null;
-                gameLog.innerHTML = `Objeto "${gameState.selectedObject}" seleccionado.`;
-            });
-        });
-
-        clearObjectsBtn.addEventListener('click', () => {
-            gameState.objects = [];
-            renderPlayField();
-            gameLog.innerHTML = '🗑️ Objetos eliminados.';
-        });
-
-        function startWave() {
-            if (modData.wave.zombies.length === 0) {
-                gameLog.innerHTML = '⚠️ No hay zombis en la oleada.';
-                return;
-            }
-            let rows = modData.map.rows;
-            let cols = modData.map.cols;
-            let spawnCol = cols - 1;
-            let zombiesToSpawn = [...modData.wave.zombies];
-            zombiesToSpawn.forEach((z, index) => {
-                let row = 0;
-                if (modData.wave.spawnMode === 'random') row = Math.floor(Math.random() * rows);
-                else if (modData.wave.spawnMode === 'lane0') row = 0;
-                else if (modData.wave.spawnMode === 'lane1') row = 1;
-                else if (modData.wave.spawnMode === 'lane2') row = 2;
-                else if (modData.wave.spawnMode === 'all') row = index % rows;
-                gameState.zombies.push({
-                    id: gameState.nextId++,
-                    row, col: spawnCol,
-                    zombieData: JSON.parse(JSON.stringify(z)),
-                    currentHp: z.hp + z.armor,
-                    effectTimer: 0,
-                });
-            });
-            renderPlayField();
-            gameLog.innerHTML = `🧟‍♂️ Oleada iniciada con ${zombiesToSpawn.length} zombis.`;
-        }
-
-        function resetGame() {
-            gameState.sun = 150;
-            gameState.plants = [];
-            gameState.zombies = [];
-            gameState.objects = [];
-            gameState.selectedPlant = null;
-            gameState.selectedObject = null;
-            updateSunDisplay();
-            loadPlayMap();
-            gameLog.innerHTML = '⏳ Partida reiniciada.';
-        }
-
-        function gameTick() {
-            if (gameState.paused) return;
-            
-            gameState.zombies.forEach(z => {
-                if (z.zombieData.ability === 'regenerate') {
-                    z.currentHp = Math.min(z.currentHp + 1, z.zombieData.hp + z.zombieData.armor);
-                }
-            });
-
-            gameState.plants.forEach(plant => {
-                let zombiesInRow = gameState.zombies.filter(z => z.row === plant.row && z.col <= plant.col + plant.plantData.range);
-                if (zombiesInRow.length > 0) {
-                    let target = zombiesInRow.sort((a,b) => b.col - a.col)[0];
-                    let damage = plant.plantData.damage;
-                    if (plant.plantData.effect === 'fire') damage *= 1.5;
-                    else if (plant.plantData.effect === 'ice') target.effectTimer = 3;
-                    else if (plant.plantData.effect === 'stun') target.effectTimer = 2;
-                    if (target.zombieData.ability === 'armored') damage /= 2;
-                    if (target.zombieData.ability === 'immune') damage *= 0.5;
-                    target.currentHp -= damage;
-                    if (target.currentHp <= 0) {
-                        gameState.zombies = gameState.zombies.filter(z => z.id !== target.id);
+                        if (target.owner !== owner) moves.push({ row: nr, col: nc }); // atacar
+                        break; // choca con pieza
                     }
                 }
             });
-
-            gameState.zombies.forEach(z => {
-                if (z.effectTimer > 0) {
-                    z.effectTimer--;
-                    if (z.zombieData.ability !== 'immune' && z.effectTimer > 0 && plant.plantData.effect === 'stun') return;
-                }
-                let speed = z.zombieData.speed;
-                let nextCol = Math.floor(z.col - 0.5);
-                let obj = gameState.objects.find(o => o.row === z.row && o.col === nextCol);
-                if (obj) {
-                    if (obj.type === 'rock') return;
-                    else if (obj.type === 'water') speed *= 0.5;
-                    else if (obj.type === 'fence') {
-                        gameState.objects = gameState.objects.filter(o => !(o.row === z.row && o.col === nextCol));
-                        return;
-                    } else if (obj.type === 'spike') {
-                        z.currentHp -= 5;
-                        if (z.currentHp <= 0) {
-                            gameState.zombies = gameState.zombies.filter(z2 => z2.id !== z.id);
-                            return;
+        } else { // peón: mueve 1 en cualquier dirección (para simplificar, no distingue colores, pero puede atacar)
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    let nr = row + dr, nc = col + dc;
+                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+                        let target = board[nr][nc];
+                        if (!target || (target.owner !== owner)) {
+                            moves.push({ row: nr, col: nc });
                         }
                     }
                 }
-                z.col -= speed * 0.1;
-                if (z.col < 0) {
-                    gameState.zombies = gameState.zombies.filter(z2 => z2.id !== z.id);
-                }
-            });
+            }
+        }
+        return moves;
+    }
 
-            gameState.zombies.forEach(z => {
-                let plantHere = gameState.plants.find(p => p.row === z.row && Math.floor(p.col) === Math.floor(z.col));
-                if (plantHere) {
-                    plantHere.currentHp -= 10;
-                    if (plantHere.currentHp <= 0) {
-                        gameState.plants = gameState.plants.filter(p => p.id !== plantHere.id);
+    // ---------- COMBATE ----------
+    function resolveAttack(attackerCell, defenderCell) {
+        // Atacante: la unidad que se mueve a la celda
+        // Defensor: el que ya está (o base)
+        let attackPower = attackerCell.unitType.attack;
+        let defensePower = defenderCell.type === 'base' ? 5 : defenderCell.unitType.defense; // las bases tienen defensa 5
+        let damage = Math.max(1, attackPower - Math.floor(defensePower/2)); // daño base
+        if (defenderCell.type === 'base') {
+            defenderCell.health -= damage;
+            if (defenderCell.owner === PLAYER) player.baseHealth = defenderCell.health;
+            else enemy.baseHealth = defenderCell.health;
+        } else {
+            defenderCell.health -= damage;
+        }
+
+        // Si defensor muere
+        if (defenderCell.health <= 0) {
+            return { dead: true, cell: defenderCell };
+        }
+        return { dead: false, cell: defenderCell };
+    }
+
+    // ---------- MOVER UNIDAD (jugador) ----------
+    function tryMoveUnit(fromRow, fromCol, toRow, toCol) {
+        let unit = board[fromRow][fromCol];
+        if (!unit || unit.type !== 'unit' || unit.owner !== PLAYER) return false;
+
+        let validMoves = getValidMovesForUnit(fromRow, fromCol, unit.unitType, PLAYER);
+        let isValid = validMoves.some(m => m.row === toRow && m.col === toCol);
+        if (!isValid) return false;
+
+        let target = board[toRow][toCol];
+
+        // Si hay algo, combatir
+        if (target) {
+            let attackRes = resolveAttack(unit, target);
+            if (attackRes.dead) {
+                board[toRow][toCol] = null; // eliminar defensor
+                // mover atacante a la celda
+                board[toRow][toCol] = { ...unit };
+                board[fromRow][fromCol] = null;
+            } else {
+                // defensor herido pero vivo, el atacante no se mueve (regla simple)
+                statusMsg.innerText = 'Unidad enemiga herida';
+                // actualizar salud en el objeto target ya modificado
+            }
+        } else {
+            // mover a casilla vacía
+            board[toRow][toCol] = { ...unit };
+            board[fromRow][fromCol] = null;
+        }
+
+        // Limpiar selección
+        selectedUnit = null;
+        return true;
+    }
+
+    // ---------- COMPRAR UNIDAD (jugador) ----------
+    function tryBuyUnit(unitTypeKey) {
+        if (!playerTurn) {
+            statusMsg.innerText = 'No es tu turno';
+            return false;
+        }
+        let unit = UNIT_TYPES[unitTypeKey];
+        if (player.gold < unit.cost) {
+            statusMsg.innerText = '¡No tienes suficiente oro!';
+            return false;
+        }
+
+        // Buscar casillas vacías adyacentes a la base (incluyendo la misma base si está vacía? no, base ocupada)
+        let baseR = player.basePos.row, baseC = player.basePos.col;
+        let adyacentes = [];
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                let nr = baseR + dr, nc = baseC + dc;
+                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === null) {
+                    adyacentes.push({ row: nr, col: nc });
+                }
+            }
+        }
+        if (adyacentes.length === 0) {
+            statusMsg.innerText = 'No hay espacio cerca de la base';
+            return false;
+        }
+
+        // Colocar en la primera disponible (o elegir por interfaz, simplificamos primera)
+        let spawn = adyacentes[0];
+        board[spawn.row][spawn.col] = {
+            type: 'unit',
+            owner: PLAYER,
+            unitType: unit,
+            health: 5 + unit.defense * 2   // salud base + defensa
+        };
+        player.gold -= unit.cost;
+        statusMsg.innerText = `${unit.name} comprado.`;
+        return true;
+    }
+
+    // ---------- TURNO DE LA IA ----------
+    function enemyTurn() {
+        // 1. Ganar oro
+        enemy.gold += GOLD_PER_TURN;
+
+        // 2. Intentar comprar unidad (si tiene espacio)
+        let unitToBuy = null;
+        let types = ['PAWN', 'KNIGHT', 'ROOK']; // orden de preferencia
+        for (let t of types) {
+            if (enemy.gold >= UNIT_TYPES[t].cost) {
+                unitToBuy = UNIT_TYPES[t];
+                break;
+            }
+        }
+        if (unitToBuy) {
+            // buscar adyacentes a base enemiga
+            let baseR = enemy.basePos.row, baseC = enemy.basePos.col;
+            let ady = [];
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    let nr = baseR + dr, nc = baseC + dc;
+                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === null) {
+                        ady.push({ row: nr, col: nc });
                     }
                 }
-            });
-
-            renderPlayField();
-        }
-
-        function startGameLoop() {
-            if (gameState.gameLoop) clearInterval(gameState.gameLoop);
-            gameState.gameLoop = setInterval(() => gameTick(), 1000);
-        }
-
-        startWaveBtn.addEventListener('click', () => {
-            startWave();
-            startGameLoop();
-        });
-
-        resetGameBtn.addEventListener('click', () => {
-            resetGame();
-            if (gameState.gameLoop) clearInterval(gameState.gameLoop);
-        });
-
-        pauseGameBtn.addEventListener('click', () => {
-            gameState.paused = !gameState.paused;
-            pauseGameBtn.innerHTML = gameState.paused ? '<i class="fas fa-play"></i> Reanudar' : '<i class="fas fa-pause"></i> Pausa';
-        });
-
-        addSunBtn.addEventListener('click', () => {
-            gameState.sun += 50;
-            updateSunDisplay();
-            gameLog.innerHTML = '☀️ +50 soles.';
-        });
-
-        // ========== EXPORT/IMPORT ==========
-        exportBtn.addEventListener('click', () => {
-            const dataStr = JSON.stringify(modData, null, 2);
-            const blob = new Blob([dataStr], {type:'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pvzmaker_mod.json';
-            a.click();
-        });
-
-        importFile.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        modData = JSON.parse(ev.target.result);
-                        bindPlantSliders();
-                        bindZombieSliders();
-                        updatePlantUI();
-                        updateZombieUI();
-                        renderSavedPlants();
-                        renderSavedZombies();
-                        updateWaveUI();
-                        updateMapPreview();
-                        buildSpriteGrid();
-                        gameLog.innerHTML = '✅ Mod importado.';
-                    } catch(ex) { alert('Archivo inválido'); }
+            }
+            if (ady.length > 0) {
+                let spawn = ady[Math.floor(Math.random() * ady.length)];
+                board[spawn.row][spawn.col] = {
+                    type: 'unit',
+                    owner: ENEMY,
+                    unitType: unitToBuy,
+                    health: 5 + unitToBuy.defense * 2
                 };
-                reader.readAsText(e.target.files[0]);
+                enemy.gold -= unitToBuy.cost;
+            }
+        }
+
+        // 3. Mover unidades enemigas aleatoriamente (ataque simple)
+        // Recopilar todas las unidades enemigas
+        let enemyUnits = [];
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                let cell = board[r][c];
+                if (cell && cell.type === 'unit' && cell.owner === ENEMY) {
+                    enemyUnits.push({ row: r, col: c, unit: cell });
+                }
+            }
+        }
+
+        // Cada unidad intenta un movimiento aleatorio válido
+        enemyUnits.forEach(u => {
+            let moves = getValidMovesForUnit(u.row, u.col, u.unit.unitType, ENEMY);
+            if (moves.length === 0) return;
+            let move = moves[Math.floor(Math.random() * moves.length)];
+            // ejecutar movimiento / ataque
+            let target = board[move.row][move.col];
+            if (target) {
+                let attackRes = resolveAttack(u.unit, target);
+                if (attackRes.dead) {
+                    board[move.row][move.col] = null;
+                    board[move.row][move.col] = { ...u.unit };
+                    board[u.row][u.col] = null;
+                } else {
+                    // solo daño, no mover
+                }
+            } else {
+                board[move.row][move.col] = { ...u.unit };
+                board[u.row][u.col] = null;
             }
         });
 
-        resetModBtn.addEventListener('click', () => {
-            modData = {
-                plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null, customAbility:'' },
-                zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null, customAbility:'' },
-                savedPlants: [],
-                savedZombies: [],
-                wave: { zombies:[], interval:1.0, spawnMode:'random' },
-                map: { rows:3, cols:5, grass:'normal' },
-                currentSprite: Array(16).fill().map(() => Array(16).fill('#c0c0c0'))
-            };
-            bindPlantSliders();
-            bindZombieSliders();
-            updatePlantUI();
-            updateZombieUI();
-            renderSavedPlants();
-            renderSavedZombies();
-            updateWaveUI();
-            updateMapPreview();
-            buildSpriteGrid();
-            gameLog.innerHTML = '🆕 Nuevo mod.';
-        });
+        // 4. La IA podría atacar base si tiene unidad adyacente (ya se maneja en movimiento)
+    }
 
-        // ========== TABS ==========
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const tab = btn.dataset.tab;
-                Object.values(panels).forEach(p => p.classList.add('hidden-panel'));
-                panels[tab].classList.remove('hidden-panel');
-                if (tab === 'play') {
-                    loadPlayPalette();
-                    loadPlayMap();
-                    updateSunDisplay();
+    // ---------- FINALIZAR TURNO ----------
+    function endTurn() {
+        if (!playerTurn) return; // ya es turno de ia, pero bloqueamos
+
+        // 1. Generar oro para jugador
+        player.gold += GOLD_PER_TURN;
+
+        // 2. Pasar a turno enemigo
+        playerTurn = false;
+        turnIndicator.innerText = '🤖 Turno enemigo';
+        turnIndicator.classList.add('enemy-turn');
+        statusMsg.innerText = 'Pensando...';
+        drawBoard();
+        updateUI();
+
+        // 3. Ejecutar IA después de un breve retraso (para sensación de turno)
+        setTimeout(() => {
+            enemyTurn();
+
+            // Verificar fin del juego
+            if (enemy.baseHealth <= 0) {
+                alert('🏆 ¡Has destruido la base enemiga! Victoria!');
+                resetGame();
+                return;
+            }
+            if (player.baseHealth <= 0) {
+                alert('💀 Tu base ha sido destruida. Derrota...');
+                resetGame();
+                return;
+            }
+
+            // Volver turno jugador
+            playerTurn = true;
+            turnIndicator.innerText = '📌 Tu turno';
+            turnIndicator.classList.remove('enemy-turn');
+            selectedUnit = null;
+            drawBoard();
+            updateUI();
+            statusMsg.innerText = 'Selecciona unidad o compra';
+        }, 600);
+    }
+
+    // ---------- RESET GAME ----------
+    function resetGame() {
+        player = { gold: 100, basePos: { row: 7, col: 3 }, baseHealth: BASE_MAX_HEALTH };
+        enemy = { gold: 100, basePos: { row: 0, col: 4 }, baseHealth: BASE_MAX_HEALTH };
+        initBoard();
+        playerTurn = true;
+        selectedUnit = null;
+        turnIndicator.innerText = '📌 Tu turno';
+        turnIndicator.classList.remove('enemy-turn');
+        drawBoard();
+        updateUI();
+        statusMsg.innerText = 'Nueva partida';
+    }
+
+    // ---------- ACTUALIZAR UI (oro, salud) ----------
+    function updateUI() {
+        goldSpan.innerText = player.gold;
+        baseHealthSpan.innerText = player.baseHealth;
+        // actualizar salud en board (por si acaso)
+        if (board[player.basePos.row][player.basePos.col]) {
+            board[player.basePos.row][player.basePos.col].health = player.baseHealth;
+        }
+        if (board[enemy.basePos.row][enemy.basePos.col]) {
+            board[enemy.basePos.row][enemy.basePos.col].health = enemy.baseHealth;
+        }
+    }
+
+    // ---------- MANEJADORES DE EVENTOS ----------
+    canvas.addEventListener('click', (e) => {
+        if (!playerTurn) {
+            statusMsg.innerText = 'Espera al turno enemigo';
+            return;
+        }
+        let rect = canvas.getBoundingClientRect();
+        let scaleX = canvas.width / rect.width;
+        let scaleY = canvas.height / rect.height;
+
+        let mouseX = (e.clientX - rect.left) * scaleX;
+        let mouseY = (e.clientY - rect.top) * scaleY;
+        let col = Math.floor(mouseX / CELL_SIZE);
+        let row = Math.floor(mouseY / CELL_SIZE);
+        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) return;
+
+        let cell = board[row][col];
+
+        // Si hay unidad seleccionada, intentar mover
+        if (selectedUnit) {
+            let success = tryMoveUnit(selectedUnit.row, selectedUnit.col, row, col);
+            if (success) {
+                drawBoard();
+                updateUI();
+            } else {
+                statusMsg.innerText = 'Movimiento no válido';
+                // opcional: limpiar selección si se hace clic en otra unidad propia?
+                if (cell && cell.type === 'unit' && cell.owner === PLAYER) {
+                    selectedUnit = { row, col };
+                    statusMsg.innerText = `Unidad seleccionada`;
+                } else {
+                    selectedUnit = null; // cancelar selección
                 }
-                if (tab === 'map') updateMapPreview();
-                if (tab === 'sprite') buildSpriteGrid();
-                if (tab === 'wave') updateWaveUI();
-            });
-        });
+            }
+            drawBoard();
+            return;
+        }
 
-        // ========== INICIALIZACIÓN ==========
-        bindPlantSliders();
-        bindZombieSliders();
-        updatePlantUI();
-        updateZombieUI();
-        renderSavedPlants();
-        renderSavedZombies();
-        updateWaveUI();
-        updateMapPreview();
-        buildPalette();
-        buildSpriteGrid();
-        panels.plant.classList.remove('hidden-panel');
-    })();
+        // Si no hay selección y es unidad propia, seleccionar
+        if (cell && cell.type === 'unit' && cell.owner === PLAYER) {
+            selectedUnit = { row, col };
+            statusMsg.innerText = `${cell.unitType.name} seleccionado`;
+        } else {
+            // quizás base? no hacemos nada
+        }
+        drawBoard();
+    });
+
+    // Botones de compra
+    buyPawnBtn.addEventListener('click', () => { tryBuyUnit('PAWN'); drawBoard(); updateUI(); });
+    buyKnightBtn.addEventListener('click', () => { tryBuyUnit('KNIGHT'); drawBoard(); updateUI(); });
+    buyRookBtn.addEventListener('click', () => { tryBuyUnit('ROOK'); drawBoard(); updateUI(); });
+
+    endTurnBtn.addEventListener('click', () => {
+        if (!playerTurn) return;
+        endTurn();
+    });
+
+    // Inicial
+    drawBoard();
+    updateUI();
+})();
 </script>
 </body>
 </html>
