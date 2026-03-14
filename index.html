@@ -1,648 +1,758 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Empires · estrategia con ajedrez</title>
+    <title>Create-a-Plant vs Zombies · DIY PVZ</title>
     <style>
         * {
             box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             user-select: none;
         }
         body {
-            background: #1e3c2c;
+            background: #1a3e1f;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             margin: 0;
             padding: 16px;
         }
-        .game-container {
-            background: #2d5a3a;
-            padding: 24px;
-            border-radius: 36px;
-            box-shadow: 0 20px 30px rgba(0,0,0,0.6);
-            border: 4px solid #b68b5c;
+        .game-wrapper {
+            background: #5b8c4e;
+            padding: 25px 30px 30px;
+            border-radius: 40px 40px 20px 20px;
+            box-shadow: 0 15px 0 #2b5e2b, 0 20px 20px rgba(0,0,0,0.4);
+            border-bottom: 5px solid #6a9e5a;
         }
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background: #3b2e1e;
-            color: #f0e6d2;
-            padding: 12px 24px;
+            justify-content: space-between;
+            background: #eecd9e;
+            padding: 10px 20px;
             border-radius: 60px;
+            border: 4px solid #b38b40;
             margin-bottom: 20px;
-            border: 2px solid #c9a87c;
-            font-weight: bold;
-            font-size: 1.2rem;
+            box-shadow: inset 0 2px 5px #fff3c9, 0 5px 0 #8b6b32;
         }
-        .resources {
-            display: flex;
-            gap: 32px;
-        }
-        .gold {
-            color: #ffd966;
-        }
-        .turn-indicator {
-            background: #5e4b3c;
-            padding: 6px 18px;
+        .sun-display {
+            background: #f7da65;
             border-radius: 40px;
-            text-transform: uppercase;
-        }
-        canvas {
-            display: block;
-            margin: 0 auto;
-            border-radius: 24px;
-            box-shadow: 0 0 0 4px #b68b5c, 0 15px 25px black;
-            background: #ebd5b3;
-            cursor: pointer;
-        }
-        .control-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 25px;
-            background: #3b2e1e;
-            padding: 20px;
-            border-radius: 50px;
-            border: 2px solid #c9a87c;
-            justify-content: center;
-        }
-        .shop {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            background: #c9a87c;
-            border: none;
-            color: #2d2d2d;
+            padding: 8px 25px;
+            font-size: 26px;
             font-weight: bold;
-            padding: 10px 22px;
-            border-radius: 40px;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 5px 0 #7b623a;
-            transition: 0.07s ease;
-            border: 1px solid #f0dbb4;
+            color: #a65d0e;
+            text-shadow: 2px 2px 0 #ffea9e;
+            box-shadow: inset 0 -3px 0 #c88f2e, 0 4px 0 #a05f20;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #7b623a;
+        .sun-display::before {
+            content: "☀️";
+            font-size: 32px;
+            filter: drop-shadow(2px 2px 0 #ad7a3b);
         }
-        .btn:disabled {
-            opacity: 0.5;
-            transform: none;
-            box-shadow: 0 5px 0 #7b623a;
-            cursor: not-allowed;
+        .restart-btn {
+            background: #c9ae7a;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 8px 25px;
+            border-radius: 40px;
+            color: #2d3e1f;
+            box-shadow: 0 5px 0 #7b623a, 0 3px 10px black;
+            cursor: pointer;
+            transition: 0.06s linear;
+            border: 2px solid #f5e1b0;
         }
-        .info-text {
-            color: #f0e6d2;
-            background: #1e3c2c;
-            padding: 10px 24px;
-            border-radius: 36px;
-            font-size: 0.95rem;
-            border: 1px solid #b68b5c;
-            min-width: 200px;
+        .restart-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #7b623a;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            background: #577a44;
+            padding: 20px;
+            border-radius: 40px;
+            border: 5px solid #36632e;
+            box-shadow: inset 0 0 0 3px #9bbf7b;
+        }
+        canvas {
+            display: block;
+            width: 420px;
+            height: 300px;
+            border-radius: 24px;
+            border: 4px solid #2a4d26;
+            background: #96b582;
+            cursor: crosshair;
+            box-shadow: 0 8px 0 #1f3f1c;
+        }
+        .plant-palette {
+            margin: 20px 0 15px;
+            background: #b39264;
+            padding: 15px 15px 10px;
+            border-radius: 40px;
+            border: 4px solid #836e48;
+            box-shadow: inset 0 2px 8px #eedbaa, 0 7px 0 #675234;
+        }
+        .palette-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: 5px;
+            color: #fffbd6;
+            text-shadow: 2px 2px 0 #4b6b2b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .plant-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+            min-height: 60px;
+        }
+        .plant-btn {
+            background: #ded19b;
+            border: 3px solid #fcf3c5;
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2f441f;
+            box-shadow: 0 5px 0 #887542, 0 4px 8px black;
+            cursor: pointer;
+            transition: 0.05s linear;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 100px;
+            text-shadow: 1px 1px 0 #cfb57b;
+        }
+        .plant-btn.selected {
+            background: #ffdb7c;
+            border: 4px solid #fffbbc;
+            transform: scale(1.02);
+            box-shadow: 0 4px 0 #c79e3a, 0 6px 12px black;
+        }
+        .plant-color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #3d3d1f;
+            display: inline-block;
+        }
+        .creator-panel {
+            background: #a6c9a1;
+            padding: 18px 20px;
+            border-radius: 50px;
+            border: 4px solid #618558;
+            box-shadow: inset 0 2px 10px #d8f0cf, 0 8px 0 #406a38;
+        }
+        .creator-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1b3b13;
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 15px;
+            margin-bottom: 15px;
+        }
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e4f1a;
+        }
+        .form-field label {
+            margin-left: 5px;
+        }
+        .form-field input {
+            width: 90px;
+            padding: 8px 8px;
+            border-radius: 30px;
+            border: 2px solid #36632e;
+            background: #f9f2cf;
+            font-weight: bold;
             text-align: center;
+            outline: none;
         }
-        .enemy-turn {
-            background: #a14a4a;
-            color: white;
-            animation: pulse 1s infinite;
+        .form-field input[type="color"] {
+            width: 60px;
+            height: 40px;
+            padding: 2px;
+            background: white;
         }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
+        .add-plant-btn {
+            background: #fad873;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px 30px;
+            border-radius: 40px;
+            box-shadow: 0 5px 0 #a88337, 0 3px 10px black;
+            cursor: pointer;
+            border: 2px solid #ffecb3;
+            margin-top: 8px;
+            transition: 0.05s linear;
+        }
+        .add-plant-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #a88337;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            color: #dcedb9;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-<div class="game-container">
+<div class="game-wrapper">
     <div class="header">
-        <div class="resources">
-            <span>💰 <span class="gold" id="goldDisplay">100</span> de oro</span>
-            <span>🏰 <span id="baseHealth">10</span> ❤️</span>
-        </div>
-        <div class="turn-indicator" id="turnIndicator">📌 Tu turno</div>
+        <div class="sun-display" id="sunDisplay">150</div>
+        <button class="restart-btn" id="restartGame">🌱 RESTART</button>
     </div>
 
-    <canvas id="chessCanvas" width="480" height="480"></canvas>
+    <div class="canvas-container">
+        <canvas id="gameCanvas" width="420" height="300"></canvas>
+    </div>
 
-    <div class="control-panel">
-        <div class="shop">
-            <button class="btn" id="buyPawn" title="Peón · 5 de oro · mueve 1">♟️ Peón (5)</button>
-            <button class="btn" id="buyKnight" title="Caballo · 10 de oro · salta en L">♞ Caballo (10)</button>
-            <button class="btn" id="buyRook" title="Torre · 15 de oro · horizontal/vertical">♜ Torre (15)</button>
+    <!-- PLANT PALETTE (dynamic) -->
+    <div class="plant-palette">
+        <div class="palette-title">🌿 YOUR PLANTS · click to select</div>
+        <div class="plant-buttons" id="plantPalette"></div>
+    </div>
+
+    <!-- CUSTOM PLANT CREATOR -->
+    <div class="creator-panel">
+        <div class="creator-title">🧪 CREATE YOUR OWN PLANT</div>
+        <div class="form-row">
+            <div class="form-field">
+                <label>🌱 name</label>
+                <input type="text" id="newName" value="Spikeweed" maxlength="12">
+            </div>
+            <div class="form-field">
+                <label>💥 dmg</label>
+                <input type="number" id="newDamage" min="1" max="5" value="2">
+            </div>
+            <div class="form-field">
+                <label>📏 range</label>
+                <input type="number" id="newRange" min="1" max="7" value="4">
+            </div>
+            <div class="form-field">
+                <label>⚡ shots/s</label>
+                <input type="number" id="newSpeed" min="0.2" max="3.0" step="0.1" value="1.0">
+            </div>
+            <div class="form-field">
+                <label>🪙 cost</label>
+                <input type="number" id="newCost" min="25" max="300" step="5" value="75">
+            </div>
+            <div class="form-field">
+                <label>❤️ health</label>
+                <input type="number" id="newHealth" min="1" max="15" value="4">
+            </div>
+            <div class="form-field">
+                <label>🎨 color</label>
+                <input type="color" id="newColor" value="#77b300">
+            </div>
         </div>
-        <button class="btn" id="endTurnBtn">⏭️ Finalizar turno</button>
-        <div class="info-text" id="statusMessage">Coloca una unidad o mueve</div>
+        <button class="add-plant-btn" id="addPlantBtn">➕ ADD NEW PLANT</button>
+    </div>
+    <div class="footer">
+        <span>☀️ sun auto +5/sec</span>
+        <span>🧟 zombies spawn every 5s</span>
     </div>
 </div>
 
 <script>
 (function() {
-    // ---------- CONSTANTES Y CONFIGURACIÓN ----------
-    const SIZE = 8;               // tablero 8x8
-    const CELL_SIZE = 60;          // 480/8
-    const GOLD_PER_TURN = 10;      // ingreso base por turno
-    const BASE_MAX_HEALTH = 20;     // salud máxima de la base
+    // ---------- CONSTANTS ----------
+    const ROWS = 5;
+    const COLS = 7;
+    const CELL_SIZE = 60;
+    const CANVAS_WIDTH = 420;
+    const CANVAS_HEIGHT = 300;
 
-    // Colores / identidad
-    const PLAYER = 'player';
-    const ENEMY = 'enemy';
+    // ---------- GLOBAL STATE ----------
+    let plantTypes = [];               // array of custom plant definitions
+    let selectedPlantIndex = 0;        // index in plantTypes
 
-    // Tipos de unidad
-    const UNIT_TYPES = {
-        PAWN: { name: 'peón', cost: 5, attack: 2, defense: 1, moveRange: 1, symbol: '♟️', playerChar: '♙', enemyChar: '♟️' },
-        KNIGHT: { name: 'caballo', cost: 10, attack: 4, defense: 2, moveRange: 2, movePattern: 'L', symbol: '♞', playerChar: '♘', enemyChar: '♞' },
-        ROOK: { name: 'torre', cost: 15, attack: 5, defense: 4, moveRange: 7, movePattern: 'line', symbol: '♜', playerChar: '♖', enemyChar: '♜' }
-    };
+    // grid: 2D array [row][col] -> { typeIndex, health, lastShot } or null
+    let grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
 
-    // ---------- ESTADO DEL JUEGO ----------
-    let board = [];                 // 8x8, cada celda: { type: 'base' | 'unit', owner, unitType? , health? }
-    let player = {
-        gold: 100,
-        basePos: { row: 7, col: 3 }, // abajo izquierda (fila 7, col 3)
-        baseHealth: BASE_MAX_HEALTH
-    };
-    let enemy = {
-        gold: 100,
-        basePos: { row: 0, col: 4 }, // arriba derecha (fila 0, col 4)
-        baseHealth: BASE_MAX_HEALTH
-    };
+    let zombies = [];                  // active zombies
+    let projectiles = [];              // active projectiles
 
-    // Turno: true = jugador, false = IA (pero manejado con botón)
-    let playerTurn = true;
+    let sun = 150;
+    let gameActive = true;
+    let gameOverFlag = false;          // for display
 
-    // Selección de unidad para mover (solo en turno jugador)
-    let selectedUnit = null; // { row, col }
+    // timers & intervals
+    let sunInterval = null;
+    let spawnInterval = null;
+    let animationFrame = null;
+    let lastTimestamp = null;
 
-    // Referencias DOM
-    const canvas = document.getElementById('chessCanvas');
-    const ctx = canvas.getContext('2d');
-    const goldSpan = document.getElementById('goldDisplay');
-    const baseHealthSpan = document.getElementById('baseHealth');
-    const turnIndicator = document.getElementById('turnIndicator');
-    const statusMsg = document.getElementById('statusMessage');
-
-    // Botones
-    const buyPawnBtn = document.getElementById('buyPawn');
-    const buyKnightBtn = document.getElementById('buyKnight');
-    const buyRookBtn = document.getElementById('buyRook');
-    const endTurnBtn = document.getElementById('endTurnBtn');
-
-    // Inicializar tablero vacío
-    function initBoard() {
-        board = Array(SIZE).fill().map(() => Array(SIZE).fill(null));
-        // Colocar bases
-        board[player.basePos.row][player.basePos.col] = { type: 'base', owner: PLAYER, health: player.baseHealth };
-        board[enemy.basePos.row][enemy.basePos.col] = { type: 'base', owner: ENEMY, health: enemy.baseHealth };
-    }
-    initBoard();
-
-    // ---------- FUNCIONES DE DIBUJO ----------
-    function drawBoard() {
-        ctx.clearRect(0, 0, 480, 480);
-        // Dibujar celdas
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
-                let x = c * CELL_SIZE;
-                let y = r * CELL_SIZE;
-                // color ajedrez
-                ctx.fillStyle = (r + c) % 2 === 0 ? '#f0d9b5' : '#b58863';
-                ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                // contorno sutil
-                ctx.strokeStyle = '#a17a5a';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
-            }
-        }
-
-        // Dibujar contenido
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
-                let cell = board[r][c];
-                if (!cell) continue;
-                let x = c * CELL_SIZE + CELL_SIZE/2;
-                let y = r * CELL_SIZE + CELL_SIZE/2;
-                ctx.font = 'bold 32px "Segoe UI", "Arial Unicode MS", Arial, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                if (cell.type === 'base') {
-                    // Dibujar castillo
-                    ctx.font = 'bold 36px sans-serif';
-                    ctx.fillStyle = cell.owner === PLAYER ? '#2e74b5' : '#b53b3b';
-                    ctx.fillText('🏰', x, y-4);
-                    // salud de la base
-                    ctx.font = 'bold 16px monospace';
-                    ctx.fillStyle = 'white';
-                    ctx.shadowColor = 'black';
-                    ctx.shadowBlur = 4;
-                    ctx.fillText(cell.health, x, y+20);
-                    ctx.shadowBlur = 0;
-                } else if (cell.type === 'unit') {
-                    // Unidad
-                    let unit = cell.unitType;
-                    let symbol = cell.owner === PLAYER ? unit.playerChar : unit.enemyChar;
-                    ctx.fillStyle = cell.owner === PLAYER ? '#1e4f8a' : '#aa3a3a';
-                    ctx.fillText(symbol, x, y-2);
-                    // pequeña indicación de salud (opcional)
-                    ctx.font = '14px monospace';
-                    ctx.fillStyle = '#ffffdd';
-                    ctx.shadowColor = '#000';
-                    ctx.shadowBlur = 3;
-                    ctx.fillText('❤️'+cell.health, x, y+20);
-                    ctx.shadowBlur = 0;
-                }
-            }
-        }
-
-        // Resaltar celda seleccionada si la hay
-        if (selectedUnit) {
-            let { row, col } = selectedUnit;
-            ctx.strokeStyle = '#f5d742';
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            ctx.rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-            ctx.stroke();
-
-            // Dibujar posibles movimientos (estilo simple)
-            let unit = board[row][col];
-            if (unit && unit.type === 'unit') {
-                let moves = getValidMovesForUnit(row, col, unit.unitType, unit.owner);
-                ctx.fillStyle = '#ffe68f66';
-                moves.forEach(m => {
-                    ctx.fillRect(m.col * CELL_SIZE, m.row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                });
-            }
-        }
+    // ---------- HELPER FUNCTIONS ----------
+    function getCurrentTime() {
+        return performance.now();
     }
 
-    // ---------- LÓGICA DE MOVIMIENTO (estilo ajedrez simplificado) ----------
-    function getValidMovesForUnit(row, col, unitType, owner) {
-        let moves = [];
-        let pattern = unitType.movePattern;
-        let range = unitType.moveRange;
+    // ---------- INITIAL DEFAULT PLANT ----------
+    function initDefaultPlants() {
+        plantTypes.push({
+            name: "PeaShooter",
+            damage: 1,
+            range: 5,          // cells ahead
+            attackCooldown: 1000, // 1 shot per second (1000ms)
+            cost: 50,
+            health: 3,
+            color: "#5a9e4e"
+        });
+        // second optional default for demo
+        plantTypes.push({
+            name: "Nut",
+            damage: 0,          // doesn't shoot
+            range: 0,
+            attackCooldown: 999999,
+            cost: 30,
+            health: 8,
+            color: "#cc9966"
+        });
+    }
+    initDefaultPlants();
 
-        if (pattern === 'L') { // caballo
-            const offsets = [
-                [-2, -1], [-2, 1], [2, -1], [2, 1],
-                [-1, -2], [-1, 2], [1, -2], [1, 2]
-            ];
-            offsets.forEach(([dr, dc]) => {
-                let nr = row + dr, nc = col + dc;
-                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                    let target = board[nr][nc];
-                    if (!target || (target.type === 'unit' && target.owner !== owner) || (target.type === 'base' && target.owner !== owner)) {
-                        moves.push({ row: nr, col: nc });
+    // ---------- RENDER PLANT PALETTE (buttons) ----------
+    function renderPalette() {
+        const container = document.getElementById('plantPalette');
+        container.innerHTML = '';
+        plantTypes.forEach((plant, idx) => {
+            const btn = document.createElement('div');
+            btn.className = `plant-btn ${idx === selectedPlantIndex ? 'selected' : ''}`;
+            btn.setAttribute('data-index', idx);
+            const dot = document.createElement('span');
+            dot.className = 'plant-color-dot';
+            dot.style.backgroundColor = plant.color;
+            dot.style.borderColor = '#3d3d1f';
+            btn.appendChild(dot);
+            btn.appendChild(document.createTextNode(`${plant.name} (${plant.cost}☀️)`));
+            btn.addEventListener('click', (e) => {
+                selectedPlantIndex = idx;
+                renderPalette(); // refresh selected style
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    // ---------- UPDATE SUN DISPLAY ----------
+    function updateSunDisplay() {
+        document.getElementById('sunDisplay').innerText = sun;
+    }
+
+    // ---------- GAME OVER ----------
+    function gameOver() {
+        if (!gameActive) return;
+        gameActive = false;
+        gameOverFlag = true;
+        if (sunInterval) clearInterval(sunInterval);
+        if (spawnInterval) clearInterval(spawnInterval);
+        // cancel animation frame will be handled in loop
+        alert("💀 ZOMBIES ATE YOUR BRAIN! Click RESTART.");
+    }
+
+    // ---------- RESTART GAME ----------
+    function restartGame() {
+        // kill intervals
+        if (sunInterval) clearInterval(sunInterval);
+        if (spawnInterval) clearInterval(spawnInterval);
+        if (animationFrame) cancelAnimationFrame(animationFrame);
+
+        // reset state
+        grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+        zombies = [];
+        projectiles = [];
+        sun = 150;
+        gameActive = true;
+        gameOverFlag = false;
+        selectedPlantIndex = 0;    // keep selected index valid
+        updateSunDisplay();
+
+        // restart intervals
+        sunInterval = setInterval(() => {
+            if (!gameActive) return;
+            sun += 5;
+            updateSunDisplay();
+        }, 1000);
+
+        spawnInterval = setInterval(() => {
+            if (!gameActive) return;
+            // spawn a zombie on random row
+            const row = Math.floor(Math.random() * ROWS);
+            // start just outside canvas right edge
+            const startX = CANVAS_WIDTH - 10;
+            zombies.push({
+                row: row,
+                x: startX,
+                health: 8 + Math.floor(Math.random() * 5), // 8-12
+                speed: 16,          // pixels per second
+                lastAttackTime: 0,
+                attacking: false,
+                attackCooldown: 1200,
+                damage: 1
+            });
+        }, 5000);
+
+        // restart animation
+        lastTimestamp = null;
+        animationFrame = requestAnimationFrame(gameLoop);
+    }
+
+    // ---------- PLANT CUSTOM CREATION ----------
+    function addCustomPlant() {
+        const name = document.getElementById('newName').value.trim() || "Custom";
+        const damage = parseInt(document.getElementById('newDamage').value, 10) || 1;
+        const range = parseInt(document.getElementById('newRange').value, 10) || 3;
+        const shotsPerSec = parseFloat(document.getElementById('newSpeed').value) || 1.0;
+        const cost = parseInt(document.getElementById('newCost').value, 10) || 50;
+        const health = parseInt(document.getElementById('newHealth').value, 10) || 3;
+        const color = document.getElementById('newColor').value;
+
+        // clamp
+        const attackCooldown = Math.max(200, Math.floor(1000 / Math.min(3, Math.max(0.2, shotsPerSec))));
+
+        const newPlant = {
+            name: name.substring(0, 12),
+            damage: Math.min(8, Math.max(0, damage)),
+            range: Math.min(7, Math.max(1, range)),
+            attackCooldown: attackCooldown,
+            cost: Math.min(300, Math.max(20, cost)),
+            health: Math.min(15, Math.max(1, health)),
+            color: color
+        };
+        plantTypes.push(newPlant);
+        renderPalette();
+    }
+
+    // ---------- HANDLE CANVAS CLICK (PLANT) ----------
+    function handleCanvasClick(e) {
+        if (!gameActive) return;
+        const rect = e.target.getBoundingClientRect();
+        const scaleX = e.target.width / rect.width;
+        const scaleY = e.target.height / rect.height;
+
+        const mouseX = (e.clientX - rect.left) * scaleX;
+        const mouseY = (e.clientY - rect.top) * scaleY;
+
+        const col = Math.floor(mouseX / CELL_SIZE);
+        const row = Math.floor(mouseY / CELL_SIZE);
+        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+            if (!grid[row][col]) {
+                const plantType = plantTypes[selectedPlantIndex];
+                if (!plantType) return;
+                if (sun >= plantType.cost) {
+                    // place plant
+                    grid[row][col] = {
+                        typeIndex: selectedPlantIndex,
+                        health: plantType.health,
+                        lastShot: getCurrentTime() - plantType.attackCooldown // allow initial shot after cooldown
+                    };
+                    sun -= plantType.cost;
+                    updateSunDisplay();
+                } else {
+                    alert("☀️ Not enough sun!");
+                }
+            }
+        }
+    }
+
+    // ---------- UPDATE GAME (delta-based) ----------
+    function updateGame(deltaSec) {
+        if (!gameActive) return;
+
+        // 1) Move zombies & handle attacks
+        for (let i = zombies.length - 1; i >= 0; i--) {
+            const z = zombies[i];
+            if (z.health <= 0) {
+                zombies.splice(i, 1);
+                continue;
+            }
+
+            // determine current column based on x
+            let col = Math.floor(z.x / CELL_SIZE);
+            if (col < 0) { // game over condition
+                gameOver();
+                return;
+            }
+            if (col >= COLS) col = COLS - 1; // clamp for array
+
+            const plantAtCell = (z.row >= 0 && z.row < ROWS && col >= 0 && col < COLS) ? grid[z.row][col] : null;
+
+            // attacking logic
+            if (plantAtCell) {
+                // zombie is on same cell as plant -> attack
+                z.attacking = true;
+                const now = getCurrentTime();
+                if (now - (z.lastAttackTime || 0) >= z.attackCooldown) {
+                    // attack plant
+                    plantAtCell.health -= z.damage;
+                    z.lastAttackTime = now;
+                    if (plantAtCell.health <= 0) {
+                        // plant dies
+                        grid[z.row][col] = null;
+                        z.attacking = false; // resume moving
                     }
                 }
-            });
-        } else if (pattern === 'line') { // torre (horizontal/vertical)
-            const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
-            dirs.forEach(([dr, dc]) => {
-                for (let step = 1; step <= range; step++) {
-                    let nr = row + dr*step, nc = col + dc*step;
-                    if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) break;
-                    let target = board[nr][nc];
-                    if (!target) {
-                        moves.push({ row: nr, col: nc });
-                    } else {
-                        if (target.owner !== owner) moves.push({ row: nr, col: nc }); // atacar
-                        break; // choca con pieza
-                    }
+                // don't move while attacking
+            } else {
+                z.attacking = false;
+                // move left
+                z.x -= z.speed * deltaSec;
+                // check game over if x < 0
+                if (z.x < 0) {
+                    gameOver();
+                    return;
                 }
-            });
-        } else { // peón: mueve 1 en cualquier dirección (para simplificar, no distingue colores, pero puede atacar)
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    if (dr === 0 && dc === 0) continue;
-                    let nr = row + dr, nc = col + dc;
-                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
-                        let target = board[nr][nc];
-                        if (!target || (target.owner !== owner)) {
-                            moves.push({ row: nr, col: nc });
+            }
+        }
+
+        // 2) Plant shooting
+        const now = getCurrentTime();
+        for (let row = 0; row < ROWS; row++) {
+            for (let col = 0; col < COLS; col++) {
+                const plant = grid[row][col];
+                if (!plant) continue;
+                const type = plantTypes[plant.typeIndex];
+                if (!type || type.damage <= 0) continue; // non-attacking plant
+
+                // cooldown check
+                if (now - plant.lastShot >= type.attackCooldown) {
+                    // find closest zombie in same row, with col > plant.col and within range
+                    let targetZombie = null;
+                    let minDist = Infinity;
+                    for (let z of zombies) {
+                        if (z.row !== row) continue;
+                        const zCol = Math.floor(z.x / CELL_SIZE);
+                        // zombie must be ahead (to the right) and within range columns
+                        if (zCol > col && zCol <= col + type.range) {
+                            const dist = z.x - (col * CELL_SIZE);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                targetZombie = z;
+                            }
                         }
                     }
-                }
-            }
-        }
-        return moves;
-    }
-
-    // ---------- COMBATE ----------
-    function resolveAttack(attackerCell, defenderCell) {
-        // Atacante: la unidad que se mueve a la celda
-        // Defensor: el que ya está (o base)
-        let attackPower = attackerCell.unitType.attack;
-        let defensePower = defenderCell.type === 'base' ? 5 : defenderCell.unitType.defense; // las bases tienen defensa 5
-        let damage = Math.max(1, attackPower - Math.floor(defensePower/2)); // daño base
-        if (defenderCell.type === 'base') {
-            defenderCell.health -= damage;
-            if (defenderCell.owner === PLAYER) player.baseHealth = defenderCell.health;
-            else enemy.baseHealth = defenderCell.health;
-        } else {
-            defenderCell.health -= damage;
-        }
-
-        // Si defensor muere
-        if (defenderCell.health <= 0) {
-            return { dead: true, cell: defenderCell };
-        }
-        return { dead: false, cell: defenderCell };
-    }
-
-    // ---------- MOVER UNIDAD (jugador) ----------
-    function tryMoveUnit(fromRow, fromCol, toRow, toCol) {
-        let unit = board[fromRow][fromCol];
-        if (!unit || unit.type !== 'unit' || unit.owner !== PLAYER) return false;
-
-        let validMoves = getValidMovesForUnit(fromRow, fromCol, unit.unitType, PLAYER);
-        let isValid = validMoves.some(m => m.row === toRow && m.col === toCol);
-        if (!isValid) return false;
-
-        let target = board[toRow][toCol];
-
-        // Si hay algo, combatir
-        if (target) {
-            let attackRes = resolveAttack(unit, target);
-            if (attackRes.dead) {
-                board[toRow][toCol] = null; // eliminar defensor
-                // mover atacante a la celda
-                board[toRow][toCol] = { ...unit };
-                board[fromRow][fromCol] = null;
-            } else {
-                // defensor herido pero vivo, el atacante no se mueve (regla simple)
-                statusMsg.innerText = 'Unidad enemiga herida';
-                // actualizar salud en el objeto target ya modificado
-            }
-        } else {
-            // mover a casilla vacía
-            board[toRow][toCol] = { ...unit };
-            board[fromRow][fromCol] = null;
-        }
-
-        // Limpiar selección
-        selectedUnit = null;
-        return true;
-    }
-
-    // ---------- COMPRAR UNIDAD (jugador) ----------
-    function tryBuyUnit(unitTypeKey) {
-        if (!playerTurn) {
-            statusMsg.innerText = 'No es tu turno';
-            return false;
-        }
-        let unit = UNIT_TYPES[unitTypeKey];
-        if (player.gold < unit.cost) {
-            statusMsg.innerText = '¡No tienes suficiente oro!';
-            return false;
-        }
-
-        // Buscar casillas vacías adyacentes a la base (incluyendo la misma base si está vacía? no, base ocupada)
-        let baseR = player.basePos.row, baseC = player.basePos.col;
-        let adyacentes = [];
-        for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-                if (dr === 0 && dc === 0) continue;
-                let nr = baseR + dr, nc = baseC + dc;
-                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === null) {
-                    adyacentes.push({ row: nr, col: nc });
-                }
-            }
-        }
-        if (adyacentes.length === 0) {
-            statusMsg.innerText = 'No hay espacio cerca de la base';
-            return false;
-        }
-
-        // Colocar en la primera disponible (o elegir por interfaz, simplificamos primera)
-        let spawn = adyacentes[0];
-        board[spawn.row][spawn.col] = {
-            type: 'unit',
-            owner: PLAYER,
-            unitType: unit,
-            health: 5 + unit.defense * 2   // salud base + defensa
-        };
-        player.gold -= unit.cost;
-        statusMsg.innerText = `${unit.name} comprado.`;
-        return true;
-    }
-
-    // ---------- TURNO DE LA IA ----------
-    function enemyTurn() {
-        // 1. Ganar oro
-        enemy.gold += GOLD_PER_TURN;
-
-        // 2. Intentar comprar unidad (si tiene espacio)
-        let unitToBuy = null;
-        let types = ['PAWN', 'KNIGHT', 'ROOK']; // orden de preferencia
-        for (let t of types) {
-            if (enemy.gold >= UNIT_TYPES[t].cost) {
-                unitToBuy = UNIT_TYPES[t];
-                break;
-            }
-        }
-        if (unitToBuy) {
-            // buscar adyacentes a base enemiga
-            let baseR = enemy.basePos.row, baseC = enemy.basePos.col;
-            let ady = [];
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    if (dr === 0 && dc === 0) continue;
-                    let nr = baseR + dr, nc = baseC + dc;
-                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === null) {
-                        ady.push({ row: nr, col: nc });
+                    if (targetZombie) {
+                        // shoot projectile
+                        projectiles.push({
+                            row: row,
+                            x: col * CELL_SIZE + CELL_SIZE * 0.7,
+                            y: row * CELL_SIZE + CELL_SIZE * 0.5,
+                            damage: type.damage,
+                            speed: 120, // px per second
+                        });
+                        plant.lastShot = now;
                     }
                 }
             }
-            if (ady.length > 0) {
-                let spawn = ady[Math.floor(Math.random() * ady.length)];
-                board[spawn.row][spawn.col] = {
-                    type: 'unit',
-                    owner: ENEMY,
-                    unitType: unitToBuy,
-                    health: 5 + unitToBuy.defense * 2
-                };
-                enemy.gold -= unitToBuy.cost;
+        }
+
+        // 3) Move projectiles & collisions
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            const p = projectiles[i];
+            p.x += p.speed * deltaSec;
+            if (p.x > CANVAS_WIDTH) {
+                projectiles.splice(i, 1);
+                continue;
+            }
+            let hit = false;
+            for (let j = zombies.length - 1; j >= 0; j--) {
+                const z = zombies[j];
+                if (z.row !== p.row) continue;
+                // simple bounding circle collision
+                if (Math.abs(p.x - z.x) < 20 && z.health > 0) {
+                    z.health -= p.damage;
+                    projectiles.splice(i, 1);
+                    if (z.health <= 0) {
+                        zombies.splice(j, 1);
+                    }
+                    hit = true;
+                    break;
+                }
+            }
+            if (hit) continue;
+        }
+    }
+
+    // ---------- DRAWING ----------
+    function draw(ctx) {
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // draw grid lines
+        ctx.strokeStyle = "#3d6b37";
+        ctx.lineWidth = 2;
+        for (let i = 0; i <= ROWS; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, i * CELL_SIZE);
+            ctx.lineTo(CANVAS_WIDTH, i * CELL_SIZE);
+            ctx.strokeStyle = "#3d6b37";
+            ctx.stroke();
+        }
+        for (let i = 0; i <= COLS; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * CELL_SIZE, 0);
+            ctx.lineTo(i * CELL_SIZE, CANVAS_HEIGHT);
+            ctx.strokeStyle = "#3d6b37";
+            ctx.stroke();
+        }
+
+        // draw plants
+        for (let row = 0; row < ROWS; row++) {
+            for (let col = 0; col < COLS; col++) {
+                const plant = grid[row][col];
+                if (!plant) continue;
+                const type = plantTypes[plant.typeIndex];
+                if (!type) continue;
+                const x = col * CELL_SIZE + 5;
+                const y = row * CELL_SIZE + 5;
+                const w = CELL_SIZE - 10;
+                ctx.fillStyle = type.color;
+                ctx.shadowColor = "#2b4d1a";
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.roundRect(x, y, w, w-10, 12);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#222";
+                ctx.font = "bold 16px 'Segoe UI'";
+                ctx.fillText(type.name.substring(0,2), x+8, y+28);
+                // health bar
+                const healthPercent = plant.health / type.health;
+                ctx.fillStyle = "#d46b4b";
+                ctx.fillRect(x+5, y-3, 40 * healthPercent, 5);
             }
         }
 
-        // 3. Mover unidades enemigas aleatoriamente (ataque simple)
-        // Recopilar todas las unidades enemigas
-        let enemyUnits = [];
-        for (let r = 0; r < SIZE; r++) {
-            for (let c = 0; c < SIZE; c++) {
-                let cell = board[r][c];
-                if (cell && cell.type === 'unit' && cell.owner === ENEMY) {
-                    enemyUnits.push({ row: r, col: c, unit: cell });
-                }
-            }
-        }
-
-        // Cada unidad intenta un movimiento aleatorio válido
-        enemyUnits.forEach(u => {
-            let moves = getValidMovesForUnit(u.row, u.col, u.unit.unitType, ENEMY);
-            if (moves.length === 0) return;
-            let move = moves[Math.floor(Math.random() * moves.length)];
-            // ejecutar movimiento / ataque
-            let target = board[move.row][move.col];
-            if (target) {
-                let attackRes = resolveAttack(u.unit, target);
-                if (attackRes.dead) {
-                    board[move.row][move.col] = null;
-                    board[move.row][move.col] = { ...u.unit };
-                    board[u.row][u.col] = null;
-                } else {
-                    // solo daño, no mover
-                }
-            } else {
-                board[move.row][move.col] = { ...u.unit };
-                board[u.row][u.col] = null;
-            }
+        // draw zombies
+        zombies.forEach(z => {
+            const x = z.x - 20;
+            const y = z.row * CELL_SIZE + 15;
+            ctx.fillStyle = "#3a2e1c";
+            ctx.shadowColor = "#1a1a1a";
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.ellipse(x+20, y+15, 18, 22, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#814e4e";
+            ctx.beginPath();
+            ctx.ellipse(x+10, y+5, 6, 8, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#814e4e";
+            ctx.beginPath();
+            ctx.ellipse(x+30, y+5, 6, 8, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "white";
+            ctx.font = "bold 12px monospace";
+            ctx.fillText(`❤️${z.health}`, x+12, y-5);
+            ctx.shadowBlur = 0;
         });
 
-        // 4. La IA podría atacar base si tiene unidad adyacente (ya se maneja en movimiento)
-    }
+        // draw projectiles
+        projectiles.forEach(p => {
+            ctx.fillStyle = "#f5c542";
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = "orange";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
 
-    // ---------- FINALIZAR TURNO ----------
-    function endTurn() {
-        if (!playerTurn) return; // ya es turno de ia, pero bloqueamos
-
-        // 1. Generar oro para jugador
-        player.gold += GOLD_PER_TURN;
-
-        // 2. Pasar a turno enemigo
-        playerTurn = false;
-        turnIndicator.innerText = '🤖 Turno enemigo';
-        turnIndicator.classList.add('enemy-turn');
-        statusMsg.innerText = 'Pensando...';
-        drawBoard();
-        updateUI();
-
-        // 3. Ejecutar IA después de un breve retraso (para sensación de turno)
-        setTimeout(() => {
-            enemyTurn();
-
-            // Verificar fin del juego
-            if (enemy.baseHealth <= 0) {
-                alert('🏆 ¡Has destruido la base enemiga! Victoria!');
-                resetGame();
-                return;
-            }
-            if (player.baseHealth <= 0) {
-                alert('💀 Tu base ha sido destruida. Derrota...');
-                resetGame();
-                return;
-            }
-
-            // Volver turno jugador
-            playerTurn = true;
-            turnIndicator.innerText = '📌 Tu turno';
-            turnIndicator.classList.remove('enemy-turn');
-            selectedUnit = null;
-            drawBoard();
-            updateUI();
-            statusMsg.innerText = 'Selecciona unidad o compra';
-        }, 600);
-    }
-
-    // ---------- RESET GAME ----------
-    function resetGame() {
-        player = { gold: 100, basePos: { row: 7, col: 3 }, baseHealth: BASE_MAX_HEALTH };
-        enemy = { gold: 100, basePos: { row: 0, col: 4 }, baseHealth: BASE_MAX_HEALTH };
-        initBoard();
-        playerTurn = true;
-        selectedUnit = null;
-        turnIndicator.innerText = '📌 Tu turno';
-        turnIndicator.classList.remove('enemy-turn');
-        drawBoard();
-        updateUI();
-        statusMsg.innerText = 'Nueva partida';
-    }
-
-    // ---------- ACTUALIZAR UI (oro, salud) ----------
-    function updateUI() {
-        goldSpan.innerText = player.gold;
-        baseHealthSpan.innerText = player.baseHealth;
-        // actualizar salud en board (por si acaso)
-        if (board[player.basePos.row][player.basePos.col]) {
-            board[player.basePos.row][player.basePos.col].health = player.baseHealth;
-        }
-        if (board[enemy.basePos.row][enemy.basePos.col]) {
-            board[enemy.basePos.row][enemy.basePos.col].health = enemy.baseHealth;
+        if (!gameActive && gameOverFlag) {
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+            ctx.fillStyle = "#ffdab0";
+            ctx.font = "bold 32px 'Segoe UI'";
+            ctx.fillText("💀 GAME OVER", 60, 160);
         }
     }
 
-    // ---------- MANEJADORES DE EVENTOS ----------
-    canvas.addEventListener('click', (e) => {
-        if (!playerTurn) {
-            statusMsg.innerText = 'Espera al turno enemigo';
+    // helper canvas rounding
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        this.moveTo(x + r, y);
+        this.lineTo(x + w - r, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r);
+        this.lineTo(x + w, y + h - r);
+        this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        this.lineTo(x + r, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r);
+        this.lineTo(x, y + r);
+        this.quadraticCurveTo(x, y, x + r, y);
+        this.closePath();
+        return this;
+    };
+
+    // ---------- GAME LOOP (requestAnimationFrame) ----------
+    function gameLoop(timestamp) {
+        if (!gameActive) {
+            draw(ctx); // show game over screen
             return;
         }
-        let rect = canvas.getBoundingClientRect();
-        let scaleX = canvas.width / rect.width;
-        let scaleY = canvas.height / rect.height;
-
-        let mouseX = (e.clientX - rect.left) * scaleX;
-        let mouseY = (e.clientY - rect.top) * scaleY;
-        let col = Math.floor(mouseX / CELL_SIZE);
-        let row = Math.floor(mouseY / CELL_SIZE);
-        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) return;
-
-        let cell = board[row][col];
-
-        // Si hay unidad seleccionada, intentar mover
-        if (selectedUnit) {
-            let success = tryMoveUnit(selectedUnit.row, selectedUnit.col, row, col);
-            if (success) {
-                drawBoard();
-                updateUI();
-            } else {
-                statusMsg.innerText = 'Movimiento no válido';
-                // opcional: limpiar selección si se hace clic en otra unidad propia?
-                if (cell && cell.type === 'unit' && cell.owner === PLAYER) {
-                    selectedUnit = { row, col };
-                    statusMsg.innerText = `Unidad seleccionada`;
-                } else {
-                    selectedUnit = null; // cancelar selección
-                }
-            }
-            drawBoard();
+        if (lastTimestamp === null) {
+            lastTimestamp = timestamp;
+            animationFrame = requestAnimationFrame(gameLoop);
             return;
         }
+        const deltaMs = timestamp - lastTimestamp;
+        const deltaSec = Math.min(0.1, deltaMs / 1000); // cap large delta
+        lastTimestamp = timestamp;
 
-        // Si no hay selección y es unidad propia, seleccionar
-        if (cell && cell.type === 'unit' && cell.owner === PLAYER) {
-            selectedUnit = { row, col };
-            statusMsg.innerText = `${cell.unitType.name} seleccionado`;
+        updateGame(deltaSec);
+        draw(ctx);
+
+        if (gameActive) {
+            animationFrame = requestAnimationFrame(gameLoop);
         } else {
-            // quizás base? no hacemos nada
+            draw(ctx); // final draw game over
         }
-        drawBoard();
+    }
+
+    // ---------- INITIALISE CANVAS & EVENTS ----------
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.addEventListener('click', handleCanvasClick);
+
+    // restart button
+    document.getElementById('restartGame').addEventListener('click', () => {
+        restartGame();
     });
 
-    // Botones de compra
-    buyPawnBtn.addEventListener('click', () => { tryBuyUnit('PAWN'); drawBoard(); updateUI(); });
-    buyKnightBtn.addEventListener('click', () => { tryBuyUnit('KNIGHT'); drawBoard(); updateUI(); });
-    buyRookBtn.addEventListener('click', () => { tryBuyUnit('ROOK'); drawBoard(); updateUI(); });
-
-    endTurnBtn.addEventListener('click', () => {
-        if (!playerTurn) return;
-        endTurn();
+    // add plant button
+    document.getElementById('addPlantBtn').addEventListener('click', () => {
+        addCustomPlant();
     });
 
-    // Inicial
-    drawBoard();
-    updateUI();
+    // initial render
+    renderPalette();
+    updateSunDisplay();
+
+    // start game
+    restartGame(); // sets intervals and animation
 })();
 </script>
 </body>
