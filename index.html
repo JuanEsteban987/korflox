@@ -3,104 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PVZ 2008 Deluxe · Paint & Plant Studio</title>
+    <title>PVZ2 · Plant Studio & Lawn Defenders</title>
     <style>
-        /* 2008 DELUXE – improved quality, smoother graphics */
+        /* PVZ2 INSPIRED – bright, cartoony, fresh */
         * {
             box-sizing: border-box;
-            image-rendering: pixelated;
             image-rendering: crisp-edges;
-            font-family: 'Segoe UI', 'Courier New', monospace;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', cursive, sans-serif;
         }
         body {
-            background: #1b4a7a;
+            background: linear-gradient(145deg, #3b8c3a 0%, #59b34d 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0;
             padding: 20px;
-            background-image: radial-gradient(circle at 20% 30%, #2e6da3, #0a2f4d);
+            box-shadow: inset 0 0 40px #9fcc9b;
         }
         .main-container {
-            background: #e3dcc9;  /* softer cream */
-            padding: 18px 20px 20px;
-            border-radius: 16px 16px 12px 12px;
-            border: 3px solid #fef9e6;
-            border-top-color: #fef4d9;
-            border-left-color: #fef4d9;
-            border-right-color: #8b7f6b;
-            border-bottom-color: #8b7f6b;
-            box-shadow: 8px 8px 16px rgba(0,0,0,0.6);
-            min-width: 920px;
+            background: #fdefb2; /* warm sunflower */
+            padding: 20px 25px 25px;
+            border-radius: 60px 60px 40px 40px;
+            border: 5px solid #fffac2;
+            box-shadow: 0 15px 0 #baa35f, 0 20px 30px rgba(0,0,0,0.5);
+            min-width: 1000px;
+            border-bottom: 8px solid #e0b13b;
         }
         .window-header {
-            background: #1e3f6b; /* deeper blue */
-            color: #ffeeb5;
-            padding: 8px 14px;
-            font-size: 22px;
+            background: #fdd46c;
+            color: #3f6b2b;
+            padding: 10px 18px;
+            font-size: 28px;
             font-weight: bold;
             letter-spacing: 2px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            border: 2px solid #5279b2;
-            border-radius: 10px 10px 4px 4px;
-            box-shadow: inset 0 1px 4px #b0c9ff;
-            text-shadow: 2px 2px 0 #0a1f35;
+            margin-bottom: 20px;
+            border-radius: 50px;
+            border: 4px solid #fff399;
+            box-shadow: inset 0 -4px 0 #c7962f, 0 6px 0 #9e741b;
+            text-shadow: 2px 2px 0 #fff2b5;
         }
         .window-controls {
             display: flex;
-            gap: 8px;
+            gap: 12px;
         }
         .win-btn {
-            background: #c6c0b0;
-            border: 3px solid #f0f0f0;
-            border-top-color: #ffffff;
-            border-left-color: #ffffff;
-            border-right-color: #6a5f4f;
-            border-bottom-color: #6a5f4f;
-            color: #1f1f1f;
+            background: #ffd966;
+            border: 4px solid #fff1b8;
+            border-radius: 40px;
+            color: #3e5d1e;
             font-weight: bold;
-            font-size: 16px;
-            padding: 4px 16px;
+            font-size: 20px;
+            padding: 6px 24px;
             cursor: pointer;
-            border-radius: 0;
-            box-shadow: 0 2px 0 #3a3a3a;
+            box-shadow: 0 6px 0 #b38b40, 0 4px 8px black;
+            transition: 0.05s linear;
         }
         .win-btn:active {
-            border-top-color: #6a5f4f;
-            border-left-color: #6a5f4f;
-            border-right-color: #ffffff;
-            border-bottom-color: #ffffff;
-            transform: translateY(2px);
-            box-shadow: none;
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #b38b40;
         }
         .panel {
-            border: 3px solid #f6f0dc;
-            border-top-color: #fff9e6;
-            border-left-color: #fff9e6;
-            border-right-color: #918a76;
-            border-bottom-color: #918a76;
-            background: #d2cab8;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            box-shadow: inset 0 0 0 1px #fff6d5;
+            background: #ffe5a3;
+            border-radius: 50px;
+            border: 5px solid #fef9cd;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: inset 0 0 0 4px #fef1b9, 0 10px 0 #ad8d4a;
         }
         .menu-panel {
-            background: #c9c0aa;
+            background: #fce49b;
             text-align: center;
             padding: 50px 20px;
         }
         .menu-title {
-            font-size: 56px;
+            font-size: 72px;
             font-weight: bold;
-            color: #fffaef;
-            text-shadow: 5px 5px 0 #3d5f8a, 7px 7px 0 #1a2f4b;
-            margin-bottom: 40px;
-            letter-spacing: 4px;
+            color: #fffaeb;
+            text-shadow: 7px 7px 0 #5f9937, 10px 10px 0 #2f6b1f;
+            margin-bottom: 30px;
         }
         .menu-buttons {
             display: flex;
@@ -108,319 +92,283 @@
             justify-content: center;
         }
         .menu-btn {
-            background: #afc3d6;
-            border: 5px solid #eaf1fc;
-            border-top-color: #ffffff;
-            border-left-color: #ffffff;
-            border-right-color: #4a6483;
-            border-bottom-color: #4a6483;
+            background: #fbb44b;
+            border: 6px solid #ffdd9e;
+            border-radius: 80px;
             padding: 24px 48px;
-            font-size: 36px;
+            font-size: 40px;
             font-weight: bold;
-            color: #102535;
+            color: #1d471d;
             cursor: pointer;
-            min-width: 260px;
-            border-radius: 20px;
-            box-shadow: 0 8px 0 #2f4a6e;
-            transition: 0.05s linear;
+            box-shadow: 0 14px 0 #b36b1e, 0 10px 20px black;
+            transition: 0.06s;
+            min-width: 280px;
         }
         .menu-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 2px 0 #2f4a6e;
+            transform: translateY(10px);
+            box-shadow: 0 4px 0 #b36b1e;
         }
         .hidden { display: none !important; }
 
-        /* CREATOR – improved paint tools */
+        /* Creator – PVZ2 style paint lab */
         .creator-flex {
             display: flex;
             gap: 30px;
             flex-wrap: wrap;
         }
         .paint-area {
-            background: #b0aa99;
-            border: 4px solid #ede5d3;
-            border-top-color: #fcf5e0;
-            border-left-color: #fcf5e0;
-            border-right-color: #7a715e;
-            border-bottom-color: #7a715e;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: inset 0 0 0 2px #ffffea;
+            background: #b7e0a5;
+            border: 6px solid #edffd4;
+            border-radius: 50px;
+            padding: 25px;
+            box-shadow: inset 0 0 0 5px #cdffb0, 0 10px 0 #789b4c;
         }
         .paint-grid {
             display: grid;
-            grid-template-columns: repeat(16, 24px);
-            grid-template-rows: repeat(16, 24px);
+            grid-template-columns: repeat(16, 26px);
+            grid-template-rows: repeat(16, 26px);
             gap: 2px;
-            background: #4f4f4f;
-            border: 3px solid #333;
-            margin-bottom: 15px;
-            box-shadow: 0 0 0 2px #aea48d;
+            background: #4f6b3a;
+            border: 4px solid #9bbc6b;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 0 3px #ffebaf;
         }
         .pixel {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             background: #ffffff;
-            border: 1px solid #7f7f7f;
+            border-radius: 4px;
+            border: 1px solid #8faa6e;
             cursor: crosshair;
-            transition: 0.02s;
-        }
-        .pixel.active-pixel {
-            border: 2px solid gold;
         }
         .toolbar {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            align-items: center;
-            background: #958e7c;
-            padding: 10px;
-            border-radius: 40px;
-            border: 2px inset #ece3cf;
+            background: #f5d084;
+            border-radius: 60px;
+            padding: 12px 20px;
+            border: 4px solid #ffda9b;
+            box-shadow: inset 0 2px 8px #ffefc0;
         }
         .tool-btn {
-            background: #cfc7b2;
-            border: 3px solid #f0f0f0;
-            border-top-color: #ffffff;
-            border-left-color: #ffffff;
-            border-right-color: #6a5f4f;
-            border-bottom-color: #6a5f4f;
+            background: #b9dc8e;
+            border: 4px solid #e6ffb3;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-size: 18px;
             font-weight: bold;
-            padding: 6px 14px;
-            cursor: pointer;
-            font-size: 16px;
-            min-width: 50px;
-        }
-        .tool-btn.active-tool {
-            background: #fad473;
-            border-top-color: #c0a84a;
-            border-left-color: #c0a84a;
-        }
-        .color-picker {
-            width: 50px;
-            height: 40px;
-            border: 3px solid #7f7f7f;
+            color: #2b5720;
+            box-shadow: 0 5px 0 #7f9f4a;
             cursor: pointer;
         }
-        .brush-size {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #b0a690;
-            padding: 4px 12px;
-            border-radius: 30px;
-            border: 2px inset;
-        }
+        .tool-btn.active-tool { background: #ffcf5c; box-shadow: 0 5px 0 #b8860b; }
+        .color-picker { width: 60px; height: 50px; border-radius: 30px; border: 4px solid #ffeeaa; }
         .stats-panel {
-            background: #bcb4a2;
-            border: 4px solid #f2ebd7;
-            border-top-color: #fffae9;
-            border-left-color: #fffae9;
-            border-right-color: #766e5b;
-            border-bottom-color: #766e5b;
-            padding: 20px;
+            background: #fbdd9f;
+            border-radius: 60px;
+            border: 6px solid #ffeab3;
+            padding: 25px;
             flex: 1;
-            border-radius: 16px;
-            box-shadow: inset 0 2px 8px #ffffdd;
+            box-shadow: inset 0 4px 12px #ffffcf, 0 10px 0 #ba954b;
         }
         .stat-row {
             display: flex;
             justify-content: space-between;
-            font-size: 22px;
-            margin: 16px 0;
-            background: #d1cbbc;
-            padding: 6px 12px;
-            border: 2px inset #efead8;
+            font-size: 26px;
+            margin: 20px 0;
+            background: #ffedb5;
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: 3px solid #fad47c;
         }
-        .stat-label { font-weight: bold; color: #1f3a4f; }
-        .stat-value { background: #efe8d2; padding: 2px 20px; border: 2px inset #b0a68f; }
+        .stat-label { font-weight: bold; color: #3f6d2b; }
+        .stat-value { background: #fff4ce; padding: 2px 32px; border-radius: 30px; border: 2px inset #b3a154; }
 
         .plant-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            margin: 12px 0;
+            gap: 15px;
+            margin: 16px 0;
         }
         .plant-btn {
-            background: #c6bfab;
-            border: 4px solid #f2ecd6;
-            border-top-color: #ffffff;
-            border-left-color: #ffffff;
-            border-right-color: #6a5f4f;
-            border-bottom-color: #6a5f4f;
-            padding: 8px 16px;
-            font-size: 18px;
+            background: #ffd966;
+            border: 5px solid #fff1b8;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 20px;
             font-weight: bold;
+            color: #1f4f1a;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border-radius: 40px;
-            box-shadow: 0 4px 0 #635948;
+            gap: 15px;
+            box-shadow: 0 8px 0 #b38b40;
+            transition: 0.05s;
         }
-        .plant-btn.selected { background: #ecd78a; border-top-color: #ffeabb; }
+        .plant-btn.selected { background: #fed976; border-color: #fff3aa; transform: scale(1.02); }
         .sprite-preview {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            image-rendering: pixelated;
-            background: #888;
-            border: 2px solid #444;
+            background: #aac78d;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid #5b8230;
+        }
+
+        /* Game canvas 5x10 */
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            background: #86b06b;
+            border-radius: 70px;
+            padding: 25px;
+            border: 8px solid #fbe396;
+            box-shadow: inset 0 0 0 6px #b1d38e, 0 12px 0 #6f8f4a;
         }
         canvas {
             display: block;
-            width: 420px;
-            height: 300px;
-            border: 6px solid #9b8f78;
-            border-top-color: #524b3b;
-            border-left-color: #524b3b;
-            border-right-color: #e7ddc7;
-            border-bottom-color: #e7ddc7;
-            background: #9ac084;
+            width: 500px;
+            height: 250px;
+            border-radius: 40px;
+            border: 5px solid #f6cd78;
+            background: #b1da94;
             cursor: crosshair;
-            box-shadow: 4px 4px 12px black;
+            box-shadow: 0 10px 0 #52803e;
         }
         .sun-display {
-            background: #f7d35c;
-            border: 6px solid #bd9f40;
-            border-top-color: #ffeeb0;
-            border-left-color: #ffeeb0;
-            border-right-color: #836e2a;
-            border-bottom-color: #836e2a;
-            padding: 6px 28px;
-            font-size: 28px;
+            background: #fce354;
+            border-radius: 60px;
+            border: 6px solid #fee788;
+            padding: 6px 36px;
+            font-size: 32px;
             font-weight: bold;
-            border-radius: 40px;
-            box-shadow: inset 0 2px 8px gold;
+            color: #b15100;
+            box-shadow: inset 0 -4px 0 #e0a81f, 0 8px 0 #ab771a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .countdown {
-            font-size: 20px;
-            background: #222c;
+        .countdown-badge {
+            background: #1e4b2b;
             color: #ffd966;
-            padding: 4px 20px;
-            border-radius: 30px;
-            border: 2px solid gold;
+            font-size: 24px;
+            padding: 6px 30px;
+            border-radius: 50px;
+            border: 4px solid #fdbe4c;
+            box-shadow: 0 6px 0 #0e2d15;
+        }
+        .footer {
+            font-size: 20px;
+            color: #2c5e1a;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 <div class="main-container">
     <div class="window-header">
-        <span>🌻 PVZ 2008 · PLANT PAINT DELUXE</span>
+        <span>🌻 PVZ2 · PLANT LAB</span>
         <div class="window-controls">
-            <div class="win-btn" id="minimize">─</div>
-            <div class="win-btn" id="maximize">□</div>
-            <div class="win-btn" id="close">✕</div>
+            <div class="win-btn">🗕</div>
+            <div class="win-btn">🗖</div>
+            <div class="win-btn">✕</div>
         </div>
     </div>
 
     <!-- ========== MENU ========== -->
     <div id="menuPanel" class="panel menu-panel">
-        <div class="menu-title">🌿 PLANT FACTORY 2008</div>
+        <div class="menu-title">🌿 PLANT STUDIO 2</div>
         <div class="menu-buttons">
-            <div class="menu-btn" id="goToCreator">🎨 PAINT & CREATE</div>
+            <div class="menu-btn" id="goToCreator">🎨 CREATE</div>
             <div class="menu-btn" id="goToGame">🧟 PLAY</div>
         </div>
-        <div style="margin-top: 40px; font-size: 22px; color: #1f374b;">pixel perfect · 16x16 · 5 tools</div>
+        <div style="margin-top: 40px; font-size: 28px; color: #3c6e1e;">⚡ 5x10 lawn · lawn mowers · slower zombies</div>
     </div>
 
-    <!-- ========== CREATOR (improved painting) ========== -->
+    <!-- ========== CREATOR (paint + stats) ========== -->
     <div id="creatorPanel" class="panel hidden">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
-            <button class="win-btn" id="creatorBackToMenu">← BACK TO MENU</button>
-            <span style="font-size: 28px; font-weight: bold;">🎨 16x16 PIXEL STUDIO</span>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <button class="win-btn" id="creatorBackToMenu">← MENU</button>
+            <span style="font-size: 36px; font-weight: bold;">🎨 16x16 PAINT</span>
             <div></div>
         </div>
 
         <div class="creator-flex">
-            <!-- left: paint area with TOOLS -->
             <div class="paint-area">
                 <div class="paint-grid" id="paintGrid"></div>
-                <!-- toolbar with extra drawing tools -->
                 <div class="toolbar">
-                    <input type="color" id="paintColor" value="#44aa33" class="color-picker" title="color">
-                    <div class="brush-size">
-                        <span>🔘</span>
-                        <select id="brushSize">
-                            <option value="1">1x1</option>
-                            <option value="2" selected>2x2</option>
-                            <option value="3">3x3</option>
-                        </select>
-                    </div>
+                    <input type="color" id="paintColor" value="#44aa33" class="color-picker">
+                    <select id="brushSize" style="font-size:20px; border-radius:30px; padding:8px;">
+                        <option value="1">1x1</option>
+                        <option value="2" selected>2x2</option>
+                        <option value="3">3x3</option>
+                    </select>
                     <button class="tool-btn" id="toolBrush">✏️ BRUSH</button>
                     <button class="tool-btn" id="toolEraser">🧽 ERASER</button>
                     <button class="tool-btn" id="toolFill">🪣 FILL</button>
                     <button class="tool-btn" id="clearSprite">🗑️ CLEAR</button>
                     <button class="tool-btn" id="eyedropper">👁️ DROPPER</button>
                 </div>
-                <div style="display: flex; gap: 12px; margin-top: 12px;">
-                    <span>left-click: paint | right-click: erase</span>
-                </div>
             </div>
-
-            <!-- right: stats panel (exact requested) -->
             <div class="stats-panel">
-                <div style="font-size: 28px; margin-bottom: 20px;">📊 BASE STATS</div>
-                <div class="stat-row"><span class="stat-label">☀️ Sun Cost</span><span class="stat-value" id="statSun">100</span></div>
-                <div class="stat-row"><span class="stat-label">⏱️ Recharge</span><span class="stat-value" id="statRecharge">5 sec</span></div>
-                <div class="stat-row"><span class="stat-label">💪 Toughness</span><span class="stat-value" id="statHealth">300</span></div>
-                <div class="stat-row"><span class="stat-label">⚔️ Attack Dmg</span><span class="stat-value" id="statDamage">20</span></div>
-                <div class="stat-row"><span class="stat-label">📏 Range</span><span class="stat-value" id="statRange">Straight</span></div>
-                <div class="stat-row"><span class="stat-label">🚀 Proj Velocity</span><span class="stat-value" id="statSpeed">5.2 tiles/s</span></div>
-                <div class="stat-row"><span class="stat-label">📈 DPS</span><span class="stat-value" id="statDPS">14.035</span></div>
-                <div style="margin-top: 30px;">
-                    <button class="win-btn" id="savePlantBtn" style="font-size: 24px; padding: 12px 30px;">💾 SAVE AS NEW PLANT</button>
-                </div>
+                <div style="font-size: 32px; margin-bottom: 20px;">📊 BASE STATS</div>
+                <div class="stat-row"><span class="stat-label">☀️ Sun Cost</span><span class="stat-value">100</span></div>
+                <div class="stat-row"><span class="stat-label">⏱️ Recharge</span><span class="stat-value">5 sec</span></div>
+                <div class="stat-row"><span class="stat-label">💪 Toughness</span><span class="stat-value">300</span></div>
+                <div class="stat-row"><span class="stat-label">⚔️ Attack Dmg</span><span class="stat-value">20</span></div>
+                <div class="stat-row"><span class="stat-label">📏 Range</span><span class="stat-value">Straight</span></div>
+                <div class="stat-row"><span class="stat-label">🚀 Proj Velocity</span><span class="stat-value">5.2 tiles/s</span></div>
+                <div class="stat-row"><span class="stat-label">📈 DPS</span><span class="stat-value">14.035</span></div>
+                <button class="win-btn" id="savePlantBtn" style="font-size:28px; margin-top:25px; padding:12px 40px;">💾 SAVE PLANT</button>
             </div>
         </div>
-
-        <!-- list of existing plants -->
-        <div style="margin-top: 20px;">
-            <div style="font-size: 24px; font-weight: bold;">📋 YOUR PLANTS (click to delete)</div>
+        <div style="margin-top:20px;">
+            <div style="font-size:28px;">📋 YOUR PLANTS (click to delete)</div>
             <div class="plant-buttons" id="creatorPlantList"></div>
         </div>
     </div>
 
-    <!-- ========== GAME PANEL with spawn delay ========== -->
+    <!-- ========== GAME PANEL ========== 5x10 lawn + mowers -->
     <div id="gamePanel" class="panel hidden">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items:center;">
             <button class="win-btn" id="gameBackToMenu">← MENU</button>
             <div class="sun-display" id="gameSunDisplay">100</div>
             <button class="win-btn" id="restartGame">↻ RESTART</button>
         </div>
-
-        <div style="display: flex; justify-content: center; position: relative;">
-            <canvas id="gameCanvas" width="420" height="300"></canvas>
-            <div id="spawnCountdown" style="position: absolute; top: 10px; right: 20px; background: #1a1f2ed9; color: #f5cb5c; font-size: 22px; padding: 6px 20px; border-radius: 40px; border: 3px solid #ffee88; box-shadow: 0 0 12px gold;">⏳ 15s</div>
+        <div class="canvas-container" style="position:relative;">
+            <canvas id="gameCanvas" width="500" height="250"></canvas>
+            <div id="spawnCountdown" class="countdown-badge" style="position:absolute; top:15px; right:30px;">⏳ 15s</div>
         </div>
-
-        <!-- plant palette -->
-        <div style="margin: 18px 0 8px;">
-            <span style="font-size: 22px;">🌱 SELECT PLANT:</span>
+        <div style="margin:16px 0;">
+            <span style="font-size:26px;">🌱 SELECT PLANT:</span>
         </div>
         <div class="plant-buttons" id="gamePlantPalette"></div>
-
-        <div style="display: flex; justify-content: space-between; font-size: 18px; margin-top: 16px;">
+        <div class="footer">
             <span>☀️ sun +5/sec</span>
-            <span>🧟 first zombie after 15s</span>
+            <span>🧹 lawn mowers ready</span>
+            <span>🐌 zombies every 8s</span>
         </div>
     </div>
 </div>
 
 <script>
 (function() {
-    // ---------- CONSTANTS ----------
+    // ---------- PVZ2 CONSTANTS: 5 ROWS, 10 COLS ----------
     const ROWS = 5;
-    const COLS = 7;
-    const CELL_SIZE = 60;
-    const CANVAS_WIDTH = 420;
-    const CANVAS_HEIGHT = 300;
+    const COLS = 10;
+    const CELL_SIZE = 50;           // 500x250 canvas
+    const CANVAS_WIDTH = 500;
+    const CANVAS_HEIGHT = 250;
 
-    // ---------- PLANT TYPES ----------
+    // ---------- PLANT TYPES (fixed stats) ----------
     let plantTypes = [];
 
-    // Helper: create default sprite (16x16)
     function createDefaultSprite(baseColor = '#44aa33') {
         const sprite = Array(16).fill().map(() => Array(16).fill('#ffffff'));
         for (let y = 0; y < 16; y++) {
@@ -432,22 +380,21 @@
         return sprite;
     }
 
-    // Default plants
     function initDefaultPlants() {
         plantTypes.push({
-            name: "PeaShooter",
+            name: "PeaShot",
             sunCost: 100,
             recharge: 5,
             health: 300,
             damage: 20,
             range: 7,
             attackCooldown: 1425, // ms for 14.035 DPS
-            projectileSpeed: 312, // 5.2 tiles/sec * 60
+            projectileSpeed: 260,  // 5.2 tiles/s * 50px
             color: "#44aa33",
             sprite: createDefaultSprite("#44aa33")
         });
         plantTypes.push({
-            name: "WallNut",
+            name: "Nut",
             sunCost: 50,
             recharge: 5,
             health: 600,
@@ -466,10 +413,11 @@
     let grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
     let zombies = [];
     let projectiles = [];
+    let lawnMowers = Array(ROWS).fill(true);   // each row has a mower
     let sun = 100;
     let gameActive = false;
     let gameOverFlag = false;
-    let spawnEnabled = false; // will become true after delay
+    let spawnEnabled = false;
 
     // intervals & timeouts
     let sunInterval = null;
@@ -489,14 +437,12 @@
     const gamePlantPalette = document.getElementById('gamePlantPalette');
     const creatorPlantList = document.getElementById('creatorPlantList');
 
-    // ---------- PAINT TOOL STATE ----------
+    // ---------- PAINT TOOLS (same as before) ----------
     let currentSprite = createDefaultSprite("#44aa33");
     let paintColor = '#44aa33';
     let brushSize = 2;
-    let currentTool = 'brush'; // brush, eraser, fill, dropper
+    let currentTool = 'brush';
     let isDrawing = false;
-
-    // DOM paint elements
     const paintGridDiv = document.getElementById('paintGrid');
     const colorPicker = document.getElementById('paintColor');
     const brushSizeSelect = document.getElementById('brushSize');
@@ -507,7 +453,6 @@
     const eyedropperBtn = document.getElementById('eyedropper');
     const savePlantBtn = document.getElementById('savePlantBtn');
 
-    // Initialize paint
     function renderPaintGrid() {
         paintGridDiv.innerHTML = '';
         for (let y = 0; y < 16; y++) {
@@ -517,16 +462,12 @@
                 pixel.style.backgroundColor = currentSprite[y][x] || '#ffffff';
                 pixel.dataset.x = x;
                 pixel.dataset.y = y;
-                // drawing events
                 pixel.addEventListener('mousedown', (e) => {
                     e.preventDefault();
                     const x = parseInt(e.target.dataset.x);
                     const y = parseInt(e.target.dataset.y);
-                    if (e.button === 2) { // right click = erase
-                        applyTool(x, y, 'eraser');
-                    } else {
-                        applyTool(x, y, currentTool);
-                    }
+                    if (e.button === 2) applyTool(x, y, 'eraser');
+                    else applyTool(x, y, currentTool);
                     isDrawing = true;
                 });
                 pixel.addEventListener('mouseover', (e) => {
@@ -543,7 +484,6 @@
         }
     }
 
-    // Apply tool at (x,y) with given tool
     function applyTool(x, y, tool) {
         if (tool === 'dropper') {
             paintColor = currentSprite[y][x];
@@ -558,29 +498,26 @@
             return;
         }
         const colorToApply = (tool === 'eraser') ? '#ffffff' : paintColor;
-        const size = (tool === 'eraser') ? brushSize : brushSize; // both use brush size
+        const size = brushSize;
         for (let dy = -Math.floor(size/2); dy <= Math.floor(size/2); dy++) {
             for (let dx = -Math.floor(size/2); dx <= Math.floor(size/2); dx++) {
                 const nx = x + dx, ny = y + dy;
-                if (nx >= 0 && nx < 16 && ny >= 0 && ny < 16) {
-                    currentSprite[ny][nx] = colorToApply;
-                }
+                if (nx >= 0 && nx < 16 && ny >= 0 && ny < 16) currentSprite[ny][nx] = colorToApply;
             }
         }
         renderPaintGrid();
     }
 
-    // Simple fill (flood fill)
     function fillArea(x, y, newColor) {
         const targetColor = currentSprite[y][x];
         if (targetColor === newColor) return;
         const stack = [[x, y]];
         while (stack.length) {
             const [cx, cy] = stack.pop();
-            if (cx < 0 || cx >= 16 || cy < 0 || cy >= 16) continue;
+            if (cx<0||cx>=16||cy<0||cy>=16) continue;
             if (currentSprite[cy][cx] !== targetColor) continue;
             currentSprite[cy][cx] = newColor;
-            stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
+            stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
         }
     }
 
@@ -592,20 +529,16 @@
         else if (currentTool === 'dropper') eyedropperBtn.classList.add('active-tool');
     }
 
-    // Event listeners for tools
     toolBrush.addEventListener('click', () => { currentTool = 'brush'; updateToolButtons(); });
     toolEraser.addEventListener('click', () => { currentTool = 'eraser'; updateToolButtons(); });
     toolFill.addEventListener('click', () => { currentTool = 'fill'; updateToolButtons(); });
     eyedropperBtn.addEventListener('click', () => { currentTool = 'dropper'; updateToolButtons(); });
     clearBtn.addEventListener('click', () => {
-        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) currentSprite[y][x] = '#ffffff';
+        for (let y=0; y<16; y++) for (let x=0; x<16; x++) currentSprite[y][x] = '#ffffff';
         renderPaintGrid();
     });
-
     colorPicker.addEventListener('input', (e) => { paintColor = e.target.value; });
     brushSizeSelect.addEventListener('change', (e) => { brushSize = parseInt(e.target.value); });
-
-    // Save plant
     savePlantBtn.addEventListener('click', () => {
         const name = prompt("Plant name:", "Custom") || "Custom";
         plantTypes.push({
@@ -616,7 +549,7 @@
             damage: 20,
             range: 7,
             attackCooldown: 1425,
-            projectileSpeed: 312,
+            projectileSpeed: 260,
             color: paintColor,
             sprite: currentSprite.map(row => [...row])
         });
@@ -632,22 +565,16 @@
             const btn = document.createElement('div');
             btn.className = `plant-btn ${idx === selectedPlantIndex ? 'selected' : ''}`;
             btn.dataset.index = idx;
-
             const preview = document.createElement('div');
             preview.className = 'sprite-preview';
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const mini = document.createElement('div');
-                    mini.style.backgroundColor = plant.sprite[i*4]?.[j*4] || '#fff';
-                    preview.appendChild(mini);
-                }
+            for (let i=0; i<4; i++) for (let j=0; j<4; j++) {
+                const mini = document.createElement('div');
+                mini.style.backgroundColor = plant.sprite[i*4]?.[j*4] || '#fff';
+                preview.appendChild(mini);
             }
             btn.appendChild(preview);
             btn.appendChild(document.createTextNode(`${plant.name} (${plant.sunCost}☀️)`));
-            btn.addEventListener('click', () => {
-                selectedPlantIndex = idx;
-                renderGamePalette();
-            });
+            btn.addEventListener('click', () => { selectedPlantIndex = idx; renderGamePalette(); });
             gamePlantPalette.appendChild(btn);
         });
     }
@@ -659,30 +586,26 @@
             btn.className = 'plant-btn';
             const preview = document.createElement('div');
             preview.className = 'sprite-preview';
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const mini = document.createElement('div');
-                    mini.style.backgroundColor = plant.sprite[i*4]?.[j*4] || '#fff';
-                    preview.appendChild(mini);
-                }
+            for (let i=0; i<4; i++) for (let j=0; j<4; j++) {
+                const mini = document.createElement('div');
+                mini.style.backgroundColor = plant.sprite[i*4]?.[j*4] || '#fff';
+                preview.appendChild(mini);
             }
             btn.appendChild(preview);
             btn.appendChild(document.createTextNode(plant.name));
             const del = document.createElement('span');
             del.textContent = '✕';
-            del.style.background = '#a13d3d';
+            del.style.background = '#c44';
             del.style.color = 'white';
-            del.style.padding = '2px 12px';
             del.style.borderRadius = '30px';
-            del.style.marginLeft = '10px';
+            del.style.padding = '2px 14px';
+            del.style.marginLeft = '12px';
             del.style.cursor = 'pointer';
             del.addEventListener('click', (e) => {
                 e.stopPropagation();
                 plantTypes.splice(idx, 1);
-                if (selectedPlantIndex >= plantTypes.length) selectedPlantIndex = plantTypes.length - 1;
-                if (plantTypes.length === 0) {
-                    plantTypes.push({ name: "Basic", sunCost: 100, health: 300, damage: 20, range: 7, attackCooldown: 1425, projectileSpeed: 312, color: "#aaa", sprite: createDefaultSprite("#aaa") });
-                }
+                if (selectedPlantIndex >= plantTypes.length) selectedPlantIndex = plantTypes.length-1;
+                if (plantTypes.length===0) plantTypes.push({ name:"Basic", sunCost:100, health:300, damage:20, range:7, attackCooldown:1425, projectileSpeed:260, color:"#aaa", sprite:createDefaultSprite("#aaa") });
                 renderCreatorList();
                 renderGamePalette();
             });
@@ -691,53 +614,62 @@
         });
     }
 
-    // ---------- GAME FUNCTIONS ----------
+    // ---------- GAME FUNCTIONS (with lawn mowers) ----------
     function updateGameSunDisplay() { gameSunDisplay.innerText = sun; }
-
-    function gameOver() {
-        if (!gameActive) return;
-        gameActive = false;
-        gameOverFlag = true;
-        stopGameIntervals();
-    }
 
     function stopGameIntervals() {
         if (sunInterval) clearInterval(sunInterval);
         if (spawnInterval) clearInterval(spawnInterval);
         if (spawnDelayTimeout) clearTimeout(spawnDelayTimeout);
         if (animationFrame) cancelAnimationFrame(animationFrame);
-        sunInterval = null; spawnInterval = null; animationFrame = null;
+        sunInterval = spawnInterval = null;
     }
 
     function resetGameState() {
         grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
         zombies = [];
         projectiles = [];
+        lawnMowers = Array(ROWS).fill(true);
         sun = 100;
         gameOverFlag = false;
         spawnEnabled = false;
         updateGameSunDisplay();
     }
 
-    // Zombie spawn with DELAY
+    // Lawn mower logic
+    function activateMower(row) {
+        if (!lawnMowers[row]) return false;
+        lawnMowers[row] = false;
+        // create a mower object
+        zombies.push({
+            row: row,
+            x: -20, // start just left of canvas
+            health: Infinity,
+            speed: 120, // fast mower
+            isMower: true,
+            mowerActive: true
+        });
+        return true;
+    }
+
     function enableSpawning() {
         spawnEnabled = true;
-        spawnCountdownDiv.innerText = '🧟 ZOMBIES ACTIVE';
+        spawnCountdownDiv.innerText = '🧟 SPAWNING';
         spawnInterval = setInterval(() => {
             if (!gameActive || !spawnEnabled) return;
             const row = Math.floor(Math.random() * ROWS);
             zombies.push({
                 row: row,
-                x: CANVAS_WIDTH - 10,
-                health: 300 + Math.floor(Math.random() * 100),
-                speed: 16,
+                x: CANVAS_WIDTH - 20,
+                health: 300 + Math.floor(Math.random() * 80),
+                speed: 15, // slower zombies (pixels per sec)
                 lastAttack: 0,
-                damage: 20
+                damage: 20,
+                isMower: false
             });
-        }, 5000);
+        }, 8000); // reduced spawn rate (8 sec)
     }
 
-    // Game loop
     function gameLoop(timestamp) {
         if (!gameActive) { if (gameOverFlag) drawGameOver(); return; }
         if (lastTimestamp === null) { lastTimestamp = timestamp; animationFrame = requestAnimationFrame(gameLoop); return; }
@@ -752,14 +684,41 @@
     }
 
     function updateGame(deltaSec) {
-        // Zombie movement & attack
+        // Update zombies & handle lawn mowers
         for (let i = zombies.length - 1; i >= 0; i--) {
             const z = zombies[i];
-            if (z.health <= 0) { zombies.splice(i, 1); continue; }
+            if (z.health <= 0 && !z.isMower) { zombies.splice(i, 1); continue; }
+
+            if (z.isMower) {
+                // mower moves right
+                z.x += z.speed * deltaSec;
+                if (z.x > CANVAS_WIDTH + 50) { zombies.splice(i, 1); continue; }
+                // kill zombies in same row
+                for (let j = zombies.length - 1; j >= 0; j--) {
+                    const other = zombies[j];
+                    if (other === z) continue;
+                    if (other.row === z.row && Math.abs(other.x - z.x) < 35) {
+                        zombies.splice(j, 1); // zombie destroyed
+                    }
+                }
+                continue;
+            }
+
+            // Regular zombie
             let col = Math.floor(z.x / CELL_SIZE);
-            if (col < 0) { gameOver(); return; }
+            if (col < 0) {
+                // reached left edge
+                if (lawnMowers[z.row]) {
+                    activateMower(z.row);
+                    zombies.splice(i, 1); // remove this zombie, mower takes over
+                } else {
+                    gameOver();
+                    return;
+                }
+                continue;
+            }
             if (col >= COLS) col = COLS - 1;
-            const plant = (z.row >= 0 && z.row < ROWS && col >= 0 && col < COLS) ? grid[z.row][col] : null;
+            const plant = (z.row >=0 && z.row<ROWS && col>=0 && col<COLS) ? grid[z.row][col] : null;
             if (plant) {
                 const now = performance.now();
                 if (now - (z.lastAttack || 0) >= 1000) {
@@ -769,7 +728,6 @@
                 }
             } else {
                 z.x -= z.speed * deltaSec;
-                if (z.x < 0) { gameOver(); return; }
             }
         }
 
@@ -783,13 +741,13 @@
                 if (!type || type.damage <= 0) continue;
                 if (now - plant.lastShot >= type.attackCooldown) {
                     for (let z of zombies) {
-                        if (z.row !== r) continue;
+                        if (z.row !== r || z.isMower) continue;
                         const zCol = Math.floor(z.x / CELL_SIZE);
                         if (zCol > c && zCol <= c + type.range) {
                             projectiles.push({
                                 row: r,
                                 x: c * CELL_SIZE + 40,
-                                y: r * CELL_SIZE + 30,
+                                y: r * CELL_SIZE + 25,
                                 damage: type.damage,
                                 speed: type.projectileSpeed
                             });
@@ -801,13 +759,14 @@
             }
         }
 
-        // Projectiles
+        // Move projectiles & collisions
         for (let i = projectiles.length - 1; i >= 0; i--) {
             const p = projectiles[i];
             p.x += p.speed * deltaSec;
             if (p.x > CANVAS_WIDTH) { projectiles.splice(i, 1); continue; }
             for (let j = zombies.length - 1; j >= 0; j--) {
                 const z = zombies[j];
+                if (z.isMower) continue;
                 if (z.row !== p.row) continue;
                 if (Math.abs(p.x - z.x) < 20) {
                     z.health -= p.damage;
@@ -821,12 +780,16 @@
 
     function drawGame() {
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        // grid lines
-        ctx.strokeStyle = '#3d6b37'; ctx.lineWidth = 2;
-        for (let i = 0; i <= ROWS; i++) { ctx.beginPath(); ctx.moveTo(0, i*CELL_SIZE); ctx.lineTo(CANVAS_WIDTH, i*CELL_SIZE); ctx.stroke(); }
-        for (let i = 0; i <= COLS; i++) { ctx.beginPath(); ctx.moveTo(i*CELL_SIZE, 0); ctx.lineTo(i*CELL_SIZE, CANVAS_HEIGHT); ctx.stroke(); }
+        // lawn grid
+        ctx.strokeStyle = '#569a3e'; ctx.lineWidth = 3;
+        for (let i = 0; i <= ROWS; i++) {
+            ctx.beginPath(); ctx.moveTo(0, i*CELL_SIZE); ctx.lineTo(CANVAS_WIDTH, i*CELL_SIZE); ctx.strokeStyle = '#3f7a2c'; ctx.stroke();
+        }
+        for (let i = 0; i <= COLS; i++) {
+            ctx.beginPath(); ctx.moveTo(i*CELL_SIZE, 0); ctx.lineTo(i*CELL_SIZE, CANVAS_HEIGHT); ctx.strokeStyle = '#3f7a2c'; ctx.stroke();
+        }
 
-        // plants
+        // draw plants
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 const plant = grid[r][c];
@@ -839,31 +802,45 @@
                 const pixelSize = 3; // 16*3=48
                 const offsetX = baseX + (CELL_SIZE - pixelSize*16)/2;
                 const offsetY = baseY + (CELL_SIZE - pixelSize*16)/2;
-                for (let y = 0; y < 16; y++) {
-                    for (let x = 0; x < 16; x++) {
-                        const col = sprite[y][x];
-                        if (col && col !== '#ffffff') {
-                            ctx.fillStyle = col;
-                            ctx.fillRect(offsetX + x*pixelSize, offsetY + y*pixelSize, pixelSize-0.3, pixelSize-0.3);
-                        }
+                for (let y=0; y<16; y++) for (let x=0; x<16; x++) {
+                    const col = sprite[y][x];
+                    if (col && col !== '#ffffff') {
+                        ctx.fillStyle = col;
+                        ctx.fillRect(offsetX + x*pixelSize, offsetY + y*pixelSize, pixelSize-0.5, pixelSize-0.5);
                     }
                 }
                 // health bar
                 const healthPercent = plant.health / type.health;
                 ctx.fillStyle = '#d46b4b';
-                ctx.fillRect(baseX+5, baseY-8, 50 * healthPercent, 5);
+                ctx.fillRect(baseX+5, baseY-8, 45 * healthPercent, 6);
             }
         }
 
-        // zombies
+        // draw lawn mowers (icons)
+        for (let r = 0; r < ROWS; r++) {
+            if (lawnMowers[r]) {
+                ctx.fillStyle = '#bc8f4f';
+                ctx.beginPath(); ctx.arc(25, r*CELL_SIZE+25, 18, 0, 2*Math.PI); ctx.fill();
+                ctx.fillStyle = '#fff9c4';
+                ctx.font = 'bold 20px sans-serif'; ctx.fillText('⛳', 15, r*CELL_SIZE+32);
+            }
+        }
+
+        // draw zombies
         zombies.forEach(z => {
+            if (z.isMower) {
+                ctx.fillStyle = '#d6a140';
+                ctx.beginPath(); ctx.arc(z.x+20, z.row*CELL_SIZE+25, 20, 0, 2*Math.PI); ctx.fill();
+                ctx.fillStyle = '#333'; ctx.font = 'bold 18px sans-serif'; ctx.fillText('⚙️', z.x+10, z.row*CELL_SIZE+30);
+                return;
+            }
             const x = z.x - 20;
             const y = z.row * CELL_SIZE + 15;
             ctx.fillStyle = '#3a2e1c';
-            ctx.beginPath(); ctx.ellipse(x+20, y+15, 18, 22, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x+20, y+15, 18, 22, 0, 0, 2*Math.PI); ctx.fill();
             ctx.fillStyle = '#814e4e';
-            ctx.beginPath(); ctx.ellipse(x+10, y+5, 6, 8, 0, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(x+30, y+5, 6, 8, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x+10, y+5, 6, 8, 0, 0, 2*Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x+30, y+5, 6, 8, 0, 0, 2*Math.PI); ctx.fill();
             ctx.fillStyle = 'white'; ctx.font = 'bold 12px monospace';
             ctx.fillText(`❤️${z.health}`, x+12, y-5);
         });
@@ -874,23 +851,16 @@
             ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 2*Math.PI); ctx.fill();
         });
 
-        // Draw countdown if spawning not enabled
         if (!spawnEnabled && gameActive) {
-            ctx.fillStyle = '#000000aa';
-            ctx.fillRect(0, 0, CANVAS_WIDTH, 40);
-            ctx.fillStyle = '#ffdb8e';
-            ctx.font = 'bold 24px monospace';
-            ctx.fillText('⏳ PREPARING...', 120, 32);
+            ctx.fillStyle = '#000000aa'; ctx.fillRect(0,0,CANVAS_WIDTH,40);
+            ctx.fillStyle = '#ffdb8e'; ctx.font = 'bold 28px Comic Sans MS'; ctx.fillText('⏳ PREPARING...', 130, 36);
         }
     }
 
     function drawGameOver() {
         drawGame();
-        ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
-        ctx.fillStyle = '#ffb9a8';
-        ctx.font = 'bold 36px monospace';
-        ctx.fillText('💀 GAME OVER', 50, 160);
+        ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        ctx.fillStyle = '#ffb9a8'; ctx.font = 'bold 48px Comic Sans MS'; ctx.fillText('💀 GAME OVER', 70, 140);
     }
 
     function startGame() {
@@ -903,24 +873,16 @@
 
         sunInterval = setInterval(() => { if (gameActive) { sun += 5; updateGameSunDisplay(); } }, 1000);
 
-        // 15-second delay before first zombie
         spawnDelayTimeout = setTimeout(() => {
-            if (gameActive) {
-                enableSpawning();
-            }
+            if (gameActive) enableSpawning();
         }, 15000);
 
-        // Countdown updater
         let countdown = 15;
         const countdownInterval = setInterval(() => {
             if (!gameActive) { clearInterval(countdownInterval); return; }
             countdown--;
-            if (countdown <= 0) {
-                spawnCountdownDiv.innerText = '🧟 SPAWNING';
-                clearInterval(countdownInterval);
-            } else {
-                spawnCountdownDiv.innerText = `⏳ ${countdown}s`;
-            }
+            if (countdown <= 0) clearInterval(countdownInterval);
+            else spawnCountdownDiv.innerText = `⏳ ${countdown}s`;
         }, 1000);
 
         lastTimestamp = null;
@@ -954,9 +916,9 @@
         }
     });
 
-    // ---------- UI NAVIGATION ----------
+    // Navigation
     function showMenu() { menuPanel.classList.remove('hidden'); creatorPanel.classList.add('hidden'); gamePanel.classList.add('hidden'); stopGameIntervals(); }
-    function showCreator() { menuPanel.classList.add('hidden'); creatorPanel.classList.remove('hidden'); gamePanel.classList.add('hidden'); stopGameIntervals(); renderCreatorList(); renderPaintGrid(); currentSprite = createDefaultSprite("#44aa33"); paintColor = '#44aa33'; colorPicker.value = '#44aa33'; renderPaintGrid(); }
+    function showCreator() { menuPanel.classList.add('hidden'); creatorPanel.classList.remove('hidden'); gamePanel.classList.add('hidden'); stopGameIntervals(); renderCreatorList(); currentSprite = createDefaultSprite("#44aa33"); paintColor = '#44aa33'; colorPicker.value = '#44aa33'; renderPaintGrid(); }
     function showGame() { menuPanel.classList.add('hidden'); creatorPanel.classList.add('hidden'); gamePanel.classList.remove('hidden'); startGame(); }
 
     document.getElementById('goToCreator').addEventListener('click', showCreator);
@@ -965,18 +927,11 @@
     document.getElementById('gameBackToMenu').addEventListener('click', showMenu);
     document.getElementById('restartGame').addEventListener('click', () => { if (gameActive) { stopGameIntervals(); startGame(); } });
 
-    // prevent context menu on paint
     document.addEventListener('contextmenu', (e) => { if (e.target.classList.contains('pixel')) e.preventDefault(); });
 
-    // Initialize
     renderCreatorList();
     renderGamePalette();
     showMenu();
-
-    // Dummy window buttons
-    document.getElementById('minimize').addEventListener('click', () => alert('2008 style!'));
-    document.getElementById('maximize').addEventListener('click', () => alert('MAXIMIZE'));
-    document.getElementById('close').addEventListener('click', () => alert('closing disabled'));
 })();
 </script>
 </body>
