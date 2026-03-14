@@ -3,48 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌱 PvZ Maker · Mapa gigante + oleadas múltiples</title>
+    <title>🌱 PvZ Maker · Rústico + Importar Sprites + Block Coding</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ========== ESTILOS RETRO 2008 ========== */
+        /* ========== ESTILOS RÚSTICOS ========== */
         * {
             box-sizing: border-box;
-            font-family: 'Courier New', 'Segoe UI', monospace;
+            font-family: 'Courier New', 'VT323', 'Segoe UI', monospace;
             margin: 0;
             padding: 0;
             image-rendering: pixelated;
         }
 
         body {
-            background: #2a5a2a;
+            background: #3a2a1a;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 10px;
+            background-image: radial-gradient(circle, #5a4a2a 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .game-box {
-            max-width: 1600px;
+            max-width: 1700px;
             width: 100%;
-            background: #c0a86a;
+            background: #c8b28b;
             border-radius: 0;
-            box-shadow: 8px 8px 0 #4a3e2a, -4px -4px 0 #f0d8a0 inset;
+            box-shadow: 12px 12px 0 #4a3e2a, -6px -6px 0 #ecd9a8 inset;
             padding: 25px;
-            border: 4px solid #8b6e4a;
+            border: 6px solid #7a5a3a;
+            background-image: linear-gradient(45deg, #d2b48c 25%, #c0a06b 25%, #c0a06b 50%, #d2b48c 50%, #d2b48c 75%, #c0a06b 75%);
+            background-size: 30px 30px;
         }
 
         h1 {
             display: flex;
             align-items: center;
             gap: 20px;
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 900;
-            color: #f0e68c;
-            text-shadow: 4px 4px 0 #3f6b33, 6px 6px 0 #1f451f;
+            color: #f0d88c;
+            text-shadow: 6px 6px 0 #3f5a2a, 9px 9px 0 #1f3a1a;
             margin: 0 0 20px 10px;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             font-family: 'Courier New', monospace;
+            background: #6b4e2a;
+            padding: 10px 30px;
+            display: inline-block;
+            border: 6px ridge #b09060;
         }
 
         .tabs {
@@ -52,40 +60,43 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 25px;
-            background: #b4926a;
+            background: #9b7a5a;
             padding: 15px 20px;
-            border: 4px outset #e0c080;
-            box-shadow: 4px 4px 0 #5a4a32 inset;
+            border: 6px outset #c0a06b;
+            box-shadow: 6px 6px 0 #4a3e2a inset;
         }
 
         .tab-btn {
-            background: #d0b080;
-            border: 4px outset #f0d0a0;
+            background: #c8a06b;
+            border: 6px outset #e0b080;
             border-radius: 0;
             padding: 15px 25px;
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: bold;
-            color: #1f421f;
+            color: #1f3a1f;
             cursor: pointer;
-            box-shadow: 3px 3px 0 #7a5a3a;
+            box-shadow: 4px 4px 0 #6b4e2a;
             transition: all 0.05s linear;
             font-family: 'Courier New', monospace;
             text-transform: uppercase;
         }
 
         .tab-btn.active {
-            background: #e0c090;
-            border: 4px inset #f0d0a0;
+            background: #d8b080;
+            border: 6px inset #e0b080;
             transform: translate(2px, 2px);
             box-shadow: none;
         }
 
         .panel {
-            background: #d8c090;
-            border: 6px ridge #b09060;
+            background: #e8d0a0;
+            border: 8px ridge #a88a5a;
             padding: 30px;
-            box-shadow: 6px 6px 0 #6b4e2e inset;
+            box-shadow: 8px 8px 0 #5a4a2a inset;
             display: block;
+            background-image: linear-gradient(rgba(200,180,140,0.3) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(200,180,140,0.3) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .hidden-panel {
@@ -94,33 +105,35 @@
 
         .maker-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
             gap: 30px;
         }
 
         .card {
-            background: #e8d0a0;
-            border: 6px groove #c0a06b;
+            background: #f0d8b0;
+            border: 8px groove #b09060;
             padding: 25px;
-            box-shadow: 4px 4px 0 #8b6e4a inset;
+            box-shadow: 6px 6px 0 #7a5a3a inset;
+            background-image: radial-gradient(circle at 10px 10px, #d8b88c 2px, transparent 2px);
+            background-size: 30px 30px;
         }
 
         .card h2 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             margin-bottom: 20px;
             color: #2e5a2e;
             display: flex;
             align-items: center;
             gap: 15px;
-            border-bottom: 4px dotted #b09060;
+            border-bottom: 6px dotted #a88a5a;
             padding-bottom: 10px;
             font-family: 'Courier New', monospace;
-            text-shadow: 2px 2px 0 #c0a06b;
+            text-shadow: 2px 2px 0 #b09060;
         }
 
         .preview-box {
             background: #7fb074;
-            border: 6px inset #9fbf80;
+            border: 8px inset #9fbf80;
             padding: 20px;
             margin-bottom: 20px;
             text-align: center;
@@ -130,7 +143,7 @@
             width: 200px;
             height: 200px;
             background: #4f8a4f;
-            border: 4px solid #b4e09b;
+            border: 6px solid #b4e09b;
             image-rendering: crisp-edges;
         }
 
@@ -155,7 +168,7 @@
             justify-content: space-between;
             font-weight: 700;
             color: #235023;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
         }
 
         input[type=range] {
@@ -168,15 +181,15 @@
             background: #1f421f;
             color: #f9e57c;
             padding: 5px 15px;
-            border: 3px solid #9e7c3b;
-            font-size: 1.3rem;
+            border: 4px solid #9e7c3b;
+            font-size: 1.4rem;
         }
 
         .select-field {
             background: #ffe3b7;
             padding: 12px 20px;
             border: 6px inset #edc289;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             width: 100%;
             margin: 10px 0;
             font-weight: bold;
@@ -188,7 +201,7 @@
             border: 6px outset #f0d090;
             border-radius: 0;
             padding: 16px 28px;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #1f421f;
             box-shadow: 5px 5px 0 #9e7c3b;
@@ -206,7 +219,7 @@
 
         .btn-small {
             padding: 12px 20px;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
         }
 
         .collection {
@@ -224,7 +237,7 @@
             color: #fff3c9;
             padding: 12px 20px;
             border: 4px outset #b1d893;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: bold;
             cursor: pointer;
             transition: 0.05s;
@@ -237,7 +250,7 @@
 
         .sprite-editor {
             background: #cfb28b;
-            border: 6px ridge #b09060;
+            border: 8px ridge #b09060;
             padding: 25px;
         }
 
@@ -282,11 +295,11 @@
             width: 60px;
             height: 60px;
             background: #7bb56b;
-            border: 4px outset #a0d080;
+            border: 6px outset #a0d080;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 2rem;
         }
 
         .map-container {
@@ -310,13 +323,14 @@
             width: 70px;
             height: 70px;
             background: #7bb56b;
-            border: 4px outset #a0d080;
+            border: 6px outset #a0d080;
             display: inline-flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             flex-shrink: 0;
+            position: relative;
         }
         .map-cell canvas {
             width: 100%;
@@ -324,12 +338,19 @@
             display: block;
             image-rendering: crisp-edges;
         }
+        .map-cell .object-overlay {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 black;
+        }
 
         .sun-counter {
             background: #f7d45a;
             border: 6px outset #e5b73b;
             padding: 15px 30px;
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: #1f3a1f;
             display: inline-flex;
@@ -342,7 +363,7 @@
             border: 6px inset #2f4f2f;
             padding: 15px;
             color: #f0e68c;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             max-height: 200px;
             overflow-y: auto;
         }
@@ -358,32 +379,84 @@
             color: #f9f0b5;
             border: 6px inset #1f3f1f;
             padding: 15px;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             min-height: 120px;
         }
 
         .footer {
             margin-top: 30px;
             text-align: center;
-            color: #f0e68c;
+            color: #f0d88c;
             font-weight: bold;
-            font-size: 1.4rem;
+            font-size: 1.8rem;
             text-shadow: 3px 3px 0 #2d5a2d;
+            background: #6b4e2a;
+            padding: 10px;
+            border: 6px ridge #b09060;
         }
 
         .quantity-input {
             width: 80px;
             padding: 10px;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             background: #ffe3b7;
             border: 6px inset #edc289;
             text-align: center;
+        }
+
+        .object-palette {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .object-btn {
+            background: #a0a0a0;
+            border: 6px outset #d0d0d0;
+            padding: 10px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .object-btn.selected {
+            border: 6px inset #d0d0d0;
+            background: #c0c0c0;
+        }
+
+        /* Bloques de código rústicos */
+        .block-code {
+            background: #2a2a1a;
+            border: 8px ridge #7a6a4a;
+            padding: 15px;
+            color: #d0d0a0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            min-height: 150px;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .block-btn {
+            background: #7a6a4a;
+            border: 4px outset #b0a080;
+            color: #f0e0a0;
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .block-btn:active {
+            border: 4px inset #b0a080;
+        }
+        .import-area {
+            background: #7a6a4a;
+            border: 6px inset #b09060;
+            padding: 15px;
+            margin: 15px 0;
         }
     </style>
 </head>
 <body>
 <div class="game-box">
-    <h1><i class="fas fa-skull"></i> PvZ MAKER 2008 · MAPA XXL <i class="fas fa-leaf"></i></h1>
+    <h1><i class="fas fa-skull"></i> PvZ MAKER RÚSTICO · IMPORTAR SPRITES · BLOCKS <i class="fas fa-leaf"></i></h1>
 
     <div class="tabs">
         <button class="tab-btn active" data-tab="plant">🌱 Plantas</button>
@@ -395,11 +468,11 @@
         <button class="tab-btn" data-tab="export">💾 Mods</button>
     </div>
 
-    <!-- PANEL PLANTAS -->
+    <!-- PANEL PLANTAS (con block coding) -->
     <div id="plantPanel" class="panel">
         <div class="maker-grid">
             <div class="card">
-                <h2><i class="fas fa-leaf"></i> Creador</h2>
+                <h2><i class="fas fa-leaf"></i> Creador de plantas</h2>
                 <div class="preview-box">
                     <canvas id="plantCanvas" class="preview-canvas" width="200" height="200"></canvas>
                     <div style="font-size:2rem;" id="plantNameDisplay">🌱 Planta</div>
@@ -413,21 +486,46 @@
                     <div class="slider-group">
                         <div class="slider-item"><label>☀️ Coste <span class="value-badge" id="sunCostVal">50</span></label><input type="range" id="sunCostSlider" min="10" max="500" value="50" step="5"></div>
                         <div class="slider-item"><label>❤️ Salud <span class="value-badge" id="plantHpVal">100</span></label><input type="range" id="plantHpSlider" min="20" max="800" value="100" step="10"></div>
-                        <label>⚡ Efecto: <select id="plantEffectSelect" class="select-field"><option value="none">Ninguno</option><option value="slow">Ralentizador</option><option value="fire">Fuego</option><option value="poison">Veneno</option><option value="splash">Área</option></select></label>
                     </div>
                 </div>
+                <label>⚡ Efecto rápido: <select id="plantEffectSelect" class="select-field">
+                    <option value="none">Ninguno</option>
+                    <option value="slow">Ralentizador</option>
+                    <option value="fire">Quemar</option>
+                    <option value="ice">Congelar</option>
+                    <option value="stun">Aturdir</option>
+                    <option value="poison">Veneno</option>
+                </select></label>
                 <label>🔫 Ataque: <select id="attackTypeSelect" class="select-field"><option value="pea">Guisante</option><option value="cabbage">Col</option><option value="melon">Melón</option><option value="bean">Judía</option><option value="corn">Maíz</option></select></label>
-                <div style="margin:20px 0;"><button class="btn btn-small" id="savePlantBtn"><i class="fas fa-save"></i> Guardar planta</button><button class="btn btn-small" id="loadSpriteToPlantBtn"><i class="fas fa-image"></i> Usar sprite</button></div>
+                
+                <!-- Block coding para habilidad personalizada -->
+                <h3>🧩 Habilidad por bloques</h3>
+                <div style="background:#5a4a2a; padding:15px; border:6px inset #8b6e4a;">
+                    <div>
+                        <span class="block-btn" onclick="addPlantBlock('condition')">➕ Condición</span>
+                        <span class="block-btn" onclick="addPlantBlock('action')">➕ Acción</span>
+                        <span class="block-btn" onclick="clearPlantBlocks()">🗑️ Limpiar</span>
+                    </div>
+                    <div id="plantBlockCode" class="block-code">
+                        SIEMPRE: nada
+                    </div>
+                    <input type="hidden" id="plantCustomAbility" value="">
+                </div>
+
+                <div style="margin:20px 0;">
+                    <button class="btn btn-small" id="savePlantBtn"><i class="fas fa-save"></i> Guardar planta</button>
+                    <button class="btn btn-small" id="loadSpriteToPlantBtn"><i class="fas fa-image"></i> Usar sprite</button>
+                </div>
             </div>
             <div class="card"><h2><i class="fas fa-folder-open"></i> Mis plantas</h2><div class="collection" id="savedPlantsCollection"></div></div>
         </div>
     </div>
 
-    <!-- PANEL ZOMBIS -->
+    <!-- PANEL ZOMBIS (con block coding) -->
     <div id="zombiePanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
-                <h2><i class="fas fa-skull"></i> Creador</h2>
+                <h2><i class="fas fa-skull"></i> Creador de zombis</h2>
                 <div class="preview-box">
                     <canvas id="zombieCanvas" class="preview-canvas" width="200" height="200"></canvas>
                     <div style="font-size:2rem;" id="zombieNameDisplay">🧟 Básico</div>
@@ -440,20 +538,46 @@
                     </div>
                     <div class="slider-group">
                         <label>Tipo: <select id="zombieTypeSelect" class="select-field"><option value="basic">Básico</option><option value="cone">Cono</option><option value="bucket">Cubo</option><option value="newspaper">Periodico</option><option value="football">Futbolista</option></select></label>
-                        <label>Habilidad: <select id="zombieAbilitySelect" class="select-field"><option value="none">Ninguna</option><option value="fast">Rápido</option><option value="tough">Resistente</option><option value="regenerate">Regenera</option><option value="fly">Vuela</option></select></label>
+                        <label>Habilidad rápida: <select id="zombieAbilitySelect" class="select-field">
+                            <option value="none">Ninguna</option>
+                            <option value="fast">Rápido</option>
+                            <option value="tough">Resistente</option>
+                            <option value="regenerate">Regenera</option>
+                            <option value="fly">Vuela</option>
+                            <option value="armored">Blindado</option>
+                            <option value="immune">Inmune</option>
+                        </select></label>
                     </div>
                 </div>
-                <div style="margin:20px 0;"><button class="btn btn-small" id="saveZombieBtn"><i class="fas fa-save"></i> Guardar zombi</button><button class="btn btn-small" id="loadSpriteToZombieBtn"><i class="fas fa-image"></i> Usar sprite</button></div>
+
+                <!-- Block coding para habilidad personalizada de zombi -->
+                <h3>🧩 Habilidad por bloques</h3>
+                <div style="background:#5a4a2a; padding:15px; border:6px inset #8b6e4a;">
+                    <div>
+                        <span class="block-btn" onclick="addZombieBlock('condition')">➕ Condición</span>
+                        <span class="block-btn" onclick="addZombieBlock('action')">➕ Acción</span>
+                        <span class="block-btn" onclick="clearZombieBlocks()">🗑️ Limpiar</span>
+                    </div>
+                    <div id="zombieBlockCode" class="block-code">
+                        SIEMPRE: nada
+                    </div>
+                    <input type="hidden" id="zombieCustomAbility" value="">
+                </div>
+
+                <div style="margin:20px 0;">
+                    <button class="btn btn-small" id="saveZombieBtn"><i class="fas fa-save"></i> Guardar zombi</button>
+                    <button class="btn btn-small" id="loadSpriteToZombieBtn"><i class="fas fa-image"></i> Usar sprite</button>
+                </div>
             </div>
             <div class="card"><h2><i class="fas fa-folder-open"></i> Mis zombis</h2><div class="collection" id="savedZombiesCollection"></div></div>
         </div>
     </div>
 
-    <!-- PANEL OLEADAS (mejorado con cantidad) -->
+    <!-- PANEL OLEADAS (con cantidad) -->
     <div id="wavePanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
-                <h2><i class="fas fa-water"></i> Oleadas</h2>
+                <h2><i class="fas fa-water"></i> Editor de oleadas</h2>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
                     <button class="btn btn-small" id="addZombieToWave"><i class="fas fa-plus"></i> Añadir</button>
                     <input type="number" id="zombieQuantity" class="quantity-input" value="1" min="1" max="20">
@@ -467,7 +591,7 @@
         </div>
     </div>
 
-    <!-- PANEL MAPAS (con límites aumentados) -->
+    <!-- PANEL MAPAS -->
     <div id="mapPanel" class="panel hidden-panel">
         <div class="maker-grid">
             <div class="card">
@@ -478,25 +602,46 @@
                 <h2>Propiedades</h2>
                 <label>Filas: <input type="number" id="mapRows" min="3" max="8" value="3" class="select-field"></label>
                 <label>Columnas: <input type="number" id="mapCols" min="4" max="12" value="5" class="select-field"></label>
-                <label>Tipo: <select id="grassType" class="select-field"><option value="normal">🌿 Normal</option><option value="pool">💧 Piscina</option><option value="roof">🏠 Tejado</option><option value="night">🌙 Noche</option></select></label>
+                <label>Tipo de césped: 
+                    <select id="grassType" class="select-field">
+                        <option value="normal">🌿 Normal</option>
+                        <option value="pool">💧 Piscina</option>
+                        <option value="roof">🏠 Tejado</option>
+                        <option value="night">🌙 Noche</option>
+                        <option value="desert">🏜️ Desierto</option>
+                    </select>
+                </label>
                 <button class="btn btn-small" id="updateMapBtn">Actualizar</button>
             </div>
         </div>
     </div>
 
-    <!-- PANEL SPRITE -->
+    <!-- PANEL SPRITE (con importar desde PC) -->
     <div id="spritePanel" class="panel hidden-panel">
         <div class="sprite-editor">
-            <h2><i class="fas fa-draw-polygon"></i> Editor 16x16</h2>
+            <h2><i class="fas fa-draw-polygon"></i> Editor 16x16 + Importar</h2>
             <div style="display:flex; gap:40px; flex-wrap:wrap; justify-content:center;">
                 <div><div class="sprite-grid" id="spriteGrid"></div><div class="color-palette" id="colorPalette"></div></div>
-                <div><h3>Herramientas</h3><button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button><button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button><p>Color: <span id="currentColorDisplay" style="display:inline-block; width:50px; height:50px; background:black; border:4px outset #ccc;"></span></p></div>
+                <div style="min-width:250px;">
+                    <h3>Herramientas</h3>
+                    <button class="btn btn-small" id="clearSpriteBtn"><i class="fas fa-eraser"></i> Limpiar</button>
+                    <button class="btn btn-small" id="fillSpriteBtn"><i class="fas fa-fill-drip"></i> Rellenar</button>
+                    <p>Color: <span id="currentColorDisplay" style="display:inline-block; width:50px; height:50px; background:black; border:6px outset #ccc;"></span></p>
+                    
+                    <!-- Importar imagen -->
+                    <div class="import-area">
+                        <h4>📷 Importar sprite desde PC</h4>
+                        <input type="file" id="spriteImportFile" accept="image/*">
+                        <button class="btn btn-small" id="importSpriteBtn">Cargar y convertir</button>
+                        <p style="font-size:1.2rem;">(La imagen se redimensionará a 16x16)</p>
+                    </div>
+                </div>
             </div>
             <p><i class="fas fa-info-circle"></i> El fondo gris no se dibuja en la planta.</p>
         </div>
     </div>
 
-    <!-- PANEL JUGAR (con contenedor con scroll) -->
+    <!-- PANEL JUGAR (con objetos) -->
     <div id="playPanel" class="panel hidden-panel">
         <div style="display:flex; gap:30px; flex-wrap:wrap;">
             <div style="flex:3;">
@@ -505,6 +650,19 @@
                     <div><button class="btn btn-small" id="pauseGameBtn"><i class="fas fa-pause"></i> Pausa</button></div>
                 </div>
                 <div class="map-container" id="playMapContainer"></div>
+                
+                <div style="margin-top:15px;">
+                    <h3><i class="fas fa-cube"></i> Objetos del mapa</h3>
+                    <div class="object-palette">
+                        <div class="object-btn" data-object="rock">🪨 Roca</div>
+                        <div class="object-btn" data-object="water">💧 Agua</div>
+                        <div class="object-btn" data-object="fence">🪵 Valla</div>
+                        <div class="object-btn" data-object="spike">🔪 Pinchos</div>
+                        <button class="btn btn-small" id="clearObjectsBtn">Limpiar objetos</button>
+                    </div>
+                    <p>Haz clic en un objeto y luego en una celda.</p>
+                </div>
+
                 <div style="margin-top:20px;">
                     <h3><i class="fas fa-leaf"></i> Tus plantas</h3>
                     <div class="collection" id="playPlantPalette"></div>
@@ -537,15 +695,15 @@
         </div>
     </div>
 
-    <div class="footer"><i class="fas fa-heart"></i> 2008 Retro Style · Hasta 8x12 · Oleadas múltiples</div>
+    <div class="footer"><i class="fas fa-heart"></i> Rústico · Importa sprites · Crea habilidades con bloques</div>
 </div>
 
 <script>
     (function() {
         // ========== ESTADO GLOBAL ==========
         let modData = {
-            plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null },
-            zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null },
+            plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null, customAbility: '' },
+            zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null, customAbility: '' },
             savedPlants: [],
             savedZombies: [],
             wave: { zombies:[], interval:1.0, spawnMode:'random' },
@@ -557,10 +715,12 @@
             sun: 150,
             plants: [],
             zombies: [],
+            objects: [],
             gameLoop: null,
             paused: false,
             nextId: 0,
             selectedPlant: null,
+            selectedObject: null,
         };
 
         // ========== REFERENCIAS ==========
@@ -586,6 +746,8 @@
         const savePlantBtn = document.getElementById('savePlantBtn');
         const savedPlantsCollection = document.getElementById('savedPlantsCollection');
         const loadSpriteToPlantBtn = document.getElementById('loadSpriteToPlantBtn');
+        const plantBlockCode = document.getElementById('plantBlockCode');
+        const plantCustomAbility = document.getElementById('plantCustomAbility');
 
         // Zombie panel
         const zombieHpSlider = document.getElementById('zombieHpSlider');
@@ -600,8 +762,10 @@
         const saveZombieBtn = document.getElementById('saveZombieBtn');
         const savedZombiesCollection = document.getElementById('savedZombiesCollection');
         const loadSpriteToZombieBtn = document.getElementById('loadSpriteToZombieBtn');
+        const zombieBlockCode = document.getElementById('zombieBlockCode');
+        const zombieCustomAbility = document.getElementById('zombieCustomAbility');
 
-        // Wave panel (con cantidad)
+        // Wave panel
         const addZombieBtn = document.getElementById('addZombieToWave');
         const clearWaveBtn = document.getElementById('clearWaveBtn');
         const waveContainer = document.getElementById('waveContainer');
@@ -623,6 +787,8 @@
         const clearSpriteBtn = document.getElementById('clearSpriteBtn');
         const fillSpriteBtn = document.getElementById('fillSpriteBtn');
         const currentColorDisplay = document.getElementById('currentColorDisplay');
+        const spriteImportFile = document.getElementById('spriteImportFile');
+        const importSpriteBtn = document.getElementById('importSpriteBtn');
 
         // Play panel
         const playMapContainer = document.getElementById('playMapContainer');
@@ -634,6 +800,8 @@
         const sunAmountSpan = document.getElementById('sunAmount');
         const gameLog = document.getElementById('gameLog');
         const zombieListContainer = document.getElementById('zombieListContainer');
+        const clearObjectsBtn = document.getElementById('clearObjectsBtn');
+        const objectBtns = document.querySelectorAll('.object-btn');
 
         // Export
         const exportBtn = document.getElementById('exportBtn');
@@ -757,6 +925,7 @@
             plantHpSlider.value = modData.plant.hp;
             plantEffectSelect.value = modData.plant.effect;
             attackTypeSelect.value = modData.plant.attackType;
+            plantBlockCode.innerText = modData.plant.customAbility || 'SIEMPRE: nada';
         }
 
         function bindZombieSliders() {
@@ -765,6 +934,7 @@
             armorSlider.value = modData.zombie.armor;
             zombieTypeSelect.value = modData.zombie.type;
             zombieAbilitySelect.value = modData.zombie.ability;
+            zombieBlockCode.innerText = modData.zombie.customAbility || 'SIEMPRE: nada';
         }
 
         // Event listeners
@@ -781,6 +951,36 @@
         armorSlider.addEventListener('input', (e) => { modData.zombie.armor = parseInt(e.target.value); updateZombieUI(); });
         zombieTypeSelect.addEventListener('change', (e) => { modData.zombie.type = e.target.value; updateZombieUI(); });
         zombieAbilitySelect.addEventListener('change', (e) => { modData.zombie.ability = e.target.value; });
+
+        // ========== BLOCK CODING ==========
+        window.addPlantBlock = function(type) {
+            let code = plantBlockCode.innerText;
+            if (type === 'condition') {
+                code += '\nSI (zombie cerca) ENTONCES:';
+            } else {
+                code += '\nACCIÓN: daño extra';
+            }
+            plantBlockCode.innerText = code;
+            modData.plant.customAbility = code;
+        };
+        window.clearPlantBlocks = function() {
+            plantBlockCode.innerText = 'SIEMPRE: nada';
+            modData.plant.customAbility = '';
+        };
+        window.addZombieBlock = function(type) {
+            let code = zombieBlockCode.innerText;
+            if (type === 'condition') {
+                code += '\nSI (vida baja) ENTONCES:';
+            } else {
+                code += '\nACCIÓN: regenerar';
+            }
+            zombieBlockCode.innerText = code;
+            modData.zombie.customAbility = code;
+        };
+        window.clearZombieBlocks = function() {
+            zombieBlockCode.innerText = 'SIEMPRE: nada';
+            modData.zombie.customAbility = '';
+        };
 
         // ========== GUARDAR / CARGAR ==========
         savePlantBtn.addEventListener('click', () => {
@@ -837,7 +1037,46 @@
             drawZombie();
         });
 
-        // ========== OLEADAS (con cantidad) ==========
+        // ========== IMPORTAR SPRITE ==========
+        importSpriteBtn.addEventListener('click', () => {
+            const file = spriteImportFile.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 16;
+                    canvas.height = 16;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, 16, 16);
+                    const imgData = ctx.getImageData(0, 0, 16, 16).data;
+                    const newSprite = [];
+                    for (let y = 0; y < 16; y++) {
+                        const row = [];
+                        for (let x = 0; x < 16; x++) {
+                            const i = (y * 16 + x) * 4;
+                            const r = imgData[i];
+                            const g = imgData[i+1];
+                            const b = imgData[i+2];
+                            const a = imgData[i+3];
+                            if (a < 128) {
+                                row.push('#c0c0c0'); // transparente se vuelve gris fondo
+                            } else {
+                                row.push('#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1));
+                            }
+                        }
+                        newSprite.push(row);
+                    }
+                    modData.currentSprite = newSprite;
+                    buildSpriteGrid();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ========== OLEADAS ==========
         function updateWaveUI() {
             waveContainer.innerHTML = '';
             modData.wave.zombies.forEach((z, idx) => {
@@ -871,7 +1110,7 @@
             modData.wave.spawnMode = e.target.value;
         });
 
-        // ========== MAPA (con límites ampliados) ==========
+        // ========== MAPA ==========
         function updateMapPreview() {
             let rows = parseInt(mapRowsInput.value);
             let cols = parseInt(mapColsInput.value);
@@ -882,7 +1121,12 @@
             for (let r=0; r<rows; r++) {
                 html += '<div style="display:flex; gap:5px; justify-content:center; margin-bottom:5px;">';
                 for (let c=0; c<cols; c++) {
-                    let cellType = modData.map.grass==='pool'?'💧':(modData.map.grass==='roof'?'🏠':(modData.map.grass==='night'?'🌙':'🌿'));
+                    let cellType = '';
+                    if (modData.map.grass === 'pool') cellType = '💧';
+                    else if (modData.map.grass === 'roof') cellType = '🏠';
+                    else if (modData.map.grass === 'night') cellType = '🌙';
+                    else if (modData.map.grass === 'desert') cellType = '🏜️';
+                    else cellType = '🌿';
                     html += `<div class="map-preview-cell">${cellType}</div>`;
                 }
                 html += '</div>';
@@ -962,17 +1206,33 @@
                 html += '</div>';
             }
             playMapContainer.innerHTML = html;
-            // Asignar eventos
+            // Eventos a celdas
             document.querySelectorAll('#playMapContainer .map-cell').forEach(cell => {
                 cell.addEventListener('click', () => {
-                    if (!gameState.selectedPlant) {
-                        gameLog.innerHTML = '❌ Selecciona una planta de la paleta.';
-                        return;
-                    }
                     let row = parseInt(cell.dataset.row);
                     let col = parseInt(cell.dataset.col);
+                    
+                    if (gameState.selectedObject) {
+                        if (gameState.objects.some(o => o.row === row && o.col === col)) {
+                            gameLog.innerHTML = '❌ Ya hay un objeto aquí.';
+                            return;
+                        }
+                        gameState.objects.push({ row, col, type: gameState.selectedObject });
+                        renderPlayField();
+                        gameLog.innerHTML = `🧱 Objeto ${gameState.selectedObject} colocado.`;
+                        return;
+                    }
+
+                    if (!gameState.selectedPlant) {
+                        gameLog.innerHTML = '❌ Selecciona una planta o un objeto.';
+                        return;
+                    }
                     if (gameState.plants.some(p => p.row === row && p.col === col)) {
                         gameLog.innerHTML = '❌ Ya hay una planta allí.';
+                        return;
+                    }
+                    if (gameState.objects.some(o => o.row === row && o.col === col)) {
+                        gameLog.innerHTML = '❌ Hay un objeto en esa celda.';
                         return;
                     }
                     if (gameState.sun < gameState.selectedPlant.sunCost) {
@@ -983,10 +1243,10 @@
                     updateSunDisplay();
                     let newPlant = {
                         id: gameState.nextId++,
-                        row: row,
-                        col: col,
+                        row, col,
                         plantData: JSON.parse(JSON.stringify(gameState.selectedPlant)),
-                        currentHp: gameState.selectedPlant.hp
+                        currentHp: gameState.selectedPlant.hp,
+                        effectTimer: 0
                     };
                     gameState.plants.push(newPlant);
                     renderPlayField();
@@ -1001,6 +1261,9 @@
                 let row = parseInt(cell.dataset.row);
                 let col = parseInt(cell.dataset.col);
                 let plant = gameState.plants.find(p => p.row === row && p.col === col);
+                let obj = gameState.objects.find(o => o.row === row && o.col === col);
+                cell.innerHTML = '';
+                
                 if (plant) {
                     let canvas = document.createElement('canvas');
                     canvas.width = 70;
@@ -1012,12 +1275,11 @@
                         ctx.fillStyle = '#5aaf5a';
                         ctx.fillRect(15, 15, 40, 40);
                     }
-                    cell.innerHTML = '';
                     cell.appendChild(canvas);
                     let healthPercent = (plant.currentHp / plant.plantData.hp) * 100;
                     let hpDiv = document.createElement('div');
                     hpDiv.style.width = '100%';
-                    hpDiv.style.height = '8px';
+                    hpDiv.style.height = '6px';
                     hpDiv.style.background = '#a00';
                     hpDiv.style.marginTop = '2px';
                     let fill = document.createElement('div');
@@ -1026,8 +1288,16 @@
                     fill.style.background = '#0f0';
                     hpDiv.appendChild(fill);
                     cell.appendChild(hpDiv);
-                } else {
-                    cell.innerHTML = '';
+                }
+                
+                if (obj) {
+                    let objDiv = document.createElement('div');
+                    objDiv.className = 'object-overlay';
+                    if (obj.type === 'rock') objDiv.textContent = '🪨';
+                    else if (obj.type === 'water') objDiv.textContent = '💧';
+                    else if (obj.type === 'fence') objDiv.textContent = '🪵';
+                    else if (obj.type === 'spike') objDiv.textContent = '🔪';
+                    cell.appendChild(objDiv);
                 }
             });
             updateZombieList();
@@ -1043,7 +1313,9 @@
             gameState.zombies.forEach(z => {
                 let item = document.createElement('div');
                 item.className = 'zombie-list-item';
-                item.innerHTML = `🧟 Fila:${z.row} Col:${z.col.toFixed(1)} ❤️${z.currentHp}`;
+                let extra = '';
+                if (z.zombieData.ability !== 'none') extra = ` [${z.zombieData.ability}]`;
+                item.innerHTML = `🧟 Fila:${z.row} Col:${z.col.toFixed(1)} ❤️${z.currentHp}${extra}`;
                 zombieListContainer.appendChild(item);
             });
         }
@@ -1060,11 +1332,29 @@
                 btn.innerHTML = `<i class="fas fa-leaf"></i> ${p.name} (${p.sunCost}☀️)`;
                 btn.addEventListener('click', () => {
                     gameState.selectedPlant = p;
+                    gameState.selectedObject = null;
+                    document.querySelectorAll('.object-btn').forEach(b => b.classList.remove('selected'));
                     gameLog.innerHTML = `Planta "${p.name}" seleccionada.`;
                 });
                 playPlantPalette.appendChild(btn);
             });
         }
+
+        objectBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                objectBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                gameState.selectedObject = btn.dataset.object;
+                gameState.selectedPlant = null;
+                gameLog.innerHTML = `Objeto "${gameState.selectedObject}" seleccionado.`;
+            });
+        });
+
+        clearObjectsBtn.addEventListener('click', () => {
+            gameState.objects = [];
+            renderPlayField();
+            gameLog.innerHTML = '🗑️ Objetos eliminados.';
+        });
 
         function startWave() {
             if (modData.wave.zombies.length === 0) {
@@ -1084,10 +1374,10 @@
                 else if (modData.wave.spawnMode === 'all') row = index % rows;
                 gameState.zombies.push({
                     id: gameState.nextId++,
-                    row: row,
-                    col: spawnCol,
+                    row, col: spawnCol,
                     zombieData: JSON.parse(JSON.stringify(z)),
-                    currentHp: z.hp,
+                    currentHp: z.hp + z.armor,
+                    effectTimer: 0,
                 });
             });
             renderPlayField();
@@ -1098,7 +1388,9 @@
             gameState.sun = 150;
             gameState.plants = [];
             gameState.zombies = [];
+            gameState.objects = [];
             gameState.selectedPlant = null;
+            gameState.selectedObject = null;
             updateSunDisplay();
             loadPlayMap();
             gameLog.innerHTML = '⏳ Partida reiniciada.';
@@ -1106,37 +1398,68 @@
 
         function gameTick() {
             if (gameState.paused) return;
-            // Plantas disparan
+            
+            gameState.zombies.forEach(z => {
+                if (z.zombieData.ability === 'regenerate') {
+                    z.currentHp = Math.min(z.currentHp + 1, z.zombieData.hp + z.zombieData.armor);
+                }
+            });
+
             gameState.plants.forEach(plant => {
                 let zombiesInRow = gameState.zombies.filter(z => z.row === plant.row && z.col <= plant.col + plant.plantData.range);
                 if (zombiesInRow.length > 0) {
                     let target = zombiesInRow.sort((a,b) => b.col - a.col)[0];
-                    target.currentHp -= plant.plantData.damage;
+                    let damage = plant.plantData.damage;
+                    if (plant.plantData.effect === 'fire') damage *= 1.5;
+                    else if (plant.plantData.effect === 'ice') target.effectTimer = 3;
+                    else if (plant.plantData.effect === 'stun') target.effectTimer = 2;
+                    if (target.zombieData.ability === 'armored') damage /= 2;
+                    if (target.zombieData.ability === 'immune') damage *= 0.5;
+                    target.currentHp -= damage;
                     if (target.currentHp <= 0) {
                         gameState.zombies = gameState.zombies.filter(z => z.id !== target.id);
-                        gameLog.innerHTML = `💀 Zombi eliminado.`;
                     }
                 }
             });
-            // Zombis avanzan
+
             gameState.zombies.forEach(z => {
-                z.col -= z.zombieData.speed * 0.1;
+                if (z.effectTimer > 0) {
+                    z.effectTimer--;
+                    if (z.zombieData.ability !== 'immune' && z.effectTimer > 0 && plant.plantData.effect === 'stun') return;
+                }
+                let speed = z.zombieData.speed;
+                let nextCol = Math.floor(z.col - 0.5);
+                let obj = gameState.objects.find(o => o.row === z.row && o.col === nextCol);
+                if (obj) {
+                    if (obj.type === 'rock') return;
+                    else if (obj.type === 'water') speed *= 0.5;
+                    else if (obj.type === 'fence') {
+                        gameState.objects = gameState.objects.filter(o => !(o.row === z.row && o.col === nextCol));
+                        return;
+                    } else if (obj.type === 'spike') {
+                        z.currentHp -= 5;
+                        if (z.currentHp <= 0) {
+                            gameState.zombies = gameState.zombies.filter(z2 => z2.id !== z.id);
+                            return;
+                        }
+                    }
+                }
+                z.col -= speed * 0.1;
                 if (z.col < 0) {
-                    gameLog.innerHTML = `🏠 Zombi llegó a la casa.`;
                     gameState.zombies = gameState.zombies.filter(z2 => z2.id !== z.id);
                 }
             });
-            // Zombis atacan plantas
+
             gameState.zombies.forEach(z => {
                 let plantHere = gameState.plants.find(p => p.row === z.row && Math.floor(p.col) === Math.floor(z.col));
                 if (plantHere) {
                     plantHere.currentHp -= 10;
                     if (plantHere.currentHp <= 0) {
                         gameState.plants = gameState.plants.filter(p => p.id !== plantHere.id);
-                        gameLog.innerHTML = `🥀 Planta destruida.`;
                     }
                 }
             });
+
             renderPlayField();
         }
 
@@ -1201,8 +1524,8 @@
 
         resetModBtn.addEventListener('click', () => {
             modData = {
-                plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null },
-                zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null },
+                plant: { damage:2, speed:1.5, range:3, sunCost:50, hp:100, effect:'none', attackType:'pea', sprite:null, customAbility:'' },
+                zombie: { hp:5, speed:1, armor:0, type:'basic', ability:'none', sprite:null, customAbility:'' },
                 savedPlants: [],
                 savedZombies: [],
                 wave: { zombies:[], interval:1.0, spawnMode:'random' },
