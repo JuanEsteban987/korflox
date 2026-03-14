@@ -3,251 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PVZ 2008 · Paint & Plant Studio</title>
+    <title>PVZ 2008 Deluxe · Paint & Plant Studio</title>
     <style>
-        /* RETRO 2008 INSPIRED – Windows XP / Vista era */
+        /* 2008 DELUXE – improved quality, smoother graphics */
         * {
             box-sizing: border-box;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Segoe UI', 'Courier New', monospace;
         }
         body {
-            background: #3a6ea5; /* classic XP blue */
+            background: #1b4a7a;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0;
             padding: 20px;
+            background-image: radial-gradient(circle at 20% 30%, #2e6da3, #0a2f4d);
         }
         .main-container {
-            background: #ece9d8;  /* cream classic */
+            background: #e3dcc9;  /* softer cream */
             padding: 18px 20px 20px;
-            border-radius: 12px 12px 10px 10px;
-            border: 3px solid #ffffff;
-            border-top-color: #d4d0c8;
-            border-left-color: #d4d0c8;
-            border-right-color: #404040;
-            border-bottom-color: #404040;
-            box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
-            min-width: 850px;
+            border-radius: 16px 16px 12px 12px;
+            border: 3px solid #fef9e6;
+            border-top-color: #fef4d9;
+            border-left-color: #fef4d9;
+            border-right-color: #8b7f6b;
+            border-bottom-color: #8b7f6b;
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.6);
+            min-width: 920px;
         }
         .window-header {
-            background: #0a246a; /* XP blue title bar */
-            color: white;
-            padding: 6px 10px;
-            font-size: 20px;
+            background: #1e3f6b; /* deeper blue */
+            color: #ffeeb5;
+            padding: 8px 14px;
+            font-size: 22px;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
-            border: 2px solid #162c5e;
-            border-radius: 6px 6px 0 0;
-        }
-        .window-header span {
-            filter: drop-shadow(1px 1px 0 black);
+            margin-bottom: 16px;
+            border: 2px solid #5279b2;
+            border-radius: 10px 10px 4px 4px;
+            box-shadow: inset 0 1px 4px #b0c9ff;
+            text-shadow: 2px 2px 0 #0a1f35;
         }
         .window-controls {
             display: flex;
             gap: 8px;
         }
         .win-btn {
-            background: #c0c0c0;
-            border: 2px solid #f0f0f0;
+            background: #c6c0b0;
+            border: 3px solid #f0f0f0;
             border-top-color: #ffffff;
             border-left-color: #ffffff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            color: black;
+            border-right-color: #6a5f4f;
+            border-bottom-color: #6a5f4f;
+            color: #1f1f1f;
             font-weight: bold;
-            font-size: 14px;
-            padding: 2px 12px;
+            font-size: 16px;
+            padding: 4px 16px;
             cursor: pointer;
+            border-radius: 0;
+            box-shadow: 0 2px 0 #3a3a3a;
         }
         .win-btn:active {
-            border-top-color: #808080;
-            border-left-color: #808080;
+            border-top-color: #6a5f4f;
+            border-left-color: #6a5f4f;
             border-right-color: #ffffff;
             border-bottom-color: #ffffff;
+            transform: translateY(2px);
+            box-shadow: none;
         }
         .panel {
-            border: 3px solid #ffffff;
-            border-top-color: #d4d0c8;
-            border-left-color: #d4d0c8;
-            border-right-color: #404040;
-            border-bottom-color: #404040;
-            background: #d4d0c8;
-            padding: 12px;
+            border: 3px solid #f6f0dc;
+            border-top-color: #fff9e6;
+            border-left-color: #fff9e6;
+            border-right-color: #918a76;
+            border-bottom-color: #918a76;
+            background: #d2cab8;
+            padding: 16px;
             margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 0 1px #fff6d5;
         }
         .menu-panel {
-            background: #d4d0c8;
+            background: #c9c0aa;
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
         }
         .menu-title {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: bold;
-            color: #1f3a6b;
-            text-shadow: 2px 2px 0 #b9b9b9;
-            margin-bottom: 30px;
+            color: #fffaef;
+            text-shadow: 5px 5px 0 #3d5f8a, 7px 7px 0 #1a2f4b;
+            margin-bottom: 40px;
+            letter-spacing: 4px;
         }
         .menu-buttons {
             display: flex;
-            gap: 30px;
+            gap: 40px;
             justify-content: center;
         }
         .menu-btn {
-            background: #c0c0c0;
-            border: 4px solid #f0f0f0;
+            background: #afc3d6;
+            border: 5px solid #eaf1fc;
             border-top-color: #ffffff;
             border-left-color: #ffffff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            padding: 20px 40px;
-            font-size: 32px;
+            border-right-color: #4a6483;
+            border-bottom-color: #4a6483;
+            padding: 24px 48px;
+            font-size: 36px;
             font-weight: bold;
-            color: #000;
+            color: #102535;
             cursor: pointer;
-            min-width: 250px;
+            min-width: 260px;
+            border-radius: 20px;
+            box-shadow: 0 8px 0 #2f4a6e;
+            transition: 0.05s linear;
         }
         .menu-btn:active {
-            border-top-color: #808080;
-            border-left-color: #808080;
-            border-right-color: #ffffff;
-            border-bottom-color: #ffffff;
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #2f4a6e;
         }
         .hidden { display: none !important; }
 
-        /* Creator panel specific */
+        /* CREATOR – improved paint tools */
         .creator-flex {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             flex-wrap: wrap;
         }
         .paint-area {
-            background: #a6a6a6;
-            border: 3px solid #ffffff;
-            border-top-color: #808080;
-            border-left-color: #808080;
-            border-right-color: #d4d0c8;
-            border-bottom-color: #d4d0c8;
-            padding: 12px;
+            background: #b0aa99;
+            border: 4px solid #ede5d3;
+            border-top-color: #fcf5e0;
+            border-left-color: #fcf5e0;
+            border-right-color: #7a715e;
+            border-bottom-color: #7a715e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 0 2px #ffffea;
         }
         .paint-grid {
             display: grid;
-            grid-template-columns: repeat(16, 20px);
-            grid-template-rows: repeat(16, 20px);
-            gap: 1px;
-            background: #000;
-            border: 2px solid #7f7f7f;
-            margin-bottom: 8px;
+            grid-template-columns: repeat(16, 24px);
+            grid-template-rows: repeat(16, 24px);
+            gap: 2px;
+            background: #4f4f4f;
+            border: 3px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 0 0 2px #aea48d;
         }
         .pixel {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             background: #ffffff;
-            border: 1px solid #c0c0c0;
-            cursor: pointer;
-            image-rendering: pixelated;
+            border: 1px solid #7f7f7f;
+            cursor: crosshair;
+            transition: 0.02s;
         }
-        .pixel.active {
-            border: 1px solid red;
+        .pixel.active-pixel {
+            border: 2px solid gold;
         }
-        .pixel-controls {
+        .toolbar {
             display: flex;
-            gap: 6px;
+            gap: 10px;
+            flex-wrap: wrap;
             align-items: center;
-            margin-top: 8px;
+            background: #958e7c;
+            padding: 10px;
+            border-radius: 40px;
+            border: 2px inset #ece3cf;
+        }
+        .tool-btn {
+            background: #cfc7b2;
+            border: 3px solid #f0f0f0;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            border-right-color: #6a5f4f;
+            border-bottom-color: #6a5f4f;
+            font-weight: bold;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 16px;
+            min-width: 50px;
+        }
+        .tool-btn.active-tool {
+            background: #fad473;
+            border-top-color: #c0a84a;
+            border-left-color: #c0a84a;
         }
         .color-picker {
             width: 50px;
-            height: 30px;
-            border: 2px solid #7f7f7f;
+            height: 40px;
+            border: 3px solid #7f7f7f;
+            cursor: pointer;
+        }
+        .brush-size {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #b0a690;
+            padding: 4px 12px;
+            border-radius: 30px;
+            border: 2px inset;
         }
         .stats-panel {
-            background: #b0b0a0;
-            border: 3px solid #ffffff;
-            border-top-color: #d4d0c8;
-            border-left-color: #d4d0c8;
-            border-right-color: #404040;
-            border-bottom-color: #404040;
-            padding: 15px;
+            background: #bcb4a2;
+            border: 4px solid #f2ebd7;
+            border-top-color: #fffae9;
+            border-left-color: #fffae9;
+            border-right-color: #766e5b;
+            border-bottom-color: #766e5b;
+            padding: 20px;
             flex: 1;
+            border-radius: 16px;
+            box-shadow: inset 0 2px 8px #ffffdd;
         }
         .stat-row {
             display: flex;
             justify-content: space-between;
-            font-size: 18px;
-            margin: 12px 0;
+            font-size: 22px;
+            margin: 16px 0;
+            background: #d1cbbc;
+            padding: 6px 12px;
+            border: 2px inset #efead8;
         }
-        .stat-label { font-weight: bold; color: #1a1a1a; }
-        .stat-value { background: #e0e0d0; padding: 2px 12px; border: 2px inset #ffffff; }
+        .stat-label { font-weight: bold; color: #1f3a4f; }
+        .stat-value { background: #efe8d2; padding: 2px 20px; border: 2px inset #b0a68f; }
 
-        /* plant palette (game) */
         .plant-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin: 10px 0;
+            gap: 12px;
+            margin: 12px 0;
         }
         .plant-btn {
-            background: #c0c0c0;
-            border: 3px solid #f0f0f0;
+            background: #c6bfab;
+            border: 4px solid #f2ecd6;
             border-top-color: #ffffff;
             border-left-color: #ffffff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            padding: 6px 12px;
-            font-size: 16px;
+            border-right-color: #6a5f4f;
+            border-bottom-color: #6a5f4f;
+            padding: 8px 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 12px;
+            border-radius: 40px;
+            box-shadow: 0 4px 0 #635948;
         }
-        .plant-btn.selected {
-            background: #f1c232;
-            border-top-color: #ffffc0;
-        }
-        .plant-sprite-preview {
-            width: 30px;
-            height: 30px;
+        .plant-btn.selected { background: #ecd78a; border-top-color: #ffeabb; }
+        .sprite-preview {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             image-rendering: pixelated;
-            background: #555;
+            background: #888;
+            border: 2px solid #444;
         }
         canvas {
             display: block;
             width: 420px;
             height: 300px;
-            border: 4px solid #7f7f7f;
-            border-top-color: #404040;
-            border-left-color: #404040;
-            border-right-color: #d4d0c8;
-            border-bottom-color: #d4d0c8;
-            background: #9bb57c;
+            border: 6px solid #9b8f78;
+            border-top-color: #524b3b;
+            border-left-color: #524b3b;
+            border-right-color: #e7ddc7;
+            border-bottom-color: #e7ddc7;
+            background: #9ac084;
             cursor: crosshair;
+            box-shadow: 4px 4px 12px black;
         }
         .sun-display {
-            background: #f0d050;
-            border: 4px solid #b09040;
-            border-top-color: #ffffa0;
-            border-left-color: #ffffa0;
-            border-right-color: #806020;
-            border-bottom-color: #806020;
-            padding: 4px 20px;
-            font-size: 24px;
+            background: #f7d35c;
+            border: 6px solid #bd9f40;
+            border-top-color: #ffeeb0;
+            border-left-color: #ffeeb0;
+            border-right-color: #836e2a;
+            border-bottom-color: #836e2a;
+            padding: 6px 28px;
+            font-size: 28px;
             font-weight: bold;
+            border-radius: 40px;
+            box-shadow: inset 0 2px 8px gold;
+        }
+        .countdown {
+            font-size: 20px;
+            background: #222c;
+            color: #ffd966;
+            padding: 4px 20px;
+            border-radius: 30px;
+            border: 2px solid gold;
         }
     </style>
 </head>
 <body>
 <div class="main-container">
     <div class="window-header">
-        <span>🌱 PVZ 2008: PLANT PAINT STUDIO</span>
+        <span>🌻 PVZ 2008 · PLANT PAINT DELUXE</span>
         <div class="window-controls">
             <div class="win-btn" id="minimize">─</div>
             <div class="win-btn" id="maximize">□</div>
@@ -262,32 +322,46 @@
             <div class="menu-btn" id="goToCreator">🎨 PAINT & CREATE</div>
             <div class="menu-btn" id="goToGame">🧟 PLAY</div>
         </div>
-        <div style="margin-top: 30px; font-size: 18px;">use paintbrush to design pixel plants</div>
+        <div style="margin-top: 40px; font-size: 22px; color: #1f374b;">pixel perfect · 16x16 · 5 tools</div>
     </div>
 
-    <!-- ========== CREATOR ========== (with paint) -->
+    <!-- ========== CREATOR (improved painting) ========== -->
     <div id="creatorPanel" class="panel hidden">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
             <button class="win-btn" id="creatorBackToMenu">← BACK TO MENU</button>
-            <span style="font-size: 24px; font-weight: bold;">🎨 16x16 PIXEL STUDIO</span>
+            <span style="font-size: 28px; font-weight: bold;">🎨 16x16 PIXEL STUDIO</span>
             <div></div>
         </div>
 
         <div class="creator-flex">
-            <!-- left: paint area -->
+            <!-- left: paint area with TOOLS -->
             <div class="paint-area">
                 <div class="paint-grid" id="paintGrid"></div>
-                <div class="pixel-controls">
-                    <input type="color" id="paintColor" value="#44aa33" class="color-picker">
-                    <button class="win-btn" id="clearSprite">CLEAR</button>
-                    <button class="win-btn" id="fillSprite">FILL</button>
-                    <span style="margin-left: auto;">paint</span>
+                <!-- toolbar with extra drawing tools -->
+                <div class="toolbar">
+                    <input type="color" id="paintColor" value="#44aa33" class="color-picker" title="color">
+                    <div class="brush-size">
+                        <span>🔘</span>
+                        <select id="brushSize">
+                            <option value="1">1x1</option>
+                            <option value="2" selected>2x2</option>
+                            <option value="3">3x3</option>
+                        </select>
+                    </div>
+                    <button class="tool-btn" id="toolBrush">✏️ BRUSH</button>
+                    <button class="tool-btn" id="toolEraser">🧽 ERASER</button>
+                    <button class="tool-btn" id="toolFill">🪣 FILL</button>
+                    <button class="tool-btn" id="clearSprite">🗑️ CLEAR</button>
+                    <button class="tool-btn" id="eyedropper">👁️ DROPPER</button>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 12px;">
+                    <span>left-click: paint | right-click: erase</span>
                 </div>
             </div>
 
-            <!-- right: stats (exact requested) -->
+            <!-- right: stats panel (exact requested) -->
             <div class="stats-panel">
-                <div style="font-size: 24px; margin-bottom: 16px;">📊 BASE STATS</div>
+                <div style="font-size: 28px; margin-bottom: 20px;">📊 BASE STATS</div>
                 <div class="stat-row"><span class="stat-label">☀️ Sun Cost</span><span class="stat-value" id="statSun">100</span></div>
                 <div class="stat-row"><span class="stat-label">⏱️ Recharge</span><span class="stat-value" id="statRecharge">5 sec</span></div>
                 <div class="stat-row"><span class="stat-label">💪 Toughness</span><span class="stat-value" id="statHealth">300</span></div>
@@ -295,41 +369,41 @@
                 <div class="stat-row"><span class="stat-label">📏 Range</span><span class="stat-value" id="statRange">Straight</span></div>
                 <div class="stat-row"><span class="stat-label">🚀 Proj Velocity</span><span class="stat-value" id="statSpeed">5.2 tiles/s</span></div>
                 <div class="stat-row"><span class="stat-label">📈 DPS</span><span class="stat-value" id="statDPS">14.035</span></div>
-                <div style="margin-top: 20px;">
-                    <button class="win-btn" id="savePlantBtn">💾 SAVE AS NEW PLANT</button>
+                <div style="margin-top: 30px;">
+                    <button class="win-btn" id="savePlantBtn" style="font-size: 24px; padding: 12px 30px;">💾 SAVE AS NEW PLANT</button>
                 </div>
-                <p style="font-size: 12px; margin-top: 10px;">*pixel art will be used in game</p>
             </div>
         </div>
 
         <!-- list of existing plants -->
         <div style="margin-top: 20px;">
-            <div style="font-size: 20px;">📋 YOUR PLANTS (click to delete)</div>
+            <div style="font-size: 24px; font-weight: bold;">📋 YOUR PLANTS (click to delete)</div>
             <div class="plant-buttons" id="creatorPlantList"></div>
         </div>
     </div>
 
-    <!-- ========== GAME PANEL ========== -->
+    <!-- ========== GAME PANEL with spawn delay ========== -->
     <div id="gamePanel" class="panel hidden">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
             <button class="win-btn" id="gameBackToMenu">← MENU</button>
             <div class="sun-display" id="gameSunDisplay">100</div>
             <button class="win-btn" id="restartGame">↻ RESTART</button>
         </div>
 
-        <div style="display: flex; justify-content: center;">
+        <div style="display: flex; justify-content: center; position: relative;">
             <canvas id="gameCanvas" width="420" height="300"></canvas>
+            <div id="spawnCountdown" style="position: absolute; top: 10px; right: 20px; background: #1a1f2ed9; color: #f5cb5c; font-size: 22px; padding: 6px 20px; border-radius: 40px; border: 3px solid #ffee88; box-shadow: 0 0 12px gold;">⏳ 15s</div>
         </div>
 
         <!-- plant palette -->
-        <div style="margin: 15px 0 5px;">
-            <span style="font-size: 20px;">🌱 SELECT PLANT:</span>
+        <div style="margin: 18px 0 8px;">
+            <span style="font-size: 22px;">🌱 SELECT PLANT:</span>
         </div>
         <div class="plant-buttons" id="gamePlantPalette"></div>
 
-        <div style="display: flex; justify-content: space-between; font-size: 16px; margin-top: 12px;">
-            <span>☀️ +5/sec</span>
-            <span>🧟 zombie spawn 5s</span>
+        <div style="display: flex; justify-content: space-between; font-size: 18px; margin-top: 16px;">
+            <span>☀️ sun +5/sec</span>
+            <span>🧟 first zombie after 15s</span>
         </div>
     </div>
 </div>
@@ -343,34 +417,32 @@
     const CANVAS_WIDTH = 420;
     const CANVAS_HEIGHT = 300;
 
-    // ---------- PLANT TYPES (with sprite) ----------
+    // ---------- PLANT TYPES ----------
     let plantTypes = [];
 
-    // Default sprite (16x16 simple shape)
+    // Helper: create default sprite (16x16)
     function createDefaultSprite(baseColor = '#44aa33') {
-        const sprite = Array(16).fill().map(() => Array(16).fill(null));
+        const sprite = Array(16).fill().map(() => Array(16).fill('#ffffff'));
         for (let y = 0; y < 16; y++) {
             for (let x = 0; x < 16; x++) {
-                // draw a simple pea shape
                 if (x >= 5 && x <= 10 && y >= 4 && y <= 11) sprite[y][x] = baseColor;
                 else if (x >= 4 && x <= 11 && y >= 5 && y <= 10) sprite[y][x] = baseColor;
-                else sprite[y][x] = '#ffffff'; // white background (transparent)
             }
         }
         return sprite;
     }
 
-    // Initial plants with new stats & sprite
+    // Default plants
     function initDefaultPlants() {
         plantTypes.push({
             name: "PeaShooter",
             sunCost: 100,
-            recharge: 5, // seconds (placeholder, not implemented)
+            recharge: 5,
             health: 300,
             damage: 20,
-            range: 7, // straight line
-            attackCooldown: 1425, // ms (for 14.035 DPS = 20 / 14.035 * 1000 ≈ 1425)
-            projectileSpeed: 312, // px/s (5.2 tiles * 60)
+            range: 7,
+            attackCooldown: 1425, // ms for 14.035 DPS
+            projectileSpeed: 312, // 5.2 tiles/sec * 60
             color: "#44aa33",
             sprite: createDefaultSprite("#44aa33")
         });
@@ -397,10 +469,12 @@
     let sun = 100;
     let gameActive = false;
     let gameOverFlag = false;
+    let spawnEnabled = false; // will become true after delay
 
-    // intervals
+    // intervals & timeouts
     let sunInterval = null;
     let spawnInterval = null;
+    let spawnDelayTimeout = null;
     let animationFrame = null;
     let lastTimestamp = null;
 
@@ -410,21 +484,30 @@
     const gamePanel = document.getElementById('gamePanel');
     const gameCanvas = document.getElementById('gameCanvas');
     const ctx = gameCanvas.getContext('2d');
-
+    const spawnCountdownDiv = document.getElementById('spawnCountdown');
     const gameSunDisplay = document.getElementById('gameSunDisplay');
     const gamePlantPalette = document.getElementById('gamePlantPalette');
     const creatorPlantList = document.getElementById('creatorPlantList');
 
-    // ---------- PAINT EDITOR VARIABLES ----------
-    let currentSprite = createDefaultSprite("#44aa33"); // working sprite
+    // ---------- PAINT TOOL STATE ----------
+    let currentSprite = createDefaultSprite("#44aa33");
     let paintColor = '#44aa33';
+    let brushSize = 2;
+    let currentTool = 'brush'; // brush, eraser, fill, dropper
+    let isDrawing = false;
+
+    // DOM paint elements
     const paintGridDiv = document.getElementById('paintGrid');
     const colorPicker = document.getElementById('paintColor');
+    const brushSizeSelect = document.getElementById('brushSize');
+    const toolBrush = document.getElementById('toolBrush');
+    const toolEraser = document.getElementById('toolEraser');
+    const toolFill = document.getElementById('toolFill');
     const clearBtn = document.getElementById('clearSprite');
-    const fillBtn = document.getElementById('fillSprite');
+    const eyedropperBtn = document.getElementById('eyedropper');
     const savePlantBtn = document.getElementById('savePlantBtn');
 
-    // render paint grid
+    // Initialize paint
     function renderPaintGrid() {
         paintGridDiv.innerHTML = '';
         for (let y = 0; y < 16; y++) {
@@ -434,30 +517,97 @@
                 pixel.style.backgroundColor = currentSprite[y][x] || '#ffffff';
                 pixel.dataset.x = x;
                 pixel.dataset.y = y;
-                pixel.addEventListener('click', (e) => {
+                // drawing events
+                pixel.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
                     const x = parseInt(e.target.dataset.x);
                     const y = parseInt(e.target.dataset.y);
-                    currentSprite[y][x] = paintColor;
-                    renderPaintGrid();
+                    if (e.button === 2) { // right click = erase
+                        applyTool(x, y, 'eraser');
+                    } else {
+                        applyTool(x, y, currentTool);
+                    }
+                    isDrawing = true;
                 });
+                pixel.addEventListener('mouseover', (e) => {
+                    if (isDrawing) {
+                        const x = parseInt(e.target.dataset.x);
+                        const y = parseInt(e.target.dataset.y);
+                        if (e.buttons === 1) applyTool(x, y, currentTool);
+                        else if (e.buttons === 2) applyTool(x, y, 'eraser');
+                    }
+                });
+                pixel.addEventListener('contextmenu', (e) => e.preventDefault());
                 paintGridDiv.appendChild(pixel);
             }
         }
     }
 
-    colorPicker.addEventListener('input', (e) => { paintColor = e.target.value; });
+    // Apply tool at (x,y) with given tool
+    function applyTool(x, y, tool) {
+        if (tool === 'dropper') {
+            paintColor = currentSprite[y][x];
+            colorPicker.value = paintColor;
+            currentTool = 'brush';
+            updateToolButtons();
+            return;
+        }
+        if (tool === 'fill') {
+            fillArea(x, y, paintColor);
+            renderPaintGrid();
+            return;
+        }
+        const colorToApply = (tool === 'eraser') ? '#ffffff' : paintColor;
+        const size = (tool === 'eraser') ? brushSize : brushSize; // both use brush size
+        for (let dy = -Math.floor(size/2); dy <= Math.floor(size/2); dy++) {
+            for (let dx = -Math.floor(size/2); dx <= Math.floor(size/2); dx++) {
+                const nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < 16 && ny >= 0 && ny < 16) {
+                    currentSprite[ny][nx] = colorToApply;
+                }
+            }
+        }
+        renderPaintGrid();
+    }
+
+    // Simple fill (flood fill)
+    function fillArea(x, y, newColor) {
+        const targetColor = currentSprite[y][x];
+        if (targetColor === newColor) return;
+        const stack = [[x, y]];
+        while (stack.length) {
+            const [cx, cy] = stack.pop();
+            if (cx < 0 || cx >= 16 || cy < 0 || cy >= 16) continue;
+            if (currentSprite[cy][cx] !== targetColor) continue;
+            currentSprite[cy][cx] = newColor;
+            stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
+        }
+    }
+
+    function updateToolButtons() {
+        [toolBrush, toolEraser, toolFill, eyedropperBtn].forEach(btn => btn.classList.remove('active-tool'));
+        if (currentTool === 'brush') toolBrush.classList.add('active-tool');
+        else if (currentTool === 'eraser') toolEraser.classList.add('active-tool');
+        else if (currentTool === 'fill') toolFill.classList.add('active-tool');
+        else if (currentTool === 'dropper') eyedropperBtn.classList.add('active-tool');
+    }
+
+    // Event listeners for tools
+    toolBrush.addEventListener('click', () => { currentTool = 'brush'; updateToolButtons(); });
+    toolEraser.addEventListener('click', () => { currentTool = 'eraser'; updateToolButtons(); });
+    toolFill.addEventListener('click', () => { currentTool = 'fill'; updateToolButtons(); });
+    eyedropperBtn.addEventListener('click', () => { currentTool = 'dropper'; updateToolButtons(); });
     clearBtn.addEventListener('click', () => {
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) currentSprite[y][x] = '#ffffff';
         renderPaintGrid();
     });
-    fillBtn.addEventListener('click', () => {
-        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) currentSprite[y][x] = paintColor;
-        renderPaintGrid();
-    });
 
-    // save plant from current paint + fixed stats
+    colorPicker.addEventListener('input', (e) => { paintColor = e.target.value; });
+    brushSizeSelect.addEventListener('change', (e) => { brushSize = parseInt(e.target.value); });
+
+    // Save plant
     savePlantBtn.addEventListener('click', () => {
-        const name = prompt("Plant name:", "CustomPlant") || "Custom";
+        const name = prompt("Plant name:", "Custom") || "Custom";
         plantTypes.push({
             name: name,
             sunCost: 100,
@@ -468,33 +618,27 @@
             attackCooldown: 1425,
             projectileSpeed: 312,
             color: paintColor,
-            sprite: currentSprite.map(row => [...row]) // clone
+            sprite: currentSprite.map(row => [...row])
         });
         renderCreatorList();
         renderGamePalette();
-        alert("Plant saved! You can now use it in game.");
+        alert("Plant saved!");
     });
 
-    // ---------- RENDER PLANT PALETTE (game) ----------
+    // ---------- RENDER PLANT PALETTES ----------
     function renderGamePalette() {
         gamePlantPalette.innerHTML = '';
         plantTypes.forEach((plant, idx) => {
             const btn = document.createElement('div');
             btn.className = `plant-btn ${idx === selectedPlantIndex ? 'selected' : ''}`;
-            btn.setAttribute('data-index', idx);
+            btn.dataset.index = idx;
 
-            // mini sprite preview
             const preview = document.createElement('div');
-            preview.style.width = '30px';
-            preview.style.height = '30px';
-            preview.style.display = 'grid';
-            preview.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            preview.className = 'sprite-preview';
             for (let i = 0; i < 4; i++) {
                 for (let j = 0; j < 4; j++) {
                     const mini = document.createElement('div');
-                    mini.style.width = '7px';
-                    mini.style.height = '7px';
-                    mini.style.backgroundColor = plant.sprite[i*4][j*4] || '#fff';
+                    mini.style.backgroundColor = plant.sprite[i*4]?.[j*4] || '#fff';
                     preview.appendChild(mini);
                 }
             }
@@ -508,31 +652,36 @@
         });
     }
 
-    // ---------- RENDER CREATOR LIST (with delete) ----------
     function renderCreatorList() {
         creatorPlantList.innerHTML = '';
         plantTypes.forEach((plant, idx) => {
             const btn = document.createElement('div');
             btn.className = 'plant-btn';
             const preview = document.createElement('div');
-            preview.style.width = '30px';
-            preview.style.height = '30px';
-            preview.style.background = '#ccc';
+            preview.className = 'sprite-preview';
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const mini = document.createElement('div');
+                    mini.style.backgroundColor = plant.sprite[i*4]?.[j*4] || '#fff';
+                    preview.appendChild(mini);
+                }
+            }
             btn.appendChild(preview);
             btn.appendChild(document.createTextNode(plant.name));
             const del = document.createElement('span');
             del.textContent = '✕';
-            del.style.marginLeft = 'auto';
-            del.style.background = 'red';
+            del.style.background = '#a13d3d';
             del.style.color = 'white';
-            del.style.padding = '0 6px';
+            del.style.padding = '2px 12px';
+            del.style.borderRadius = '30px';
+            del.style.marginLeft = '10px';
             del.style.cursor = 'pointer';
             del.addEventListener('click', (e) => {
                 e.stopPropagation();
                 plantTypes.splice(idx, 1);
                 if (selectedPlantIndex >= plantTypes.length) selectedPlantIndex = plantTypes.length - 1;
                 if (plantTypes.length === 0) {
-                    plantTypes.push({ name: "Emergency", sunCost: 100, health: 300, damage: 20, range: 7, attackCooldown: 1425, projectileSpeed: 312, color: "#aaa", sprite: createDefaultSprite("#aaa") });
+                    plantTypes.push({ name: "Basic", sunCost: 100, health: 300, damage: 20, range: 7, attackCooldown: 1425, projectileSpeed: 312, color: "#aaa", sprite: createDefaultSprite("#aaa") });
                 }
                 renderCreatorList();
                 renderGamePalette();
@@ -555,6 +704,7 @@
     function stopGameIntervals() {
         if (sunInterval) clearInterval(sunInterval);
         if (spawnInterval) clearInterval(spawnInterval);
+        if (spawnDelayTimeout) clearTimeout(spawnDelayTimeout);
         if (animationFrame) cancelAnimationFrame(animationFrame);
         sunInterval = null; spawnInterval = null; animationFrame = null;
     }
@@ -565,7 +715,26 @@
         projectiles = [];
         sun = 100;
         gameOverFlag = false;
+        spawnEnabled = false;
         updateGameSunDisplay();
+    }
+
+    // Zombie spawn with DELAY
+    function enableSpawning() {
+        spawnEnabled = true;
+        spawnCountdownDiv.innerText = '🧟 ZOMBIES ACTIVE';
+        spawnInterval = setInterval(() => {
+            if (!gameActive || !spawnEnabled) return;
+            const row = Math.floor(Math.random() * ROWS);
+            zombies.push({
+                row: row,
+                x: CANVAS_WIDTH - 10,
+                health: 300 + Math.floor(Math.random() * 100),
+                speed: 16,
+                lastAttack: 0,
+                damage: 20
+            });
+        }, 5000);
     }
 
     // Game loop
@@ -593,8 +762,8 @@
             const plant = (z.row >= 0 && z.row < ROWS && col >= 0 && col < COLS) ? grid[z.row][col] : null;
             if (plant) {
                 const now = performance.now();
-                if (now - (z.lastAttack || 0) >= 1000) { // zombie attack speed (1 sec)
-                    plant.health -= 20; // zombie damage 20 to match toughness
+                if (now - (z.lastAttack || 0) >= 1000) {
+                    plant.health -= 20;
                     z.lastAttack = now;
                     if (plant.health <= 0) grid[z.row][col] = null;
                 }
@@ -613,25 +782,20 @@
                 const type = plantTypes[plant.typeIdx];
                 if (!type || type.damage <= 0) continue;
                 if (now - plant.lastShot >= type.attackCooldown) {
-                    // find zombie in same row, ahead, within range
-                    let target = null;
                     for (let z of zombies) {
                         if (z.row !== r) continue;
                         const zCol = Math.floor(z.x / CELL_SIZE);
                         if (zCol > c && zCol <= c + type.range) {
-                            target = z;
+                            projectiles.push({
+                                row: r,
+                                x: c * CELL_SIZE + 40,
+                                y: r * CELL_SIZE + 30,
+                                damage: type.damage,
+                                speed: type.projectileSpeed
+                            });
+                            plant.lastShot = now;
                             break;
                         }
-                    }
-                    if (target) {
-                        projectiles.push({
-                            row: r,
-                            x: c * CELL_SIZE + 40,
-                            y: r * CELL_SIZE + 30,
-                            damage: type.damage,
-                            speed: type.projectileSpeed
-                        });
-                        plant.lastShot = now;
                     }
                 }
             }
@@ -657,12 +821,12 @@
 
     function drawGame() {
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        // grid
+        // grid lines
         ctx.strokeStyle = '#3d6b37'; ctx.lineWidth = 2;
         for (let i = 0; i <= ROWS; i++) { ctx.beginPath(); ctx.moveTo(0, i*CELL_SIZE); ctx.lineTo(CANVAS_WIDTH, i*CELL_SIZE); ctx.stroke(); }
         for (let i = 0; i <= COLS; i++) { ctx.beginPath(); ctx.moveTo(i*CELL_SIZE, 0); ctx.lineTo(i*CELL_SIZE, CANVAS_HEIGHT); ctx.stroke(); }
 
-        // draw plants with sprite
+        // plants
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 const plant = grid[r][c];
@@ -671,9 +835,8 @@
                 if (!type) continue;
                 const baseX = c * CELL_SIZE;
                 const baseY = r * CELL_SIZE;
-                // draw sprite pixelated 16x16 scaled to 48x48 (3x3 each pixel) centered
                 const sprite = type.sprite;
-                const pixelSize = 3; // 16*3 = 48
+                const pixelSize = 3; // 16*3=48
                 const offsetX = baseX + (CELL_SIZE - pixelSize*16)/2;
                 const offsetY = baseY + (CELL_SIZE - pixelSize*16)/2;
                 for (let y = 0; y < 16; y++) {
@@ -681,7 +844,7 @@
                         const col = sprite[y][x];
                         if (col && col !== '#ffffff') {
                             ctx.fillStyle = col;
-                            ctx.fillRect(offsetX + x*pixelSize, offsetY + y*pixelSize, pixelSize-0.5, pixelSize-0.5);
+                            ctx.fillRect(offsetX + x*pixelSize, offsetY + y*pixelSize, pixelSize-0.3, pixelSize-0.3);
                         }
                     }
                 }
@@ -710,13 +873,24 @@
             ctx.fillStyle = '#f5c542';
             ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 2*Math.PI); ctx.fill();
         });
+
+        // Draw countdown if spawning not enabled
+        if (!spawnEnabled && gameActive) {
+            ctx.fillStyle = '#000000aa';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, 40);
+            ctx.fillStyle = '#ffdb8e';
+            ctx.font = 'bold 24px monospace';
+            ctx.fillText('⏳ PREPARING...', 120, 32);
+        }
     }
 
     function drawGameOver() {
         drawGame();
-        ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
-        ctx.fillStyle = '#ffdab0'; ctx.font = 'bold 32px monospace';
-        ctx.fillText('💀 GAME OVER', 60, 160);
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        ctx.fillStyle = '#ffb9a8';
+        ctx.font = 'bold 36px monospace';
+        ctx.fillText('💀 GAME OVER', 50, 160);
     }
 
     function startGame() {
@@ -724,20 +898,30 @@
         resetGameState();
         gameActive = true;
         gameOverFlag = false;
+        spawnEnabled = false;
+        spawnCountdownDiv.innerText = '⏳ 15s';
 
         sunInterval = setInterval(() => { if (gameActive) { sun += 5; updateGameSunDisplay(); } }, 1000);
-        spawnInterval = setInterval(() => {
-            if (!gameActive) return;
-            const row = Math.floor(Math.random() * ROWS);
-            zombies.push({
-                row: row,
-                x: CANVAS_WIDTH - 10,
-                health: 300 + Math.floor(Math.random() * 100), // tough zombies
-                speed: 15,
-                lastAttack: 0,
-                damage: 20
-            });
-        }, 5000);
+
+        // 15-second delay before first zombie
+        spawnDelayTimeout = setTimeout(() => {
+            if (gameActive) {
+                enableSpawning();
+            }
+        }, 15000);
+
+        // Countdown updater
+        let countdown = 15;
+        const countdownInterval = setInterval(() => {
+            if (!gameActive) { clearInterval(countdownInterval); return; }
+            countdown--;
+            if (countdown <= 0) {
+                spawnCountdownDiv.innerText = '🧟 SPAWNING';
+                clearInterval(countdownInterval);
+            } else {
+                spawnCountdownDiv.innerText = `⏳ ${countdown}s`;
+            }
+        }, 1000);
 
         lastTimestamp = null;
         animationFrame = requestAnimationFrame(gameLoop);
@@ -772,7 +956,7 @@
 
     // ---------- UI NAVIGATION ----------
     function showMenu() { menuPanel.classList.remove('hidden'); creatorPanel.classList.add('hidden'); gamePanel.classList.add('hidden'); stopGameIntervals(); }
-    function showCreator() { menuPanel.classList.add('hidden'); creatorPanel.classList.remove('hidden'); gamePanel.classList.add('hidden'); stopGameIntervals(); renderCreatorList(); renderPaintGrid(); }
+    function showCreator() { menuPanel.classList.add('hidden'); creatorPanel.classList.remove('hidden'); gamePanel.classList.add('hidden'); stopGameIntervals(); renderCreatorList(); renderPaintGrid(); currentSprite = createDefaultSprite("#44aa33"); paintColor = '#44aa33'; colorPicker.value = '#44aa33'; renderPaintGrid(); }
     function showGame() { menuPanel.classList.add('hidden'); creatorPanel.classList.add('hidden'); gamePanel.classList.remove('hidden'); startGame(); }
 
     document.getElementById('goToCreator').addEventListener('click', showCreator);
@@ -781,15 +965,18 @@
     document.getElementById('gameBackToMenu').addEventListener('click', showMenu);
     document.getElementById('restartGame').addEventListener('click', () => { if (gameActive) { stopGameIntervals(); startGame(); } });
 
+    // prevent context menu on paint
+    document.addEventListener('contextmenu', (e) => { if (e.target.classList.contains('pixel')) e.preventDefault(); });
+
     // Initialize
     renderCreatorList();
     renderGamePalette();
     showMenu();
 
-    // dummy minimize etc (non functional)
-    document.getElementById('minimize').addEventListener('click', () => alert('2008 style: minimize would work...'));
-    document.getElementById('maximize').addEventListener('click', () => alert('MAXIMIZE!'));
-    document.getElementById('close').addEventListener('click', () => alert('closing not implemented'));
+    // Dummy window buttons
+    document.getElementById('minimize').addEventListener('click', () => alert('2008 style!'));
+    document.getElementById('maximize').addEventListener('click', () => alert('MAXIMIZE'));
+    document.getElementById('close').addEventListener('click', () => alert('closing disabled'));
 })();
 </script>
 </body>
